@@ -1,9 +1,0 @@
-{
-    "errors": {
-        "hashtag": "this field is required"
-    },
-    "items": null,
-    "paginationResponse": {
-        "current_page": 0
-    }
-}

@@ -1,7 +1,0 @@
-{
-    "errors": {
-        "email": "email is required",
-        "name": "name is required",
-        "username": "username is required"
-    }
-}

@@ -1,6 +1,0 @@
-{
-    "items": [],
-    "paginationResponse": {
-        "current_page": 1
-    }
-}

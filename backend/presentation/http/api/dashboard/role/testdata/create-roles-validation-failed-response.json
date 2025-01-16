@@ -1,6 +1,0 @@
-{
-    "errors": {
-        "description": "description is required",
-        "name": "name is required"
-    }
-}
