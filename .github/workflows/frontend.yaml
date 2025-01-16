@@ -2,17 +2,11 @@ name: Frontend CI and CD
 
 on:
   push:
-    paths:
-      - .github/**
-      - frontend/**
   pull_request:
-    paths:
-      - .github/**
-      - frontend/**
 
 defaults:
   run:
-    working-directory: ./frontend
+    working-directory: ./
 
 env:
   REGISTRY: ghcr.io
@@ -36,8 +30,8 @@ jobs:
       - name: Build image
         uses: ./.github/actions/docker-build
         with:
-          context: ./frontend
-          dockerfile: ./frontend/Dockerfile
+          context: ./
+          dockerfile: ./Dockerfile
           image-name: ${{ env.IMAGE_NAME }}
           target: production
           push: false
@@ -62,8 +56,8 @@ jobs:
       - name: Build and push image
         uses: ./.github/actions/docker-build
         with:
-          context: ./frontend
-          dockerfile: ./frontend/Dockerfile
+          context: ./
+          dockerfile: ./Dockerfile
           image-name: ${{ env.IMAGE_NAME }}
           target: production
           push: true
