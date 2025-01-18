@@ -17,10 +17,6 @@
   word-break: break-word;
 }
 
-.ck.ck-editor__main > .ck-editor__editable {
-  background-color: var(--mantine-color-dark-6);
-}
-
 .editor-container_classic-editor .editor-container__editor {
   width: 100%;
 }
@@ -287,5 +283,11 @@
 
 :root[data-mantine-color-scheme="dark"] .ck-content pre {
   color: var(--mantine-color-text);
+  background-color: var(--mantine-color-dark-6);
+}
+
+:root[data-mantine-color-scheme="dark"]
+  .ck.ck-editor__main
+  > .ck-editor__editable {
   background-color: var(--mantine-color-dark-6);
 }
