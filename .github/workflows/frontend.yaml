@@ -4,10 +4,6 @@ on:
   push:
   pull_request:
 
-defaults:
-  run:
-    working-directory: ./
-
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: frontend
@@ -30,8 +26,8 @@ jobs:
       - name: Build image
         uses: ./.github/actions/docker-build
         with:
-          context: ./
-          dockerfile: ./Dockerfile
+          context: .
+          dockerfile: Dockerfile
           image-name: ${{ env.IMAGE_NAME }}
           target: production
           push: false
@@ -56,8 +52,8 @@ jobs:
       - name: Build and push image
         uses: ./.github/actions/docker-build
         with:
-          context: ./
-          dockerfile: ./Dockerfile
+          context: .
+          dockerfile: Dockerfile
           image-name: ${{ env.IMAGE_NAME }}
           target: production
           push: true
