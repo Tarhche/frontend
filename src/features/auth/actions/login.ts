@@ -1,5 +1,6 @@
 "use server";
 import {cookies} from "next/headers";
+import {DALDriverError} from "@/dal/dal-driver-error";
 import {loginUser} from "@/dal/public/auth";
 import {
   ACCESS_TOKEN_COOKIE_NAME,
@@ -10,10 +11,6 @@ import {ACCESS_TOKEN_EXP, REFRESH_TOKEN_EXP} from "@/constants/numbers";
 
 type FormState = {
   success: boolean;
-  fieldErrors?: {
-    identity?: string;
-    password?: string;
-  };
   errorMessages?: string[];
 } | null;
 
@@ -52,16 +49,19 @@ export async function login(
       return {
         success: true,
       };
-    } catch {
-      return {
-        success: false,
-        errorMessages: [
-          " ایمیل یا نام کاربری یا کلمه عبورتان را اشتباه وارد کرده اید",
-        ],
-      };
+    } catch (e) {
+      if (e instanceof DALDriverError && e.response?.data.errors) {
+        return {
+          success: false,
+          errorMessages: [e.response?.data.errors.identity],
+        };
+      }
     }
   }
   return {
     success: false,
+    errorMessages: [
+      " ایمیل یا نام کاربری یا کلمه عبورتان را اشتباه وارد کرده اید",
+    ],
   };
 }

@@ -35,17 +35,16 @@ export async function registerUser(
   } catch (e) {
     if (e instanceof DALDriverError) {
       const errors = e.response?.data.errors;
-      if (Boolean(errors?.identity)) {
+      if (errors.identity) {
         return {
           success: false,
-          errorMessage:
-            "ایمیلی که وارد کرده اید از قبل موجود است و نمی توانید از آن استفاده کنید",
+          errorMessage: errors.identity,
         };
       }
     }
-    return {
-      success: false,
-      errorMessage: "خطایی ناشناخته اتفاق افتاد لطفا دوباره تلاش نمایید",
-    };
   }
+  return {
+    success: false,
+    errorMessage: "خطایی ناشناخته اتفاق افتاد لطفا دوباره تلاش نمایید",
+  };
 }

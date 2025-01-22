@@ -20,7 +20,6 @@ import {
   Button,
 } from "@mantine/core";
 import {FormButton} from "@/components/form-button";
-import {FieldErrors} from "./field-errors";
 import {IconInfoCircle, IconChevronRight} from "@tabler/icons-react";
 import {APP_PATHS} from "@/lib/app-paths";
 import {login} from "../actions/login";
@@ -68,22 +67,18 @@ export function LoginForm({callbackUrl}: Props) {
               label="ایمیل یا نام کاربری"
               placeholder="you@email.com"
               name="identity"
-              error={Boolean(state?.fieldErrors?.password)}
               disabled={state?.success}
               required
             />
-            <FieldErrors errors={[state?.fieldErrors?.password ?? ""]} />
           </Stack>
           <Stack gap={8} mt={"md"}>
             <PasswordInput
               label="کلمه عبور"
               placeholder="..."
               name="password"
-              error={Boolean(state?.fieldErrors?.password)}
               disabled={state?.success}
               required
             />
-            <FieldErrors errors={[state?.fieldErrors?.password ?? ""]} />
           </Stack>
           <Stack gap={8} mt={"md"}>
             <Checkbox
