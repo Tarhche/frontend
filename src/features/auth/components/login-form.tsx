@@ -36,10 +36,14 @@ export function LoginForm({callbackUrl}: Props) {
 
   useEffect(() => {
     if (state?.success) {
-      queryClient.clear();
-      router.replace(APP_PATHS.dashboard.index);
+      if (Boolean(callbackUrl)) {
+        router.replace(callbackUrl!);
+      } else {
+        queryClient.clear();
+        router.replace(APP_PATHS.dashboard.index);
+      }
     }
-  }, [state, queryClient, router]);
+  }, [state, queryClient, router, callbackUrl]);
 
   return (
     <Box>
