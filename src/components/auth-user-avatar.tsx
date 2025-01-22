@@ -1,6 +1,7 @@
 "use client";
 import {Skeleton} from "@mantine/core";
 import {UserAvatar} from "./user-avatar";
+import {useIsClient} from "@/hooks/use-is-client";
 import {useInit} from "@/hooks/data/init";
 
 type Props = {
@@ -9,8 +10,9 @@ type Props = {
 };
 
 export function AuthUserAvatar({width = 45, height = 45}: Props) {
+  const isClient = useIsClient();
   const {data, isLoading} = useInit();
-  if (isLoading) {
+  if (isLoading || !isClient) {
     return <Skeleton circle width={width} height={height} />;
   }
 

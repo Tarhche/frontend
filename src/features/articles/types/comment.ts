@@ -6,5 +6,6 @@ export type Comment = {
   author: {
     avatar: string;
     name: string;
+    email: string;
   };
 };

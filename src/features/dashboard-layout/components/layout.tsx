@@ -1,8 +1,7 @@
-import {UnstyledButton, ScrollArea} from "@mantine/core";
-import {IconLogout} from "@tabler/icons-react";
+import {ScrollArea} from "@mantine/core";
 import {LayoutShell, LayoutMain, LayoutNavbar} from "./layout-shell";
+import {DashboardLayoutLogoutButton} from "./logout-button";
 import {LayoutSidebar} from "./layout-sidebar";
-import {logout} from "@/features/auth/actions";
 import {getUserPermissions} from "@/lib/auth";
 import classes from "./layout.module.css";
 
@@ -25,12 +24,7 @@ export function DashboardLayout({children}: Props) {
           <LayoutSidebar userPermissions={userPermissions} />
         </ScrollArea>
         <div className={classes.footer}>
-          <form action={logout}>
-            <UnstyledButton w={"100%"} type="submit" className={classes.link}>
-              <IconLogout className={classes.linkIcon} stroke={1.5} />
-              <span>خروج</span>
-            </UnstyledButton>
-          </form>
+          <DashboardLayoutLogoutButton />
         </div>
       </LayoutNavbar>
       <LayoutMain h={0}>{children}</LayoutMain>

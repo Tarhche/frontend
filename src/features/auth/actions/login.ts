@@ -1,5 +1,4 @@
 "use server";
-import {redirect} from "next/navigation";
 import {cookies} from "next/headers";
 import {loginUser} from "@/dal/public/auth";
 import {
@@ -26,7 +25,6 @@ export async function login(
   const password = formData.get("password")?.toString() ?? "";
   const shouldPersistUser =
     formData.get("remember")?.toString() === "on" ? true : false;
-  const callbackUrl = formData.get("callbackUrl")?.toString();
   const isDataValid =
     typeof identity === "string" &&
     typeof password === "string" &&
@@ -51,6 +49,9 @@ export async function login(
           maxAge: REFRESH_TOKEN_EXP,
         },
       );
+      return {
+        success: true,
+      };
     } catch {
       return {
         success: false,
@@ -59,10 +60,6 @@ export async function login(
         ],
       };
     }
-    if (callbackUrl) {
-      redirect(callbackUrl);
-    }
-    redirect("/dashboard");
   }
   return {
     success: false,

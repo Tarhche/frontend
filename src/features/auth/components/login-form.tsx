@@ -1,4 +1,7 @@
 "use client";
+import {useRouter} from "next/navigation";
+import {useEffect} from "react";
+import {useQueryClient} from "@tanstack/react-query";
 import Link from "next/link";
 import {useFormState} from "react-dom";
 import {
@@ -19,6 +22,7 @@ import {
 import {FormButton} from "@/components/form-button";
 import {FieldErrors} from "./field-errors";
 import {IconInfoCircle, IconChevronRight} from "@tabler/icons-react";
+import {APP_PATHS} from "@/lib/app-paths";
 import {login} from "../actions/login";
 
 type Props = {
@@ -26,7 +30,16 @@ type Props = {
 };
 
 export function LoginForm({callbackUrl}: Props) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const [state, dispatch] = useFormState(login, null);
+
+  useEffect(() => {
+    if (state?.success) {
+      queryClient.clear();
+      router.replace(APP_PATHS.dashboard.index);
+    }
+  }, [state, queryClient, router]);
 
   return (
     <Box>

@@ -33,3 +33,15 @@ export async function updateUserComment(body: any) {
 export async function deleteComment(commentId: string) {
   return await privateDalDriver.delete(`/dashboard/comments/${commentId}`);
 }
+
+export async function createArticleComment(body: {
+  object_uuid: string;
+  body: string;
+  parent_uuid: string;
+}) {
+  const response = await privateDalDriver.post("comments", {
+    ...body,
+    object_type: "article",
+  });
+  return response.data;
+}

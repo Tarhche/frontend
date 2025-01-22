@@ -9,15 +9,3 @@ export async function fetchArticleComments(articleUUID: string) {
   });
   return article.data;
 }
-
-export async function createArticleComment(body: {
-  object_uuid: string;
-  body: string;
-  parent_uuid: string;
-}) {
-  const response = await publicDalDriver.post("comments", {
-    ...body,
-    object_type: "article",
-  });
-  return response.data;
-}
