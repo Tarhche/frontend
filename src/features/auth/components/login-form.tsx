@@ -1,4 +1,7 @@
 "use client";
+import {useRouter} from "next/navigation";
+import {useEffect} from "react";
+import {useQueryClient} from "@tanstack/react-query";
 import Link from "next/link";
 import {useFormState} from "react-dom";
 import {
@@ -17,8 +20,8 @@ import {
   Button,
 } from "@mantine/core";
 import {FormButton} from "@/components/form-button";
-import {FieldErrors} from "./field-errors";
 import {IconInfoCircle, IconChevronRight} from "@tabler/icons-react";
+import {APP_PATHS} from "@/lib/app-paths";
 import {login} from "../actions/login";
 
 type Props = {
@@ -26,7 +29,20 @@ type Props = {
 };
 
 export function LoginForm({callbackUrl}: Props) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const [state, dispatch] = useFormState(login, null);
+
+  useEffect(() => {
+    if (state?.success) {
+      if (Boolean(callbackUrl)) {
+        router.replace(callbackUrl!);
+      } else {
+        queryClient.clear();
+        router.replace(APP_PATHS.dashboard.index);
+      }
+    }
+  }, [state, queryClient, router, callbackUrl]);
 
   return (
     <Box>
@@ -51,22 +67,18 @@ export function LoginForm({callbackUrl}: Props) {
               label="ایمیل یا نام کاربری"
               placeholder="you@email.com"
               name="identity"
-              error={Boolean(state?.fieldErrors?.password)}
               disabled={state?.success}
               required
             />
-            <FieldErrors errors={[state?.fieldErrors?.password ?? ""]} />
           </Stack>
           <Stack gap={8} mt={"md"}>
             <PasswordInput
               label="کلمه عبور"
               placeholder="..."
               name="password"
-              error={Boolean(state?.fieldErrors?.password)}
               disabled={state?.success}
               required
             />
-            <FieldErrors errors={[state?.fieldErrors?.password ?? ""]} />
           </Stack>
           <Stack gap={8} mt={"md"}>
             <Checkbox

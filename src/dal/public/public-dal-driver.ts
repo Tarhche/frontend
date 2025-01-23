@@ -1,3 +1,4 @@
+import {notFound} from "next/navigation";
 import axios, {AxiosError} from "axios";
 import {DALDriverError} from "@/dal/dal-driver-error";
 import {INTERNAL_BACKEND_URL} from "@/constants";
@@ -15,6 +16,10 @@ publicDalDriver.interceptors.response.use(
   (value) => value,
   (error) => {
     if (error instanceof AxiosError) {
+      if (error.status === 404) {
+        notFound();
+      }
+
       throw new DALDriverError(error.message, error.status || 500, {
         data: error.response?.data ?? {},
       });

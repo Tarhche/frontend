@@ -4,7 +4,6 @@ import {
   QueryClient,
   QueryClientProvider as QueryClientProvider_,
 } from "@tanstack/react-query";
-import {fetchWrapper} from "@/lib/client-fetch-wrapper";
 
 type Props = {
   children: ReactNode;
@@ -12,11 +11,7 @@ type Props = {
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: {
-      queryFn: async (config) => {
-        return await fetchWrapper(`/api/${config.queryKey[0]}`);
-      },
-    },
+    queries: {},
   },
 });
 

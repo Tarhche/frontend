@@ -1,8 +1,8 @@
 "use client";
 import {useState} from "react";
+import clsx from "clsx";
 import {
   Text,
-  Avatar,
   Group,
   Box,
   Paper,
@@ -10,14 +10,14 @@ import {
   Tooltip,
   Skeleton,
 } from "@mantine/core";
+import {IconCornerUpLeft, IconX} from "@tabler/icons-react";
+import {UserAvatar} from "@/components/user-avatar";
 import {CommentForm} from "./comment-form";
 import {OrphanCommentIndicator} from "./orphan-comment-indicator";
+import {useIsClient} from "@/hooks/use-is-client";
 import {useInit} from "@/hooks/data/init";
-import {IconCornerUpLeft, IconX} from "@tabler/icons-react";
-import clsx from "clsx";
 import {dateFromNow} from "@/lib/date-and-time";
 import {type Comment as CommentType} from "../../types/comment";
-import {FILES_PUBLIC_URL} from "@/constants/envs";
 import classes from "./comment.module.css";
 
 type Props = {
@@ -36,11 +36,12 @@ export function Comment({
   comments,
   level = 0,
 }: Props) {
+  const isClient = useIsClient();
   const {data, isLoading} = useInit();
   const isLoggedIn = data?.status === "authenticated";
   const [isReplying, setIsReplying] = useState(false);
   const {uuid, author, body, created_at} = comment;
-  const {name, avatar} = author;
+  const {name, avatar, email} = author;
   const replies = comments.filter((c) => c.parent_uuid === uuid);
 
   return (
@@ -54,7 +55,7 @@ export function Comment({
       pb={isLoggedIn ? 0 : "sm"}
     >
       <Group align="flex-start">
-        <Avatar src={`${FILES_PUBLIC_URL}/${avatar}`} radius="xl" />
+        <UserAvatar src={avatar} email={email} />
         <div className={classes.commentContent}>
           <Group justify="space-between">
             <Text size="sm" fw={500}>
@@ -66,7 +67,7 @@ export function Comment({
             {dateFromNow(created_at)}
           </Text>
           <Text mt="xs">{body}</Text>
-          {isLoading ? (
+          {isLoading || !isClient ? (
             <Skeleton w={30} h={25} className={classes.replyButton} />
           ) : isLoggedIn ? (
             <Tooltip label={"پاسخ دادن"} withArrow>

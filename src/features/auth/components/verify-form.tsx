@@ -11,12 +11,9 @@ import {
   Stack,
   Alert,
   Anchor,
-  List,
-  ListItem,
 } from "@mantine/core";
 import {IconInfoCircle} from "@tabler/icons-react";
 import {FormButton} from "@/components/form-button";
-import {FieldErrors} from "./field-errors";
 import {verifyUser} from "../actions/verify-user";
 
 type Props = {
@@ -26,9 +23,10 @@ type Props = {
 export function VerifyForm({token}: Props) {
   const [state, dispatch] = useFormState(verifyUser, {
     success: false,
-    nonFieldErrors: [],
+    errorMessages: {},
   });
-  const fieldErrors = state.fieldErrors;
+  const fieldErrors = state.errorMessages;
+  console.log(fieldErrors);
 
   if (state.success) {
     return (
@@ -70,44 +68,40 @@ export function VerifyForm({token}: Props) {
                 name="name"
                 label="نام"
                 radius="md"
-                error={Boolean(fieldErrors?.name?.length)}
+                error={fieldErrors?.name}
                 required
               />
-              <FieldErrors errors={fieldErrors?.name} />
             </Stack>
             <Stack gap={8}>
               <TextInput
                 name="username"
                 label="نام کاربری (یوزرنیم)"
                 radius="md"
-                error={Boolean(fieldErrors?.username?.length)}
+                error={fieldErrors?.username}
                 required
               />
-              <FieldErrors errors={fieldErrors?.username} />
             </Stack>
             <Stack gap={8}>
               <PasswordInput
                 name="password"
                 label="کلمه عبور"
                 radius="md"
-                error={Boolean(fieldErrors?.password?.length)}
+                error={fieldErrors?.password}
                 required
               />
-              <FieldErrors errors={fieldErrors?.password} />
             </Stack>
             <Stack gap={8}>
               <PasswordInput
                 name="repassword"
                 label="تکرار کلمه عبور"
                 radius="md"
-                error={Boolean(fieldErrors?.repassword?.length)}
+                error={fieldErrors?.repassword}
                 required
               />
-              <FieldErrors errors={fieldErrors?.repassword} />
             </Stack>
             <input name="token" value={token} hidden readOnly />
           </Stack>
-          {state.nonFieldErrors?.map((err) => {
+          {state.errorMessages?._meta?.map((err) => {
             return (
               <Alert
                 key={err}
@@ -117,21 +111,17 @@ export function VerifyForm({token}: Props) {
                 mt={"sm"}
                 icon={<IconInfoCircle />}
               >
-                <List>
-                  {state.nonFieldErrors?.map((err) => {
-                    return (
-                      <ListItem key={err} fz={"xs"}>
-                        {err}
-                      </ListItem>
-                    );
-                  })}
-                </List>
+                {err}
               </Alert>
             );
           })}
           <Group
             justify="space-between"
-            mt={(state?.nonFieldErrors?.length ?? 0) >= 1 ? "sm" : "xl"}
+            mt={
+              (Object.values(state?.errorMessages || {}).length ?? 0) >= 1
+                ? "sm"
+                : "xl"
+            }
           >
             <FormButton type="submit" fullWidth>
               تکمیل ثبت نام

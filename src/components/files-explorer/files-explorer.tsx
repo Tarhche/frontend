@@ -6,6 +6,7 @@ import {AddFileButton} from "./add-file-button";
 import {FilesSkeleton} from "./files-skeleton";
 import {IconCheck} from "@tabler/icons-react";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
+import {fetchWrapper} from "@/lib/client-fetch-wrapper";
 
 type Data = {
   items: any;
@@ -24,12 +25,14 @@ export function FilesExplorer({onSelect}: Props) {
     page: "1",
   });
   const queryClient = useQueryClient();
-  const queryKey = [
-    "dashboard/files?" + new URLSearchParams(params).toString(),
-  ];
   const {data, isLoading} = useQuery<Data>({
-    queryKey: queryKey,
+    queryKey: ["files", params],
+    queryFn: async () => {
+      const searchParams = new URLSearchParams(params);
+      return fetchWrapper(`/api/dashboard/files?${searchParams.toString()}`);
+    },
     retry: 1,
+    staleTime: Infinity,
   });
   const [selectedFile, setSelectedFile] = useState<string>();
   const files = data?.items || [];
@@ -38,7 +41,7 @@ export function FilesExplorer({onSelect}: Props) {
 
   const invalidateQuery = () => {
     queryClient.invalidateQueries({
-      queryKey: queryKey,
+      queryKey: ["files"],
     });
   };
 

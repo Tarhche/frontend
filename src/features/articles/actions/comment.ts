@@ -1,5 +1,5 @@
 "use server";
-import {createArticleComment} from "@/dal/public/comments";
+import {createArticleComment} from "@/dal/private/comments";
 
 type FormState = {
   success?: boolean;

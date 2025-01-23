@@ -15,7 +15,7 @@ type Props = {
 
 export default function RootLayout({children}: Props) {
   return (
-    <Container size={480} px={0} my={60}>
+    <Container size={480} my={60}>
       {children}
     </Container>
   );
