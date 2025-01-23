@@ -28,10 +28,7 @@ export function UpsertUserForm({userInfo = {}}: Props) {
     <Paper p={"xl"} withBorder>
       <form action={dispatch}>
         <Group justify="center" align="flex-start" gap={"xl"}>
-          <UserAvatarInput
-            defaultValue={defaultAvatar}
-            username={defaultEmail}
-          />
+          <UserAvatarInput defaultValue={defaultAvatar} userId={userId} />
           <Stack gap={"sm"} flex={1}>
             <TextInput
               name="name"

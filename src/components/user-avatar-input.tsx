@@ -7,13 +7,13 @@ import {IconPencil} from "@tabler/icons-react";
 
 type Props = {
   defaultValue?: string;
-  username?: string;
+  userId?: string;
   inputName?: string;
 };
 
 export function UserAvatarInput({
   inputName = "avatar",
-  username,
+  userId,
   defaultValue,
 }: Props) {
   const [showFileExplorer, setShowFileExplorer] = useState(false);
@@ -23,7 +23,7 @@ export function UserAvatarInput({
   return (
     <>
       <Stack align="center" gap={"xs"}>
-        <UserAvatar email={username} src={avatarSrc} width={100} height={100} />
+        <UserAvatar userId={userId} src={avatarSrc} width={100} height={100} />
         <Tooltip label="تغییر آواتار" withArrow>
           <ActionIcon
             color="dimmed"
