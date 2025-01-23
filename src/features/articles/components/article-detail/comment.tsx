@@ -41,7 +41,7 @@ export function Comment({
   const isLoggedIn = data?.status === "authenticated";
   const [isReplying, setIsReplying] = useState(false);
   const {uuid, author, body, created_at} = comment;
-  const {name, avatar, email} = author;
+  const {name, avatar, uuid: authorUUID} = author;
   const replies = comments.filter((c) => c.parent_uuid === uuid);
 
   return (
@@ -55,7 +55,7 @@ export function Comment({
       pb={isLoggedIn ? 0 : "sm"}
     >
       <Group align="flex-start">
-        <UserAvatar src={avatar} email={email} />
+        <UserAvatar src={avatar} userId={authorUUID} />
         <div className={classes.commentContent}>
           <Group justify="space-between">
             <Text size="sm" fw={500}>

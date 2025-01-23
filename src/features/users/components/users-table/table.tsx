@@ -79,7 +79,7 @@ export async function UsersTable({page}: Props) {
                   <UserAvatar
                     width={48}
                     height={48}
-                    email={user.email}
+                    userId={user.uuid}
                     src={user.avatar}
                   />
                 </TableTd>

@@ -37,7 +37,7 @@ export function ProfileUpdateForm({userInfo}: Props) {
   return (
     <form action={dispatch}>
       <Group align="flex-start" justify="center">
-        <UserAvatarInput username={email} defaultValue={avatar} />
+        <UserAvatarInput userId={email} defaultValue={avatar} />
         <Stack flex={"1 1 300px"}>
           <TextInput
             type="text"
