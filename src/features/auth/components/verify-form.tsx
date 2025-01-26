@@ -26,7 +26,6 @@ export function VerifyForm({token}: Props) {
     errorMessages: {},
   });
   const fieldErrors = state.errorMessages;
-  console.log(fieldErrors);
 
   if (state.success) {
     return (
