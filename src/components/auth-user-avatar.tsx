@@ -17,9 +17,9 @@ export function AuthUserAvatar({width = 45, height = 45}: Props) {
   }
 
   if (data?.status === "authenticated") {
-    const {avatar, email} = data.profile;
+    const {avatar, uuid} = data.profile;
     return (
-      <UserAvatar email={email} src={avatar} width={width} height={height} />
+      <UserAvatar userId={uuid} src={avatar} width={width} height={height} />
     );
   }
 
