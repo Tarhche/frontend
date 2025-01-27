@@ -1,6 +1,9 @@
+import {redirect} from "next/navigation";
 import {Metadata} from "next";
 import {DashboardLayout} from "@/features/dashboard-layout";
 import {buildTitle} from "@/lib/seo";
+import {isUserLoggedIn} from "@/lib/auth";
+import {APP_PATHS} from "@/lib/app-paths";
 
 export const metadata: Metadata = {
   title: {
@@ -13,6 +16,12 @@ type Props = {
   children: React.ReactNode;
 };
 
-export default function RootLayout({children}: Props) {
+export default async function RootLayout({children}: Props) {
+  const isLoggedIn = isUserLoggedIn();
+
+  if (isLoggedIn === false) {
+    redirect(APP_PATHS.home);
+  }
+
   return <DashboardLayout>{children}</DashboardLayout>;
 }

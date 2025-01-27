@@ -32,9 +32,8 @@ export async function verifyUser(data: Record<string, string>) {
   return await publicDalDriver.post("auth/verify", data);
 }
 
-export const REFRESH_TOKEN_URL = "auth/token/refresh";
 export async function refreshToken(refreshToken: string) {
-  return await publicDalDriver.post(REFRESH_TOKEN_URL, {
+  return await publicDalDriver.post("auth/token/refresh", {
     token: refreshToken,
   });
 }

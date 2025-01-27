@@ -2,7 +2,6 @@ import {NextRequest, NextResponse} from "next/server";
 import {DALDriverError} from "@/dal/dal-driver-error";
 import {fetchUserProfile} from "@/dal/private/profile";
 import {AuthState} from "@/types/api-responses/init";
-import {axiosToFetchResponse} from "@/lib/transformers";
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,7 +11,9 @@ export async function GET(request: NextRequest) {
       profile: profile.data,
     };
 
-    return axiosToFetchResponse(profile, data);
+    return Response.json(data, {
+      status: 200,
+    });
   } catch (err) {
     if (err instanceof DALDriverError && err.statusCode === 401) {
       return new Response(

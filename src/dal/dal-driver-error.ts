@@ -11,7 +11,7 @@ export class DALDriverError extends Error {
 
   constructor(message: string, statusCode: number, response?: Response) {
     super(message);
-    this.name = "DALClientError";
+    this.name = "DALDriverError";
     this.statusCode = statusCode;
     this.response = response;
   }

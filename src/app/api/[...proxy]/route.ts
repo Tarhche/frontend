@@ -1,7 +1,6 @@
 import {NextRequest} from "next/server";
 import {DALDriverError} from "@/dal/dal-driver-error";
 import {privateDalDriver} from "@/dal/private/private-dal-driver";
-import {axiosToFetchResponse} from "@/lib/transformers";
 
 export async function GET(request: NextRequest, {params}) {
   return handleRequest(request, params, "GET");
@@ -31,7 +30,9 @@ async function handleRequest(request: NextRequest, params, method: string) {
       data: request.body,
     });
 
-    return axiosToFetchResponse(response);
+    return new Response(JSON.stringify(response.data), {
+      status: response.status,
+    });
   } catch (error) {
     if (error instanceof DALDriverError && error.statusCode === 401) {
       return new Response(JSON.stringify(error.response?.data || {}), {
