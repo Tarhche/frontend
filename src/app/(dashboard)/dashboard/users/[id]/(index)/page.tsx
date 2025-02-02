@@ -14,13 +14,13 @@ export const metadata: Metadata = {
 };
 
 type Props = {
-  params: {
+  params: Promise<{
     id?: string;
-  };
+  }>;
 };
 
 async function UpdateUserPage({params}: Props) {
-  const userId = params.id;
+  const userId = (await params).id;
   if (userId === undefined) {
     notFound();
   }

@@ -1,5 +1,5 @@
 "use client";
-import {useFormState} from "react-dom";
+import {useActionState} from "react";
 import {Group, Paper, Stack, Textarea, Alert} from "@mantine/core";
 import {FormButton} from "@/components/form-button";
 import {DateTimeInput} from "@/components/date-time-input";
@@ -22,7 +22,7 @@ export function EditCommentForm({
   id,
   objectId,
 }: Props) {
-  const [state, dispatch] = useFormState(updateCommentAction, {});
+  const [state, dispatch] = useActionState(updateCommentAction, {});
 
   return (
     <Paper withBorder p="xl">

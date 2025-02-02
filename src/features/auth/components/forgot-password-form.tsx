@@ -1,6 +1,6 @@
 "use client";
+import {useActionState} from "react";
 import Link from "next/link";
-import {useFormState} from "react-dom";
 import {
   TextInput,
   Paper,
@@ -11,13 +11,15 @@ import {
   Box,
   Button,
 } from "@mantine/core";
-import {FormButton} from "@/components/form-button";
 import {FieldErrors} from "./field-errors";
 import {IconInfoCircle, IconChevronRight} from "@tabler/icons-react";
 import {forgotPassword} from "../actions/forgot-password";
 
 export function ForgotPasswordForm() {
-  const [state, dispatch] = useFormState(forgotPassword, undefined);
+  const [state, dispatch, isPending] = useActionState(
+    forgotPassword,
+    undefined,
+  );
 
   return (
     <Box pt={50}>
@@ -80,9 +82,15 @@ export function ForgotPasswordForm() {
               })}
             </>
           )}
-          <FormButton mt="sm" type="submit" disabled={state?.success} fullWidth>
+          <Button
+            mt="sm"
+            type="submit"
+            disabled={state?.success}
+            loading={isPending}
+            fullWidth
+          >
             درخواست {state?.success === false ? "مجدد" : "بازیابی"}
-          </FormButton>
+          </Button>
         </form>
       </Paper>
     </Box>

@@ -9,8 +9,8 @@ type Props = {
   children: React.ReactNode;
 };
 
-export function DashboardLayout({children}: Props) {
-  const userPermissions = getUserPermissions();
+export async function DashboardLayout({children}: Props) {
+  const userPermissions = await getUserPermissions();
 
   return (
     <LayoutShell>

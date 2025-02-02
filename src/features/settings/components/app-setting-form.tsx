@@ -1,5 +1,5 @@
 "use client";
-import {useFormState} from "react-dom";
+import {useActionState} from "react";
 import {Group, Stack, Textarea} from "@mantine/core";
 import {FormButton} from "@/components/form-button";
 import {updateSettingAction} from "../actions/update-setting";
@@ -11,7 +11,9 @@ type Props = {
 };
 
 export function AppSettingForm({config}: Props) {
-  const [state, dispatch] = useFormState(updateSettingAction, {success: false});
+  const [state, dispatch] = useActionState(updateSettingAction, {
+    success: false,
+  });
 
   return (
     <form action={dispatch}>

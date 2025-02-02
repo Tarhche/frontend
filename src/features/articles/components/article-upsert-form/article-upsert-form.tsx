@@ -1,6 +1,5 @@
 "use client";
-import {useRef} from "react";
-import {useFormState} from "react-dom";
+import {useRef, useActionState} from "react";
 import {
   Box,
   Group,
@@ -10,9 +9,9 @@ import {
   InputLabel,
   TagsInput,
   Skeleton,
+  Button,
 } from "@mantine/core";
 import {DateTimeInput} from "@/components/date-time-input";
-import {FormButton} from "@/components/form-button";
 import {type EditorRef} from "@/features/articles/components/article-editor";
 import {FileInput} from "./file-input";
 import {IconPhotoPlus, IconMovie} from "@tabler/icons-react";
@@ -46,9 +45,10 @@ type Props = {
 
 export function ArticleUpsertForm({article}: Props) {
   const editorRef = useRef<EditorRef>(null);
-  const [state, dispatch] = useFormState(upsertArticleAction, {
+  const [state, dispatch, isPending] = useActionState(upsertArticleAction, {
     success: true,
   });
+
   const defaultPublishedDate = article?.defaultPublishedAt
     ? isGregorianStartDateTime(article.defaultPublishedAt)
       ? null
@@ -115,9 +115,9 @@ export function ArticleUpsertForm({article}: Props) {
           clearable
         />
         <Group justify="flex-end" mt="lg">
-          <FormButton>
+          <Button type="submit" loading={isPending} disabled={isPending}>
             {article?.articleId ? "بروزرسانی مقاله" : "ایجاد مقاله"}
-          </FormButton>
+          </Button>
         </Group>
       </Stack>
     </form>

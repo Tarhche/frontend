@@ -2,23 +2,28 @@ import {NextRequest} from "next/server";
 import {DALDriverError} from "@/dal/dal-driver-error";
 import {privateDalDriver} from "@/dal/private/private-dal-driver";
 
-export async function GET(request: NextRequest, {params}) {
+export async function GET(request: NextRequest, props) {
+  const params = await props.params;
   return handleRequest(request, params, "GET");
 }
 
-export async function POST(request: NextRequest, {params}) {
+export async function POST(request: NextRequest, props) {
+  const params = await props.params;
   return handleRequest(request, params, "POST");
 }
 
-export async function PUT(request: NextRequest, {params}) {
+export async function PUT(request: NextRequest, props) {
+  const params = await props.params;
   return handleRequest(request, params, "PUT");
 }
 
-export async function PATCH(request: NextRequest, {params}) {
+export async function PATCH(request: NextRequest, props) {
+  const params = await props.params;
   return handleRequest(request, params, "PATCH");
 }
 
-export async function DELETE(request: NextRequest, {params}) {
+export async function DELETE(request: NextRequest, props) {
+  const params = await props.params;
   return handleRequest(request, params, "DELETE");
 }
 

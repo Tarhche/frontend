@@ -1,6 +1,6 @@
 "use client";
+import {useActionState} from "react";
 import Link from "next/link";
-import {useFormState} from "react-dom";
 import {Paper, Stack, Group, TextInput, Alert, Anchor} from "@mantine/core";
 import {FormButton} from "@/components/form-button";
 import {UserAvatarInput} from "@/components/user-avatar-input";
@@ -20,7 +20,7 @@ type Props = {
 export function UpsertUserForm({userInfo = {}}: Props) {
   const {userId, defaultUsername, defaultAvatar, defaultEmail, defaultName} =
     userInfo;
-  const [state, dispatch] = useFormState(upsertUserAction, {
+  const [state, dispatch] = useActionState(upsertUserAction, {
     success: true,
   });
 

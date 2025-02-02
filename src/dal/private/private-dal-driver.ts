@@ -18,8 +18,8 @@ export const privateDalDriver = axios.create({
   },
 });
 
-function handleRequestResolve(config: InternalAxiosRequestConfig) {
-  const accessToken = cookies().get(ACCESS_TOKEN_COOKIE_NAME)?.value;
+async function handleRequestResolve(config: InternalAxiosRequestConfig) {
+  const accessToken = (await cookies()).get(ACCESS_TOKEN_COOKIE_NAME)?.value;
   if (accessToken !== undefined && config.headers.Authorization === undefined) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
@@ -32,8 +32,8 @@ privateDalDriver.interceptors.request.use(
 );
 
 async function handleResponseRejection(response: any) {
-  const cookiesStore = cookies();
-  const headersStore = headers();
+  const cookiesStore = await cookies();
+  const headersStore = await headers();
 
   const isFromApiRoutes = Boolean(headersStore.get("client-to-proxy"));
   const isFromServerAction = Boolean(headersStore.get("next-action"));
@@ -62,12 +62,12 @@ async function handleResponseRejection(response: any) {
       if (isFromApiRoutes || isFromServerAction) {
         // If a request is made from either a server action or route handler, we can safely set cookies.
         // Refer to the Next.js documentation for more details: https://nextjs.org/docs/app/api-reference/functions/cookies#good-to-know
-        cookies().set(ACCESS_TOKEN_COOKIE_NAME, access_token, {
+        cookiesStore.set(ACCESS_TOKEN_COOKIE_NAME, access_token, {
           httpOnly: true,
           maxAge: ACCESS_TOKEN_EXP,
           path: "/",
         });
-        cookies().set(REFRESH_TOKEN_COOKIE_NAME, refresh_token, {
+        cookiesStore.set(REFRESH_TOKEN_COOKIE_NAME, refresh_token, {
           httpOnly: true,
           maxAge: REFRESH_TOKEN_EXP,
           path: "/",

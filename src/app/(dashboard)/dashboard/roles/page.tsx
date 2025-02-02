@@ -12,13 +12,13 @@ export const metadata: Metadata = {
 };
 
 type Props = {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
-  };
+  }>;
 };
 
-function RolesPage({searchParams}: Props) {
-  const page = searchParams.page ?? 1;
+async function RolesPage({searchParams}: Props) {
+  const page = (await searchParams).page ?? 1;
 
   return (
     <Stack>

@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
-import {useEffect} from "react";
-import {useFormState} from "react-dom";
+import {useEffect, useActionState} from "react";
 import {Group, Stack, TextInput, Anchor, Alert} from "@mantine/core";
 import {FormButton} from "@/components/form-button";
 import {UserAvatarInput} from "@/components/user-avatar-input";
@@ -19,7 +18,7 @@ type Props = {
 };
 
 export function ProfileUpdateForm({userInfo}: Props) {
-  const [state, dispatch] = useFormState(updateProfileAction, {
+  const [state, dispatch] = useActionState(updateProfileAction, {
     success: null,
   });
   const {username, name, avatar, email} = userInfo;

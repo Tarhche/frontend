@@ -12,14 +12,13 @@ import {
 import {fetchArticleByUUID} from "@/dal/public/articles";
 
 type Props = {
-  params: {
+  params: Promise<{
     slug?: string;
-  };
+  }>;
 };
 
-export async function generateMetadata({
-  params,
-}: Props): Promise<Metadata | null> {
+export async function generateMetadata(props: Props): Promise<Metadata | null> {
+  const params = await props.params;
   const slug = params.slug;
   if (slug === undefined) {
     return null;
@@ -30,7 +29,10 @@ export async function generateMetadata({
   };
 }
 
-async function ArticleDetailPage({params: {slug}}: Props) {
+async function ArticleDetailPage(props: Props) {
+  const params = await props.params;
+  const {slug} = params;
+
   if (slug === undefined) {
     notFound();
   }

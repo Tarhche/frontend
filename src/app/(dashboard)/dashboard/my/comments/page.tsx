@@ -13,13 +13,13 @@ export const metadata: Metadata = {
 };
 
 type Props = {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
-  };
+  }>;
 };
 
-function MyCommentsPage({searchParams}: Props) {
-  const page = Number(searchParams.page) || 1;
+async function MyCommentsPage({searchParams}: Props) {
+  const page = Number((await searchParams).page) || 1;
 
   return (
     <Stack>
@@ -32,7 +32,7 @@ function MyCommentsPage({searchParams}: Props) {
       />
       <Box>
         <Suspense
-          key={JSON.stringify(searchParams)}
+          key={JSON.stringify(await searchParams)}
           fallback={<UserCommentsTableSkeleton />}
         >
           <UserCommentsTable page={page} />

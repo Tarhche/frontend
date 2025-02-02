@@ -1,5 +1,5 @@
 "use client";
-import {useFormState} from "react-dom";
+import {useActionState} from "react";
 import Link from "next/link";
 import {
   TextInput,
@@ -11,12 +11,11 @@ import {
   Alert,
   Button,
 } from "@mantine/core";
-import {FormButton} from "@/components/form-button";
 import {IconInfoCircle, IconChevronRight} from "@tabler/icons-react";
 import {registerUser} from "../actions/register-user";
 
 export function RegisterForm() {
-  const [state, dispatch] = useFormState(registerUser, {
+  const [state, dispatch, isPending] = useActionState(registerUser, {
     success: undefined,
   });
 
@@ -83,9 +82,9 @@ export function RegisterForm() {
           />
           {renderFeedbackAlert()}
           {(state.success === false || state.success === undefined) && (
-            <FormButton mt="lg" type="submit" fullWidth>
+            <Button mt="lg" type="submit" loading={isPending} fullWidth>
               ثبت نام
-            </FormButton>
+            </Button>
           )}
         </form>
       </Paper>

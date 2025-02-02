@@ -6,12 +6,13 @@ export const metadata: Metadata = {
 };
 
 type Props = {
-  searchParams: {
+  searchParams: Promise<{
     callbackUrl?: string;
-  };
+  }>;
 };
 
-function LoginPage({searchParams}: Props) {
+async function LoginPage(props: Props) {
+  const searchParams = await props.searchParams;
   const callbackUrl = searchParams.callbackUrl;
   return <LoginForm callbackUrl={callbackUrl} />;
 }

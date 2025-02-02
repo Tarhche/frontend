@@ -1,5 +1,5 @@
 "use client";
-import {useFormState} from "react-dom";
+import {useActionState} from "react";
 import {Paper, Stack, Group, TextInput} from "@mantine/core";
 import {FormButton} from "@/components/form-button";
 import {updateUserPasswordAction} from "../../actions/change-password";
@@ -9,7 +9,7 @@ type Props = {
 };
 
 export function UserPasswordForm({userId}: Props) {
-  const [state, dispatch] = useFormState(updateUserPasswordAction, {
+  const [state, dispatch] = useActionState(updateUserPasswordAction, {
     success: true,
   });
 

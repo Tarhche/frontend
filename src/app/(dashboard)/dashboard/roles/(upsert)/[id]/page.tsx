@@ -4,13 +4,13 @@ import {fetchRole} from "@/dal/private/roles";
 import {withPermissions} from "@/components/with-authorization";
 
 type Props = {
-  params: {
+  params: Promise<{
     id?: string;
-  };
+  }>;
 };
 
 async function UpdateRolePage({params}: Props) {
-  const roleId = params.id;
+  const roleId = (await params).id;
   if (roleId === undefined) {
     notFound();
   }

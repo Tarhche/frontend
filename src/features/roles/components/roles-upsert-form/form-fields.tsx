@@ -1,5 +1,5 @@
 "use client";
-import {useFormState} from "react-dom";
+import {useActionState} from "react";
 import {Stack, TextInput, Textarea, Fieldset, Group} from "@mantine/core";
 import {FormButton} from "@/components/form-button";
 import {upsertRoleAction} from "../../actions/upsert-role";
@@ -18,7 +18,7 @@ type Props = {
 
 export function FormFields({defaultValues, children}: Partial<Props>) {
   const isUpdating = defaultValues?.roleId !== undefined;
-  const [state, dispatch] = useFormState(upsertRoleAction, {success: true});
+  const [state, dispatch] = useActionState(upsertRoleAction, {success: true});
 
   return (
     <form action={dispatch}>

@@ -5,14 +5,14 @@ import {
   USER_PERMISSIONS_COOKIE_NAME,
 } from "@/constants/strings";
 
-export function getRootUrl() {
-  const host = headers().get("host");
+export async function getRootUrl() {
+  const host = (await headers()).get("host");
   const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
   return `${protocol}://${host}`;
 }
 
-export function getCredentialsFromCookies() {
-  const cookiesStore = cookies();
+export async function getCredentialsFromCookies() {
+  const cookiesStore = await cookies();
 
   return {
     accessToken: cookiesStore.get(ACCESS_TOKEN_COOKIE_NAME)?.value,

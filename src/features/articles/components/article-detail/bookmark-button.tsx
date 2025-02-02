@@ -1,5 +1,5 @@
 "use client";
-import {useFormState} from "react-dom";
+import {useActionState} from "react";
 import {Tooltip, Box} from "@mantine/core";
 import {IconBookmark, IconBookmarkFilled} from "@tabler/icons-react";
 import {FormActionButton} from "@/components/form-action-button";
@@ -13,7 +13,7 @@ type Props = {
 };
 
 export function BookmarkButton({uuid, title, isBookmarked}: Props) {
-  const [state, dispatch] = useFormState(bookmark, {
+  const [state, dispatch] = useActionState(bookmark, {
     success: true,
     bookmarked: isBookmarked,
     errorMessage: "",

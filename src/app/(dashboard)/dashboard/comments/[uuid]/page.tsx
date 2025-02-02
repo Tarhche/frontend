@@ -8,13 +8,13 @@ export const metadata = {
 };
 
 type Props = {
-  params: {
+  params: Promise<{
     uuid?: string;
-  };
+  }>;
 };
 
 async function ArticleDetalPage({params}: Props) {
-  const {uuid} = params;
+  const {uuid} = await params;
 
   if (uuid === undefined) {
     notFound();

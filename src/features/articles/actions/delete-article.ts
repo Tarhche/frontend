@@ -3,12 +3,20 @@ import {revalidatePath} from "next/cache";
 import {APP_PATHS} from "@/lib/app-paths";
 import {privateDalDriver} from "@/dal/private/private-dal-driver";
 
-export async function deleteArticle(formData: FormData) {
+export async function deleteArticle(
+  prevState: boolean,
+  formData: FormData,
+): Promise<boolean> {
   const articleId = formData.get("id")?.toString();
   if (articleId === undefined) {
-    return;
+    return false;
   }
 
-  await privateDalDriver.delete(`/dashboard/articles/${articleId}`);
-  revalidatePath(APP_PATHS.dashboard.articles.index);
+  try {
+    await privateDalDriver.delete(`/dashboard/articles/${articleId}`);
+    revalidatePath(APP_PATHS.dashboard.articles.index);
+    return true;
+  } catch {
+    return false;
+  }
 }

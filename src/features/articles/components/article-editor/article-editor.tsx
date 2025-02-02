@@ -10,7 +10,7 @@ export type EditorRef = CKEditor<ClassicEditor>;
 
 type Props = {
   initialData?: string;
-  editorRef?: RefObject<EditorRef>;
+  editorRef?: RefObject<EditorRef | null>;
 };
 
 export function ArticleEditor({initialData, editorRef}: Props) {

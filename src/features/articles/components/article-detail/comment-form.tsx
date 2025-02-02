@@ -1,6 +1,5 @@
 "use client";
-import {useRef} from "react";
-import {useFormState} from "react-dom";
+import {useRef, useActionState} from "react";
 import {Stack, Group, Text, Textarea} from "@mantine/core";
 import {FormButton} from "@/components/form-button";
 import {AuthUserAvatar} from "@/components/auth-user-avatar";
@@ -20,7 +19,7 @@ type Props = {
 
 export function CommentForm({objectUUID, parentUUID}: Props) {
   const formRef = useRef<HTMLFormElement>(null);
-  const [state, dispatch] = useFormState(comment, {});
+  const [state, dispatch] = useActionState(comment, {});
   const isSuccessful = state.success;
   const isReplying = Boolean(parentUUID);
 
