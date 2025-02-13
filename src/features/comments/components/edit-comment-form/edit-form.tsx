@@ -1,7 +1,6 @@
 "use client";
 import {useActionState} from "react";
-import {Group, Paper, Stack, Textarea, Alert} from "@mantine/core";
-import {FormButton} from "@/components/form-button";
+import {Group, Paper, Stack, Textarea, Alert, Button} from "@mantine/core";
 import {DateTimeInput} from "@/components/date-time-input";
 import {IconInfoCircle} from "@tabler/icons-react";
 import {updateCommentAction} from "../../actions/update-comment";
@@ -22,7 +21,7 @@ export function EditCommentForm({
   id,
   objectId,
 }: Props) {
-  const [state, dispatch] = useActionState(updateCommentAction, {});
+  const [state, dispatch, isPending] = useActionState(updateCommentAction, {});
 
   return (
     <Paper withBorder p="xl">
@@ -54,9 +53,9 @@ export function EditCommentForm({
             />
           )}
           <Group justify="flex-end" mt="md">
-            <FormButton type="submit">
+            <Button type="submit" loading={isPending}>
               {state.success === false ? "تلاش مجدد" : "ویرایش کامنت"}
-            </FormButton>
+            </Button>
           </Group>
           <input type="text" name="id" value={id} readOnly hidden />
           <input type="text" name="objectId" value={objectId} readOnly hidden />

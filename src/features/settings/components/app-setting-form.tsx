@@ -1,7 +1,6 @@
 "use client";
 import {useActionState} from "react";
-import {Group, Stack, Textarea} from "@mantine/core";
-import {FormButton} from "@/components/form-button";
+import {Group, Stack, Textarea, Button} from "@mantine/core";
 import {updateSettingAction} from "../actions/update-setting";
 
 type Props = {
@@ -11,7 +10,7 @@ type Props = {
 };
 
 export function AppSettingForm({config}: Props) {
-  const [state, dispatch] = useActionState(updateSettingAction, {
+  const [state, dispatch, isPending] = useActionState(updateSettingAction, {
     success: false,
   });
 
@@ -32,7 +31,9 @@ export function AppSettingForm({config}: Props) {
           error={state.fieldErrors?.user_default_roles || ""}
         />
         <Group justify="flex-end" mt="md">
-          <FormButton>بروزرسانی</FormButton>
+          <Button type="submit" loading={isPending}>
+            بروزرسانی
+          </Button>
         </Group>
       </Stack>
     </form>

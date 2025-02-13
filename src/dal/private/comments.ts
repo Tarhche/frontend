@@ -34,6 +34,10 @@ export async function deleteComment(commentId: string) {
   return await privateDalDriver.delete(`/dashboard/comments/${commentId}`);
 }
 
+export async function deleteSelfComment(commentId: string) {
+  return await privateDalDriver.delete(`/dashboard/my/comments/${commentId}`);
+}
+
 export async function createArticleComment(body: {
   object_uuid: string;
   body: string;

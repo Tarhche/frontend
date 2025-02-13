@@ -1,7 +1,13 @@
 "use client";
 import {useActionState} from "react";
-import {Stack, TextInput, Textarea, Fieldset, Group} from "@mantine/core";
-import {FormButton} from "@/components/form-button";
+import {
+  Stack,
+  TextInput,
+  Textarea,
+  Fieldset,
+  Group,
+  Button,
+} from "@mantine/core";
 import {upsertRoleAction} from "../../actions/upsert-role";
 
 export type DefaultValues = {
@@ -18,7 +24,9 @@ type Props = {
 
 export function FormFields({defaultValues, children}: Partial<Props>) {
   const isUpdating = defaultValues?.roleId !== undefined;
-  const [state, dispatch] = useActionState(upsertRoleAction, {success: true});
+  const [state, dispatch, isPending] = useActionState(upsertRoleAction, {
+    success: true,
+  });
 
   return (
     <form action={dispatch}>
@@ -54,9 +62,9 @@ export function FormFields({defaultValues, children}: Partial<Props>) {
           <input name="roleId" value={defaultValues?.roleId} hidden readOnly />
         )}
         <Group justify="flex-end" mt="xl">
-          <FormButton type="submit">
+          <Button type="submit" loading={isPending}>
             {isUpdating ? "بروزرسانی نقش" : "ایجاد نقش"}
-          </FormButton>
+          </Button>
         </Group>
       </Fieldset>
     </form>

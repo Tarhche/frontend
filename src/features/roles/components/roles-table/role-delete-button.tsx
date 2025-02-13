@@ -1,5 +1,5 @@
 "use client";
-import {useState} from "react";
+import {useState, useActionState} from "react";
 import {
   Tooltip,
   Modal,
@@ -9,7 +9,6 @@ import {
   rem,
   Text,
 } from "@mantine/core";
-import {FormButton} from "@/components/form-button";
 import {IconTrash} from "@tabler/icons-react";
 import {deleteRoleAction} from "../../actions/delete-role";
 
@@ -19,14 +18,8 @@ type Props = {
 };
 
 export function RoleDeleteButton({roleId, roleName}: Props) {
+  const [, formAction, isPending] = useActionState(deleteRoleAction, false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-
-  const handleSubmit = async () => {
-    const fd = new FormData();
-    fd.set("id", roleId);
-    await deleteRoleAction(fd);
-    setIsConfirmOpen(false);
-  };
 
   return (
     <>
@@ -62,8 +55,11 @@ export function RoleDeleteButton({roleId, roleName}: Props) {
           >
             لفو کردن
           </Button>
-          <form action={handleSubmit}>
-            <FormButton color="red">حذف کردن</FormButton>
+          <form action={formAction}>
+            <input type="text" name="id" value={roleId} hidden readOnly />
+            <Button color="red" loading={isPending}>
+              حذف کردن
+            </Button>
           </form>
         </Group>
       </Modal>
