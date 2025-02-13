@@ -1,5 +1,5 @@
 "use client";
-import {useState} from "react";
+import {useState, useActionState} from "react";
 import {
   Tooltip,
   Modal,
@@ -9,7 +9,6 @@ import {
   rem,
   Text,
 } from "@mantine/core";
-import {FormButton} from "@/components/form-button";
 import {deleteCommentAction} from "../../actions/delete-comment";
 import {IconTrash} from "@tabler/icons-react";
 
@@ -19,14 +18,8 @@ type Props = {
 };
 
 export function CommentDeleteButton({commentID, commentMessage}: Props) {
+  const [, formAction, isPending] = useActionState(deleteCommentAction, false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-
-  const handleSubmit = async () => {
-    const fd = new FormData();
-    fd.set("id", commentID);
-    await deleteCommentAction(fd);
-    setIsConfirmOpen(false);
-  };
 
   return (
     <>
@@ -62,8 +55,11 @@ export function CommentDeleteButton({commentID, commentMessage}: Props) {
           >
             لفو کردن
           </Button>
-          <form action={handleSubmit}>
-            <FormButton color="red">حذف کردن</FormButton>
+          <form action={formAction}>
+            <input type="text" name="id" value={commentID} hidden readOnly />
+            <Button color="red" loading={isPending}>
+              حذف کردن
+            </Button>
           </form>
         </Group>
       </Modal>

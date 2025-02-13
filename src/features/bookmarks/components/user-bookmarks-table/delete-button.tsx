@@ -1,5 +1,5 @@
 "use client";
-import {useState} from "react";
+import {useState, useActionState} from "react";
 import {
   Tooltip,
   Modal,
@@ -9,7 +9,6 @@ import {
   rem,
   Text,
 } from "@mantine/core";
-import {FormButton} from "@/components/form-button";
 import {IconTrash} from "@tabler/icons-react";
 import {removeBookmarkAction} from "../../actions/remove-bookmark";
 
@@ -20,13 +19,7 @@ type Props = {
 
 export function MyBookmarkDeleteButton({title, bookmarkID}: Props) {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-
-  const handleSubmit = async () => {
-    const fd = new FormData();
-    fd.set("id", bookmarkID);
-    await removeBookmarkAction(fd);
-    setIsConfirmOpen(false);
-  };
+  const [, formAction, isPending] = useActionState(removeBookmarkAction, false);
 
   return (
     <>
@@ -62,8 +55,11 @@ export function MyBookmarkDeleteButton({title, bookmarkID}: Props) {
           >
             لفو کردن
           </Button>
-          <form action={handleSubmit}>
-            <FormButton color="red">حذف کردن</FormButton>
+          <form action={formAction}>
+            <input type="text" name="id" value={bookmarkID} readOnly hidden />
+            <Button color="red" type="submit" loading={isPending}>
+              حذف کردن
+            </Button>
           </form>
         </Group>
       </Modal>

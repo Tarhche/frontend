@@ -6,8 +6,8 @@ type Props = {
   fallback?: ReactNode;
 };
 
-export function AuthGuard({fallback, children}: Props) {
-  const isLoggedIn = isUserLoggedIn();
+export async function AuthGuard({fallback, children}: Props) {
+  const isLoggedIn = await isUserLoggedIn();
 
   if (isLoggedIn) {
     return children;

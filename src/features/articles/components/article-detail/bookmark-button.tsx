@@ -1,8 +1,7 @@
 "use client";
-import {useFormState} from "react-dom";
-import {Tooltip, Box} from "@mantine/core";
+import {useActionState} from "react";
+import {Tooltip, Box, ActionIcon} from "@mantine/core";
 import {IconBookmark, IconBookmarkFilled} from "@tabler/icons-react";
-import {FormActionButton} from "@/components/form-action-button";
 import {bookmark} from "../../actions/bookmark";
 import classes from "./bookmark-button.module.css";
 
@@ -13,7 +12,7 @@ type Props = {
 };
 
 export function BookmarkButton({uuid, title, isBookmarked}: Props) {
-  const [state, dispatch] = useFormState(bookmark, {
+  const [state, dispatch, isPending] = useActionState(bookmark, {
     success: true,
     bookmarked: isBookmarked,
     errorMessage: "",
@@ -26,16 +25,23 @@ export function BookmarkButton({uuid, title, isBookmarked}: Props) {
         label={bookmarked ? "حذف از بوکمارک ها" : "ذخیره کردن"}
         withArrow
       >
-        <FormActionButton
+        <ActionIcon
           variant="transparent"
-          c={"dimmed"}
+          color="dimmed"
+          type={isPending ? "button" : "submit"}
           ml={-7}
-          loadingPlaceholder={
-            <IconBookmarkFilled className={classes.opacity50} />
-          }
+          style={{
+            cursor: isPending ? "progress" : "pointer",
+          }}
         >
-          {bookmarked ? <IconBookmarkFilled /> : <IconBookmark size={50} />}
-        </FormActionButton>
+          {isPending ? (
+            <IconBookmarkFilled className={classes.opacity50} />
+          ) : bookmarked ? (
+            <IconBookmarkFilled />
+          ) : (
+            <IconBookmark size={50} />
+          )}
+        </ActionIcon>
       </Tooltip>
       <input type="text" value={uuid} name="uuid" readOnly hidden />
       <input type="text" value={title} name="title" readOnly hidden />

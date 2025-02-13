@@ -1,5 +1,5 @@
 import type {Metadata} from "next";
-import {ColorSchemeScript} from "@mantine/core";
+import {ColorSchemeScript, mantineHtmlProps} from "@mantine/core";
 import {Providers} from "./providers";
 import {vazir} from "./fonts";
 import "@mantine/core/styles.css";
@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fa" dir="rtl">
+    <html lang="fa" dir="rtl" {...mantineHtmlProps}>
       <head>
         <ColorSchemeScript defaultColorScheme="auto" />
       </head>

@@ -1,6 +1,6 @@
 "use client";
+import {useActionState} from "react";
 import Link from "next/link";
-import {useFormState} from "react-dom";
 import {
   TextInput,
   PasswordInput,
@@ -11,9 +11,9 @@ import {
   Stack,
   Alert,
   Anchor,
+  Button,
 } from "@mantine/core";
 import {IconInfoCircle} from "@tabler/icons-react";
-import {FormButton} from "@/components/form-button";
 import {verifyUser} from "../actions/verify-user";
 
 type Props = {
@@ -21,7 +21,7 @@ type Props = {
 };
 
 export function VerifyForm({token}: Props) {
-  const [state, dispatch] = useFormState(verifyUser, {
+  const [state, dispatch, isPending] = useActionState(verifyUser, {
     success: false,
     errorMessages: {},
   });
@@ -122,9 +122,9 @@ export function VerifyForm({token}: Props) {
                 : "xl"
             }
           >
-            <FormButton type="submit" fullWidth>
+            <Button type="submit" loading={isPending} fullWidth>
               تکمیل ثبت نام
-            </FormButton>
+            </Button>
           </Group>
         </form>
       </Paper>

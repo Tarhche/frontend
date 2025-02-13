@@ -11,13 +11,13 @@ export const metadata = {
 };
 
 type Props = {
-  params: {
+  params: Promise<{
     uuid?: string;
-  };
+  }>;
 };
 
 async function ArticleDetalPage({params}: Props) {
-  const articleId = params.uuid;
+  const articleId = (await params).uuid;
   if (articleId === undefined) {
     notFound();
   }

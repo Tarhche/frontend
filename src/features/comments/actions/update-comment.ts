@@ -36,5 +36,5 @@ export async function updateCommentAction(
   }
 
   revalidatePath(APP_PATHS.dashboard.comments.index);
-  redirect(`${getRootUrl()}${APP_PATHS.dashboard.comments.index}`);
+  redirect(`${await getRootUrl()}${APP_PATHS.dashboard.comments.index}`);
 }

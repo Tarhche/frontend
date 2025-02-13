@@ -1,8 +1,6 @@
 "use client";
-import {useRef} from "react";
-import {useFormState} from "react-dom";
-import {Stack, Group, Text, Textarea} from "@mantine/core";
-import {FormButton} from "@/components/form-button";
+import {useRef, useActionState} from "react";
+import {Stack, Group, Text, Textarea, Button} from "@mantine/core";
 import {AuthUserAvatar} from "@/components/auth-user-avatar";
 import {
   IconSend,
@@ -20,7 +18,7 @@ type Props = {
 
 export function CommentForm({objectUUID, parentUUID}: Props) {
   const formRef = useRef<HTMLFormElement>(null);
-  const [state, dispatch] = useFormState(comment, {});
+  const [state, dispatch, isPending] = useActionState(comment, {});
   const isSuccessful = state.success;
   const isReplying = Boolean(parentUUID);
 
@@ -68,14 +66,16 @@ export function CommentForm({objectUUID, parentUUID}: Props) {
         </Group>
         <input name="object-uuid" value={objectUUID} hidden readOnly />
         <input name="parent-uuid" value={parentUUID} hidden readOnly />
-        <FormButton
+        <Button
+          type="submit"
           leftSection={<IconSend size={20} />}
+          loading={isPending}
           style={{
             alignSelf: "flex-end",
           }}
         >
           ارسال دیدگاه
-        </FormButton>
+        </Button>
       </Stack>
     </form>
   );

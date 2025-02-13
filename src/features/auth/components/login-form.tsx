@@ -1,9 +1,8 @@
 "use client";
 import {useRouter} from "next/navigation";
-import {useEffect} from "react";
+import {useEffect, useActionState} from "react";
 import {useQueryClient} from "@tanstack/react-query";
 import Link from "next/link";
-import {useFormState} from "react-dom";
 import {
   Alert,
   Anchor,
@@ -19,7 +18,6 @@ import {
   Group,
   Button,
 } from "@mantine/core";
-import {FormButton} from "@/components/form-button";
 import {IconInfoCircle, IconChevronRight} from "@tabler/icons-react";
 import {APP_PATHS} from "@/lib/app-paths";
 import {login} from "../actions/login";
@@ -31,7 +29,7 @@ type Props = {
 export function LoginForm({callbackUrl}: Props) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [state, dispatch] = useFormState(login, null);
+  const [state, dispatch, isPending] = useActionState(login, null);
 
   useEffect(() => {
     if (state?.success) {
@@ -126,9 +124,15 @@ export function LoginForm({callbackUrl}: Props) {
               })}
             </Stack>
           )}
-          <FormButton mt="md" type="submit" disabled={state?.success} fullWidth>
+          <Button
+            mt="md"
+            type="submit"
+            disabled={state?.success}
+            loading={isPending}
+            fullWidth
+          >
             {state?.success === false ? "تلاش مجدد" : "ورود"}
-          </FormButton>
+          </Button>
         </Box>
         <Divider my={"md"} />
         <Stack mt={"sm"} gap={"xs"}>

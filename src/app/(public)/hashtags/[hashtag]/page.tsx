@@ -4,19 +4,21 @@ import {VerticalArticleCard} from "@/features/home-page/components/article-card-
 import {fetchAllArticlesByHashtag} from "@/dal/public/hashtags";
 
 type Props = {
-  params: {
+  params: Promise<{
     hashtag?: string;
-  };
+  }>;
 };
 
-export async function generateMetadata({params}: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const hashtag = decodeURI(params.hashtag ?? "");
   return {
     title: `${hashtag} | تگ ها`,
   };
 }
 
-async function HashtagPage({params}: Props) {
+async function HashtagPage(props: Props) {
+  const params = await props.params;
   const hashtag = params.hashtag;
   if (hashtag === undefined) {
     notFound();

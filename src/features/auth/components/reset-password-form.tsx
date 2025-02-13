@@ -1,5 +1,5 @@
 "use client";
-import {useFormState} from "react-dom";
+import {useActionState} from "react";
 import Link from "next/link";
 import {
   Alert,
@@ -10,8 +10,8 @@ import {
   Text,
   Stack,
   Box,
+  Button,
 } from "@mantine/core";
-import {FormButton} from "@/components/form-button";
 import {FieldErrors} from "./field-errors";
 import {IconInfoCircle} from "@tabler/icons-react";
 import {resetPassword} from "../actions/reset-password";
@@ -21,7 +21,7 @@ type Props = {
 };
 
 export function ResetPasswordForm({token}: Props) {
-  const [state, dispatch] = useFormState(resetPassword, null);
+  const [state, dispatch, isPending] = useActionState(resetPassword, null);
 
   return (
     <Box pt={60}>
@@ -94,9 +94,15 @@ export function ResetPasswordForm({token}: Props) {
               })}
             </>
           )}
-          <FormButton mt="lg" type="submit" disabled={state?.success} fullWidth>
+          <Button
+            mt="lg"
+            type="submit"
+            disabled={state?.success}
+            loading={isPending}
+            fullWidth
+          >
             {state?.success === false ? "تلاش مجدد" : "تغییر کلمه عبور"}
-          </FormButton>
+          </Button>
         </form>
       </Paper>
     </Box>

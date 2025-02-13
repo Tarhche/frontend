@@ -1,13 +1,15 @@
 "use client";
-import {useFormState} from "react-dom";
-import {Stack, Group, TextInput} from "@mantine/core";
-import {FormButton} from "@/components/form-button";
+import {useActionState} from "react";
+import {Stack, Group, TextInput, Button} from "@mantine/core";
 import {updateProfilePasswordAction} from "../../actions/update-password";
 
 export function ProfilePasswordForm() {
-  const [state, dispatch] = useFormState(updateProfilePasswordAction, {
-    success: true,
-  });
+  const [state, dispatch, isPending] = useActionState(
+    updateProfilePasswordAction,
+    {
+      success: true,
+    },
+  );
 
   return (
     <form action={dispatch}>
@@ -23,7 +25,9 @@ export function ProfilePasswordForm() {
           error={state.fieldErrors?.new_password || ""}
         />
         <Group justify="flex-end" mt="md">
-          <FormButton>تغییر کلمه عبور</FormButton>
+          <Button type="submit" loading={isPending}>
+            تغییر کلمه عبور
+          </Button>
         </Group>
       </Stack>
     </form>

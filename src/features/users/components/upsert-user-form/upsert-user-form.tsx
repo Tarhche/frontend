@@ -1,8 +1,15 @@
 "use client";
+import {useActionState} from "react";
 import Link from "next/link";
-import {useFormState} from "react-dom";
-import {Paper, Stack, Group, TextInput, Alert, Anchor} from "@mantine/core";
-import {FormButton} from "@/components/form-button";
+import {
+  Paper,
+  Stack,
+  Group,
+  TextInput,
+  Alert,
+  Anchor,
+  Button,
+} from "@mantine/core";
 import {UserAvatarInput} from "@/components/user-avatar-input";
 import {upsertUserAction} from "../../actions/upsert-user";
 import {APP_PATHS} from "@/lib/app-paths";
@@ -20,7 +27,7 @@ type Props = {
 export function UpsertUserForm({userInfo = {}}: Props) {
   const {userId, defaultUsername, defaultAvatar, defaultEmail, defaultName} =
     userInfo;
-  const [state, dispatch] = useFormState(upsertUserAction, {
+  const [state, dispatch, isPending] = useActionState(upsertUserAction, {
     success: true,
   });
 
@@ -70,9 +77,9 @@ export function UpsertUserForm({userInfo = {}}: Props) {
             )}
             <input name="uuid" value={userId} readOnly hidden />
             <Group justify="flex-end" mt={userId ? "xs" : "lg"}>
-              <FormButton>
+              <Button type="submit" loading={isPending}>
                 {userId === undefined ? "ذخیره کردن کاربر" : "بروزرسانی"}
-              </FormButton>
+              </Button>
             </Group>
           </Stack>
         </Group>

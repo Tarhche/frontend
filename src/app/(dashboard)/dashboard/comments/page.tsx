@@ -14,13 +14,13 @@ export const metadata: Metadata = {
 };
 
 type Props = {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
-  };
+  }>;
 };
 
 async function CommentsPage({searchParams}: Props) {
-  const {page} = searchParams;
+  const {page} = await searchParams;
 
   return (
     <Box>
@@ -34,7 +34,7 @@ async function CommentsPage({searchParams}: Props) {
       />
       <Box mt={"md"}>
         <Suspense
-          key={JSON.stringify(searchParams)}
+          key={JSON.stringify({page})}
           fallback={<CommentsTableSkeleton />}
         >
           <CommentsTable page={page ?? 1} />

@@ -6,13 +6,13 @@ export const metadata: Metadata = {
 };
 
 type Props = {
-  searchParams: {
+  searchParams: Promise<{
     token: string;
-  };
+  }>;
 };
 
 async function AccountVerificationPage(props: Props) {
-  const token = props.searchParams.token;
+  const token = (await props.searchParams).token;
   return <VerifyForm token={token} />;
 }
 

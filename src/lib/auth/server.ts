@@ -10,8 +10,8 @@ export function decodeJWT(token: string) {
 /**
   This function retrieves the access or refresh token from cookies and verifies its validity
 */
-export function isUserTokenValid(type: "access-token" | "refresh-token") {
-  const {accessToken, refreshToken} = getCredentialsFromCookies();
+export async function isUserTokenValid(type: "access-token" | "refresh-token") {
+  const {accessToken, refreshToken} = await getCredentialsFromCookies();
 
   if (type === "access-token") {
     const token = decodeJWT(accessToken || "");
@@ -22,12 +22,15 @@ export function isUserTokenValid(type: "access-token" | "refresh-token") {
   }
 }
 
-export function isUserLoggedIn() {
-  return isUserTokenValid("access-token") || isUserTokenValid("refresh-token");
+export async function isUserLoggedIn() {
+  return (
+    (await isUserTokenValid("access-token")) ||
+    isUserTokenValid("refresh-token")
+  );
 }
 
-export function getUserPermissions(): string[] {
-  const {permissions} = getCredentialsFromCookies();
+export async function getUserPermissions(): Promise<string[]> {
+  const {permissions} = await getCredentialsFromCookies();
   // "W10=" is equal to "[]"
   return JSON.parse(atob(permissions || "W10="));
 }

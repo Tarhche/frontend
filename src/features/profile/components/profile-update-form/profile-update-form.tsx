@@ -1,9 +1,7 @@
 "use client";
 import Link from "next/link";
-import {useEffect} from "react";
-import {useFormState} from "react-dom";
-import {Group, Stack, TextInput, Anchor, Alert} from "@mantine/core";
-import {FormButton} from "@/components/form-button";
+import {useEffect, useActionState} from "react";
+import {Group, Stack, TextInput, Anchor, Alert, Button} from "@mantine/core";
 import {UserAvatarInput} from "@/components/user-avatar-input";
 import {APP_PATHS} from "@/lib/app-paths";
 import {notifications} from "@mantine/notifications";
@@ -19,7 +17,7 @@ type Props = {
 };
 
 export function ProfileUpdateForm({userInfo}: Props) {
-  const [state, dispatch] = useFormState(updateProfileAction, {
+  const [state, dispatch, isPending] = useActionState(updateProfileAction, {
     success: null,
   });
   const {username, name, avatar, email} = userInfo;
@@ -68,7 +66,9 @@ export function ProfileUpdateForm({userInfo}: Props) {
             اقدام کنید
           </Alert>
           <Group justify="flex-end" mt="md">
-            <FormButton>ویرایش پروفایل</FormButton>
+            <Button type="submit" loading={isPending}>
+              ویرایش پروفایل
+            </Button>
           </Group>
         </Stack>
       </Group>

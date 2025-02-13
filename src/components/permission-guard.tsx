@@ -9,13 +9,13 @@ type Props = {
   operator?: Operator;
 };
 
-export function PermissionGuard({
+export async function PermissionGuard({
   allowedPermissions,
   children,
   fallback = null,
   operator = "OR",
 }: Props) {
-  const userPermissions = getUserPermissions();
+  const userPermissions = await getUserPermissions();
   const hasAccess = hasPermission(
     userPermissions,
     allowedPermissions,

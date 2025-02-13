@@ -15,13 +15,13 @@ export const metadata: Metadata = {
 };
 
 type Props = {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
-  };
+  }>;
 };
 
-function MyBookmarksPage({searchParams}: Props) {
-  const page = Number(searchParams.page) || 1;
+async function MyBookmarksPage({searchParams}: Props) {
+  const page = Number((await searchParams).page) || 1;
 
   return (
     <Stack>
@@ -34,7 +34,7 @@ function MyBookmarksPage({searchParams}: Props) {
       />
       <Box>
         <Suspense
-          key={JSON.stringify(searchParams)}
+          key={JSON.stringify(await searchParams)}
           fallback={<UserBookmarksTableSkeleton />}
         >
           <UserBookmarksTable page={page} />

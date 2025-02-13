@@ -9,6 +9,7 @@ export const FormButton = forwardRef<
 >(function (props, ref) {
   const {children, ...rest} = props;
   const {pending} = useFormStatus();
+
   return (
     <Button {...rest} loading={pending} ref={ref} type="submit">
       {children}

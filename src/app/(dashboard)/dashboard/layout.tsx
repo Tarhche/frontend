@@ -17,7 +17,7 @@ type Props = {
 };
 
 export default async function RootLayout({children}: Props) {
-  const isLoggedIn = isUserLoggedIn();
+  const isLoggedIn = await isUserLoggedIn();
 
   if (isLoggedIn === false) {
     redirect(APP_PATHS.home);

@@ -1,37 +1,37 @@
-name: 'Docker Build Action'
-description: 'Builds a Docker image using a specified Dockerfile and context'
+name: "Docker Build Action"
+description: "Builds a Docker image using a specified Dockerfile and context"
 
 inputs:
   context:
-    description: 'The Docker build context (path to the directory containing the Dockerfile)'
+    description: "The Docker build context (path to the directory containing the Dockerfile)"
     required: true
-    default: '.'
+    default: "."
   dockerfile:
-    description: 'The path to the Dockerfile (relative to the context)'
+    description: "The path to the Dockerfile (relative to the context)"
     required: true
-    default: 'Dockerfile'
+    default: "Dockerfile"
   target:
-    description: 'The build target'
+    description: "The build target"
     required: false
   image-name:
-    description: 'The name of the image to build'
+    description: "The name of the image to build"
     required: true
   push:
-    description: 'Determines if the built image should be pushed'
+    description: "Determines if the built image should be pushed"
     required: true
-    default: 'no'
+    default: "no"
   container-registry:
-    description: 'container registry address (example: ghcr.io)'
+    description: "container registry address (example: ghcr.io)"
     required: false
   container-registry-username:
-    description: 'container registry username'
+    description: "container registry username"
     required: false
   container-registry-password:
-    description: 'container registry password'
+    description: "container registry password"
     required: false
 
 runs:
-  using: 'composite'
+  using: "composite"
 
   steps:
     - name: Checkout
