@@ -6,6 +6,7 @@ import {
   TableTh,
   TableThead,
   TableTbody,
+  TableScrollContainer,
   ActionIcon,
   ActionIconGroup,
   Tooltip,
@@ -46,60 +47,62 @@ export async function RolesTable({page}: Props) {
           نقش جدید
         </Button>
       </Group>
-      <Table verticalSpacing={"sm"} striped withRowBorders>
-        <TableThead>
-          <TableTr>
-            {TABLE_HEADERS.map((h) => {
-              return <TableTh key={h}>{h}</TableTh>;
-            })}
-          </TableTr>
-        </TableThead>
-        <TableTbody>
-          {roles.length === 0 && (
+      <TableScrollContainer minWidth={500}>
+        <Table verticalSpacing={"sm"} striped withRowBorders>
+          <TableThead>
             <TableTr>
-              <TableTd colSpan={TABLE_HEADERS.length} ta={"center"}>
-                نقشی هنوز وجود ندارد
-              </TableTd>
+              {TABLE_HEADERS.map((h) => {
+                return <TableTh key={h}>{h}</TableTh>;
+              })}
             </TableTr>
-          )}
-          {roles.map((role: any, index: number) => {
-            return (
-              <TableTr key={role.uuid}>
-                <TableTd>{index + 1}</TableTd>
-                <TableTd>{role.name}</TableTd>
-                <TableTd>{role.description}</TableTd>
-                <TableTd>
-                  <ActionIconGroup>
-                    <PermissionGuard
-                      allowedPermissions={["roles.update", "roles.show"]}
-                      operator="AND"
-                    >
-                      <Tooltip label={"ویرایش کردن نقش"} withArrow>
-                        <ActionIcon
-                          variant="light"
-                          size="lg"
-                          color="blue"
-                          aria-label="ویرایش کردن نقش"
-                          component={Link}
-                          href={`${APP_PATHS.dashboard.roles.edit(role.uuid)}`}
-                        >
-                          <IconPencil style={{width: rem(20)}} stroke={1.5} />
-                        </ActionIcon>
-                      </Tooltip>
-                    </PermissionGuard>
-                    <PermissionGuard allowedPermissions={["roles.delete"]}>
-                      <RoleDeleteButton
-                        roleId={role.uuid}
-                        roleName={role.name}
-                      />
-                    </PermissionGuard>
-                  </ActionIconGroup>
+          </TableThead>
+          <TableTbody>
+            {roles.length === 0 && (
+              <TableTr>
+                <TableTd colSpan={TABLE_HEADERS.length} ta={"center"}>
+                  نقشی هنوز وجود ندارد
                 </TableTd>
               </TableTr>
-            );
-          })}
-        </TableTbody>
-      </Table>
+            )}
+            {roles.map((role: any, index: number) => {
+              return (
+                <TableTr key={role.uuid}>
+                  <TableTd>{index + 1}</TableTd>
+                  <TableTd>{role.name}</TableTd>
+                  <TableTd>{role.description}</TableTd>
+                  <TableTd>
+                    <ActionIconGroup>
+                      <PermissionGuard
+                        allowedPermissions={["roles.update", "roles.show"]}
+                        operator="AND"
+                      >
+                        <Tooltip label={"ویرایش کردن نقش"} withArrow>
+                          <ActionIcon
+                            variant="light"
+                            size="lg"
+                            color="blue"
+                            aria-label="ویرایش کردن نقش"
+                            component={Link}
+                            href={`${APP_PATHS.dashboard.roles.edit(role.uuid)}`}
+                          >
+                            <IconPencil style={{width: rem(20)}} stroke={1.5} />
+                          </ActionIcon>
+                        </Tooltip>
+                      </PermissionGuard>
+                      <PermissionGuard allowedPermissions={["roles.delete"]}>
+                        <RoleDeleteButton
+                          roleId={role.uuid}
+                          roleName={role.name}
+                        />
+                      </PermissionGuard>
+                    </ActionIconGroup>
+                  </TableTd>
+                </TableTr>
+              );
+            })}
+          </TableTbody>
+        </Table>
+      </TableScrollContainer>
       {roles.length >= 1 && (
         <Group mt="md" mb={"lg"} justify="flex-end">
           <Pagination
