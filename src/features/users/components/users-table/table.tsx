@@ -6,6 +6,7 @@ import {
   TableTh,
   TableThead,
   TableTbody,
+  TableScrollContainer,
   ActionIcon,
   ActionIconGroup,
   Tooltip,
@@ -55,66 +56,68 @@ export async function UsersTable({page}: Props) {
           کاربر جدید
         </Button>
       </Group>
-      <Table verticalSpacing={"sm"} striped withRowBorders>
-        <TableThead>
-          <TableTr>
-            {TABLE_HEADERS.map((h) => {
-              return <TableTh key={h}>{h}</TableTh>;
-            })}
-          </TableTr>
-        </TableThead>
-        <TableTbody>
-          {users.length === 0 && (
+      <TableScrollContainer minWidth={500}>
+        <Table verticalSpacing={"sm"} striped withRowBorders>
+          <TableThead>
             <TableTr>
-              <TableTd colSpan={TABLE_HEADERS.length} ta={"center"}>
-                کاربری وجود ندارد
-              </TableTd>
+              {TABLE_HEADERS.map((h) => {
+                return <TableTh key={h}>{h}</TableTh>;
+              })}
             </TableTr>
-          )}
-          {users.map((user: any, index: number) => {
-            return (
-              <TableTr key={user.uuid}>
-                <TableTd>{index + 1}</TableTd>
-                <TableTd>
-                  <UserAvatar
-                    width={48}
-                    height={48}
-                    userId={user.uuid}
-                    src={user.avatar}
-                  />
-                </TableTd>
-                <TableTd>{user.name}</TableTd>
-                <TableTd>{user.username}</TableTd>
-                <TableTd>{user.email}</TableTd>
-                <TableTd>
-                  <ActionIconGroup>
-                    <PermissionGuard
-                      allowedPermissions={["users.update", "users.show"]}
-                      operator="AND"
-                    >
-                      <Tooltip label={"ویرایش کردن کاربر"} withArrow>
-                        <ActionIcon
-                          variant="light"
-                          size="lg"
-                          color="blue"
-                          aria-label="ویرایش کردن کاربر"
-                          component={Link}
-                          href={`${APP_PATHS.dashboard.users.edit(user.uuid)}`}
-                        >
-                          <IconPencil style={{width: rem(20)}} stroke={1.5} />
-                        </ActionIcon>
-                      </Tooltip>
-                    </PermissionGuard>
-                    <PermissionGuard allowedPermissions={["users.delete"]}>
-                      <DeleteButton userID={user.uuid} username={user.name} />
-                    </PermissionGuard>
-                  </ActionIconGroup>
+          </TableThead>
+          <TableTbody>
+            {users.length === 0 && (
+              <TableTr>
+                <TableTd colSpan={TABLE_HEADERS.length} ta={"center"}>
+                  کاربری وجود ندارد
                 </TableTd>
               </TableTr>
-            );
-          })}
-        </TableTbody>
-      </Table>
+            )}
+            {users.map((user: any, index: number) => {
+              return (
+                <TableTr key={user.uuid}>
+                  <TableTd>{index + 1}</TableTd>
+                  <TableTd>
+                    <UserAvatar
+                      width={48}
+                      height={48}
+                      userId={user.uuid}
+                      src={user.avatar}
+                    />
+                  </TableTd>
+                  <TableTd>{user.name}</TableTd>
+                  <TableTd>{user.username}</TableTd>
+                  <TableTd>{user.email}</TableTd>
+                  <TableTd>
+                    <ActionIconGroup>
+                      <PermissionGuard
+                        allowedPermissions={["users.update", "users.show"]}
+                        operator="AND"
+                      >
+                        <Tooltip label={"ویرایش کردن کاربر"} withArrow>
+                          <ActionIcon
+                            variant="light"
+                            size="lg"
+                            color="blue"
+                            aria-label="ویرایش کردن کاربر"
+                            component={Link}
+                            href={`${APP_PATHS.dashboard.users.edit(user.uuid)}`}
+                          >
+                            <IconPencil style={{width: rem(20)}} stroke={1.5} />
+                          </ActionIcon>
+                        </Tooltip>
+                      </PermissionGuard>
+                      <PermissionGuard allowedPermissions={["users.delete"]}>
+                        <DeleteButton userID={user.uuid} username={user.name} />
+                      </PermissionGuard>
+                    </ActionIconGroup>
+                  </TableTd>
+                </TableTr>
+              );
+            })}
+          </TableTbody>
+        </Table>
+      </TableScrollContainer>
       {users.length >= 1 && (
         <Group mt="md" mb={"lg"} justify="flex-end">
           <Pagination total={total_pages} current={current_page} />

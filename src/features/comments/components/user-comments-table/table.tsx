@@ -6,6 +6,7 @@ import {
   TableTh,
   TableThead,
   TableTbody,
+  TableScrollContainer,
   ActionIcon,
   ActionIconGroup,
   Tooltip,
@@ -38,70 +39,72 @@ export async function UserCommentsTable({page}: Props) {
 
   return (
     <>
-      <Table verticalSpacing="sm" striped withRowBorders>
-        <TableThead>
-          <TableTr>
-            {TABLE_HEADERS.map((h) => {
-              return <TableTh key={h}>{h}</TableTh>;
-            })}
-          </TableTr>
-        </TableThead>
-        <TableTbody>
-          {comments.length === 0 && (
+      <TableScrollContainer minWidth={500}>
+        <Table verticalSpacing="sm" striped withRowBorders>
+          <TableThead>
             <TableTr>
-              <TableTd colSpan={TABLE_HEADERS.length} ta="center">
-                هنوز کامنتی را ثبت نکرده اید
-              </TableTd>
+              {TABLE_HEADERS.map((h) => {
+                return <TableTh key={h}>{h}</TableTh>;
+              })}
             </TableTr>
-          )}
-          {comments.map((comment: any, index: number) => {
-            const isApproved = !isGregorianStartDateTime(comment.approved_at);
-
-            return (
-              <TableTr key={comment.uuid}>
-                <TableTd>{index + 1}</TableTd>
-                <TableTd>{comment.body}</TableTd>
-                <TableTd>
-                  {isApproved ? (
-                    <Badge color="green" variant="light">
-                      تایید شده
-                    </Badge>
-                  ) : (
-                    <Badge color="yellow" variant="light">
-                      در انتظار تایید
-                    </Badge>
-                  )}
-                </TableTd>
-                <TableTd>{dateFromNow(comment.created_at)}</TableTd>
-                <TableTd>
-                  <ActionIconGroup>
-                    <Tooltip label="بازدید کردن کامنت" withArrow>
-                      <ActionIcon
-                        variant="light"
-                        size="lg"
-                        color="blue"
-                        aria-label="بازدید کردن کامنت"
-                        component={Link}
-                        href={`${APP_PATHS.articles.detail(comment.object_uuid)}`}
-                      >
-                        <IconEye style={{width: rem(20)}} stroke={1.5} />
-                      </ActionIcon>
-                    </Tooltip>
-                    <PermissionGuard
-                      allowedPermissions={["self.comments.delete"]}
-                    >
-                      <DeleteButton
-                        commentID={comment.uuid}
-                        commentMessage={comment.body}
-                      />
-                    </PermissionGuard>
-                  </ActionIconGroup>
+          </TableThead>
+          <TableTbody>
+            {comments.length === 0 && (
+              <TableTr>
+                <TableTd colSpan={TABLE_HEADERS.length} ta="center">
+                  هنوز کامنتی را ثبت نکرده اید
                 </TableTd>
               </TableTr>
-            );
-          })}
-        </TableTbody>
-      </Table>
+            )}
+            {comments.map((comment: any, index: number) => {
+              const isApproved = !isGregorianStartDateTime(comment.approved_at);
+
+              return (
+                <TableTr key={comment.uuid}>
+                  <TableTd>{index + 1}</TableTd>
+                  <TableTd>{comment.body}</TableTd>
+                  <TableTd>
+                    {isApproved ? (
+                      <Badge color="green" variant="light">
+                        تایید شده
+                      </Badge>
+                    ) : (
+                      <Badge color="yellow" variant="light">
+                        در انتظار تایید
+                      </Badge>
+                    )}
+                  </TableTd>
+                  <TableTd>{dateFromNow(comment.created_at)}</TableTd>
+                  <TableTd>
+                    <ActionIconGroup>
+                      <Tooltip label="بازدید کردن کامنت" withArrow>
+                        <ActionIcon
+                          variant="light"
+                          size="lg"
+                          color="blue"
+                          aria-label="بازدید کردن کامنت"
+                          component={Link}
+                          href={`${APP_PATHS.articles.detail(comment.object_uuid)}`}
+                        >
+                          <IconEye style={{width: rem(20)}} stroke={1.5} />
+                        </ActionIcon>
+                      </Tooltip>
+                      <PermissionGuard
+                        allowedPermissions={["self.comments.delete"]}
+                      >
+                        <DeleteButton
+                          commentID={comment.uuid}
+                          commentMessage={comment.body}
+                        />
+                      </PermissionGuard>
+                    </ActionIconGroup>
+                  </TableTd>
+                </TableTr>
+              );
+            })}
+          </TableTbody>
+        </Table>
+      </TableScrollContainer>
       {comments.length >= 1 && (
         <Group mt="md" mb="lg" justify="flex-end">
           <Pagination total={total_pages} current={current_page} />

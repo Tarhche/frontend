@@ -6,6 +6,7 @@ import {
   TableTh,
   TableThead,
   TableTbody,
+  TableScrollContainer,
   ActionIcon,
   ActionIconGroup,
   Tooltip,
@@ -37,57 +38,59 @@ export async function UserBookmarksTable({page}: Props) {
 
   return (
     <>
-      <Table verticalSpacing={"sm"} striped withRowBorders>
-        <TableThead>
-          <TableTr>
-            {TABLE_HEADERS.map((h) => {
-              return <TableTh key={h}>{h}</TableTh>;
-            })}
-          </TableTr>
-        </TableThead>
-        <TableTbody>
-          {bookmarks.length === 0 && (
+      <TableScrollContainer minWidth={500}>
+        <Table verticalSpacing={"sm"} striped withRowBorders>
+          <TableThead>
             <TableTr>
-              <TableTd colSpan={TABLE_HEADERS.length} ta={"center"}>
-                هنوز چیزی را ذخیره نکرده اید
-              </TableTd>
+              {TABLE_HEADERS.map((h) => {
+                return <TableTh key={h}>{h}</TableTh>;
+              })}
             </TableTr>
-          )}
-          {bookmarks.map((bookmark: any, index: number) => {
-            return (
-              <TableTr key={bookmark.object_uuid}>
-                <TableTd>{index + 1}</TableTd>
-                <TableTd>{bookmark.title}</TableTd>
-                <TableTd>{dateFromNow(bookmark.created_at)}</TableTd>
-                <TableTd>
-                  <ActionIconGroup>
-                    <Tooltip label={"بازدید کردن کامنت"} withArrow>
-                      <ActionIcon
-                        variant="light"
-                        size="lg"
-                        color="blue"
-                        aria-label="بازدید کردن کامنت"
-                        component={Link}
-                        href={`${APP_PATHS.articles.detail(bookmark.object_uuid)}`}
-                      >
-                        <IconEye style={{width: rem(20)}} stroke={1.5} />
-                      </ActionIcon>
-                    </Tooltip>
-                    <PermissionGuard
-                      allowedPermissions={["self.bookmarks.delete"]}
-                    >
-                      <MyBookmarkDeleteButton
-                        title={bookmark.title}
-                        bookmarkID={bookmark.object_uuid}
-                      />
-                    </PermissionGuard>
-                  </ActionIconGroup>
+          </TableThead>
+          <TableTbody>
+            {bookmarks.length === 0 && (
+              <TableTr>
+                <TableTd colSpan={TABLE_HEADERS.length} ta={"center"}>
+                  هنوز چیزی را ذخیره نکرده اید
                 </TableTd>
               </TableTr>
-            );
-          })}
-        </TableTbody>
-      </Table>
+            )}
+            {bookmarks.map((bookmark: any, index: number) => {
+              return (
+                <TableTr key={bookmark.object_uuid}>
+                  <TableTd>{index + 1}</TableTd>
+                  <TableTd>{bookmark.title}</TableTd>
+                  <TableTd>{dateFromNow(bookmark.created_at)}</TableTd>
+                  <TableTd>
+                    <ActionIconGroup>
+                      <Tooltip label={"بازدید کردن کامنت"} withArrow>
+                        <ActionIcon
+                          variant="light"
+                          size="lg"
+                          color="blue"
+                          aria-label="بازدید کردن کامنت"
+                          component={Link}
+                          href={`${APP_PATHS.articles.detail(bookmark.object_uuid)}`}
+                        >
+                          <IconEye style={{width: rem(20)}} stroke={1.5} />
+                        </ActionIcon>
+                      </Tooltip>
+                      <PermissionGuard
+                        allowedPermissions={["self.bookmarks.delete"]}
+                      >
+                        <MyBookmarkDeleteButton
+                          title={bookmark.title}
+                          bookmarkID={bookmark.object_uuid}
+                        />
+                      </PermissionGuard>
+                    </ActionIconGroup>
+                  </TableTd>
+                </TableTr>
+              );
+            })}
+          </TableTbody>
+        </Table>
+      </TableScrollContainer>
       {bookmarks.length >= 1 && (
         <Group mt="md" mb={"lg"} justify="flex-end">
           <Pagination total={total_pages} current={current_page} />

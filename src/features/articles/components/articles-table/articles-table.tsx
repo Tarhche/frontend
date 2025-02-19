@@ -6,6 +6,7 @@ import {
   TableTh,
   TableThead,
   TableTbody,
+  TableScrollContainer,
   ActionIcon,
   ActionIconGroup,
   Tooltip,
@@ -85,85 +86,88 @@ export async function ArticlesTable({page}: Props) {
           </Button>
         </Group>
       </PermissionGuard>
-      <Table verticalSpacing={"sm"} striped withRowBorders>
-        <TableThead>
-          <TableTr>
-            <TableTh>#</TableTh>
-            <TableTh>عنوان</TableTh>
-            <TableTh>تاریخ انتشار</TableTh>
-            <TableTh>عملیات</TableTh>
-          </TableTr>
-        </TableThead>
-        <TableTbody>
-          {articles.length === 0 && (
+      <TableScrollContainer minWidth={500}>
+        <Table verticalSpacing="sm" striped withRowBorders>
+          <TableThead>
             <TableTr>
-              <TableTd colSpan={4} ta={"center"}>
-                مقاله های وجود ندارد
-              </TableTd>
+              <TableTh>#</TableTh>
+              <TableTh>عنوان</TableTh>
+              <TableTh>تاریخ انتشار</TableTh>
+              <TableTh>عملیات</TableTh>
             </TableTr>
-          )}
-          {articles.map((article: any, index: number) => {
-            const isPublished = new Date(article.published_at).getDate() !== 1;
-
-            return (
-              <TableTr key={article.uuid}>
-                <TableTd>{index + 1}</TableTd>
-                <TableTd>{article.title}</TableTd>
-                <TableTd>
-                  {isPublished ? (
-                    dateFromNow(article.published_at)
-                  ) : (
-                    <Badge color="yellow" variant="light">
-                      منتشر نشده
-                    </Badge>
-                  )}
-                </TableTd>
-                <TableTd>
-                  <ActionIconGroup>
-                    {tableActions.map(
-                      ({
-                        Icon,
-                        tooltipLabel,
-                        color,
-                        href,
-                        allowedPermissions,
-                        disabled,
-                      }) => {
-                        return (
-                          <PermissionGuard
-                            key={tooltipLabel}
-                            allowedPermissions={allowedPermissions}
-                          >
-                            <Tooltip label={tooltipLabel} withArrow>
-                              <ActionIcon
-                                component={Link}
-                                variant="light"
-                                size="lg"
-                                color={color}
-                                href={href(article.uuid)}
-                                disabled={disabled(isPublished === false)}
-                                aria-label={tooltipLabel}
-                              >
-                                <Icon style={{width: rem(20)}} stroke={1.5} />
-                              </ActionIcon>
-                            </Tooltip>
-                          </PermissionGuard>
-                        );
-                      },
-                    )}
-                    <PermissionGuard allowedPermissions={["articles.delete"]}>
-                      <ArticleDeleteButton
-                        articleID={article.uuid}
-                        articleTitle={article.title}
-                      />
-                    </PermissionGuard>
-                  </ActionIconGroup>
+          </TableThead>
+          <TableTbody>
+            {articles.length === 0 && (
+              <TableTr>
+                <TableTd colSpan={4} ta={"center"}>
+                  مقاله های وجود ندارد
                 </TableTd>
               </TableTr>
-            );
-          })}
-        </TableTbody>
-      </Table>
+            )}
+            {articles.map((article: any, index: number) => {
+              const isPublished =
+                new Date(article.published_at).getDate() !== 1;
+
+              return (
+                <TableTr key={article.uuid}>
+                  <TableTd>{index + 1}</TableTd>
+                  <TableTd>{article.title}</TableTd>
+                  <TableTd>
+                    {isPublished ? (
+                      dateFromNow(article.published_at)
+                    ) : (
+                      <Badge color="yellow" variant="light">
+                        منتشر نشده
+                      </Badge>
+                    )}
+                  </TableTd>
+                  <TableTd>
+                    <ActionIconGroup>
+                      {tableActions.map(
+                        ({
+                          Icon,
+                          tooltipLabel,
+                          color,
+                          href,
+                          allowedPermissions,
+                          disabled,
+                        }) => {
+                          return (
+                            <PermissionGuard
+                              key={tooltipLabel}
+                              allowedPermissions={allowedPermissions}
+                            >
+                              <Tooltip label={tooltipLabel} withArrow>
+                                <ActionIcon
+                                  component={Link}
+                                  variant="light"
+                                  size="lg"
+                                  color={color}
+                                  href={href(article.uuid)}
+                                  disabled={disabled(isPublished === false)}
+                                  aria-label={tooltipLabel}
+                                >
+                                  <Icon style={{width: rem(20)}} stroke={1.5} />
+                                </ActionIcon>
+                              </Tooltip>
+                            </PermissionGuard>
+                          );
+                        },
+                      )}
+                      <PermissionGuard allowedPermissions={["articles.delete"]}>
+                        <ArticleDeleteButton
+                          articleID={article.uuid}
+                          articleTitle={article.title}
+                        />
+                      </PermissionGuard>
+                    </ActionIconGroup>
+                  </TableTd>
+                </TableTr>
+              );
+            })}
+          </TableTbody>
+        </Table>
+      </TableScrollContainer>
       {articles.length >= 1 && (
         <Group mt="md" mb="xl" justify="flex-end">
           <ArticlesPagination total={total_pages} current={current_page} />
