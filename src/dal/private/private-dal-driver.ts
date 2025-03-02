@@ -110,6 +110,7 @@ async function handleResponseRejection(response: any) {
     }
   }
   if (isAxiosError(response)) {
+    console.log(response.message);
     throw new DALDriverError("", response.status!, {
       data: response.response?.data,
     });

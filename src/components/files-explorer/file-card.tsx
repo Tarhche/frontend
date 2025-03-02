@@ -2,26 +2,28 @@
 import {useState} from "react";
 import Image from "next/image";
 import clsx from "clsx";
+import {useMutation} from "@tanstack/react-query";
 import {
   Box,
   Paper,
   Overlay,
   Group,
+  Button,
   ActionIconGroup,
   ActionIcon,
   Modal,
-  Button,
   Badge,
 } from "@mantine/core";
-import {FormButton} from "../form-button";
 import {IconEye, IconTrash, IconCheck} from "@tabler/icons-react";
 import {FILES_PUBLIC_URL} from "@/constants/envs";
 import {deleteFileAction} from "@/features/files/actions";
+import {mimeToIcon, defaultIcon} from "./mimetype-mapping";
 import classes from "./file-card.module.css";
 
 type File = {
   uuid: string;
   name: string;
+  mimeType: string;
 };
 
 type Props = {
@@ -32,8 +34,18 @@ type Props = {
 };
 
 export function FileCard({file, isSelected, onDelete, onSelect}: Props) {
+  const {mutate, isPending} = useMutation({
+    mutationKey: ["file-delete"],
+    mutationFn: deleteFileAction,
+    onSuccess: () => {
+      onDelete(file.uuid);
+      handleClose();
+    },
+  });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showAction, setShowActions] = useState(false);
+  const isImageFile = file.mimeType.startsWith("image/");
+  const FileIcon = mimeToIcon[file.mimeType] || defaultIcon;
 
   const handleClose = () => {
     setShowDeleteConfirm(false);
@@ -47,9 +59,7 @@ export function FileCard({file, isSelected, onDelete, onSelect}: Props) {
   const handleDelete = async () => {
     const fd = new FormData();
     fd.set("id", file.uuid);
-    await deleteFileAction(fd);
-    onDelete(file.uuid);
-    handleClose();
+    mutate(fd);
   };
 
   return (
@@ -83,13 +93,27 @@ export function FileCard({file, isSelected, onDelete, onSelect}: Props) {
               <IconCheck stroke={3} />
             </Badge>
           )}
-          <Image
-            width={300}
-            height={300}
-            className={classes.imageCard}
-            src={`${FILES_PUBLIC_URL}/${file.uuid}`}
-            alt={file.name}
-          />
+          {isImageFile ? (
+            <Image
+              width={300}
+              height={300}
+              className={classes.imageCard}
+              src={`${FILES_PUBLIC_URL}/${file.uuid}`}
+              alt={file.name}
+            />
+          ) : (
+            <Box
+              w={100}
+              h={100}
+              display="flex"
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <FileIcon size={40} />
+            </Box>
+          )}
           {showAction ? (
             <Overlay zIndex={98}>
               <Box className={classes.actionsWrapper}>
@@ -140,7 +164,9 @@ export function FileCard({file, isSelected, onDelete, onSelect}: Props) {
             لفو کردن
           </Button>
           <form action={handleDelete}>
-            <FormButton color="red">حذف کردن</FormButton>
+            <Button color="red" type="submit" loading={isPending}>
+              حذف کردن
+            </Button>
           </form>
         </Group>
       </Modal>
