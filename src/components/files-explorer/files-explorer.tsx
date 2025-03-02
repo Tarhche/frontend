@@ -88,6 +88,7 @@ export function FilesExplorer({onSelect}: Props) {
                 file={{
                   name: file.name,
                   uuid: file.uuid,
+                  mimeType: file.mimetype,
                 }}
                 isSelected={selectedFile === file.uuid}
                 onSelect={onSelect ? handleSelectFile : undefined}
