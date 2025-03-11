@@ -74,6 +74,7 @@ import {
   Underline,
   WordCount,
 } from "ckeditor5";
+import {FileExplorerPlugin} from "./plugins/file-explorer-plugin";
 
 export const editorConfig: EditorConfig = {
   licenseKey: "GPL",
@@ -98,6 +99,7 @@ export const editorConfig: EditorConfig = {
       "underline",
       "|",
       "link",
+      "fileExplorer",
       "insertImage",
       "insertTable",
       "highlight",
@@ -115,6 +117,7 @@ export const editorConfig: EditorConfig = {
     shouldNotGroupWhenFull: true,
   },
   plugins: [
+    FileExplorerPlugin,
     Alignment,
     Autoformat,
     AutoImage,
