@@ -148,6 +148,11 @@
   box-shadow: 5px 5px 0 #b3b3b3;
 }
 
+.ck-content code {
+  direction: ltr;
+  display: inline-block;
+}
+
 .editor_container__word-count .ck-word-count {
   color: var(--ck-color-text);
   display: flex;
