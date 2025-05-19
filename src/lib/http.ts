@@ -1,3 +1,4 @@
+"use server";
 import {cookies, headers} from "next/headers";
 import {
   ACCESS_TOKEN_COOKIE_NAME,
@@ -15,8 +16,8 @@ export async function getCredentialsFromCookies() {
   const cookiesStore = await cookies();
 
   return {
-    accessToken: cookiesStore.get(ACCESS_TOKEN_COOKIE_NAME)?.value,
-    refreshToken: cookiesStore.get(REFRESH_TOKEN_COOKIE_NAME)?.value,
-    permissions: cookiesStore.get(USER_PERMISSIONS_COOKIE_NAME)?.value,
+    accessToken: cookiesStore.get(ACCESS_TOKEN_COOKIE_NAME as any)?.value,
+    refreshToken: cookiesStore.get(REFRESH_TOKEN_COOKIE_NAME as any)?.value,
+    permissions: cookiesStore.get(USER_PERMISSIONS_COOKIE_NAME as any)?.value,
   };
 }
