@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import {getCredentialsFromCookies} from "../http";
 
-export function decodeJWT(token: string) {
+function decodeJWT(token: string) {
   return jwt.decode(token ?? "", {
     json: true,
   });
