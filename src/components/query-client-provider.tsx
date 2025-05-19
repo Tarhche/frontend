@@ -1,22 +1,79 @@
 "use client";
-import {ReactNode} from "react";
+import { ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import {
   QueryClient,
-  QueryClientProvider as QueryClientProvider_,
+  QueryClientProvider as RQProvider,
+  QueryCache,
+  MutationCache,
 } from "@tanstack/react-query";
+import { notifications } from "@mantine/notifications";
 
-type Props = {
-  children: ReactNode;
-};
+function messageFor(status: number) {
+  switch (status) {
+    case 400:
+      return "درخواست قابل پردازش نیست.";
+    case 401:
+      return "لطفاً برای ادامه وارد شوید.";
+    case 403:
+      return "شما مجوز انجام این عمل را ندارید.";
+    case 404:
+      return "مورد درخواستی یافت نشد.";
+    case 409:
+      return "این منبع قبلاً وجود دارد.";
+    case 500:
+      return "سرور دچار مشکل شده است. لطفاً بعداً دوباره تلاش کنید.";
+    default:
+      return "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.";
+  }
+}
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {},
-  },
-});
+function handleError(err: any, router?: ReturnType<typeof useRouter>) {
+  const status = err.response.status;
+  if (status) {
+    notifications.show({
+      title: `خطا ${err.status}`,
+      message: messageFor(err.status),
+      color: err.status === 403 ? "yellow" : "red",
+      withCloseButton: true,
+    });
+  } else {
+    notifications.show({
+      title: "خطای غیرمنتظره",
+      message: "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
+      color: "red",
+    });
+  }
+}
 
-export function QueryClientProvider({children}: Props) {
+function createQueryClient(router: ReturnType<typeof useRouter>) {
+  return new QueryClient({
+    queryCache: new QueryCache({
+      onError: (err) => handleError(err, router),
+    }),
+    mutationCache: new MutationCache({
+      onError: (err, _vars, _ctx, mutation) => {
+        // Let a mutation-specific onError override the global one
+        if (!mutation.options.onError) handleError(err, router);
+      },
+    }),
+    defaultOptions: {
+      queries: {
+        // sensible defaults
+        staleTime: 5 * 60 * 1000,
+        refetchOnWindowFocus: false,
+      },
+    },
+  });
+}
+
+type Props = { children: ReactNode };
+
+export function QueryClientProvider({ children }: Props) {
+  const router = useRouter();
+  const queryClient = createQueryClient(router);
+
   return (
-    <QueryClientProvider_ client={queryClient}>{children}</QueryClientProvider_>
+    <RQProvider client={queryClient}>{children}</RQProvider>
   );
 }

@@ -1,3 +1,4 @@
+"use server"
 import {notFound} from "next/navigation";
 import {cookies, headers} from "next/headers";
 import axios, {InternalAxiosRequestConfig, isAxiosError} from "axios";

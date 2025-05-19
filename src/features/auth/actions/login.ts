@@ -31,12 +31,12 @@ export async function login(
       const response = await loginUser(identity, password);
       (await cookies()).set(ACCESS_TOKEN_COOKIE_NAME, response.access_token, {
         maxAge: ACCESS_TOKEN_EXP,
-        httpOnly: true,
+        httpOnly: false,
         secure: true,
       });
       (await cookies()).set(REFRESH_TOKEN_COOKIE_NAME, response.refresh_token, {
         maxAge: REFRESH_TOKEN_EXP,
-        httpOnly: true,
+        httpOnly: false,
         secure: true,
       });
       (await cookies()).set(

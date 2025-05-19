@@ -6,7 +6,7 @@ import {AddFileButton} from "./add-file-button";
 import {FilesSkeleton} from "./files-skeleton";
 import {IconCheck} from "@tabler/icons-react";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
-import {fetchWrapper} from "@/lib/client-fetch-wrapper";
+import {clientDalDriver} from "@/dal/client/client-dal-driver";
 
 type Data = {
   items: any;
@@ -29,7 +29,7 @@ export function FilesExplorer({onSelect}: Props) {
     queryKey: ["files", params],
     queryFn: async () => {
       const searchParams = new URLSearchParams(params);
-      return fetchWrapper(`/api/dashboard/files?${searchParams.toString()}`);
+      return clientDalDriver(`/dashboard/files?${searchParams.toString()}`).then(r => r.data);
     },
     retry: 1,
     staleTime: Infinity,
