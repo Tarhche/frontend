@@ -75,6 +75,7 @@ import {
   WordCount,
 } from "ckeditor5";
 import {FileExplorerPlugin} from "./plugins/file-explorer-plugin";
+import ExecutableCodeBlock from "@/features/articles/components/article-editor/plugins/executable-code-block";
 
 export const editorConfig: EditorConfig = {
   licenseKey: "GPL",
@@ -105,6 +106,7 @@ export const editorConfig: EditorConfig = {
       "highlight",
       "blockQuote",
       "codeBlock",
+      "executable",
       "|",
       "alignment",
       "|",
@@ -191,6 +193,7 @@ export const editorConfig: EditorConfig = {
     TodoList,
     Underline,
     WordCount,
+    ExecutableCodeBlock,
   ],
   balloonToolbar: [
     "bold",
