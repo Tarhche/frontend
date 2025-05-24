@@ -296,3 +296,7 @@
   > .ck-editor__editable {
   background-color: var(--mantine-color-dark-6);
 }
+
+.ck-button_fit_content .ck-button__label {
+  width: fit-content!important;
+}
