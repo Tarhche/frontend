@@ -2,8 +2,7 @@ import axios, {AxiosResponse} from "axios";
 import Cookie from "@/lib/cookie/Cookie";
 import {
   ACCESS_TOKEN_COOKIE_NAME,
-  ACCESS_TOKEN_EXP,
-  PUBLIC_BACKEND_URL,
+  ACCESS_TOKEN_EXP, PUBLIC_BACKEND_URL,
   REFRESH_TOKEN_COOKIE_NAME,
   REFRESH_TOKEN_EXP,
 } from "@/constants";
@@ -11,8 +10,12 @@ import {
 export const refreshAuthLogic = (failedRequest: { response: AxiosResponse }) => {
   return new Promise((resolve, reject) => {
     const cookieStore = new Cookie();
-    const BASE_URL = `${PUBLIC_BACKEND_URL}/api`;
     const refreshToken = cookieStore.get(REFRESH_TOKEN_COOKIE_NAME);
+    if (!refreshToken) {
+      cookieStore.remove(ACCESS_TOKEN_COOKIE_NAME);
+      window.location.href = '/auth/login';
+    }
+    const BASE_URL = `${PUBLIC_BACKEND_URL}/api`;
     axios.post(`${BASE_URL}/auth/token/refresh`, {
       token: refreshToken,
     }).then(response => {
@@ -29,6 +32,9 @@ export const refreshAuthLogic = (failedRequest: { response: AxiosResponse }) => 
 
       return resolve(true);
     }).catch(e => {
+      cookieStore.remove(ACCESS_TOKEN_COOKIE_NAME);
+      cookieStore.remove(REFRESH_TOKEN_COOKIE_NAME);
+      window.location.href = '/auth/login';
       reject(e);
     });
   })
