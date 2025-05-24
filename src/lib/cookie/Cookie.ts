@@ -19,4 +19,8 @@ export default class Cookie {
   get(key: string) {
     return this.cookieManager.get(key);
   }
+
+  remove(key: string) {
+    return this.cookieManager.remove(key);
+  }
 }
