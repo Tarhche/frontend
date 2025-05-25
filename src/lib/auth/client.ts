@@ -2,10 +2,11 @@ import axios, {AxiosResponse} from "axios";
 import Cookie from "@/lib/cookie/Cookie";
 import {
   ACCESS_TOKEN_COOKIE_NAME,
-  ACCESS_TOKEN_EXP, PUBLIC_BACKEND_URL,
+  ACCESS_TOKEN_EXP,
   REFRESH_TOKEN_COOKIE_NAME,
   REFRESH_TOKEN_EXP,
 } from "@/constants";
+import {refreshToken as refreshTokenRequest} from "@/dal/public/auth";
 
 export const refreshAuthLogic = (failedRequest: { response: AxiosResponse }) => {
   return new Promise((resolve, reject) => {
@@ -15,10 +16,7 @@ export const refreshAuthLogic = (failedRequest: { response: AxiosResponse }) => 
       cookieStore.remove(ACCESS_TOKEN_COOKIE_NAME);
       window.location.href = '/auth/login';
     }
-    const BASE_URL = `${PUBLIC_BACKEND_URL}/api`;
-    axios.post(`${BASE_URL}/auth/token/refresh`, {
-      token: refreshToken,
-    }).then(response => {
+    refreshTokenRequest(refreshToken as string).then(response => {
       const {access_token, refresh_token} = response.data;
       failedRequest.response.config.headers['Authorization'] = 'Bearer ' + access_token;
       cookieStore.set(ACCESS_TOKEN_COOKIE_NAME, access_token, {
