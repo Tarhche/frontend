@@ -1,5 +1,7 @@
 import {publicDalDriver} from "./public-dal-driver";
 import {fetchUserRoles} from "../private/profile";
+import {PUBLIC_BACKEND_URL} from "@/constants";
+import axios from "axios";
 
 export async function loginUser(identity: string, password: string) {
   const response = await publicDalDriver.post("auth/login", {
@@ -33,7 +35,7 @@ export async function verifyUser(data: Record<string, string>) {
 }
 
 export async function refreshToken(refreshToken: string) {
-  return await publicDalDriver.post("auth/token/refresh", {
+  return axios.post(`${PUBLIC_BACKEND_URL}/api/auth/token/refresh`, {
     token: refreshToken,
   });
 }
