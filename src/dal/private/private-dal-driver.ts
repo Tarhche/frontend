@@ -1,5 +1,5 @@
 "use server"
-import {notFound} from "next/navigation";
+import {notFound, redirect} from "next/navigation";
 import {cookies, headers} from "next/headers";
 import axios, {InternalAxiosRequestConfig, isAxiosError} from "axios";
 import {
@@ -51,7 +51,7 @@ async function handleResponseRejection(response: any) {
     notFound();
   }
   if (isRequestUnauthorized && hasRefreshToken === false) {
-    throw new DALDriverError("Unauthorized access", 401);
+    redirect('/auth/login')
   }
   if (isRequestUnauthorized && hasRefreshToken) {
     try {
@@ -104,10 +104,7 @@ async function handleResponseRejection(response: any) {
         console.log(err.message);
         throw new DALDriverError(err.message, err.status!, err.response);
       }
-      throw new DALDriverError(
-        "An error occured while refreshing user's token",
-        500,
-      );
+      redirect('/auth/login')
     }
   }
   if (isAxiosError(response)) {
