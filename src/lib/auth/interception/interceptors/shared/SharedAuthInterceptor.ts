@@ -1,9 +1,9 @@
 import {
   ACCESS_TOKEN_COOKIE_NAME,
-  ACCESS_TOKEN_EXP, INTERNAL_BACKEND_URL,
+  ACCESS_TOKEN_EXP,
   PUBLIC_BACKEND_URL,
   REFRESH_TOKEN_COOKIE_NAME,
-  REFRESH_TOKEN_EXP, USER_PERMISSIONS_COOKIE_NAME,
+  REFRESH_TOKEN_EXP,
 } from "@/constants";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
 import axios, {AxiosInstance, AxiosResponse} from "axios";
@@ -58,37 +58,7 @@ export default class SharedAuthInterceptor extends Interceptor {
                   maxAge: REFRESH_TOKEN_EXP,
                   path: '/',
                 });
-                axios.get(`${INTERNAL_BACKEND_URL}/api/dashboard/profile/roles`, {
-                  headers: {
-                    Authorization: `Bearer ${access_token}`,
-                  },
-                }).then((res) => {
-                  const userRoles = res.data
-                  this.baseInterceptor.cookieManager.set(
-                    USER_PERMISSIONS_COOKIE_NAME,
-                    btoa(
-                      JSON.stringify(
-                        Array.from(
-                          new Set(
-                            userRoles.items.flatMap((item: any) => item.permissions),
-                          ),
-                        ),
-                      ),
-                    ),
-                    {
-                      maxAge: REFRESH_TOKEN_EXP,
-                    },
-                  ).then(() => {
-                    resolve(true);
-                  }).catch((e) => {
-                    console.error(e)
-                    reject()
-                  });
-                }).finally(() => {
-                  resolve(true);
-                }).catch(e => {
-                  reject(e);
-                })
+                resolve(true);
               } else {
                 // force the server to read from the variable because we cannot set cookie in this request
                 this.refreshedAccessToken = access_token;

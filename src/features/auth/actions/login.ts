@@ -5,7 +5,6 @@ import {loginUser} from "@/dal/public/auth";
 import {
   ACCESS_TOKEN_COOKIE_NAME,
   REFRESH_TOKEN_COOKIE_NAME,
-  USER_PERMISSIONS_COOKIE_NAME,
 } from "@/constants/strings";
 import {ACCESS_TOKEN_EXP, REFRESH_TOKEN_EXP} from "@/constants/numbers";
 
@@ -39,13 +38,6 @@ export async function login(
         httpOnly: false,
         secure: true,
       });
-      (await cookies()).set(
-        USER_PERMISSIONS_COOKIE_NAME,
-        btoa(JSON.stringify(response.permissions)),
-        {
-          maxAge: REFRESH_TOKEN_EXP,
-        },
-      );
       return {
         success: true,
       };

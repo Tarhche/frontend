@@ -1,10 +1,11 @@
 import jwt from "jsonwebtoken";
 import {getCredentialsFromCookies} from "../http";
+import {AuthTokenPayload} from "@/lib/auth/types";
 
-function decodeJWT(token: string) {
+function decodeJWT(token: string): AuthTokenPayload | null {
   return jwt.decode(token ?? "", {
     json: true,
-  });
+  }) as AuthTokenPayload | null;
 }
 
 /**
@@ -29,8 +30,10 @@ export async function isUserLoggedIn() {
   );
 }
 
-export async function getUserPermissions(): Promise<string[]> {
-  const {permissions} = await getCredentialsFromCookies();
-  // "W10=" is equal to "[]"
-  return JSON.parse(atob(permissions || "W10="));
+export async function getUserPermissions(): Promise<string[] | null> {
+  const {accessToken} = await getCredentialsFromCookies();
+  const token = decodeJWT(accessToken || "");
+  const permissions = token?.permissions;
+
+  return permissions || null;
 }
