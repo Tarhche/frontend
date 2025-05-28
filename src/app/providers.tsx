@@ -3,6 +3,7 @@ import {createTheme, MantineProvider, DirectionProvider} from "@mantine/core";
 import {Notifications} from "@mantine/notifications";
 import {QueryClientProvider} from "@/components/query-client-provider";
 import {vazir, roboto_mono} from "./fonts";
+import CookiesProvider from "@/lib/cookie/react/CookiesProvider";
 
 const theme = createTheme({
   fontFamily: vazir.style.fontFamily,
@@ -22,7 +23,9 @@ export async function Providers({children}: Props) {
       <MantineProvider theme={theme} defaultColorScheme="auto">
         <Notifications position="bottom-left" autoClose={3000} />
         <DirectionProvider initialDirection="rtl">
-          {children}
+          <CookiesProvider>
+            {children}
+          </CookiesProvider>
         </DirectionProvider>
       </MantineProvider>
     </QueryClientProvider>
