@@ -1,7 +1,9 @@
-import {notFound} from "next/navigation";
-import axios, {AxiosError} from "axios";
-import {DALDriverError} from "@/dal/dal-driver-error";
+"use server"
+import axios from "axios";
 import {INTERNAL_BACKEND_URL} from "@/constants";
+import InterceptorManager from "@/lib/auth/interception/interceptor-manager/InterceptorManager";
+import ServerPublicInterceptor from "@/lib/auth/interception/interceptors/server/ServerPublicInterceptor";
+import ServerProxyHeaderInterceptor from "@/lib/auth/interception/interceptors/server/ServerProxyHeaderInterceptor";
 
 const BASE_URL = `${INTERNAL_BACKEND_URL}/api`;
 
@@ -12,22 +14,4 @@ export const publicDalDriver = axios.create({
   },
 });
 
-publicDalDriver.interceptors.response.use(
-  (value) => value,
-  (error) => {
-    if (error instanceof AxiosError) {
-      if (error.status === 404) {
-        notFound();
-      }
-
-      throw new DALDriverError(error.message, error.status || 500, {
-        data: error.response?.data ?? {},
-      });
-    }
-
-    throw new DALDriverError(
-      "Unexpected error while fetching data from backend",
-      500,
-    );
-  },
-);
+InterceptorManager.create(publicDalDriver).add(ServerPublicInterceptor).add(ServerProxyHeaderInterceptor);

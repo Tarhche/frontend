@@ -1,11 +1,9 @@
 import axios from "axios";
 import {
-  ACCESS_TOKEN_COOKIE_NAME,
   PUBLIC_BACKEND_URL,
 } from "@/constants";
-import createAuthRefreshInterceptor from "axios-auth-refresh";
-import {refreshAuthLogic} from "@/lib/auth";
-import Cookie from "@/lib/cookie/Cookie";
+import InterceptorManager from "@/lib/auth/interception/interceptor-manager/InterceptorManager";
+import ClientAuthInterceptor from "@/lib/auth/interception/interceptors/client/ClientAuthInterceptor";
 
 const BASE_URL = `${PUBLIC_BACKEND_URL}/api`;
 const clientDalDriver = axios.create({
@@ -15,14 +13,7 @@ const clientDalDriver = axios.create({
   },
 });
 
-if (typeof window !== 'undefined') {
-  createAuthRefreshInterceptor(clientDalDriver, refreshAuthLogic);
-
-  clientDalDriver.interceptors.request.use((request) => {
-    request.headers['Authorization'] = `Bearer ${(new Cookie()).get(ACCESS_TOKEN_COOKIE_NAME)}`;
-    return request;
-  });
-}
+InterceptorManager.create(clientDalDriver).add(ClientAuthInterceptor);
 
 
 export {clientDalDriver}
