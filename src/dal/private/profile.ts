@@ -6,15 +6,6 @@ export async function fetchUserProfile() {
   return response;
 }
 
-export async function fetchUserRoles(config?: AxiosRequestConfig) {
-  const response = await privateDalDriver.get(
-    "dashboard/profile/roles",
-    config,
-  );
-
-  return response.data;
-}
-
 export async function updateUserProfile(data: any) {
   return await privateDalDriver.put("dashboard/profile", data);
 }

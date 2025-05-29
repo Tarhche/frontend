@@ -3,7 +3,6 @@ import {cookies, headers} from "next/headers";
 import {
   ACCESS_TOKEN_COOKIE_NAME,
   REFRESH_TOKEN_COOKIE_NAME,
-  USER_PERMISSIONS_COOKIE_NAME,
 } from "@/constants/strings";
 
 export async function getRootUrl() {
@@ -18,6 +17,5 @@ export async function getCredentialsFromCookies() {
   return {
     accessToken: cookiesStore.get(ACCESS_TOKEN_COOKIE_NAME as any)?.value,
     refreshToken: cookiesStore.get(REFRESH_TOKEN_COOKIE_NAME as any)?.value,
-    permissions: cookiesStore.get(USER_PERMISSIONS_COOKIE_NAME as any)?.value,
   };
 }

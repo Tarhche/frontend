@@ -1,13 +1,15 @@
 import JsCookie from 'js-cookie'
 import CookieOptions from "@/lib/cookie/types/CookieOptions";
+import CookieManager from "../CookieManager";
 
-export default class Cookie {
+export default class ClientCookieManager extends CookieManager {
   cookieManager: typeof JsCookie;
   constructor() {
+    super();
     this.cookieManager = JsCookie;
   }
 
-  set(key: string, value: string, options: CookieOptions) {
+  async set(key: string, value: string, options: CookieOptions) {
     const sanitizedOptions = Object.entries(options).reduce((acc, [k, v]) => {
       acc[k] = String(v);
       return acc;
@@ -16,11 +18,19 @@ export default class Cookie {
     JsCookie.set(key, value, sanitizedOptions);
   }
 
-  get(key: string) {
+  async get(key: string) {
     return this.cookieManager.get(key);
   }
 
-  remove(key: string) {
+  async remove(key: string) {
     return this.cookieManager.remove(key);
+  }
+
+  async has(key: string) {
+    return Boolean(this.cookieManager.get(key));
+  }
+
+  async canSetCookie() {
+    return true;
   }
 }

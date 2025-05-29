@@ -21,7 +21,7 @@ export async function DashboardLayout({children}: Props) {
           scrollbars="y"
           scrollHideDelay={0}
         >
-          <LayoutSidebar userPermissions={userPermissions} />
+          <LayoutSidebar userPermissions={userPermissions || []} />
         </ScrollArea>
         <div className={classes.footer}>
           <DashboardLayoutLogoutButton />
