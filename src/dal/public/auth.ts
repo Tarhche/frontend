@@ -8,11 +8,7 @@ export async function loginUser(identity: string, password: string) {
     password: password,
   });
 
-  if (response.status === 200) {
-    return {
-      ...response.data,
-    };
-  }
+  return response.data;
 }
 
 export async function registerUser(identity: string) {
