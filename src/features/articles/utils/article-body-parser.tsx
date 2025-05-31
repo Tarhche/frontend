@@ -1,8 +1,8 @@
 import parse, {Element, domToReact} from "html-react-parser";
 import Image from "next/image";
 import {ImageZoom} from "@/components/image-zoom";
-import {CodeHighlight} from "@mantine/code-highlight";
 import "@mantine/code-highlight/styles.css";
+import CodeHighlight from "@/features/code-highlight/CodeHighlight";
 
 export function parseArticleBodyToReact(html: string) {
   return parse(html, {
@@ -22,17 +22,8 @@ export function parseArticleBodyToReact(html: string) {
 
           return (
             <CodeHighlight
-              mt="sm"
-              mb="xl"
               code={codeContent}
               language={language.trim()}
-              copyLabel="کپی کردن"
-              copiedLabel="کپی شد!"
-              styles={{
-                code: {
-                  fontSize: 14,
-                },
-              }}
             />
           );
         }
