@@ -6,16 +6,16 @@ services:
       - app
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 3
       endpoint_mode: vip
       restart_policy:
         condition: on-failure
-        delay: 5s
+        delay: 3s
         max_attempts: 3
       resources:
         limits:
-          cpus: "0.20"
-          memory: 150M
+          cpus: "0.30"
+          memory: 200M
     environment:
       INTERNAL_BACKEND_BASE_URL: ${INTERNAL_BACKEND_BASE_URL}
       NEXT_PUBLIC_BACKEND_BASE_URL: ${NEXT_PUBLIC_BACKEND_BASE_URL}
