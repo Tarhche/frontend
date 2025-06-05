@@ -26,7 +26,7 @@ export function AppMainShell({children}: Props) {
         breakpoint: "sm",
         collapsed: {desktop: true, mobile: !opened},
       }}
-      padding="md"
+      px={{ base: "0", sm: "xl" }}
     >
       <AppShell.Header>
         <Container size={"lg"} h={"100%"}>

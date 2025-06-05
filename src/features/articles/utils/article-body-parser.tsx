@@ -20,11 +20,43 @@ export function parseArticleBodyToReact(html: string) {
           const codeContent = domToReact(codeElement.childNodes).toString();
           const language = codeElement.attribs.class.replace("language-", "");
 
+          let executable: any = null;
+          const executableAttribs = Object.entries(codeElement.attribs)
+            .filter(([key]) => key.startsWith("data-executable"));
+
+          if (executableAttribs.length > 0) {
+            executable = {};
+
+            for (const [fullKey, value] of executableAttribs) {
+              const parts = fullKey
+                .replace(/^data-executable/, "")
+                .replace(/^-/, "")
+                .split("-");
+
+              let propName;
+              if (parts.length === 1 && parts[0] === "") {
+                propName = "value";
+              } else {
+                propName = parts
+                  .map((chunk, idx) =>
+                    idx === 0
+                      ? chunk
+                      : chunk.charAt(0).toUpperCase() + chunk.slice(1)
+                  )
+                  .join("");
+              }
+              executable[propName] = value;
+            }
+          }
+
           return (
-            <CodeHighlight
-              code={codeContent}
-              language={language.trim()}
-            />
+            <>
+              <CodeHighlight
+                executable={executable}
+                code={codeContent}
+                language={language.trim()}
+              />
+            </>
           );
         }
 

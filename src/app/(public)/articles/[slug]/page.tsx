@@ -38,7 +38,7 @@ async function ArticleDetailPage(props: Props) {
   }
 
   return (
-    <Container component="section" size="sm" mt="xl">
+    <Container component="section" px={{ base: "0", sm: "md" }} size="sm" mt="xl">
       <Suspense fallback={<ContentSkeleton />}>
         <Content uuid={slug} />
       </Suspense>
