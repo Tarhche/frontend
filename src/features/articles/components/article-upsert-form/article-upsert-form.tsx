@@ -18,6 +18,7 @@ import {IconPhotoPlus, IconMovie} from "@tabler/icons-react";
 import {upsertArticleAction} from "../../actions/upsert-article";
 import {isGregorianStartDateTime} from "@/lib/date-and-time";
 import dynamic from "next/dynamic";
+import ServerComponentErrorHandler from "@/components/errors/server-component-error-handler";
 
 const ArticleEditor = dynamic(
   async () => {
@@ -68,6 +69,7 @@ export function ArticleUpsertForm({article}: Props) {
 
   return (
     <form action={handleSubmit}>
+      <ServerComponentErrorHandler state={state} />
       <Stack gap="lg">
         <TextInput
           name="title"
