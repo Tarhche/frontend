@@ -50,6 +50,7 @@ export async function ArticlesTable({page}: Props) {
       page: page,
     },
   });
+  console.log('articlesResponse', JSON.stringify(articlesResponse));
   const articles = articlesResponse.items;
   const {total_pages, current_page} = articlesResponse.pagination;
 

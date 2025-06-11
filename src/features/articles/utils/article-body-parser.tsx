@@ -1,8 +1,8 @@
 import parse, {Element, domToReact} from "html-react-parser";
 import Image from "next/image";
 import {ImageZoom} from "@/components/image-zoom";
-import {CodeHighlight} from "@mantine/code-highlight";
 import "@mantine/code-highlight/styles.css";
+import CodeHighlight from "@/features/code-highlight/CodeHighlight";
 
 export function parseArticleBodyToReact(html: string) {
   return parse(html, {
@@ -20,20 +20,43 @@ export function parseArticleBodyToReact(html: string) {
           const codeContent = domToReact(codeElement.childNodes).toString();
           const language = codeElement.attribs.class.replace("language-", "");
 
+          let executable: any = null;
+          const executableAttribs = Object.entries(codeElement.attribs)
+            .filter(([key]) => key.startsWith("data-executable"));
+
+          if (executableAttribs.length > 0) {
+            executable = {};
+
+            for (const [fullKey, value] of executableAttribs) {
+              const parts = fullKey
+                .replace(/^data-executable/, "")
+                .replace(/^-/, "")
+                .split("-");
+
+              let propName;
+              if (parts.length === 1 && parts[0] === "") {
+                propName = "value";
+              } else {
+                propName = parts
+                  .map((chunk, idx) =>
+                    idx === 0
+                      ? chunk
+                      : chunk.charAt(0).toUpperCase() + chunk.slice(1)
+                  )
+                  .join("");
+              }
+              executable[propName] = value;
+            }
+          }
+
           return (
-            <CodeHighlight
-              mt="sm"
-              mb="xl"
-              code={codeContent}
-              language={language.trim()}
-              copyLabel="کپی کردن"
-              copiedLabel="کپی شد!"
-              styles={{
-                code: {
-                  fontSize: 14,
-                },
-              }}
-            />
+            <>
+              <CodeHighlight
+                executable={executable}
+                code={codeContent}
+                language={language.trim()}
+              />
+            </>
           );
         }
 

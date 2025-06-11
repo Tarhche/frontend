@@ -23,10 +23,10 @@ export default class SharedAuthInterceptor extends Interceptor {
 
     this.dal.interceptors.request.use(async (request) => {
       const accessToken = await this.baseInterceptor.cookieManager.get(ACCESS_TOKEN_COOKIE_NAME);
-      if (this.refreshedAccessToken) {
-        request.headers['Authorization'] = `Bearer ${this.refreshedAccessToken}`;
-      } else if (accessToken) {
+      if (accessToken) {
         request.headers['Authorization'] = `Bearer ${await this.baseInterceptor.cookieManager.get(ACCESS_TOKEN_COOKIE_NAME)}`;
+      } else {
+        delete request.headers['Authorization']
       }
       return request;
     });
@@ -60,8 +60,6 @@ export default class SharedAuthInterceptor extends Interceptor {
                 });
                 resolve(true);
               } else {
-                // force the server to read from the variable because we cannot set cookie in this request
-                this.refreshedAccessToken = access_token;
                 resolve(true);
               }
             } catch (e) {
@@ -88,8 +86,10 @@ export default class SharedAuthInterceptor extends Interceptor {
   }
 
   async unsetCookies() {
-    await this.baseInterceptor.cookieManager.remove(ACCESS_TOKEN_COOKIE_NAME);
-    await this.baseInterceptor.cookieManager.remove(REFRESH_TOKEN_COOKIE_NAME);
+    if (await this.cookieManager?.canSetCookie()) {
+      await this.baseInterceptor.cookieManager.remove(ACCESS_TOKEN_COOKIE_NAME);
+      await this.baseInterceptor.cookieManager.remove(REFRESH_TOKEN_COOKIE_NAME);
+    }
   }
 
   redirect(url: string) {
