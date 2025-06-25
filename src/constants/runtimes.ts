@@ -6,4 +6,5 @@ export const RUNTIMES = [
   { value: "nodejs-20.19", label: "NODE JS-20.19" },
   { value: "php-8.4", label: "PHP-8.4" },
   { value: "php-8.3", label: "PHP-8.3" },
+  { value: "nats-2.10.0", label: "NATS-2.10.0" },
 ];
