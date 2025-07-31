@@ -12,16 +12,11 @@ import {dateFromNow} from "@/lib/date-and-time";
 import classes from "./content.module.css";
 
 type Props = {
-  uuid: string;
+  article: any;
+  isBookmarked: any;
 };
 
-export async function Content({uuid}: Props) {
-  const articleData = await fetchArticleByUUID(uuid);
-  const bookmarkStatusData = checkBookmarkStatus(uuid);
-  const [article, isBookmarked] = await Promise.all([
-    articleData,
-    bookmarkStatusData,
-  ]);
+export async function Content({article, isBookmarked}: Props) {
   const tags = article?.status ?? [];
   const ARTICLE_COVER = `${FILES_PUBLIC_URL}/${article.cover}`;
   const ARTICLE_VIDEO = Boolean(article.video)
