@@ -11,6 +11,7 @@ import {
 import {VerticalArticleCard} from "../article-card-vertical";
 import {fetchHomePageData} from "@/dal/public/home";
 import classes from "./featured-articles.module.css";
+import ArticleTags from "@/features/articles/components/article-tags/ArticleTags";
 
 export async function FeaturedArticles() {
   const homePageData = await fetchHomePageData();
@@ -66,19 +67,7 @@ export async function FeaturedArticles() {
                   >
                     {article.title}
                   </Anchor>
-                  <Group ms={"sm"} gap={"xs"}>
-                    {article.tags.map((tag) => {
-                      return (
-                        <Anchor
-                          key={tag}
-                          component={Link}
-                          href={`hashtags/${tag}`}
-                        >
-                          #{tag}
-                        </Anchor>
-                      );
-                    })}
-                  </Group>
+                  <ArticleTags tags={article.tags} />
                 </ListItem>
               );
             })}
