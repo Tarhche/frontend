@@ -5,19 +5,13 @@ import {
   GridCol,
   List,
   ListItem,
-  Group,
   Anchor,
 } from "@mantine/core";
 import {VerticalArticleCard} from "../article-card-vertical";
-import {fetchHomePageData} from "@/dal/public/home";
 import classes from "./featured-articles.module.css";
 import ArticleTags from "@/features/articles/components/article-tags/ArticleTags";
 
-export async function FeaturedArticles() {
-  const homePageData = await fetchHomePageData();
-  const latestArticles = homePageData.all;
-  const popularArticles = homePageData.popular;
-
+export async function FeaturedArticles({latestArticles, popularArticles}) {
   return (
     <Grid gutter={50}>
       <GridCol
