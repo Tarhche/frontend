@@ -13,7 +13,7 @@ import ArticleTags from "@/features/articles/components/article-tags/ArticleTags
 
 export async function FeaturedArticles({latestArticles, popularArticles}) {
   return (
-    <Grid gutter={50}>
+    <Grid>
       <GridCol
         span={{
           base: 12,
