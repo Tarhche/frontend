@@ -2,14 +2,12 @@
 
 import React from "react";
 import Image from "next/image";
-import { Box, Text, Group, Badge, Overlay } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
+import { Box, Text, Group, Badge, Overlay, Stack } from "@mantine/core";
 import { FILES_PUBLIC_URL } from "@/constants";
 import Link from "next/link";
+import { Grid, Title } from '@mantine/core';
 
-const ElementJumbotron = ({ data, style }) => {
-  const isMobile = useMediaQuery("(max-width: 48em)");
-
+const ElementJumbotron = ({ data }) => {
   if (!data?.body?.body) return null;
 
   const article = data.body.body as any;
@@ -27,12 +25,17 @@ const ElementJumbotron = ({ data, style }) => {
     tags.map((tag) => (
       <Badge
         key={tag}
-        size="xs"
+        size="sm"
         radius="xl"
+        variant="filled"
+        component={Link}
+        href={`/hashtags/${encodeURIComponent(tag)}`}
         style={{
           backgroundColor: "rgba(255,255,255,0.2)",
           backdropFilter: "blur(4px)",
-          color: "#fff",
+          color: "var(--mantine-color-white)",
+          cursor: "pointer",
+          textDecoration: "none",
         }}
       >
         {tag}
@@ -50,7 +53,7 @@ const ElementJumbotron = ({ data, style }) => {
         </>
       )}
       {formattedDate && (
-        <Text component="time" dateTime={published_at}>
+        <Text size="sm" component="time" style={{ color: 'var(--mantine-color-gray-6)', margin: 0}} dateTime={published_at}>
           {formattedDate}
         </Text>
       )}
@@ -59,81 +62,177 @@ const ElementJumbotron = ({ data, style }) => {
 
   return (
     <Box
-      component={Link}
-      href={`/articles/${article.slug ?? article.uuid}`}
-      pos="relative"
-      w="100%"
-      h={{ base: 240, sm: 280, md: 320, lg: 360, xl: 400 }}
       style={{
-        display: 'block',
-        borderRadius: "var(--mantine-radius-xl)",
-        overflow: "hidden",
-        boxShadow: "var(--mantine-shadow-xl)",
-        direction: "rtl",
-        ...style,
+        backgroundColor: 'var(--mantine-color-gray-0)',
+        overflow: 'hidden',
+        marginTop: 'var(--mantine-spacing-xl)',
+        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+        '&:hover': {
+          transform: 'translateY(-2px)',
+          boxShadow: 'var(--mantine-shadow-md)',
+        }
       }}
     >
-      <Image
-        src={`${FILES_PUBLIC_URL}/${cover}`}
-        alt={title}
-        fill
-        sizes="(max-width: 48em) 100vw, 100vw"
-        style={{ objectFit: "cover" }}
-        priority
-      />
-
-      <Overlay
-        gradient="linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 75%, rgba(0,0,0,0.8) 100%)"
-        zIndex={0}
-      />
-
-      <Box
-        style={{
-          position: "absolute",
-          insetInlineStart: 0,
-          insetInlineEnd: 0,
-          bottom: 0,
-          padding: isMobile ? "var(--mantine-spacing-md)" : "var(--mantine-spacing-lg)",
-          color: "var(--mantine-color-white)",
-          zIndex: 1,
-        }}
-      >
-        <Text
-          component="h1"
-          fz={{ base: 20, sm: 24, md: 28, lg: 32 }}
-          fw={700}
-          lh={1.3}
-          mb="var(--mantine-spacing-sm)"
-          style={{ wordBreak: "break-word" }}
+      <Box hiddenFrom="md" style={{ position: 'relative', minHeight: '300px' }}>
+        <Link
+          href={`/articles/${article.slug ?? article.uuid}`}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 0,
+            textDecoration: 'none',
+            color: 'inherit',
+          }}
         >
-          {title}
-        </Text>
+          <Image
+            src={`${FILES_PUBLIC_URL}/${cover}`}
+            alt={title}
+            fill
+            style={{ objectFit: 'cover' }}
+            sizes="100vw"
+            priority
+          />
+        </Link>
+        <Box
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%)',
+            display: 'flex',
+            alignItems: 'flex-end',
+            padding: 'var(--mantine-spacing-lg)',
+            zIndex: 1,
+            pointerEvents: 'none',
+          }}
+        >
+          <Stack gap={8} style={{ width: '100%' }}>
+            <Link
+              href={`/articles/${article.slug ?? article.uuid}`}
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                pointerEvents: 'auto',
+              }}
+            >
+              <Title
+                order={1}
+                lineClamp={2}
+                style={{
+                  fontSize: '24px',
+                  margin: 0,
+                  color: 'white',
+                  cursor: 'pointer',
+                }}
+              >
+                {title}
+              </Title>
+            </Link>
 
-        {excerpt && (
-          <Text
-            style={{ opacity: 0.9, marginBottom: "var(--mantine-spacing-md)", fontSize: isMobile ? '90%' : '100%' }}
-            lineClamp={3}
-          >
-            {excerpt}
-          </Text>
-        )}
-
-        {isMobile ? (
-          <Group gap="xs" mb="0" wrap="wrap">
-            {tags.length > 0 && renderBadges()}
-            {renderMeta()}
-          </Group>
-        ) : (
-          <>
-            {tags.length > 0 && (
-              <Group gap="xs" mb="md" wrap="wrap">
-                {renderBadges()}
-              </Group>
+            {excerpt && (
+              <Text
+                style={{ 
+                  opacity: 0.9, 
+                  marginBottom: "var(--mantine-spacing-sm)", 
+                  fontSize: '90%',
+                  color: 'white'
+                }}
+                lineClamp={2}
+              >
+                {excerpt}
+              </Text>
             )}
-            {renderMeta()}
-          </>
-        )}
+
+            <Group gap="xs" wrap="wrap" style={{ pointerEvents: 'auto' }}>
+              {tags.length > 0 && renderBadges()}
+              {renderMeta()}
+            </Group>
+          </Stack>
+        </Box>
       </Box>
+
+      <Grid gutter={0} align="stretch" style={{ margin: 0 }} visibleFrom="md">
+        <Grid.Col span={{ md: 6, lg: 5 }} style={{ padding: 0 }}>
+          <Box
+            style={{
+              position: 'relative',
+              width: '100%',
+              height: '100%',
+              overflow: 'hidden',
+            }}
+          >
+            <Link
+              href={`/articles/${article.slug ?? article.uuid}`}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                zIndex: 0,
+                textDecoration: 'none',
+              }}
+            >
+              <Image
+                src={`${FILES_PUBLIC_URL}/${cover}`}
+                alt={title}
+                fill
+                style={{ objectFit: 'cover' }}
+                sizes="(max-width: 62em) 50vw, 30vw"
+                priority
+              />
+            </Link>
+
+            {tags.length > 0 && (
+              <Box
+                style={{
+                  position: 'absolute',
+                  top: 'var(--mantine-spacing-md)',
+                  left: 'var(--mantine-spacing-md)',
+                  zIndex: 1,
+                }}
+              >
+                <Group gap="xs" wrap="wrap">
+                  {renderBadges()}
+                </Group>
+              </Box>
+            )}
+          </Box>
+        </Grid.Col>
+
+        <Grid.Col span={{ md: 6, lg: 7 }} style={{ padding: 'var(--mantine-spacing-xl)' }}>
+          <Stack gap={12} style={{ height: '100%' }} justify="flex-start">
+            <Link
+              href={`/articles/${article.slug ?? article.uuid}`}
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+              }}
+            >
+              <Title
+                order={1}
+                lineClamp={2}
+                style={{
+                  margin: 0,
+                  marginBottom: 'var(--mantine-spacing-xs)',
+                  cursor: 'pointer',
+                }}
+              >
+                {title}
+              </Title>
+            </Link>
+
+            {excerpt && (
+              <Text
+                style={{ color: 'var(--mantine-color-gray-6)', marginBottom: "var(--mantine-spacing-md)" }}
+                lineClamp={3}
+              >
+                {excerpt}
+              </Text>
+            )}
+
+            <>
+              {renderMeta()}
+            </>
+          </Stack>
+        </Grid.Col>
+      </Grid>
     </Box>
   );
 };

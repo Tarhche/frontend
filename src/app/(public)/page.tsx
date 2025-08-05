@@ -17,6 +17,7 @@ export default async function HomePage() {
   return (
     <Suspense fallback={<FeaturedArticlesSkeleton />}>
       <Element style={{ marginTop: '1rem' }} type={'jumbotron'} elements={homePageData.elements} />
+      <Element style={{ marginTop: '1rem' }} type={'featured'} elements={homePageData.elements} />
       <FeaturedArticles latestArticles={homePageData.all} popularArticles={homePageData.popular} />
     </Suspense>
   );
