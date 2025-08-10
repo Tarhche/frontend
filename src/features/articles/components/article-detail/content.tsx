@@ -8,13 +8,20 @@ import {IconClockHour2, IconInfoCircle} from "@tabler/icons-react";
 import {FILES_PUBLIC_URL} from "@/constants/envs";
 import {formatDate} from "@/lib/date-and-time";
 import classes from "./content.module.css";
+import {fetchArticleByUUID} from "@/dal/public/articles";
+import {checkBookmarkStatus} from "@/dal/private/bookmarks";
+import ArticleTags from "@/features/articles/components/article-tags/ArticleTags";
 
 type Props = {
-  article: any;
-  isBookmarked: any;
+  slug: string;
 };
 
-export async function Content({article, isBookmarked}: Props) {
+export async function Content({slug}: Props) {
+  const [article, isBookmarked] = await Promise.all([
+    fetchArticleByUUID(slug),
+    checkBookmarkStatus(slug),
+  ]);
+
   const tags = article?.status ?? [];
   const ARTICLE_COVER = `${FILES_PUBLIC_URL}/${article.cover}`;
   const ARTICLE_VIDEO = Boolean(article.video)
@@ -92,6 +99,7 @@ export async function Content({article, isBookmarked}: Props) {
           );
         })}
       </Group>
+      <ArticleTags tags={article.tags} />
     </article>
   );
 }
