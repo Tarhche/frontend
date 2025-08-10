@@ -1,7 +1,9 @@
 import ElementJumbotron from "@/features/elements/jumbotron/element-jumbotron";
-import ElementFeatured from "@/features/elements/jumbotron/element-featured";
+import ElementFeatured from "@/features/elements/featured/element-featured";
 
-export default {
+const elementMap = {
   'jumbotron': ElementJumbotron,
   'featured': ElementFeatured
 }
+
+export default elementMap;

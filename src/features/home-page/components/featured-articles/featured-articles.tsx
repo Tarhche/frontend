@@ -4,14 +4,37 @@ import {
   Grid,
   GridCol,
   List,
+  ThemeIcon,
   ListItem,
-  Anchor,
+  Title,
 } from "@mantine/core";
 import {VerticalArticleCard} from "../article-card-vertical";
 import classes from "./featured-articles.module.css";
-import ArticleTags from "@/features/articles/components/article-tags/ArticleTags";
+import {
+  IconHexagon1,
+  IconHexagon2,
+  IconHexagon3,
+  IconHexagon4,
+  IconHexagon5,
+  IconHexagon6,
+  IconHexagon7,
+  IconHexagon8,
+  IconHexagon9,
+} from "@tabler/icons-react";
 
 export async function FeaturedArticles({latestArticles, popularArticles}) {
+  const hexagonIcons = [
+    IconHexagon1,
+    IconHexagon2,
+    IconHexagon3,
+    IconHexagon4,
+    IconHexagon5,
+    IconHexagon6,
+    IconHexagon7,
+    IconHexagon8,
+    IconHexagon9,
+  ];
+
   return (
     <Grid>
       <GridCol
@@ -34,6 +57,7 @@ export async function FeaturedArticles({latestArticles, popularArticles}) {
                   subtitle: la.excerpt,
                   publishedDate: la.published_at,
                   slug: la.uuid,
+                  tags: la.tags,
                 }}
               />
             );
@@ -50,18 +74,19 @@ export async function FeaturedArticles({latestArticles, popularArticles}) {
           <span>پربازدیدترین ها</span>
         </h2>
         <Stack gap={"sm"}>
-          <List listStyleType="numbered">
-            {popularArticles.map((article) => {
+          <List>
+            {popularArticles.slice(0, hexagonIcons.length).map((article, index) => {
+              const Icon = hexagonIcons[index];
+
               return (
-                <ListItem mb={"sm"} key={article.uuid}>
-                  <Anchor
-                    underline="never"
-                    component={Link}
-                    href={`articles/${article.uuid}`}
-                  >
-                    {article.title}
-                  </Anchor>
-                  <ArticleTags tags={article.tags} />
+                <ListItem
+                  mb={"sm"} 
+                  key={article.uuid}
+                  icon={<ThemeIcon color="teal" radius="xl" size="md"><Icon size="xl" /></ThemeIcon>}
+                >
+                  <Link style={{textDecoration: "none", color: "inherit"}} href={`articles/${article.uuid}`}>
+                    <Title size="md" order={3}>{article.title}</Title>
+                  </Link>
                 </ListItem>
               );
             })}

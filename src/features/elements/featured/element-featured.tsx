@@ -6,55 +6,18 @@ import { Box, Text, Group, Badge, Stack, Container } from "@mantine/core";
 import { FILES_PUBLIC_URL } from "@/constants";
 import Link from "next/link";
 import { Grid, Title } from '@mantine/core';
+import classes from './element-featured.module.css';
+import { formatDate } from "@/lib/date-and-time";
 
-const formatDateSafe = (dateString: string) => {
-  if (!dateString) return "";
-  
-  try {
-    const date = new Date(dateString);
-
-    const options: Intl.DateTimeFormatOptions = {
-      year: "numeric",
-      month: "long", 
-      day: "numeric",
-    };
-    
-    // Check if we're on the client side and fa-IR locale is available
-    if (typeof window !== 'undefined') {
-      try {
-        return date.toLocaleDateString("fa-IR", options);
-      } catch (e) {
-        // Fallback to default locale if fa-IR fails
-        return date.toLocaleDateString("en-US", options);
-      }
-    }
-    
-    // Server-side fallback - use a consistent format
-    return date.toLocaleDateString("en-US", options);
-  } catch (error) {
-    return "";
-  }
-};
-
-const MainFeaturedCard = ({ itemType, item }) => {
+const MainFeaturedCard = ({ item }) => {
   const [formattedDate, setFormattedDate] = useState("");
-  
+
   useEffect(() => {
-    setFormattedDate(formatDateSafe(item.published_at));
+    setFormattedDate(formatDate(item.published_at));
   }, [item.published_at]);
 
   return (
-    <Box
-      style={{
-        position: 'relative',
-        height: '100%',
-        minHeight: '300px',
-        overflow: 'hidden',
-        '@media (minWidth: 768px)': {
-          minHeight: '400px', // TODO: don't hardcode this
-        },
-      }}
-    >
+    <Box className={classes.featuredCard}>
       <Link
         href={`/articles/${item.slug ?? item.uuid}`}
         style={{
@@ -71,23 +34,24 @@ const MainFeaturedCard = ({ itemType, item }) => {
           fill
           style={{ objectFit: 'cover' }}
           priority
+          sizes="300px"
         />
       </Link>
-      
+
       <Box
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 100%)',
+          background: 'linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 100%)',
         }}
       />
 
       <Box
         style={{
           position: 'absolute',
-          bottom: '24px',
-          left: '24px',
-          right: '24px',
+          bottom: 'var(--mantine-spacing-lg)',
+          left: 'var(--mantine-spacing-lg)',
+          right: 'var(--mantine-spacing-lg)',
           zIndex: 1,
           pointerEvents: 'none',
         }}
@@ -105,11 +69,8 @@ const MainFeaturedCard = ({ itemType, item }) => {
               order={1}
               lineClamp={2}
               style={{
-                fontSize: '32px',
-                fontWeight: 700,
                 color: 'white',
                 margin: 0,
-                lineHeight: 1.2,
                 cursor: 'pointer',
               }}
             >
@@ -123,26 +84,11 @@ const MainFeaturedCard = ({ itemType, item }) => {
               lineClamp={2}
               style={{
                 color: 'rgba(255,255,255,0.9)',
-                fontSize: '16px',
-                margin: 0,
               }}
             >
               {item.excerpt}
             </Text>
           )}
-
-          <Group gap="xs" style={{ marginTop: '8px' }}>
-            {item.author.name && (
-              <Text size="sm" style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>
-                {item.author.name}
-              </Text>
-            )}
-            {formattedDate && item.author.name && (
-              <Text size="sm" style={{ color: 'rgba(255,255,255,0.7)' }}>
-                in
-              </Text>
-            )}
-          </Group>
 
           {item.tags && item.tags.length > 0 && (
             <Group gap="xs" style={{ marginTop: '8px', pointerEvents: 'auto' }} wrap="wrap">
@@ -180,11 +126,11 @@ const MainFeaturedCard = ({ itemType, item }) => {
   );
 };
 
-const SideArticleItem = ({ itemType, item }) => {
+const SideArticleItem = ({ item }) => {
   const [formattedDate, setFormattedDate] = useState("");
   
   useEffect(() => {
-    setFormattedDate(formatDateSafe(item.published_at));
+    setFormattedDate(formatDate(item.published_at));
   }, [item.published_at]);
 
   return (
@@ -205,7 +151,6 @@ const SideArticleItem = ({ itemType, item }) => {
         style={{
           position: 'relative',
           width: '20%',
-          minHeight: '80px',
           alignSelf: 'stretch',
           overflow: 'hidden',
           flexShrink: 0,
@@ -234,9 +179,6 @@ const SideArticleItem = ({ itemType, item }) => {
               lineClamp={2}
               size="lg"
               style={{
-                fontWeight: 600,
-                margin: 0,
-                lineHeight: 1.3,
                 color: 'var(--mantine-color-dark-8)',
                 cursor: 'pointer',
                 '&:hover': {
@@ -252,8 +194,8 @@ const SideArticleItem = ({ itemType, item }) => {
             <Text 
               size="xs" 
               c="gray.6"
+              mt="sm"
               lineClamp={2}
-              style={{ marginTop: 'var(--mantine-spacing-xs)' }}
             >
               {item.excerpt}
             </Text>
@@ -264,7 +206,7 @@ const SideArticleItem = ({ itemType, item }) => {
           {item?.tags && item.tags.length > 0 && (
             <Group gap="xs" style={{ marginBottom: 'var(--mantine-spacing-xs)' }} wrap="wrap">
               {item.tags.map((tag, index) => (
-                <Text 
+                <Text
                   key={`${tag}-${index}`}
                   component={Link}
                   href={`/hashtags/${encodeURIComponent(tag)}`}
@@ -302,8 +244,6 @@ const ElementFeatured = ({ data }) => {
 
   const { main, aside } = data.body; 
 
-  console.log("aside", aside);
-
   return (
     <Box
       style={{
@@ -313,12 +253,12 @@ const ElementFeatured = ({ data }) => {
       <Container size="lg" px={0}>
         <Grid gutter={24} align="stretch">
           <Grid.Col span={{ base: 12, md: 7 }}>
-            <MainFeaturedCard itemType={main.type} item={main.body} />
+            <MainFeaturedCard item={main.body} />
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 5 }} style={{ display: 'flex' }}>
             <Stack gap="md" style={{ flex: 1, justifyContent: 'space-between' }}>
               {aside.slice(0, 3).map(
-                (item, index) => (<SideArticleItem key={item?.body?.uuid || index} item={item.body} itemType={item.type} />)
+                (item, index) => (<SideArticleItem key={item?.body?.uuid || index} item={item.body} />)
               )}
             </Stack>
           </Grid.Col>

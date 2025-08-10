@@ -1,13 +1,3 @@
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import faLocale from "dayjs/locale/fa";
-
-dayjs.extend(relativeTime);
-
-export function dateFromNow(date: Date | string) {
-  return dayjs(date).locale("fa", faLocale).fromNow();
-}
-
 export function isGregorianStartDateTime(date: Date | string) {
   const targetDate = new Date(date);
 
@@ -20,3 +10,17 @@ export function isGregorianStartDateTime(date: Date | string) {
     targetDate.getUTCSeconds() === 0
   );
 }
+
+export function formatDate (dateString: string) {
+  if (!dateString) {
+    return "";
+  }
+
+  const formattedDate = dateString ? new Date(dateString).toLocaleDateString("fa-IR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }) : "";
+
+  return formattedDate;
+};

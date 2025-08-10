@@ -1,0 +1,9 @@
+.featuredCard {
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+
+  @media (max-width: 991px) {
+    min-height: 350px;
+  }
+}

@@ -6,9 +6,7 @@ import {parseArticleBodyToReact} from "@/features/articles/utils/article-body-pa
 import {BookmarkButton} from "./bookmark-button";
 import {IconClockHour2, IconInfoCircle} from "@tabler/icons-react";
 import {FILES_PUBLIC_URL} from "@/constants/envs";
-import {fetchArticleByUUID} from "@/dal/public/articles";
-import {checkBookmarkStatus} from "@/dal/private/bookmarks";
-import {dateFromNow} from "@/lib/date-and-time";
+import {formatDate} from "@/lib/date-and-time";
 import classes from "./content.module.css";
 
 type Props = {
@@ -30,7 +28,7 @@ export async function Content({article, isBookmarked}: Props) {
         <Group gap={5}>
           <IconClockHour2 spacing={0} size={20} />
           <Text size="sm" c="dimmed" mt={4}>
-            {dateFromNow(article.published_at).toString()}
+            {formatDate(article.published_at)}
           </Text>
         </Group>
         {isBookmarked === undefined ? null : (
@@ -56,8 +54,8 @@ export async function Content({article, isBookmarked}: Props) {
       {ARTICLE_VIDEO === undefined && (
         <ImageZoom classDialog={classes.rmiz}>
           <Image
-            width={1200}
-            height={675}
+            width={1920}
+            height={1080}
             src={ARTICLE_COVER}
             alt={article.title}
           />

@@ -19,7 +19,7 @@ import {Pagination} from "@/components/pagination";
 import {DeleteButton} from "./delete-button";
 import {IconEye} from "@tabler/icons-react";
 import {fetchUserComments} from "@/dal/private/comments";
-import {dateFromNow, isGregorianStartDateTime} from "@/lib/date-and-time";
+import {formatDate, isGregorianStartDateTime} from "@/lib/date-and-time";
 import {APP_PATHS} from "@/lib/app-paths";
 
 export const TABLE_HEADERS = ["#", "کامنت", "وضعیت", "تاریخ ثبت", "عملیات"];
@@ -74,7 +74,7 @@ export async function UserCommentsTable({page}: Props) {
                       </Badge>
                     )}
                   </TableTd>
-                  <TableTd>{dateFromNow(comment.created_at)}</TableTd>
+                  <TableTd>{formatDate(comment.created_at)}</TableTd>
                   <TableTd>
                     <ActionIconGroup>
                       <Tooltip label="بازدید کردن کامنت" withArrow>

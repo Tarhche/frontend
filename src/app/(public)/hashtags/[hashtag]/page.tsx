@@ -23,9 +23,9 @@ async function HashtagPage(props: Props) {
   if (hashtag === undefined) {
     notFound();
   }
-  const articles = (await fetchAllArticlesByHashtag(hashtag)).items;
+  const {items} = await fetchAllArticlesByHashtag(hashtag);
 
-  return articles.map((article: any) => {
+  const articles = items.map((article: any) => {
     return (
       <VerticalArticleCard
         key={article.uuid}
@@ -35,10 +35,17 @@ async function HashtagPage(props: Props) {
           subtitle: article.excerpt,
           publishedDate: article.published_at,
           slug: article.uuid,
+          tags: [],
         }}
       />
     );
   });
+
+  return (
+    <>
+      {articles}     
+    </>
+  );
 }
 
 export default HashtagPage;

@@ -67,8 +67,8 @@ export function parseArticleBodyToReact(html: string) {
         return (
           <ImageZoom>
             <Image
-              width={1200}
-              height={720}
+              width={1920}
+              height={1080}
               alt={alt || "article figures"}
               src={src}
             />

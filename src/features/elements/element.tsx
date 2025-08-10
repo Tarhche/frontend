@@ -9,8 +9,8 @@ interface ElementProps {
 
 function Element(props: ElementProps) {
   const elementData = useMemo(() => {
-    return props.elements.find(element => element.type === props.type)
-  }, [props.type]);
+    return props.elements.find((element) => element.type === props.type)
+  }, [props.type, props.elements]);
 
   const Component = elementMap[props.type];
 

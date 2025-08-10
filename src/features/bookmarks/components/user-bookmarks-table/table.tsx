@@ -18,7 +18,7 @@ import {Pagination} from "@/components/pagination";
 import {MyBookmarkDeleteButton} from "./delete-button";
 import {IconEye} from "@tabler/icons-react";
 import {fetchUserBookmarks} from "@/dal/private/bookmarks";
-import {dateFromNow} from "@/lib/date-and-time";
+import {formatDate} from "@/lib/date-and-time";
 import {APP_PATHS} from "@/lib/app-paths";
 
 export const TABLE_HEADERS = ["#", "عنوان", "تاریخ ثبت", "عملیات"];
@@ -60,7 +60,7 @@ export async function UserBookmarksTable({page}: Props) {
                 <TableTr key={bookmark.object_uuid}>
                   <TableTd>{index + 1}</TableTd>
                   <TableTd>{bookmark.title}</TableTd>
-                  <TableTd>{dateFromNow(bookmark.created_at)}</TableTd>
+                  <TableTd>{formatDate(bookmark.created_at)}</TableTd>
                   <TableTd>
                     <ActionIconGroup>
                       <Tooltip label={"بازدید کردن کامنت"} withArrow>

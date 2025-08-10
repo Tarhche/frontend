@@ -2,24 +2,18 @@
 
 import React from "react";
 import Image from "next/image";
-import { Box, Text, Group, Badge, Overlay, Stack } from "@mantine/core";
+import { Box, Text, Group, Badge, Stack } from "@mantine/core";
 import { FILES_PUBLIC_URL } from "@/constants";
 import Link from "next/link";
 import { Grid, Title } from '@mantine/core';
+import { formatDate } from "@/lib/date-and-time";
 
 const ElementJumbotron = ({ data }) => {
   if (!data?.body?.body) return null;
 
   const article = data.body.body as any;
-  const { cover, title, excerpt, published_at, tags = [], author = {} } : any = article;
-
-  const formattedDate = published_at
-    ? new Date(published_at).toLocaleDateString("fa-IR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
-    : "";
+  const { cover, title, excerpt, published_at, tags = [] } : any = article;
+  const formattedDate = formatDate(published_at);
 
   const renderBadges = () =>
     tags.map((tag) => (
@@ -43,21 +37,15 @@ const ElementJumbotron = ({ data }) => {
     ));
 
   const renderMeta = () => (
-    <Group gap="xs" fz={{ base: "xs", sm: "sm" }} c="dimmed" wrap="nowrap">
-      {author.name && (
-        <>
-          <Text component="span" fw={600}>
-            {author.name}
+    formattedDate ? (
+      <Group gap="xs" fz={{ base: "xs", sm: "sm" }} c="dimmed" wrap="nowrap">
+        {
+          <Text size="sm" component="time" style={{ color: 'var(--mantine-color-gray-6)', margin: 0}} dateTime={published_at}>
+            {formattedDate}
           </Text>
-          {formattedDate && <Text component="span">·</Text>}
-        </>
-      )}
-      {formattedDate && (
-        <Text size="sm" component="time" style={{ color: 'var(--mantine-color-gray-6)', margin: 0}} dateTime={published_at}>
-          {formattedDate}
-        </Text>
-      )}
-    </Group>
+        }
+      </Group>
+    ) : ''
   );
 
   return (
@@ -89,7 +77,7 @@ const ElementJumbotron = ({ data }) => {
             alt={title}
             fill
             style={{ objectFit: 'cover' }}
-            sizes="100vw"
+            sizes="300px"
             priority
           />
         </Link>
