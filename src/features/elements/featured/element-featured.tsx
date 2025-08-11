@@ -34,7 +34,7 @@ const MainFeaturedCard = ({ item }) => {
           fill
           style={{ objectFit: 'cover' }}
           priority
-          sizes="300px"
+          sizes="30vw"
         />
       </Link>
 
@@ -162,7 +162,7 @@ const SideArticleItem = ({ item }) => {
           alt={item.title}
           fill
           style={{ objectFit: 'cover' }}
-          sizes="300px"
+          sizes="20vw"
         />
       </Box>
 
@@ -175,7 +175,7 @@ const SideArticleItem = ({ item }) => {
             }}
           >
             <Title
-              order={3}
+              order={2}
               lineClamp={2}
               size="lg"
               style={{
@@ -191,8 +191,8 @@ const SideArticleItem = ({ item }) => {
           </Link>
 
           {item?.excerpt && (
-            <Text 
-              size="xs" 
+            <Text
+              size="sm"
               c="gray.6"
               mt="sm"
               lineClamp={2}

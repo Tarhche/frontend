@@ -1,37 +1,28 @@
 import {type Metadata} from "next";
-import {notFound} from "next/navigation";
 import {VerticalArticleCard} from "@/features/home-page/components/article-card-vertical";
-import {fetchAllArticlesByHashtag} from "@/dal/public/hashtags";
+import {fetchArticles} from "@/dal/public/articles";
 import { Pagination } from "@/components/pagination";
 import { Group } from "@mantine/core";
 
 type Props = {
-  params: Promise<{
-    hashtag?: string;
-  }>;
   searchParams: Promise<{
     page?: number | string;
   }>;
 };
 
-export async function generateMetadata(props: Props): Promise<Metadata> {
-  const params = await props.params;
-  const hashtag = decodeURI(params.hashtag ?? "");
-
+export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: `${hashtag} | تگ ها`,
+    title: `مقاله ها`,
   };
 }
 
-async function HashtagPage(props: Props) {
-  const params = await props.params;
-  const hashtag = params.hashtag;
-  if (hashtag === undefined) {
-    notFound();
-  }
-
+async function ArticlesPage(props: Props) {
   const page = Number((await props.searchParams).page) || 1;
-  const {items, pagination} = await fetchAllArticlesByHashtag(hashtag, page);
+  const {items, pagination} = await fetchArticles({
+    params: {
+      page: page,
+    },
+  });
   const {total_pages, current_page} = pagination;
 
   const articles = items.map((article: any) => {
@@ -63,4 +54,4 @@ async function HashtagPage(props: Props) {
   );
 }
 
-export default HashtagPage;
+export default ArticlesPage;
