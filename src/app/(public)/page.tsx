@@ -1,5 +1,5 @@
 import {type Metadata} from "next";
-import {Suspense} from "react";
+import {ReactNode, Suspense} from "react";
 import {
   FeaturedArticles,
   FeaturedArticlesSkeleton,
@@ -15,7 +15,7 @@ export default async function HomePage() {
   const homePageData = await fetchHomePageData();
 
   return (
-    <Suspense fallback={<FeaturedArticlesSkeleton />}>
+    <Suspense fallback={<FeaturedArticlesSkeleton /> as ReactNode}>
       <Element style={{ marginTop: '1rem' }} type={'jumbotron'} elements={homePageData.elements} />
       <Element style={{ marginTop: '1rem' }} type={'featured'} elements={homePageData.elements} />
       <FeaturedArticles latestArticles={homePageData.all} popularArticles={homePageData.popular} />

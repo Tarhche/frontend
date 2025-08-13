@@ -13,6 +13,7 @@ import {
   IconUsers,
   IconKey,
   IconUser,
+  IconPictureInPicture
 } from "@tabler/icons-react";
 import {hasPermission} from "@/lib/auth/shared";
 import {APP_PATHS} from "@/lib/app-paths";
@@ -62,6 +63,12 @@ const SIDE_BAR_DATA: SidebarSchema[] = [
     icon: IconMessage,
     href: dashboard.my.comments,
     requiredPermissions: ["self.comments.index"],
+  },
+  {
+    label: "المان ها",
+    icon: IconPictureInPicture,
+    href: dashboard.elements.index,
+    requiredPermissions: ["elements.index"],
   },
   {
     label: "بوکمارک های من",

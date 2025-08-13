@@ -7,7 +7,7 @@ function ServerComponentErrorHandler({state}) {
     if (state?.success === false) {
       notifications.show({
         title: "خطا",
-        message: "عملیات به مشکل خورد.",
+        message: `عملیات به مشکل خورد.${state.status ? ` (${state.status})` : ''}`,
         color: "red",
       });
     }
