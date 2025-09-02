@@ -6,11 +6,12 @@ import {
   List,
   ThemeIcon,
   ListItem,
-  Title,
+  Title, Divider, Group, Button,
 } from "@mantine/core";
 import {VerticalArticleCard} from "../article-card-vertical";
 import classes from "./featured-articles.module.css";
 import {
+  IconArrowLeft,
   IconHexagon1,
   IconHexagon2,
   IconHexagon3,
@@ -80,7 +81,7 @@ export async function FeaturedArticles({latestArticles, popularArticles}) {
 
               return (
                 <ListItem
-                  mb={"sm"} 
+                  mb={"sm"}
                   key={article.uuid}
                   icon={<ThemeIcon color="teal" radius="xl" size="md"><Icon size="xl" /></ThemeIcon>}
                 >
@@ -92,6 +93,27 @@ export async function FeaturedArticles({latestArticles, popularArticles}) {
             })}
           </List>
         </Stack>
+      </GridCol>
+      <GridCol
+        mt={10}
+        span={{
+          base: 12,
+          md: 12,
+        }}
+      >
+        <Group justify="center">
+          <Button
+            component={Link}
+            scroll={true}
+            href="/articles"
+            size="md"
+            radius="sm"
+            rightSection={<IconArrowLeft size={18} />}
+            styles={{ section: { marginInlineStart: 8 } }}
+          >
+            مقالات بیشتر
+          </Button>
+        </Group>
       </GridCol>
     </Grid>
   );
