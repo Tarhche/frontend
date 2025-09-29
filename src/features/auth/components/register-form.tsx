@@ -17,7 +17,7 @@ import {registerUser} from "../actions/register-user";
 export function RegisterForm() {
   const [state, dispatch, isPending] = useActionState(registerUser, {
     success: undefined,
-    email: undefined,
+    email: "",
   });
 
   const renderFeedbackAlert = () => {
