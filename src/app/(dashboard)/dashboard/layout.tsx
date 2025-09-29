@@ -7,8 +7,8 @@ import {APP_PATHS} from "@/lib/app-paths";
 
 export const metadata: Metadata = {
   title: {
-    template: `%s | ${buildTitle("داشبرد", {withBrand: true})}`,
-    default: buildTitle("داشبرد"),
+    template: `%s | ${buildTitle("پنل کاربری", {withBrand: true})}`,
+    default: buildTitle("پنل کاربری"),
   },
 };
 

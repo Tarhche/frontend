@@ -3,7 +3,7 @@ import {Title} from "@mantine/core";
 function DashboardPage() {
   return (
     <div>
-      <Title>داشبرد</Title>
+      <Title>پنل کاربری</Title>
     </div>
   );
 }
