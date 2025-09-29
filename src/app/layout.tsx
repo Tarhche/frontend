@@ -8,8 +8,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "طرحچه",
-    template: "%s | طرحچه",
+    default: "طرح‌چه",
+    template: "%s | طرح‌چه",
   },
   description: "طرح‌چه",
 };
