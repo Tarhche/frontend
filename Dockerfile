@@ -3,15 +3,15 @@ FROM node:20.18-alpine AS base
 RUN apk add --no-cache libc6-compat vips
 WORKDIR /opt/app
 # Create a non-root user and group
-RUN addgroup -S appgroup \
-    && adduser -S appuser -G appgroup \
-    && chown -R appuser:appgroup /opt/app
+RUN addgroup -g 10001 app \
+    && adduser -u 10000 -g app -S -h /home/app app \
+    && chown -R app:app /opt/app
 # Switch to the non-root user
-USER appuser
+USER app:app
 
 FROM base AS install
-COPY --chown=appuser:appgroup . .
-RUN chown -R appuser:appgroup /opt/app \
+COPY --chown=app:app . .
+RUN chown -R app:app /opt/app \
     && npm clean-install
 
 FROM install AS develop
