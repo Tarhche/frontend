@@ -4,8 +4,8 @@ import {Container} from "@mantine/core";
 
 export const metadata: Metadata = {
   title: {
-    default: "احراز هویت | طرحچه",
-    template: "%s | احراز هویت | طرحچه",
+    default: "احراز هویت | طرح‌چه",
+    template: "%s | احراز هویت | طرح‌چه",
   },
 };
 

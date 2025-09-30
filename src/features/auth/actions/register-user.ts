@@ -5,15 +5,18 @@ import {registerUser as signUpUser} from "@/dal/public/auth";
 type SuccessRegisterState = {
   success: true;
   message: string;
+  email : string;
 };
 
 type FailureRegisterState = {
   success: false;
   errorMessage: string;
+  email : string;
 };
 
 type UntouchedState = {
   success: undefined;
+  email : string;
 };
 
 type State = SuccessRegisterState | FailureRegisterState | UntouchedState;
@@ -31,6 +34,7 @@ export async function registerUser(
     return {
       success: true,
       message: "",
+      email: email,
     };
   } catch (e) {
     if (e instanceof DALDriverError) {
@@ -39,6 +43,7 @@ export async function registerUser(
         return {
           success: false,
           errorMessage: errors.identity,
+          email: email ?? "",
         };
       }
     }
@@ -46,5 +51,6 @@ export async function registerUser(
   return {
     success: false,
     errorMessage: "خطایی ناشناخته اتفاق افتاد لطفا دوباره تلاش نمایید",
+    email: email ?? "",
   };
 }

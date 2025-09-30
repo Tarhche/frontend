@@ -35,7 +35,7 @@ type SidebarSchema = {
 
 const SIDE_BAR_DATA: SidebarSchema[] = [
   {
-    label: "داشبرد",
+    label: "پنل کاربری",
     icon: IconHome,
     href: dashboard.index,
     requiredPermissions: [],

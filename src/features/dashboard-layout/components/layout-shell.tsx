@@ -48,7 +48,7 @@ export function LayoutShell({children}: Props) {
               size="sm"
             />
             <Text component={Link} href={"/"}>
-              طرحچه
+              طرح‌چه
             </Text>
           </Group>
           <Group h="100%" align="center">

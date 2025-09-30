@@ -13,7 +13,7 @@ export function DashboardBreadcrumbs({crumbs}: Props) {
     <Breadcrumbs
       crumbs={[
         {
-          label: "داشبرد",
+          label: "پنل کاربری",
           href: `${APP_PATHS.dashboard.index}`,
         },
         ...crumbs,
