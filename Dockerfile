@@ -2,10 +2,17 @@ FROM node:20.18-alpine AS base
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat vips
 WORKDIR /opt/app
+# Create a non-root user and group
+RUN addgroup -S appgroup \
+    && adduser -S appuser -G appgroup \
+    && chown -R appuser:appgroup /opt/app
+# Switch to the non-root user
+USER appuser
 
 FROM base AS install
-COPY . .
-RUN npm install
+COPY --chown=appuser:appgroup . .
+RUN chown -R appuser:appgroup /opt/app \
+    && npm clean-install
 
 FROM install AS develop
 EXPOSE 3000
