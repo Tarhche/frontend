@@ -26,7 +26,7 @@ RUN npm run build
 FROM base AS production
 COPY --from=build /opt/app/.next/standalone ./
 COPY --from=build /opt/app/.next/static ./.next/static
-# COPY --from=builder /opt/app/public ./public
+COPY --from=build /opt/app/public ./public
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 EXPOSE 3000
