@@ -46,5 +46,10 @@ export const APP_PATHS = {
       index: "/dashboard/profile",
       editPassword: "/dashboard/profile/password",
     },
+    elements: {
+      index: '/dashboard/elements',
+      new: "/dashboard/elements/new",
+      edit: (uuid: string) => `/dashboard/elements/${uuid}`,
+    },
   },
 };

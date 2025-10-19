@@ -23,7 +23,9 @@ export async function generateMetadata(props: Props): Promise<Metadata | null> {
   if (slug === undefined) {
     return null;
   }
+
   const article = await fetchArticleByUUID(slug);
+
   return {
     title: `${article.title}`,
   };
@@ -40,7 +42,7 @@ async function ArticleDetailPage(props: Props) {
   return (
     <Container component="section" px={{ base: "0", sm: "md" }} size="sm" mt="xl">
       <Suspense fallback={<ContentSkeleton />}>
-        <Content uuid={slug} />
+        <Content slug={slug!} />
       </Suspense>
       <Box mt={"xl"}>
         <Group align="center" gap={"sm"}>
