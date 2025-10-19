@@ -18,7 +18,7 @@ export default async function authMiddleware(req: NextRequest) {
       if (data) {
         newAccessToken = data.accessToken;
         newRefreshToken = data.refreshToken;
-        req.cookies.set('access_token', newRefreshToken);
+        req.cookies.set('access_token', newAccessToken);
         req.cookies.set('refresh_token', newRefreshToken,);
       }
     }
