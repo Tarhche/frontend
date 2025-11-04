@@ -1,5 +1,12 @@
+'use client'
+
 import {ReactNode} from "react";
-import {createTheme, MantineProvider, DirectionProvider} from "@mantine/core";
+import {
+  createTheme,
+  MantineProvider,
+  DirectionProvider,
+  CSSVariablesResolver,
+} from "@mantine/core";
 import {Notifications} from "@mantine/notifications";
 import {QueryClientProvider} from "@/components/query-client-provider";
 import {vazir, roboto_mono} from "./fonts";
@@ -14,14 +21,23 @@ const theme = createTheme({
   },
 });
 
+const cssVariablesResolver: CSSVariablesResolver = (theme) => ({
+  variables: {},
+  light: {
+    "--mantine-color-default": theme.colors.gray[0],
+  },
+  dark: {
+  },
+});
+
 type Props = {
   children: ReactNode;
 };
 
-export async function Providers({children}: Props) {
+export function Providers({children}: Props) {
   return (
     <QueryClientProvider>
-      <MantineProvider theme={theme} defaultColorScheme="auto">
+      <MantineProvider theme={theme} cssVariablesResolver={cssVariablesResolver} defaultColorScheme="dark">
         <CodeHighlightProvider>
           <Notifications position="bottom-left" autoClose={3000} />
           <DirectionProvider initialDirection="rtl">

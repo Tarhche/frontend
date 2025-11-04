@@ -51,7 +51,7 @@ const ElementJumbotron = ({ data }) => {
   return (
     <Box
       style={{
-        backgroundColor: 'var(--mantine-color-gray-0)',
+        backgroundColor: 'var(--mantine-color-default)',
         overflow: 'hidden',
         marginTop: 'var(--mantine-spacing-xl)',
         transition: 'transform 0.2s ease, box-shadow 0.2s ease',
@@ -118,9 +118,9 @@ const ElementJumbotron = ({ data }) => {
 
             {excerpt && (
               <Text
-                style={{ 
-                  opacity: 0.9, 
-                  marginBottom: "var(--mantine-spacing-sm)", 
+                style={{
+                  opacity: 0.9,
+                  marginBottom: "var(--mantine-spacing-sm)",
                   fontSize: '90%',
                   color: 'white'
                 }}
