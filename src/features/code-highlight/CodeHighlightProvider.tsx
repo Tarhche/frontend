@@ -29,7 +29,7 @@ async function loadShiki() {
   return highlighter;
 }
 
-const customShikiAdapter: any = {
+const shikiAdapter: any = {
   loadContext: loadShiki,
 
   getHighlighter: (ctx: any) => {
@@ -69,7 +69,7 @@ type CodeHighlightProviderProps = {
 
 function CodeHighlightProvider({ children }: CodeHighlightProviderProps) {
   return (
-    <CodeHighlightAdapterProvider adapter={customShikiAdapter}>
+    <CodeHighlightAdapterProvider adapter={shikiAdapter}>
       {children}
     </CodeHighlightAdapterProvider>
   );
