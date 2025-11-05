@@ -3,10 +3,6 @@ import {Suspense} from "react";
 import {Box} from "@mantine/core";
 import {withPermissions} from "@/components/with-authorization";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
-import {
-  ArticlesTable,
-  ArticlesTableSkeleton,
-} from "@/features/articles/components/articles-table";
 import {APP_PATHS} from "@/lib/app-paths";
 import {ElementsTable, ElementsTableSkeleton} from "@/features/dashboard/elements/components/elements-table";
 

@@ -1,6 +1,5 @@
 "use client";
 import { ReactNode } from "react";
-import { useRouter } from "next/navigation";
 import {
   QueryClient,
   QueryClientProvider as RQProvider,
@@ -28,8 +27,8 @@ function messageFor(status: number) {
   }
 }
 
-function handleError(err: any, router?: ReturnType<typeof useRouter>) {
-  const status = err.response.status;
+function handleError(err: any) {
+  const status = err.response?.status;
   if (status) {
     notifications.show({
       title: `خطا ${err.status}`,
@@ -46,15 +45,15 @@ function handleError(err: any, router?: ReturnType<typeof useRouter>) {
   }
 }
 
-function createQueryClient(router: ReturnType<typeof useRouter>) {
+function createQueryClient() {
   return new QueryClient({
     queryCache: new QueryCache({
-      onError: (err) => handleError(err, router),
+      onError: (err) => handleError(err),
     }),
     mutationCache: new MutationCache({
       onError: (err, _vars, _ctx, mutation) => {
         // Let a mutation-specific onError override the global one
-        if (!mutation.options.onError) handleError(err, router);
+        if (!mutation.options.onError) handleError(err);
       },
     }),
     defaultOptions: {
@@ -70,8 +69,7 @@ function createQueryClient(router: ReturnType<typeof useRouter>) {
 type Props = { children: ReactNode };
 
 export function QueryClientProvider({ children }: Props) {
-  const router = useRouter();
-  const queryClient = createQueryClient(router);
+  const queryClient = createQueryClient();
 
   return (
     <RQProvider client={queryClient}>{children}</RQProvider>
