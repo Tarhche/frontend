@@ -6,7 +6,9 @@ import {
   List,
   ThemeIcon,
   ListItem,
-  Title, Divider, Group, Button,
+  Title,
+  Group,
+  Button,
 } from "@mantine/core";
 import {VerticalArticleCard} from "../article-card-vertical";
 import classes from "./featured-articles.module.css";

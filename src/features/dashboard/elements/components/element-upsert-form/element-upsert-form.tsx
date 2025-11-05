@@ -56,7 +56,7 @@ export function ElementUpsertForm({ element }: Props) {
       JSON.parse(value);
       setJsonError(null);
       return true;
-    } catch (e: any) {
+    } catch {
       setJsonError("JSON نامعتبر است");
       return false;
     }
@@ -80,7 +80,7 @@ export function ElementUpsertForm({ element }: Props) {
     }
   };
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async () => {
     if (!validateJson(jsonValue)) {
       alert('Invalid json')
       return;

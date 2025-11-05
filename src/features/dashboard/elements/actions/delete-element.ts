@@ -16,7 +16,7 @@ export async function deleteElement(
     await privateDalDriver.delete(`/dashboard/elements/${id}`);
     revalidatePath(APP_PATHS.dashboard.elements.index);
     return true;
-  } catch(e) {
+  } catch {
     return false;
   }
 }
