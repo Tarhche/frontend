@@ -77,7 +77,7 @@ export async function FeaturedArticles({latestArticles, popularArticles}) {
           <span>پربازدیدترین ها</span>
         </h2>
         <Stack gap={"sm"}>
-          <List>
+          <List center={true}>
             {popularArticles.slice(0, hexagonIcons.length).map((article, index) => {
               const Icon = hexagonIcons[index];
 
@@ -85,7 +85,7 @@ export async function FeaturedArticles({latestArticles, popularArticles}) {
                 <ListItem
                   mb={"sm"}
                   key={article.uuid}
-                  icon={<ThemeIcon color="teal" radius="xl" size="md"><Icon size="xl" /></ThemeIcon>}
+                  icon={<ThemeIcon color="teal" radius="xl" size="lg"><Icon size="100%" /></ThemeIcon>}
                 >
                   <Link style={{textDecoration: "none", color: "inherit"}} href={`articles/${article.uuid}`}>
                     <Title size="md" order={3}>{article.title}</Title>
