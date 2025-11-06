@@ -1,5 +1,5 @@
 import { addListToDropdown, Collection, Command, createDropdown, Plugin, ViewModel as Model } from "ckeditor5";
-import Node from "@ckeditor/ckeditor5-engine/src/model/node";
+import { ModelElement } from "@ckeditor/ckeditor5-engine/src/model/element";
 import {RUNTIMES} from "@/constants";
 
 const EXECUTABLE = "executable";
@@ -108,7 +108,7 @@ class SetExecutableCommand extends Command {
     this.value = block ? this.retrieveValueFromBlock(block) : null;
   }
 
-  retrieveValueFromBlock(block: Node) {
+  retrieveValueFromBlock(block: ModelElement) {
     const explicitAttr = block.getAttribute(EXECUTABLE);
     if (explicitAttr) return explicitAttr;
 
