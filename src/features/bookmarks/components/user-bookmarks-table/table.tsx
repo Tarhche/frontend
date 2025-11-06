@@ -63,12 +63,12 @@ export async function UserBookmarksTable({page}: Props) {
                   <TableTd>{formatDate(bookmark.created_at)}</TableTd>
                   <TableTd>
                     <ActionIconGroup>
-                      <Tooltip label={"بازدید کردن کامنت"} withArrow>
+                      <Tooltip label={"بازدید کردن بوکمارک"} withArrow>
                         <ActionIcon
                           variant="light"
                           size="lg"
                           color="blue"
-                          aria-label="بازدید کردن کامنت"
+                          aria-label="بازدید کردن بوکمارک"
                           component={Link}
                           href={`${APP_PATHS.articles.detail(bookmark.object_uuid)}`}
                         >
