@@ -12,7 +12,7 @@ USER app:app
 FROM base AS install
 COPY --chown=app:app . .
 RUN chown -R app:app /opt/app \
-    && npm clean-install
+    && npm clean-install --prefer-offline --no-audit
 
 FROM install AS develop
 EXPOSE 3000
