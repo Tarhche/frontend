@@ -17,12 +17,16 @@
   align-self: stretch;
 }
 
-.title {
-  font-weight: bold;
-  font-family:
-    Greycliff CF,
-    var(--mantine-font-family);
-  line-height: 1.2;
+.tagsOverlay {
+  position: absolute;
+  bottom: var(--mantine-spacing-xs);
+  right: var(--mantine-spacing-xs);
+  display: flex;
+  flex-direction: row;
+  gap: var(--mantine-spacing-xs);
+  z-index: 1;
+  pointer-events: all;
+  cursor: pointer;
 }
 
 .body {

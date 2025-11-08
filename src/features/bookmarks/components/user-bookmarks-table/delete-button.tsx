@@ -23,12 +23,12 @@ export function MyBookmarkDeleteButton({title, bookmarkID}: Props) {
 
   return (
     <>
-      <Tooltip label="حذف کردن کامنت" withArrow>
+      <Tooltip label="حذف کردن بوکمارک" withArrow>
         <ActionIcon
           variant="light"
           size="lg"
           color="red"
-          aria-label="حذف کردن کامنت"
+          aria-label="حذف کردن بوکمارک"
           onClick={() => {
             setIsConfirmOpen(true);
           }}

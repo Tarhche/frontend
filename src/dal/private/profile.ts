@@ -1,4 +1,3 @@
-import {AxiosRequestConfig} from "axios";
 import {privateDalDriver} from "./private-dal-driver";
 
 export async function fetchUserProfile() {

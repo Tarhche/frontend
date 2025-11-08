@@ -6,22 +6,22 @@ import {parseArticleBodyToReact} from "@/features/articles/utils/article-body-pa
 import {BookmarkButton} from "./bookmark-button";
 import {IconClockHour2, IconInfoCircle} from "@tabler/icons-react";
 import {FILES_PUBLIC_URL} from "@/constants/envs";
+import {formatDate} from "@/lib/date-and-time";
+import classes from "./content.module.css";
 import {fetchArticleByUUID} from "@/dal/public/articles";
 import {checkBookmarkStatus} from "@/dal/private/bookmarks";
-import {dateFromNow} from "@/lib/date-and-time";
-import classes from "./content.module.css";
+import ArticleTags from "@/features/articles/components/article-tags/ArticleTags";
 
 type Props = {
-  uuid: string;
+  slug: string;
 };
 
-export async function Content({uuid}: Props) {
-  const articleData = await fetchArticleByUUID(uuid);
-  const bookmarkStatusData = checkBookmarkStatus(uuid);
+export async function Content({slug}: Props) {
   const [article, isBookmarked] = await Promise.all([
-    articleData,
-    bookmarkStatusData,
+    fetchArticleByUUID(slug),
+    checkBookmarkStatus(slug),
   ]);
+
   const tags = article?.status ?? [];
   const ARTICLE_COVER = `${FILES_PUBLIC_URL}/${article.cover}`;
   const ARTICLE_VIDEO = Boolean(article.video)
@@ -35,7 +35,7 @@ export async function Content({uuid}: Props) {
         <Group gap={5}>
           <IconClockHour2 spacing={0} size={20} />
           <Text size="sm" c="dimmed" mt={4}>
-            {dateFromNow(article.published_at).toString()}
+            {formatDate(article.published_at)}
           </Text>
         </Group>
         {isBookmarked === undefined ? null : (
@@ -61,8 +61,8 @@ export async function Content({uuid}: Props) {
       {ARTICLE_VIDEO === undefined && (
         <ImageZoom classDialog={classes.rmiz}>
           <Image
-            width={1200}
-            height={675}
+            width={1920}
+            height={1080}
             src={ARTICLE_COVER}
             alt={article.title}
           />
@@ -99,6 +99,7 @@ export async function Content({uuid}: Props) {
           );
         })}
       </Group>
+      <ArticleTags tags={article.tags} />
     </article>
   );
 }

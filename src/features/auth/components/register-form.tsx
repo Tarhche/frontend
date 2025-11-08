@@ -17,6 +17,7 @@ import {registerUser} from "../actions/register-user";
 export function RegisterForm() {
   const [state, dispatch, isPending] = useActionState(registerUser, {
     success: undefined,
+    email: "",
   });
 
   const renderFeedbackAlert = () => {
@@ -79,6 +80,7 @@ export function RegisterForm() {
             mt={"md"}
             required
             disabled={state.success}
+            defaultValue={state.email}
           />
           {renderFeedbackAlert()}
           {(state.success === false || state.success === undefined) && (

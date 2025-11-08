@@ -5,7 +5,6 @@ import {Container, Box, Group, Title} from "@mantine/core";
 import {IconMessage} from "@tabler/icons-react";
 import {
   Content,
-  ContentSkeleton,
   Comments,
   CommentsSkeleton,
 } from "@/features/articles/components/article-detail";
@@ -23,7 +22,9 @@ export async function generateMetadata(props: Props): Promise<Metadata | null> {
   if (slug === undefined) {
     return null;
   }
+
   const article = await fetchArticleByUUID(slug);
+
   return {
     title: `${article.title}`,
   };
@@ -39,9 +40,7 @@ async function ArticleDetailPage(props: Props) {
 
   return (
     <Container component="section" px={{ base: "0", sm: "md" }} size="sm" mt="xl">
-      <Suspense fallback={<ContentSkeleton />}>
-        <Content uuid={slug} />
-      </Suspense>
+      <Content slug={slug!} />
       <Box mt={"xl"}>
         <Group align="center" gap={"sm"}>
           <IconMessage />

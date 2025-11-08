@@ -11,22 +11,22 @@ import {notifications} from "@mantine/notifications";
 import { encode, decode } from 'js-base64';
 import './code-highlight.css';
 
+const b64 = {
+  enc: (input: string) => {
+    const cleaned = input
+      .replace(/\u00A0/g, ' ')
+      .replace(/\r\n/g, '\n');
+
+    return encode(cleaned);
+  },
+  dec: (str: string) => {
+    return decode(str);
+  },
+};
+
 function CodeHighlight({ code, language, executable }) {
   const [output, setOutput] = useState("");
   const [running, setRunning] = useState(false);
-
-  const b64 = {
-    enc: (input) => {
-      const cleaned = input
-        .replace(/\u00A0/g, ' ')
-        .replace(/\r\n/g, '\n');
-
-      return encode(cleaned);
-    },
-    dec: (str) => {
-      return decode(str);
-    },
-  };
 
   const runCode = useCallback(() => {
     if (running) return;
@@ -84,7 +84,7 @@ function CodeHighlight({ code, language, executable }) {
       setOutput(`WebSocket error: ${err}`);
       setRunning(false);
     });
-  }, [code, language, running]);
+  }, [code, running, executable]);
 
   return (
     <Box

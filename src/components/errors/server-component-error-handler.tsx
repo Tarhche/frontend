@@ -1,5 +1,5 @@
 'use client'
-import React, {useEffect} from "react";
+import {useEffect} from "react";
 import {notifications} from "@mantine/notifications";
 
 function ServerComponentErrorHandler({state}) {
@@ -7,7 +7,7 @@ function ServerComponentErrorHandler({state}) {
     if (state?.success === false) {
       notifications.show({
         title: "خطا",
-        message: "عملیات به مشکل خورد.",
+        message: `عملیات به مشکل خورد.${state.status ? ` (${state.status})` : ''}`,
         color: "red",
       });
     }

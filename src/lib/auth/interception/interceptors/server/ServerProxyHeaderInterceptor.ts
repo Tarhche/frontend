@@ -19,6 +19,7 @@ export default class ServerProxyHeaderInterceptor extends ServerInterceptor {
         headersStore.get("cf-connecting-ip");
     } catch (e) {
       // avoid errors on static generation
+      console.error(e);
     }
 
     return config;

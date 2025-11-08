@@ -27,7 +27,7 @@ import {
   IconProps,
 } from "@tabler/icons-react";
 import {fetchAllArticles} from "@/dal/private/articles";
-import {dateFromNow} from "@/lib/date-and-time";
+import {formatDate} from "@/lib/date-and-time";
 import {APP_PATHS} from "@/lib/app-paths";
 import {type Permissions} from "@/lib/app-permissions";
 
@@ -50,7 +50,7 @@ export async function ArticlesTable({page}: Props) {
       page: page,
     },
   });
-  console.log('articlesResponse', JSON.stringify(articlesResponse));
+
   const articles = articlesResponse.items;
   const {total_pages, current_page} = articlesResponse.pagination;
 
@@ -115,7 +115,7 @@ export async function ArticlesTable({page}: Props) {
                   <TableTd>{article.title}</TableTd>
                   <TableTd>
                     {isPublished ? (
-                      dateFromNow(article.published_at)
+                      formatDate(article.published_at)
                     ) : (
                       <Badge color="yellow" variant="light">
                         منتشر نشده

@@ -4,7 +4,7 @@ import classes from "./card.module.css";
 
 export function VerticalArticleCardSkeleton() {
   return (
-    <Card withBorder radius="md" p={0} className={classes.card}>
+    <Card p={0} className={classes.card} radius="0">
       <Flex wrap="nowrap" gap={0} className={classes.group}>
         <Box className={classes.imageWrapper}>
           <Skeleton pos={"absolute"} w={"100%"} height={"100%"} />

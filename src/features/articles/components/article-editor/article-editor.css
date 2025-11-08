@@ -189,6 +189,7 @@
   --ck-color-base-border: var(--mantine-color-dark-4);
   --ck-custom-white: var(--mantine-color-white);
   /* -- Overrides generic colors. ------------------------------------------------------------- */
+  --ck-content-font-color: var(--mantine-color-dark-1);
   --ck-color-base-foreground: var(--mantine-color-gray-8);
   --ck-color-focus-border: hsl(208, 90%, 62%);
   --ck-color-text: var(--mantine-color-dark-1);

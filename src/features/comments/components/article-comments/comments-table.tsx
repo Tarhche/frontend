@@ -19,7 +19,7 @@ import {Pagination} from "@/components/pagination";
 import {CommentDeleteButton} from "./comment-delete-button";
 import {IconEye, IconPencil} from "@tabler/icons-react";
 import {fetchAllComments} from "@/dal/private/comments";
-import {dateFromNow, isGregorianStartDateTime} from "@/lib/date-and-time";
+import {formatDate, isGregorianStartDateTime} from "@/lib/date-and-time";
 import {APP_PATHS} from "@/lib/app-paths";
 
 export const TABLE_HEADERS = [
@@ -72,14 +72,14 @@ export async function CommentsTable({page}: Props) {
                   <TableTd>{comment.body}</TableTd>
                   <TableTd>
                     {isApproved ? (
-                      dateFromNow(comment.approved_at)
+                      formatDate(comment.approved_at)
                     ) : (
                       <Badge color="yellow" variant="light">
                         تایید نشده
                       </Badge>
                     )}
                   </TableTd>
-                  <TableTd>{dateFromNow(comment.created_at)}</TableTd>
+                  <TableTd>{formatDate(comment.created_at)}</TableTd>
                   <TableTd>{comment.author.name}</TableTd>
                   <TableTd>
                     <ActionIconGroup>

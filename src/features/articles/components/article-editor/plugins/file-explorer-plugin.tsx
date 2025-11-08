@@ -1,4 +1,4 @@
-import {Plugin, ButtonView, icons} from "ckeditor5";
+import {Plugin, ButtonView, IconBrowseFiles} from "ckeditor5";
 
 export class FileExplorerPlugin extends Plugin {
   init() {
@@ -10,7 +10,7 @@ export class FileExplorerPlugin extends Plugin {
 
       view.set({
         label: "File explorer",
-        icon: icons.browseFiles,
+        icon: IconBrowseFiles,
         tooltip: true,
       });
 

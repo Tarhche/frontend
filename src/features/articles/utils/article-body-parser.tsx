@@ -3,6 +3,7 @@ import Image from "next/image";
 import {ImageZoom} from "@/components/image-zoom";
 import "@mantine/code-highlight/styles.css";
 import CodeHighlight from "@/features/code-highlight/CodeHighlight";
+import Sandpack from "@/components/html-code-preview/sandpack/Sandpack";
 
 export function parseArticleBodyToReact(html: string) {
   return parse(html, {
@@ -67,14 +68,33 @@ export function parseArticleBodyToReact(html: string) {
         return (
           <ImageZoom>
             <Image
-              width={1200}
-              height={720}
+              width={1920}
+              height={1080}
               alt={alt || "article figures"}
               src={src}
             />
           </ImageZoom>
         );
+      } else if (domNode instanceof Element && domNode.name === "sandpack") {
+        const codeText = getText(domNode);
+
+        if (!codeText)
+          return null;
+
+        const code = JSON.parse(codeText);
+
+        return <>
+          <Sandpack {...code} />
+        </>
       }
     },
   });
 }
+
+const getText = (node) => {
+  if (!node) return '';
+  if (typeof node === 'string') return node;               // some parsers use strings for text nodes
+  if (node.type === 'text') return node.data || node.value || '';
+  const kids = node.children || node.childNodes || [];
+  return kids.map(getText).join('');
+};

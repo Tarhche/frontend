@@ -12,3 +12,6 @@ down:
 
 sh:
 	docker compose exec -it frontend sh
+
+logs:
+	docker compose logs -f

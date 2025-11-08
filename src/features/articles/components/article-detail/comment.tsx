@@ -16,7 +16,7 @@ import {CommentForm} from "./comment-form";
 import {OrphanCommentIndicator} from "./orphan-comment-indicator";
 import {useIsClient} from "@/hooks/use-is-client";
 import {useInit} from "@/hooks/data/init";
-import {dateFromNow} from "@/lib/date-and-time";
+import {formatDate} from "@/lib/date-and-time";
 import {type Comment as CommentType} from "../../types/comment";
 import classes from "./comment.module.css";
 
@@ -64,7 +64,7 @@ export function Comment({
             {isOrphan && <OrphanCommentIndicator />}
           </Group>
           <Text size="xs" c="dimmed">
-            {dateFromNow(created_at)}
+            {formatDate(created_at)}
           </Text>
           <Text mt="xs">{body}</Text>
           {isLoading || !isClient ? (
