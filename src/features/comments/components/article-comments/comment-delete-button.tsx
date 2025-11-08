@@ -57,7 +57,7 @@ export function CommentDeleteButton({commentID, commentMessage}: Props) {
           </Button>
           <form action={formAction}>
             <input type="text" name="id" value={commentID} hidden readOnly />
-            <Button color="red" loading={isPending}>
+            <Button color="red" type="submit" loading={isPending}>
               حذف کردن
             </Button>
           </form>
