@@ -126,13 +126,13 @@ class SetExecutableCommand extends Command {
     if (explicitAttr) return explicitAttr;
 
     const entries = Array.from(block.getAttributes());
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
     const htmlContent = entries.find(
       ([key]) => key === "htmlContentAttributes",
-    )?.[1]?.attributes;
-    if (!htmlContent) return null;
-    return htmlContent[`data-${EXECUTABLE}`] ?? null;
+    )?.[1] as {attributes?: Record<string, unknown>} | undefined;
+
+    if (!htmlContent?.attributes) return null;
+
+    return htmlContent.attributes[`data-${EXECUTABLE}`] ?? null;
   }
 
   execute({value}: {value?: string | null} = {}) {
