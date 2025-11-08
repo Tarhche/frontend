@@ -17,9 +17,10 @@ export async function PermissionGuard({
   operator = "OR",
 }: Props) {
   const userPermissions = await getUserPermissions();
+
   if (userPermissions === null) {
     // An invalid token is set
-    redirect('/auth/login');
+    redirect("/auth/login");
   }
   const hasAccess = hasPermission(
     userPermissions,

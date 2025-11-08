@@ -5,7 +5,7 @@ type Props = {
   children: ReactNode;
 };
 
-async function ArticlesLayout(props: Props) {
+function ArticlesLayout(props: Props) {
   const {children} = props;
 
   return (

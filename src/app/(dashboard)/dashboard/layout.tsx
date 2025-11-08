@@ -2,7 +2,7 @@ import {redirect} from "next/navigation";
 import {Metadata} from "next";
 import {DashboardLayout} from "@/features/dashboard-layout";
 import {buildTitle} from "@/lib/seo";
-import {isUserLoggedIn} from "@/lib/auth";
+import {isUserLoggedIn, getUserPermissions} from "@/lib/auth";
 import {APP_PATHS} from "@/lib/app-paths";
 
 export const metadata: Metadata = {
@@ -23,5 +23,11 @@ export default async function RootLayout({children}: Props) {
     redirect(APP_PATHS.home);
   }
 
-  return <DashboardLayout>{children}</DashboardLayout>;
+  const userPermissions = await getUserPermissions();
+
+  return (
+    <DashboardLayout userPermissions={userPermissions || []}>
+      {children}
+    </DashboardLayout>
+  );
 }

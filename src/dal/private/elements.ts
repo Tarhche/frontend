@@ -2,7 +2,7 @@ import {AxiosRequestConfig} from "axios";
 import {privateDalDriver} from "./private-dal-driver";
 
 export async function fetchAllElements(config?: AxiosRequestConfig) {
-    const response = await privateDalDriver.get("dashboard/elements", config);
+  const response = await privateDalDriver.get("dashboard/elements", config);
   return response.data;
 }
 

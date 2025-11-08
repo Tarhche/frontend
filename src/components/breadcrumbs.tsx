@@ -13,9 +13,7 @@ export function Breadcrumbs({crumbs}: Props) {
   return (
     <MantineBreadcrumbs
       separator="\"
-      classNames={{
-        separator: classes.separator,
-      }}
+      classNames={{separator: classes.separator}}
     >
       {crumbs.map((crumb) => {
         if (crumb.href) {
@@ -31,6 +29,7 @@ export function Breadcrumbs({crumbs}: Props) {
             </Anchor>
           );
         }
+
         return (
           <Text c="dimmed" size="md" key={crumb.label}>
             {crumb.label}

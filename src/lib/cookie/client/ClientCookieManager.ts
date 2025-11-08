@@ -1,4 +1,4 @@
-import JsCookie from 'js-cookie'
+import JsCookie from "js-cookie";
 import CookieOptions from "@/lib/cookie/types/CookieOptions";
 import CookieManager from "../CookieManager";
 
@@ -10,10 +10,13 @@ export default class ClientCookieManager extends CookieManager {
   }
 
   async set(key: string, value: string, options: CookieOptions) {
-    const sanitizedOptions = Object.entries(options).reduce((acc, [k, v]) => {
-      acc[k] = String(v);
-      return acc;
-    }, {} as Record<string, string>);
+    const sanitizedOptions = Object.entries(options).reduce(
+      (acc, [k, v]) => {
+        acc[k] = String(v);
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
 
     JsCookie.set(key, value, sanitizedOptions);
   }

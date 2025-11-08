@@ -10,7 +10,9 @@ export default class ServerProxyHeaderInterceptor extends ServerInterceptor {
     );
   }
 
-  async handleRequestResolveXForwardedForHeader(config: InternalAxiosRequestConfig) {
+  async handleRequestResolveXForwardedForHeader(
+    config: InternalAxiosRequestConfig,
+  ) {
     try {
       const headersStore = await nextHeaders();
       config.headers["x-forwarded-for"] =

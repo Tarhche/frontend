@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers';
+import {cookies} from "next/headers";
 import CookieOptions from "../types/CookieOptions";
 import CookieManager from "../CookieManager";
 import {headers as nextHeaders} from "next/dist/server/request/headers";

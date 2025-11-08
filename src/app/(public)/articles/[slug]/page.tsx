@@ -5,6 +5,7 @@ import {Container, Box, Group, Title} from "@mantine/core";
 import {IconMessage} from "@tabler/icons-react";
 import {
   Content,
+  ContentSkeleton,
   Comments,
   CommentsSkeleton,
 } from "@/features/articles/components/article-detail";
@@ -39,8 +40,10 @@ async function ArticleDetailPage(props: Props) {
   }
 
   return (
-    <Container component="section" px={{ base: "0", sm: "md" }} size="sm" mt="xl">
-      <Content slug={slug!} />
+    <Container component="section" px={{base: "0", sm: "md"}} size="sm" mt="xl">
+      <Suspense fallback={<ContentSkeleton />}>
+        <Content slug={slug!} />
+      </Suspense>
       <Box mt={"xl"}>
         <Group align="center" gap={"sm"}>
           <IconMessage />

@@ -5,18 +5,18 @@ import {registerUser as signUpUser} from "@/dal/public/auth";
 type SuccessRegisterState = {
   success: true;
   message: string;
-  email : string;
+  email: string;
 };
 
 type FailureRegisterState = {
   success: false;
   errorMessage: string;
-  email : string;
+  email: string;
 };
 
 type UntouchedState = {
   success: undefined;
-  email : string;
+  email: string;
 };
 
 type State = SuccessRegisterState | FailureRegisterState | UntouchedState;

@@ -1,7 +1,5 @@
 import axios from "axios";
-import {
-  PUBLIC_BACKEND_URL,
-} from "@/constants";
+import {PUBLIC_BACKEND_URL} from "@/constants";
 import InterceptorManager from "@/lib/auth/interception/interceptor-manager/InterceptorManager";
 import ClientAuthInterceptor from "@/lib/auth/interception/interceptors/client/ClientAuthInterceptor";
 
@@ -15,5 +13,4 @@ const clientDalDriver = axios.create({
 
 InterceptorManager.create(clientDalDriver).add(ClientAuthInterceptor);
 
-
-export {clientDalDriver}
+export {clientDalDriver};

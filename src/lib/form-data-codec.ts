@@ -32,14 +32,14 @@ export class FormDataCodec {
    */
   static toObject<T = Record<string, any>>(
     formData: FormData,
-    options: ToObjectOptions = {}
+    options: ToObjectOptions = {},
   ): T {
-    const { coerce = false, emptyToNull = false } = options;
-    const root: Record<string, any> & { _root?: any[] } = {};
+    const {coerce = false, emptyToNull = false} = options;
+    const root: Record<string, any> & {_root?: any[]} = {};
 
     for (const [rawKey, rawVal] of formData.entries()) {
       const tokens = this.tokenize(rawKey);
-      const value = this.maybeCoerce(rawVal, { coerce, emptyToNull });
+      const value = this.maybeCoerce(rawVal, {coerce, emptyToNull});
       this.assign(root, tokens, value);
     }
     return root as T;
@@ -52,7 +52,7 @@ export class FormDataCodec {
    */
   static fromObject(
     obj: Record<string, any> | null | undefined,
-    options: FromObjectOptions = {}
+    options: FromObjectOptions = {},
   ): FormData {
     const {
       target = new FormData(),
@@ -65,7 +65,7 @@ export class FormDataCodec {
 
     if (obj && typeof obj === "object") {
       Object.keys(obj).forEach((k) => {
-        this.walkObject(obj[k], k, append, { indices, includeNull, isoDates });
+        this.walkObject(obj[k], k, append, {indices, includeNull, isoDates});
       });
     }
 
@@ -79,9 +79,11 @@ export class FormDataCodec {
     val: any,
     key: string,
     append: (k: string, v: string | Blob) => void,
-    opts: Required<Pick<FromObjectOptions, "indices" | "includeNull" | "isoDates">>
+    opts: Required<
+      Pick<FromObjectOptions, "indices" | "includeNull" | "isoDates">
+    >,
   ): void {
-    const { indices, includeNull, isoDates } = opts;
+    const {indices, includeNull, isoDates} = opts;
 
     if (val === undefined) return;
 
@@ -185,9 +187,9 @@ export class FormDataCodec {
 
   /** Assign value at the tokenized path, creating arrays/objects as needed. */
   private static assign(
-    root: Record<string, any> & { _root?: any[] },
+    root: Record<string, any> & {_root?: any[]},
     tokens: string[],
-    value: any
+    value: any,
   ): void {
     let node: any = root;
     let parent: any = null;
@@ -202,7 +204,10 @@ export class FormDataCodec {
         // Ensure current node is an array (create it if we're on a property)
         if (!Array.isArray(node)) {
           if (parent) {
-            if (parent[parentKey] === undefined || !Array.isArray(parent[parentKey])) {
+            if (
+              parent[parentKey] === undefined ||
+              !Array.isArray(parent[parentKey])
+            ) {
               parent[parentKey] = [];
             }
             node = parent[parentKey];
@@ -294,7 +299,9 @@ export class FormDataCodec {
     }
   }
 
-  private static isPrimitive(v: any): v is string | number | boolean | bigint | symbol | null | undefined {
+  private static isPrimitive(
+    v: any,
+  ): v is string | number | boolean | bigint | symbol | null | undefined {
     return v === null || (typeof v !== "object" && typeof v !== "function");
   }
 
@@ -309,7 +316,10 @@ export class FormDataCodec {
   /** Coerce strings to booleans/numbers/null if requested; keep File/Blob intact. */
   private static maybeCoerce(
     v: FormDataEntryValue,
-    { coerce, emptyToNull }: Required<Pick<ToObjectOptions, "coerce" | "emptyToNull">>
+    {
+      coerce,
+      emptyToNull,
+    }: Required<Pick<ToObjectOptions, "coerce" | "emptyToNull">>,
   ): any {
     if (this.isBlob(v)) return v;
     if (!coerce) return v;

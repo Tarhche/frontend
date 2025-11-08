@@ -29,7 +29,9 @@ export function FilesExplorer({onSelect}: Props) {
     queryKey: ["files", params],
     queryFn: async () => {
       const searchParams = new URLSearchParams(params);
-      return clientDalDriver(`/dashboard/files?${searchParams.toString()}`).then(r => r.data);
+      return clientDalDriver(
+        `/dashboard/files?${searchParams.toString()}`,
+      ).then((r) => r.data);
     },
     retry: 1,
     staleTime: Infinity,

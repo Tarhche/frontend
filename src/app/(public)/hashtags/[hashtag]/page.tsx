@@ -2,8 +2,8 @@ import {type Metadata} from "next";
 import {notFound} from "next/navigation";
 import {VerticalArticleCard} from "@/features/home-page/components/article-card-vertical";
 import {fetchAllArticlesByHashtag} from "@/dal/public/hashtags";
-import { Pagination } from "@/components/pagination";
-import { Group } from "@mantine/core";
+import {Pagination} from "@/components/pagination";
+import {Group} from "@mantine/core";
 
 type Props = {
   params: Promise<{

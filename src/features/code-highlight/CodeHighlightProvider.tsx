@@ -1,26 +1,44 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { CodeHighlightAdapterProvider, stripShikiCodeBlocks } from '@mantine/code-highlight';
+import type {ReactNode} from "react";
+import {
+  CodeHighlightAdapterProvider,
+  stripShikiCodeBlocks,
+} from "@mantine/code-highlight";
 
-import { 
-  transformerNotationDiff, 
-  transformerNotationHighlight, 
-  transformerNotationFocus, 
+import {
+  transformerNotationDiff,
+  transformerNotationHighlight,
+  transformerNotationFocus,
   transformerMetaHighlight,
-} from '@shikijs/transformers'
+} from "@shikijs/transformers";
 
-import { darkTheme, lightTheme } from './code-highlight-themes';
+import {darkTheme, lightTheme} from "./code-highlight-themes";
 
 const preloadedLanguages = [
-  'tsx', 'scss', 'html', 'bash', 
-  'json', 'javascript', 'typescript', 'css', 
-  'markdown', 'go', 'python', 'java', 'kotlin', 
-  'rust', 'php', 'ruby', 'swift', 'dart', 'scala',
+  "tsx",
+  "scss",
+  "html",
+  "bash",
+  "json",
+  "javascript",
+  "typescript",
+  "css",
+  "markdown",
+  "go",
+  "python",
+  "java",
+  "kotlin",
+  "rust",
+  "php",
+  "ruby",
+  "swift",
+  "dart",
+  "scala",
 ];
 
 async function loadShiki() {
-  const { createHighlighter } = await import('shiki');
+  const {createHighlighter} = await import("shiki");
   const highlighter = await createHighlighter({
     langs: preloadedLanguages,
     themes: [],
@@ -34,14 +52,16 @@ const shikiAdapter: any = {
 
   getHighlighter: (ctx: any) => {
     if (!ctx) {
-      return ({ code }: { code: string }) => ({highlightedCode: code, isHighlighted: false });
+      return ({code}: {code: string}) => ({
+        highlightedCode: code,
+        isHighlighted: false,
+      });
     }
 
-    return ({ code, language, colorScheme }) => {
-
+    return ({code, language, colorScheme}) => {
       // if the language is not loaded don't highlight it
       if (!ctx.getLoadedLanguages().includes(language)) {
-        return {highlightedCode: code, isHighlighted: false };
+        return {highlightedCode: code, isHighlighted: false};
       }
 
       return {
@@ -49,14 +69,14 @@ const shikiAdapter: any = {
         highlightedCode: stripShikiCodeBlocks(
           ctx.codeToHtml(code, {
             lang: language,
-            theme: (colorScheme === 'light' ? lightTheme : darkTheme) as any,
+            theme: (colorScheme === "light" ? lightTheme : darkTheme) as any,
             transformers: [
-              transformerNotationDiff(), 
-              transformerNotationHighlight(), 
-              transformerNotationFocus(), 
+              transformerNotationDiff(),
+              transformerNotationHighlight(),
+              transformerNotationFocus(),
               transformerMetaHighlight(),
             ],
-          })
+          }),
         ),
       };
     };
@@ -67,7 +87,7 @@ type CodeHighlightProviderProps = {
   children: ReactNode;
 };
 
-function CodeHighlightProvider({ children }: CodeHighlightProviderProps) {
+function CodeHighlightProvider({children}: CodeHighlightProviderProps) {
   return (
     <CodeHighlightAdapterProvider adapter={shikiAdapter}>
       {children}

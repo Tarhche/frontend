@@ -1,7 +1,7 @@
 import {Stack, Group, Skeleton} from "@mantine/core";
 import classes from "./comment.module.css";
 
-export async function CommentsSkeleton() {
+export function CommentsSkeleton() {
   return (
     <>
       <Stack mt={"xl"}>

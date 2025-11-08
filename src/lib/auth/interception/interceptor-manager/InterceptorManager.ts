@@ -10,9 +10,7 @@ export default class InterceptorManager {
     this.dal = dal;
   }
 
-  public static create(
-    dal: AxiosInstance
-  ): InterceptorManager {
+  public static create(dal: AxiosInstance): InterceptorManager {
     return new this(dal);
   }
 
@@ -20,7 +18,7 @@ export default class InterceptorManager {
     if (interceptor instanceof Interceptor) {
       interceptor.add();
     } else {
-      (new interceptor(this.dal)).add();
+      new interceptor(this.dal).add();
     }
 
     return this;

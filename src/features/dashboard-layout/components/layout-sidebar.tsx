@@ -13,7 +13,7 @@ import {
   IconUsers,
   IconKey,
   IconUser,
-  IconPictureInPicture
+  IconPictureInPicture,
 } from "@tabler/icons-react";
 import {hasPermission} from "@/lib/auth/shared";
 import {APP_PATHS} from "@/lib/app-paths";

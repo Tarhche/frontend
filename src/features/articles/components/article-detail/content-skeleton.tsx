@@ -1,7 +1,7 @@
 import {Box, Group, Blockquote, Skeleton, AspectRatio} from "@mantine/core";
 import {IconInfoCircle} from "@tabler/icons-react";
 
-export async function ContentSkeleton() {
+export function ContentSkeleton() {
   return (
     <Box component="article">
       <Skeleton w={"80%"} h={35} />

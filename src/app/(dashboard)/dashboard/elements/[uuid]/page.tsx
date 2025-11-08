@@ -38,9 +38,7 @@ async function ElementDetailPage({params}: Props) {
         ]}
       />
       <Paper p="md" withBorder>
-        <ElementUpsertForm
-          element={element}
-        />
+        <ElementUpsertForm element={element} />
       </Paper>
     </Stack>
   );

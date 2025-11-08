@@ -10,9 +10,9 @@
  */
 
 import {Permissions} from "@/lib/app-permissions";
-import {PermissionGuard} from "./permission-guard";
+import {getUserPermissions, hasPermission, Operator} from "@/lib/auth";
 import {PermissionDeniedError} from "@/components/errors/dashboard-permission-denied";
-import {Operator} from "@/lib/auth";
+import {redirect} from "next/navigation";
 
 type Options = {
   requiredPermissions: Permissions[];
@@ -24,18 +24,26 @@ export function withPermissions(
   Component: React.ComponentType<any>,
   options: Options,
 ) {
-  const {requiredPermissions, operator, fallback} = options;
+  const {requiredPermissions, operator = "OR", fallback} = options;
 
-  const wrappedComponent = (props: any) => {
-    return (
-      <PermissionGuard
-        allowedPermissions={requiredPermissions}
-        operator={operator}
-        fallback={fallback || <PermissionDeniedError />}
-      >
-        <Component {...props} />
-      </PermissionGuard>
+  const wrappedComponent = async (props: any) => {
+    const userPermissions = await getUserPermissions();
+
+    if (userPermissions === null) {
+      redirect("/auth/login");
+    }
+
+    const hasAccess = hasPermission(
+      userPermissions,
+      requiredPermissions,
+      operator,
     );
+
+    if (!hasAccess) {
+      return fallback || <PermissionDeniedError />;
+    }
+
+    return <Component {...props} />;
   };
 
   return wrappedComponent;
