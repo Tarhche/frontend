@@ -17,12 +17,7 @@ import {
 import {PermissionGuard} from "@/components/permission-guard";
 import {ArticlesPagination} from "./elements-table-pagination";
 import {ElementDeleteButton} from "./element-delete-button";
-import {
-  IconPencil,
-  IconFilePlus,
-  Icon,
-  IconProps,
-} from "@tabler/icons-react";
+import {IconPencil, IconFilePlus, Icon, IconProps} from "@tabler/icons-react";
 import {formatDate} from "@/lib/date-and-time";
 import {APP_PATHS} from "@/lib/app-paths";
 import {type Permissions} from "@/lib/app-permissions";
@@ -104,9 +99,7 @@ export async function ElementsTable({page}: Props) {
                   <TableTd>{index + 1}</TableTd>
                   <TableTd>{element.uuid}</TableTd>
                   <TableTd>{element.type}</TableTd>
-                  <TableTd>
-                    {formatDate(element.created_at)}
-                  </TableTd>
+                  <TableTd>{formatDate(element.created_at)}</TableTd>
                   <TableTd>
                     <ActionIconGroup>
                       {tableActions.map(

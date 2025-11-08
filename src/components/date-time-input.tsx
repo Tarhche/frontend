@@ -1,6 +1,10 @@
 "use client";
-import { forwardRef, useState, useEffect } from "react";
-import { DatesProvider, DateTimePicker, DateTimePickerProps } from "@mantine/dates";
+import {forwardRef, useState, useEffect} from "react";
+import {
+  DatesProvider,
+  DateTimePicker,
+  DateTimePickerProps,
+} from "@mantine/dates";
 import "@mantine/dates/styles.css";
 
 interface DateTimeInputProps extends Omit<DateTimePickerProps, "defaultValue"> {
@@ -10,7 +14,7 @@ interface DateTimeInputProps extends Omit<DateTimePickerProps, "defaultValue"> {
 
 export const DateTimeInput = forwardRef<HTMLButtonElement, DateTimeInputProps>(
   (props, ref) => {
-    const { name, defaultValue, ...pickerProps } = props;
+    const {name, defaultValue, ...pickerProps} = props;
 
     const [selected, setSelected] = useState<any>(defaultValue ?? null);
 
@@ -26,11 +30,9 @@ export const DateTimeInput = forwardRef<HTMLButtonElement, DateTimeInputProps>(
 
       if (typeof selected.toDate === "function") {
         jsDate = selected.toDate();
-      }
-      else if (selected instanceof Date) {
+      } else if (selected instanceof Date) {
         jsDate = selected;
-      }
-      else {
+      } else {
         jsDate = new Date(selected);
       }
 
@@ -48,7 +50,7 @@ export const DateTimeInput = forwardRef<HTMLButtonElement, DateTimeInputProps>(
     };
 
     return (
-      <DatesProvider settings={{ locale: "fa" }}>
+      <DatesProvider settings={{locale: "fa"}}>
         <DateTimePicker
           {...pickerProps}
           value={selected}
@@ -58,7 +60,7 @@ export const DateTimeInput = forwardRef<HTMLButtonElement, DateTimeInputProps>(
         {name && <input type="hidden" name={name} value={isoValue} />}
       </DatesProvider>
     );
-  }
+  },
 );
 
 DateTimeInput.displayName = "DateTimeInput";

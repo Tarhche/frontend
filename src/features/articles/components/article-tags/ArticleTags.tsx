@@ -7,11 +7,7 @@ function ArticleTags({tags}: {tags: string[]}) {
     <Group ms={"sm"} gap={"xs"}>
       {tags.map((tag) => {
         return (
-          <Anchor
-            key={tag}
-            component={Link}
-            href={`/hashtags/${tag}`}
-          >
+          <Anchor key={tag} component={Link} href={`/hashtags/${tag}`}>
             #{tag}
           </Anchor>
         );

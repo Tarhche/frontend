@@ -11,16 +11,18 @@ export function isGregorianStartDateTime(date: Date | string) {
   );
 }
 
-export function formatDate (dateString: string) {
+export function formatDate(dateString: string) {
   if (!dateString) {
     return "";
   }
 
-  const formattedDate = dateString ? new Date(dateString).toLocaleDateString("fa-IR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }) : "";
+  const formattedDate = dateString
+    ? new Date(dateString).toLocaleDateString("fa-IR", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "";
 
   return formattedDate;
-};
+}

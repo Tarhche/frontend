@@ -1,15 +1,9 @@
 "use client";
-import React, { useMemo, useState } from "react";
-import { useActionState } from "react";
+import React, {useMemo, useState} from "react";
+import {useActionState} from "react";
 import dynamic from "next/dynamic";
-import {
-  Group,
-  Stack,
-  Button,
-  Box,
-  Text,
-} from "@mantine/core";
-import { upsertElementAction } from "../../actions/upsert-element";
+import {Group, Stack, Button, Box, Text} from "@mantine/core";
+import {upsertElementAction} from "../../actions/upsert-element";
 import ServerComponentErrorHandler from "@/components/errors/server-component-error-handler";
 import {FormDataCodec} from "@/lib/form-data-codec";
 
@@ -21,7 +15,7 @@ type Props = {
   element?: any;
 };
 
-export function ElementUpsertForm({ element }: Props) {
+export function ElementUpsertForm({element}: Props) {
   const [state, dispatch, isPending] = useActionState(upsertElementAction, {
     success: true,
     status: null,
@@ -82,11 +76,16 @@ export function ElementUpsertForm({ element }: Props) {
 
   const handleSubmit = async () => {
     if (!validateJson(jsonValue)) {
-      alert('Invalid json')
+      alert("Invalid json");
       return;
     }
 
-    dispatch(FormDataCodec.fromObject({...(JSON.parse(jsonValue)), is_update: !!element}));
+    dispatch(
+      FormDataCodec.fromObject({
+        ...JSON.parse(jsonValue),
+        is_update: !!element,
+      }),
+    );
   };
 
   return (
@@ -98,7 +97,7 @@ export function ElementUpsertForm({ element }: Props) {
             ویرایش JSON
           </Text>
           <Box
-            dir={'ltr'}
+            dir={"ltr"}
             style={{
               border: "1px solid var(--mantine-color-gray-4)",
               borderRadius: 8,
@@ -111,7 +110,7 @@ export function ElementUpsertForm({ element }: Props) {
               value={jsonValue}
               onChange={handleEditorChange}
               options={{
-                minimap: { enabled: false },
+                minimap: {enabled: false},
                 scrollBeyondLastLine: false,
                 readOnly: isPending,
                 wordWrap: "on",

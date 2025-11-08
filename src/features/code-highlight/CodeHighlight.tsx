@@ -1,21 +1,19 @@
-'use client'
-import React, { useState, useCallback } from "react";
+"use client";
+import React, {useState, useCallback} from "react";
 import {
   CodeHighlight as MantineCodeHighlight,
   CodeHighlightControl,
 } from "@mantine/code-highlight";
-import { IconPlayerPlay, IconLoader2 } from "@tabler/icons-react";
+import {IconPlayerPlay, IconLoader2} from "@tabler/icons-react";
 import {Box, Paper, ScrollArea, Text} from "@mantine/core";
 import {PUBLIC_BACKEND_URL} from "@/constants";
 import {notifications} from "@mantine/notifications";
-import { encode, decode } from 'js-base64';
-import './code-highlight.css';
+import {encode, decode} from "js-base64";
+import "./code-highlight.css";
 
 const b64 = {
   enc: (input: string) => {
-    const cleaned = input
-      .replace(/\u00A0/g, ' ')
-      .replace(/\r\n/g, '\n');
+    const cleaned = input.replace(/\u00A0/g, " ").replace(/\r\n/g, "\n");
 
     return encode(cleaned);
   },
@@ -24,7 +22,7 @@ const b64 = {
   },
 };
 
-function CodeHighlight({ code, language, executable }) {
+function CodeHighlight({code, language, executable}) {
   const [output, setOutput] = useState("");
   const [running, setRunning] = useState(false);
 
@@ -45,15 +43,17 @@ function CodeHighlight({ code, language, executable }) {
     };
 
     const socket = new WebSocket(
-      `${PUBLIC_BACKEND_URL!.startsWith("https:") ? "wss" : "ws"}://${PUBLIC_BACKEND_URL!.replace('https://', '').replace('http://', '')}/api/ws`
+      `${PUBLIC_BACKEND_URL!.startsWith("https:") ? "wss" : "ws"}://${PUBLIC_BACKEND_URL!.replace("https://", "").replace("http://", "")}/api/ws`,
     );
 
     socket.addEventListener("open", () => {
-      console.log('ws sending: ', payload);
-      socket.send(JSON.stringify({
-        ...payload,
-        payload: b64.enc(JSON.stringify(payload.payload)),
-      }));
+      console.log("ws sending: ", payload);
+      socket.send(
+        JSON.stringify({
+          ...payload,
+          payload: b64.enc(JSON.stringify(payload.payload)),
+        }),
+      );
     });
 
     socket.addEventListener("message", (ev) => {
@@ -61,7 +61,7 @@ function CodeHighlight({ code, language, executable }) {
         const msg = JSON.parse(ev.data);
         msg.Payload = JSON.parse(b64.dec(msg.Payload));
         msg.Payload.logs = b64.dec(msg.Payload.logs);
-        console.log('ws received', msg);
+        console.log("ws received", msg);
         if (msg.RequestID === id) {
           setOutput(msg.Payload?.logs ?? "<no output>");
           socket.close(1000, "done");
@@ -87,9 +87,7 @@ function CodeHighlight({ code, language, executable }) {
   }, [code, running, executable]);
 
   return (
-    <Box
-      mb="xl"
-    >
+    <Box mb="xl">
       <MantineCodeHighlight
         mt="sm"
         mb="xs"
@@ -97,21 +95,29 @@ function CodeHighlight({ code, language, executable }) {
         language={language}
         copyLabel="کپی کردن"
         copiedLabel="کپی شد!"
-        controls={!executable ? [] : [
-          <CodeHighlightControl
-            component="button"
-            key="run"
-            tooltipLabel={running ? "در حال اجرا…" : "اجرا"}
-            disabled={running}
-            onClick={runCode}
-          >
-            {running ? (
-              <IconLoader2 style={{ animation: "code-highlight-spin 1s linear infinite" }} />
-            ) : (
-              <IconPlayerPlay />
-            )}
-          </CodeHighlightControl>,
-        ]}
+        controls={
+          !executable
+            ? []
+            : [
+                <CodeHighlightControl
+                  component="button"
+                  key="run"
+                  tooltipLabel={running ? "در حال اجرا…" : "اجرا"}
+                  disabled={running}
+                  onClick={runCode}
+                >
+                  {running ? (
+                    <IconLoader2
+                      style={{
+                        animation: "code-highlight-spin 1s linear infinite",
+                      }}
+                    />
+                  ) : (
+                    <IconPlayerPlay />
+                  )}
+                </CodeHighlightControl>,
+              ]
+        }
         styles={{
           code: {
             fontSize: 14,
@@ -125,7 +131,11 @@ function CodeHighlight({ code, language, executable }) {
             خروجی برنامه:
           </Text>
           <ScrollArea type="always" mah={260}>
-            <MantineCodeHighlight code={output} language="" withCopyButton={false} />
+            <MantineCodeHighlight
+              code={output}
+              language=""
+              withCopyButton={false}
+            />
           </ScrollArea>
         </Paper>
       )}

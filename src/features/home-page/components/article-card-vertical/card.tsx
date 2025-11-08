@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import {Card, Text, Group, Box, Flex, Badge} from "@mantine/core";
-import { IconClockHour2 } from "@tabler/icons-react";
+import {IconClockHour2} from "@tabler/icons-react";
 import {formatDate} from "@/lib/date-and-time";
 import {FILES_PUBLIC_URL} from "@/constants/envs";
 import classes from "./card.module.css";

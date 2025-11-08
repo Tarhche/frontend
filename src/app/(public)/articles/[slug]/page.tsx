@@ -39,7 +39,7 @@ async function ArticleDetailPage(props: Props) {
   }
 
   return (
-    <Container component="section" px={{ base: "0", sm: "md" }} size="sm" mt="xl">
+    <Container component="section" px={{base: "0", sm: "md"}} size="sm" mt="xl">
       <Content slug={slug!} />
       <Box mt={"xl"}>
         <Group align="center" gap={"sm"}>

@@ -1,8 +1,8 @@
 import {type Metadata} from "next";
 import {VerticalArticleCard} from "@/features/home-page/components/article-card-vertical";
 import {fetchArticles} from "@/dal/public/articles";
-import { Pagination } from "@/components/pagination";
-import { Group } from "@mantine/core";
+import {Pagination} from "@/components/pagination";
+import {Group} from "@mantine/core";
 
 type Props = {
   searchParams: Promise<{

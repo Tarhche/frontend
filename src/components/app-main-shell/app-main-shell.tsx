@@ -26,7 +26,7 @@ export function AppMainShell({children}: Props) {
         breakpoint: "sm",
         collapsed: {desktop: true, mobile: !opened},
       }}
-      px={{ base: "0", sm: "xl" }}
+      px={{base: "0", sm: "xl"}}
     >
       <AppShell.Header>
         <Container size={"lg"} h={"100%"}>

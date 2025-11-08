@@ -1,12 +1,12 @@
 "use client";
-import { ReactNode } from "react";
+import {ReactNode} from "react";
 import {
   QueryClient,
   QueryClientProvider as RQProvider,
   QueryCache,
   MutationCache,
 } from "@tanstack/react-query";
-import { notifications } from "@mantine/notifications";
+import {notifications} from "@mantine/notifications";
 
 function messageFor(status: number) {
   switch (status) {
@@ -66,12 +66,10 @@ function createQueryClient() {
   });
 }
 
-type Props = { children: ReactNode };
+type Props = {children: ReactNode};
 
-export function QueryClientProvider({ children }: Props) {
+export function QueryClientProvider({children}: Props) {
   const queryClient = createQueryClient();
 
-  return (
-    <RQProvider client={queryClient}>{children}</RQProvider>
-  );
+  return <RQProvider client={queryClient}>{children}</RQProvider>;
 }

@@ -22,8 +22,9 @@ export function parseArticleBodyToReact(html: string) {
           const language = codeElement.attribs.class.replace("language-", "");
 
           let executable: any = null;
-          const executableAttribs = Object.entries(codeElement.attribs)
-            .filter(([key]) => key.startsWith("data-executable"));
+          const executableAttribs = Object.entries(codeElement.attribs).filter(
+            ([key]) => key.startsWith("data-executable"),
+          );
 
           if (executableAttribs.length > 0) {
             executable = {};
@@ -42,7 +43,7 @@ export function parseArticleBodyToReact(html: string) {
                   .map((chunk, idx) =>
                     idx === 0
                       ? chunk
-                      : chunk.charAt(0).toUpperCase() + chunk.slice(1)
+                      : chunk.charAt(0).toUpperCase() + chunk.slice(1),
                   )
                   .join("");
               }
@@ -78,23 +79,24 @@ export function parseArticleBodyToReact(html: string) {
       } else if (domNode instanceof Element && domNode.name === "sandpack") {
         const codeText = getText(domNode);
 
-        if (!codeText)
-          return null;
+        if (!codeText) return null;
 
         const code = JSON.parse(codeText);
 
-        return <>
-          <Sandpack {...code} />
-        </>
+        return (
+          <>
+            <Sandpack {...code} />
+          </>
+        );
       }
     },
   });
 }
 
 const getText = (node) => {
-  if (!node) return '';
-  if (typeof node === 'string') return node;               // some parsers use strings for text nodes
-  if (node.type === 'text') return node.data || node.value || '';
+  if (!node) return "";
+  if (typeof node === "string") return node; // some parsers use strings for text nodes
+  if (node.type === "text") return node.data || node.value || "";
   const kids = node.children || node.childNodes || [];
-  return kids.map(getText).join('');
+  return kids.map(getText).join("");
 };

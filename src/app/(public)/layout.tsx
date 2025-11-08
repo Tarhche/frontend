@@ -6,5 +6,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <AppMainShell>{children} <Footer /></AppMainShell>;
+  return (
+    <AppMainShell>
+      {children} <Footer />
+    </AppMainShell>
+  );
 }

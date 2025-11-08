@@ -78,21 +78,32 @@ export async function FeaturedArticles({latestArticles, popularArticles}) {
         </h2>
         <Stack gap={"sm"}>
           <List center={true}>
-            {popularArticles.slice(0, hexagonIcons.length).map((article, index) => {
-              const Icon = hexagonIcons[index];
+            {popularArticles
+              .slice(0, hexagonIcons.length)
+              .map((article, index) => {
+                const Icon = hexagonIcons[index];
 
-              return (
-                <ListItem
-                  mb={"sm"}
-                  key={article.uuid}
-                  icon={<ThemeIcon color="teal" radius="xl" size="lg"><Icon size="100%" /></ThemeIcon>}
-                >
-                  <Link style={{textDecoration: "none", color: "inherit"}} href={`articles/${article.uuid}`}>
-                    <Title size="md" order={3}>{article.title}</Title>
-                  </Link>
-                </ListItem>
-              );
-            })}
+                return (
+                  <ListItem
+                    mb={"sm"}
+                    key={article.uuid}
+                    icon={
+                      <ThemeIcon color="teal" radius="xl" size="lg">
+                        <Icon size="100%" />
+                      </ThemeIcon>
+                    }
+                  >
+                    <Link
+                      style={{textDecoration: "none", color: "inherit"}}
+                      href={`articles/${article.uuid}`}
+                    >
+                      <Title size="md" order={3}>
+                        {article.title}
+                      </Title>
+                    </Link>
+                  </ListItem>
+                );
+              })}
           </List>
         </Stack>
       </GridCol>
@@ -111,7 +122,7 @@ export async function FeaturedArticles({latestArticles, popularArticles}) {
             size="md"
             radius="sm"
             rightSection={<IconArrowLeft size={18} />}
-            styles={{ section: { marginInlineStart: 8 } }}
+            styles={{section: {marginInlineStart: 8}}}
           >
             مقالات بیشتر
           </Button>

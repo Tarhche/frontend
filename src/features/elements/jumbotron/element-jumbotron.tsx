@@ -2,17 +2,17 @@
 
 import React from "react";
 import Image from "next/image";
-import { Box, Text, Group, Badge, Stack } from "@mantine/core";
-import { FILES_PUBLIC_URL } from "@/constants";
+import {Box, Text, Group, Badge, Stack} from "@mantine/core";
+import {FILES_PUBLIC_URL} from "@/constants";
 import Link from "next/link";
-import { Grid, Title } from '@mantine/core';
-import { formatDate } from "@/lib/date-and-time";
+import {Grid, Title} from "@mantine/core";
+import {formatDate} from "@/lib/date-and-time";
 
-const ElementJumbotron = ({ data }) => {
+const ElementJumbotron = ({data}) => {
   if (!data?.body?.body) return null;
 
   const article = data.body.body as any;
-  const { cover, title, excerpt, published_at, tags = [] } : any = article;
+  const {cover, title, excerpt, published_at, tags = []}: any = article;
   const formattedDate = formatDate(published_at);
 
   const renderBadges = () =>
@@ -36,80 +36,87 @@ const ElementJumbotron = ({ data }) => {
       </Badge>
     ));
 
-  const renderMeta = () => (
+  const renderMeta = () =>
     formattedDate ? (
-      <Group gap="xs" fz={{ base: "xs", sm: "sm" }} c="dimmed" wrap="nowrap">
+      <Group gap="xs" fz={{base: "xs", sm: "sm"}} c="dimmed" wrap="nowrap">
         {
-          <Text size="sm" component="time" style={{ color: 'var(--mantine-color-gray-6)', margin: 0}} dateTime={published_at}>
+          <Text
+            size="sm"
+            component="time"
+            style={{color: "var(--mantine-color-gray-6)", margin: 0}}
+            dateTime={published_at}
+          >
             {formattedDate}
           </Text>
         }
       </Group>
-    ) : ''
-  );
+    ) : (
+      ""
+    );
 
   return (
     <Box
       style={{
-        backgroundColor: 'var(--mantine-color-default)',
-        overflow: 'hidden',
-        marginTop: 'var(--mantine-spacing-xl)',
-        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-        '&:hover': {
-          transform: 'translateY(-2px)',
-          boxShadow: 'var(--mantine-shadow-md)',
-        }
+        backgroundColor: "var(--mantine-color-default)",
+        overflow: "hidden",
+        marginTop: "var(--mantine-spacing-xl)",
+        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+        "&:hover": {
+          transform: "translateY(-2px)",
+          boxShadow: "var(--mantine-shadow-md)",
+        },
       }}
     >
-      <Box hiddenFrom="md" style={{ position: 'relative', minHeight: '300px' }}>
+      <Box hiddenFrom="md" style={{position: "relative", minHeight: "300px"}}>
         <Link
           href={`/articles/${article.slug ?? article.uuid}`}
           style={{
-            position: 'absolute',
+            position: "absolute",
             inset: 0,
             zIndex: 0,
-            textDecoration: 'none',
-            color: 'inherit',
+            textDecoration: "none",
+            color: "inherit",
           }}
         >
           <Image
             src={`${FILES_PUBLIC_URL}/${cover}`}
             alt={title}
             fill
-            style={{ objectFit: 'cover' }}
+            style={{objectFit: "cover"}}
             sizes="300px"
             priority
           />
         </Link>
         <Box
           style={{
-            position: 'absolute',
+            position: "absolute",
             inset: 0,
-            background: 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%)',
-            display: 'flex',
-            alignItems: 'flex-end',
-            padding: 'var(--mantine-spacing-lg)',
+            background:
+              "linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%)",
+            display: "flex",
+            alignItems: "flex-end",
+            padding: "var(--mantine-spacing-lg)",
             zIndex: 1,
-            pointerEvents: 'none',
+            pointerEvents: "none",
           }}
         >
-          <Stack gap={8} style={{ width: '100%' }}>
+          <Stack gap={8} style={{width: "100%"}}>
             <Link
               href={`/articles/${article.slug ?? article.uuid}`}
               style={{
-                textDecoration: 'none',
-                color: 'inherit',
-                pointerEvents: 'auto',
+                textDecoration: "none",
+                color: "inherit",
+                pointerEvents: "auto",
               }}
             >
               <Title
                 order={1}
                 lineClamp={2}
                 style={{
-                  fontSize: '24px',
+                  fontSize: "24px",
                   margin: 0,
-                  color: 'white',
-                  cursor: 'pointer',
+                  color: "white",
+                  cursor: "pointer",
                 }}
               >
                 {title}
@@ -121,8 +128,8 @@ const ElementJumbotron = ({ data }) => {
                 style={{
                   opacity: 0.9,
                   marginBottom: "var(--mantine-spacing-sm)",
-                  fontSize: '90%',
-                  color: 'white'
+                  fontSize: "90%",
+                  color: "white",
                 }}
                 lineClamp={2}
               >
@@ -130,7 +137,7 @@ const ElementJumbotron = ({ data }) => {
               </Text>
             )}
 
-            <Group gap="xs" wrap="wrap" style={{ pointerEvents: 'auto' }}>
+            <Group gap="xs" wrap="wrap" style={{pointerEvents: "auto"}}>
               {tags.length > 0 && renderBadges()}
               {renderMeta()}
             </Group>
@@ -138,30 +145,30 @@ const ElementJumbotron = ({ data }) => {
         </Box>
       </Box>
 
-      <Grid gutter={0} align="stretch" style={{ margin: 0 }} visibleFrom="md">
-        <Grid.Col span={{ md: 6, lg: 5 }} style={{ padding: 0 }}>
+      <Grid gutter={0} align="stretch" style={{margin: 0}} visibleFrom="md">
+        <Grid.Col span={{md: 6, lg: 5}} style={{padding: 0}}>
           <Box
             style={{
-              position: 'relative',
-              width: '100%',
-              height: '100%',
-              overflow: 'hidden',
+              position: "relative",
+              width: "100%",
+              height: "100%",
+              overflow: "hidden",
             }}
           >
             <Link
               href={`/articles/${article.slug ?? article.uuid}`}
               style={{
-                position: 'absolute',
+                position: "absolute",
                 inset: 0,
                 zIndex: 0,
-                textDecoration: 'none',
+                textDecoration: "none",
               }}
             >
               <Image
                 src={`${FILES_PUBLIC_URL}/${cover}`}
                 alt={title}
                 fill
-                style={{ objectFit: 'cover' }}
+                style={{objectFit: "cover"}}
                 sizes="(max-width: 62em) 50vw, 30vw"
                 priority
               />
@@ -170,9 +177,9 @@ const ElementJumbotron = ({ data }) => {
             {tags.length > 0 && (
               <Box
                 style={{
-                  position: 'absolute',
-                  top: 'var(--mantine-spacing-md)',
-                  left: 'var(--mantine-spacing-md)',
+                  position: "absolute",
+                  top: "var(--mantine-spacing-md)",
+                  left: "var(--mantine-spacing-md)",
                   zIndex: 1,
                 }}
               >
@@ -184,13 +191,16 @@ const ElementJumbotron = ({ data }) => {
           </Box>
         </Grid.Col>
 
-        <Grid.Col span={{ md: 6, lg: 7 }} style={{ padding: 'var(--mantine-spacing-xl)' }}>
-          <Stack gap={12} style={{ height: '100%' }} justify="flex-start">
+        <Grid.Col
+          span={{md: 6, lg: 7}}
+          style={{padding: "var(--mantine-spacing-xl)"}}
+        >
+          <Stack gap={12} style={{height: "100%"}} justify="flex-start">
             <Link
               href={`/articles/${article.slug ?? article.uuid}`}
               style={{
-                textDecoration: 'none',
-                color: 'inherit',
+                textDecoration: "none",
+                color: "inherit",
               }}
             >
               <Title
@@ -198,8 +208,8 @@ const ElementJumbotron = ({ data }) => {
                 lineClamp={2}
                 style={{
                   margin: 0,
-                  marginBottom: 'var(--mantine-spacing-xs)',
-                  cursor: 'pointer',
+                  marginBottom: "var(--mantine-spacing-xs)",
+                  cursor: "pointer",
                 }}
               >
                 {title}
@@ -208,16 +218,17 @@ const ElementJumbotron = ({ data }) => {
 
             {excerpt && (
               <Text
-                style={{ color: 'var(--mantine-color-gray-6)', marginBottom: "var(--mantine-spacing-md)" }}
+                style={{
+                  color: "var(--mantine-color-gray-6)",
+                  marginBottom: "var(--mantine-spacing-md)",
+                }}
                 lineClamp={3}
               >
                 {excerpt}
               </Text>
             )}
 
-            <>
-              {renderMeta()}
-            </>
+            <>{renderMeta()}</>
           </Stack>
         </Grid.Col>
       </Grid>

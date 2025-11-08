@@ -18,10 +18,11 @@ export async function upsertElementAction(
   formState: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const values: Record<string, string | string[]> = FormDataCodec.toObject(formData);
+  const values: Record<string, string | string[]> =
+    FormDataCodec.toObject(formData);
 
   try {
-    if (formData.get('is_update')) {
+    if (formData.get("is_update")) {
       await updateElement(values);
     } else {
       await createElement(values);

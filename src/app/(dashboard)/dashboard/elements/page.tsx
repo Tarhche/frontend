@@ -4,7 +4,10 @@ import {Box} from "@mantine/core";
 import {withPermissions} from "@/components/with-authorization";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {APP_PATHS} from "@/lib/app-paths";
-import {ElementsTable, ElementsTableSkeleton} from "@/features/dashboard/elements/components/elements-table";
+import {
+  ElementsTable,
+  ElementsTableSkeleton,
+} from "@/features/dashboard/elements/components/elements-table";
 
 export const metadata: Metadata = {
   title: "مقاله ها",
