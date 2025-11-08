@@ -128,7 +128,7 @@ const MainFeaturedCard = ({ item }) => {
 
 const SideArticleItem = ({ item }) => {
   const [formattedDate, setFormattedDate] = useState("");
-  
+
   useEffect(() => {
     setFormattedDate(formatDate(item.published_at));
   }, [item.published_at]);
@@ -179,7 +179,7 @@ const SideArticleItem = ({ item }) => {
               lineClamp={2}
               size="lg"
               style={{
-                color: 'var(--mantine-color-dark-8)',
+                color: 'var(--mantine-color-text)',
                 cursor: 'pointer',
                 '&:hover': {
                   color: 'var(--mantine-color-blue-6)',
@@ -210,9 +210,9 @@ const SideArticleItem = ({ item }) => {
                   key={`${tag}-${index}`}
                   component={Link}
                   href={`/hashtags/${encodeURIComponent(tag)}`}
-                  size="xs" 
+                  size="xs"
                   c="blue.6"
-                  style={{ 
+                  style={{
                     fontWeight: 500,
                     textDecoration: 'none',
                     '&:hover': {
@@ -242,7 +242,7 @@ const SideArticleItem = ({ item }) => {
 const ElementFeatured = ({ data }) => {
   if (!data?.body?.main || !data?.body?.aside || !Array.isArray(data.body.aside)) return null;
 
-  const { main, aside } = data.body; 
+  const { main, aside } = data.body;
 
   return (
     <Box
