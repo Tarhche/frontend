@@ -1,3 +1,5 @@
+"use server";
+
 import {revalidatePath} from "next/cache";
 import {APP_PATHS} from "@/lib/app-paths";
 import {deleteFile} from "@/dal/private/files";
