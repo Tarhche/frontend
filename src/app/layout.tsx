@@ -1,6 +1,6 @@
 import type {Metadata} from "next";
 import {ColorSchemeScript, mantineHtmlProps} from "@mantine/core";
-import {Providers} from "./providers";
+import Providers from "../components/providers/providers";
 import {vazir} from "./fonts";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
