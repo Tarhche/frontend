@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/link";
 import {Breadcrumbs as MantineBreadcrumbs, Anchor, Text} from "@mantine/core";
 import classes from "./breadcrumbs.module.css";
 

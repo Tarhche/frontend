@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/link";
 import {Box, Stack, Alert, Anchor} from "@mantine/core";
 import {AuthGuard} from "@/components/auth-guard";
 import {CommentForm} from "./comment-form";

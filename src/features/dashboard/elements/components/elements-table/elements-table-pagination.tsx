@@ -1,6 +1,6 @@
 "use client";
 import {useSearchParams, usePathname} from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/link";
 import {Pagination} from "@mantine/core";
 
 type Props = {

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/link";
 import {Title, Text, Button, Container, Group} from "@mantine/core";
 import classes from "./not-found.module.css";
 

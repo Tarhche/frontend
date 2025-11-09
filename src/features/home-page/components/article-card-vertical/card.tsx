@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/link";
 import Image from "next/image";
 import {Card, Text, Group, Box, Flex, Badge} from "@mantine/core";
 import {IconClockHour2} from "@tabler/icons-react";
