@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/link";
 import {useMemo} from "react";
 import {UnstyledButton, Skeleton} from "@mantine/core";
 import {useInit} from "@/hooks/data/init";

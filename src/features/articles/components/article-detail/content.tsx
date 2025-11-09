@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/link";
 import {Title, Box, Group, Text, Blockquote, Badge} from "@mantine/core";
 import {ImageZoom} from "@/components/image-zoom";
 import {parseArticleBodyToReact} from "@/features/articles/utils/article-body-parser";

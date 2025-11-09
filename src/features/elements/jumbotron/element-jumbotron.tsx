@@ -4,7 +4,7 @@ import React from "react";
 import Image from "next/image";
 import {Box, Text, Group, Badge, Stack} from "@mantine/core";
 import {FILES_PUBLIC_URL} from "@/constants";
-import Link from "next/link";
+import Link from "@/components/link";
 import {Grid, Title} from "@mantine/core";
 import {formatDate} from "@/lib/date-and-time";
 

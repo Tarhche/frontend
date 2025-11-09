@@ -1,6 +1,6 @@
 "use client";
 import {useActionState} from "react";
-import Link from "next/link";
+import Link from "@/components/link";
 import {
   TextInput,
   Paper,

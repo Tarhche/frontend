@@ -2,7 +2,7 @@
 import {useRouter} from "next/navigation";
 import {useEffect, useActionState} from "react";
 import {useQueryClient} from "@tanstack/react-query";
-import Link from "next/link";
+import Link from "@/components/link";
 import {
   Alert,
   Anchor,

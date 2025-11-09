@@ -1,6 +1,6 @@
 import React from "react";
 import {Anchor, Group} from "@mantine/core";
-import Link from "next/link";
+import Link from "@/components/link";
 
 function ArticleTags({tags}: {tags: string[]}) {
   return (
