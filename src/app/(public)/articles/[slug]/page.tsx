@@ -8,7 +8,7 @@ import {
   Comments,
   CommentsSkeleton,
 } from "@/features/articles/components/article-detail";
-import {fetchArticleByUUID} from "@/dal/public/articles";
+import {fetchArticleByUUID} from "@/dal/cacheable/articles";
 
 type Props = {
   params: Promise<{
