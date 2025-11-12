@@ -1,4 +1,5 @@
 "use server";
+
 import {DALDriverError} from "@/dal/dal-driver-error";
 import {registerUser as signUpUser} from "@/dal/public/auth";
 

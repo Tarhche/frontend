@@ -1,4 +1,4 @@
-'use cache'
+"use cache";
 
 import {type Metadata} from "next";
 import {FeaturedArticles} from "@/features/home-page/components/featured-articles";

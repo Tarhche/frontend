@@ -1,4 +1,5 @@
 "use server";
+
 import axios from "axios";
 import {INTERNAL_BACKEND_URL} from "@/constants";
 import InterceptorManager from "@/lib/auth/interception/interceptor-manager/InterceptorManager";
@@ -13,5 +14,6 @@ export const cacheableDalDriver = axios.create({
   },
 });
 
-InterceptorManager.create(cacheableDalDriver)
+InterceptorManager
+  .create(cacheableDalDriver)
   .add(ServerPublicInterceptor);

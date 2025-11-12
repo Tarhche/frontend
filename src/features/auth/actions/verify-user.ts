@@ -1,4 +1,5 @@
 "use server";
+
 import {DALDriverError} from "@/dal/dal-driver-error";
 import {verifyUser as completeUserProfile} from "@/dal/public/auth";
 

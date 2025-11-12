@@ -1,4 +1,5 @@
 "use server";
+
 import {revalidatePath} from "next/cache";
 import {APP_PATHS} from "@/lib/app-paths";
 import {removeUserBookmark} from "@/dal/private/bookmarks";
