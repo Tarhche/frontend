@@ -1,6 +1,8 @@
+'use cache'
+
 import {type Metadata} from "next";
 import {FeaturedArticles} from "@/features/home-page/components/featured-articles";
-import {fetchHomePageData} from "@/dal/public/home";
+import {fetchHomePageData} from "@/dal/cacheable/home";
 import Element from "@/features/elements/element";
 
 export const metadata: Metadata = {
