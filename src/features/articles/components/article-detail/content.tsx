@@ -8,9 +8,9 @@ import {IconClockHour2, IconInfoCircle} from "@tabler/icons-react";
 import {FILES_PUBLIC_URL} from "@/constants/envs";
 import {formatDate} from "@/lib/date-and-time";
 import classes from "./content.module.css";
+import {fetchArticleByUUID} from "@/dal/public/articles";
 import {checkBookmarkStatus} from "@/dal/private/bookmarks";
 import ArticleTags from "@/features/articles/components/article-tags/ArticleTags";
-import {fetchArticleByUUID} from "@/dal/cacheable/articles";
 
 type Props = {
   slug: string;
