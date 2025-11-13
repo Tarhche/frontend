@@ -82,7 +82,7 @@ const setNewCookieHeader = ({
     cookieMap.set(REFRESH_TOKEN_COOKIE_NAME, newRefreshToken);
 
   const cookieHeader = Array.from(cookieMap.entries())
-    .map(([name, value]) => `${name}=${value}`)
+    .map(([name, value]) => `${name}=${encodeURIComponent(value)}`)
     .join("; ");
 
   requestHeaders.set("cookie", cookieHeader);
