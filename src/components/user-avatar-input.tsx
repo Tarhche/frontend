@@ -1,4 +1,5 @@
 "use client";
+
 import {useState} from "react";
 import {Stack, Tooltip, ActionIcon, Modal} from "@mantine/core";
 import {UserAvatar} from "@/components/user-avatar";

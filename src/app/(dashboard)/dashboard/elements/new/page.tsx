@@ -14,11 +14,11 @@ async function ElementDetailPage() {
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: "مقاله ها",
+            label: "المان ها",
             href: APP_PATHS.dashboard.elements.index,
           },
           {
-            label: "ویرایش مقاله",
+            label: "ویرایش المان",
           },
         ]}
       />

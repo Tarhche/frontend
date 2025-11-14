@@ -1,4 +1,3 @@
-import React from "react";
 import {Center, Stack, Loader, Paper} from "@mantine/core";
 
 function CommonPageLoading({fullScreen = true}: {fullScreen?: boolean}) {

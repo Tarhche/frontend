@@ -15,7 +15,6 @@ export const publicDalDriver = axios.create({
   },
 });
 
-InterceptorManager
-  .create(publicDalDriver)
+InterceptorManager.create(publicDalDriver)
   .add(ServerPublicInterceptor)
   .add(ServerProxyHeaderInterceptor);

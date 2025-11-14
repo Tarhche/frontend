@@ -98,7 +98,7 @@ export async function ElementsTable({page}: Props) {
                 <TableTr key={element.uuid}>
                   <TableTd>{index + 1}</TableTd>
                   <TableTd>{element.uuid}</TableTd>
-                  <TableTd>{element.type}</TableTd>
+                  <TableTd>{element.body_type}</TableTd>
                   <TableTd>{formatDate(element.created_at)}</TableTd>
                   <TableTd>
                     <ActionIconGroup>

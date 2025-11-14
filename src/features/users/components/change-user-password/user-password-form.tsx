@@ -1,4 +1,5 @@
 "use client";
+
 import {useActionState} from "react";
 import {Paper, Stack, Group, TextInput, Button} from "@mantine/core";
 import {updateUserPasswordAction} from "../../actions/change-password";

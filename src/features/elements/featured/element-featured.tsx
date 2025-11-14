@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useState, useEffect} from "react";
+import {useState, useEffect} from "react";
 import Image from "next/image";
 import {Box, Text, Group, Badge, Stack, Container} from "@mantine/core";
 import {FILES_PUBLIC_URL} from "@/constants";
@@ -248,8 +248,9 @@ const ElementFeatured = ({data}) => {
     !data?.body?.main ||
     !data?.body?.aside ||
     !Array.isArray(data.body.aside)
-  )
+  ) {
     return null;
+  }
 
   const {main, aside} = data.body;
 

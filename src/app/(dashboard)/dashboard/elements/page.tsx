@@ -10,7 +10,7 @@ import {
 } from "@/features/dashboard/elements/components/elements-table";
 
 export const metadata: Metadata = {
-  title: "مقاله ها",
+  title: "المان ها",
 };
 
 type Props = {

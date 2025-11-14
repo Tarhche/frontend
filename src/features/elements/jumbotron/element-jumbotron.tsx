@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import Image from "next/image";
 import {Box, Text, Group, Badge, Stack} from "@mantine/core";
 import {FILES_PUBLIC_URL} from "@/constants";
@@ -9,9 +8,11 @@ import {Grid, Title} from "@mantine/core";
 import {formatDate} from "@/lib/date-and-time";
 
 const ElementJumbotron = ({data}) => {
-  if (!data?.body?.body) return null;
+  if (!data?.body?.item?.body) {
+    return null;
+  }
 
-  const article = data.body.body as any;
+  const article = data.body.item.body as any;
   const {cover, title, excerpt, published_at, tags = []}: any = article;
   const formattedDate = formatDate(published_at);
 

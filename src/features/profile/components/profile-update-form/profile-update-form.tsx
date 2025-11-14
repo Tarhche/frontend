@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "@/components/link";
 import {useEffect, useActionState} from "react";
 import {Group, Stack, TextInput, Anchor, Alert, Button} from "@mantine/core";

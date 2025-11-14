@@ -1,4 +1,5 @@
 "use client";
+
 import {useState, useMemo, type RefObject} from "react";
 import {ClassicEditor, EditorConfig} from "ckeditor5";
 import {CKEditor} from "@ckeditor/ckeditor5-react";

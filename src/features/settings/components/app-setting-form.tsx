@@ -1,4 +1,5 @@
 "use client";
+
 import {useActionState} from "react";
 import {Group, Stack, Textarea, Button} from "@mantine/core";
 import {updateSettingAction} from "../actions/update-setting";

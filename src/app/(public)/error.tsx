@@ -1,4 +1,5 @@
 "use client";
+
 import {Error} from "@/components/error";
 
 function ErrorPage({reset}: {reset: () => void}) {

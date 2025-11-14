@@ -1,4 +1,5 @@
 "use client";
+
 import {Skeleton} from "@mantine/core";
 import {UserAvatar} from "./user-avatar";
 import {useIsClient} from "@/hooks/use-is-client";
