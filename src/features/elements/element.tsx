@@ -17,9 +17,7 @@ function Element(props: ElementProps) {
     return null;
   }
 
-  const Component = elementData.type
-    ? elementMap[elementData.type]
-    : undefined;
+  const Component = elementData.type ? elementMap[elementData.type] : undefined;
 
   if (!Component) {
     return null;

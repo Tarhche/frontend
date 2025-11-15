@@ -3,6 +3,7 @@ import {ColorSchemeScript, mantineHtmlProps} from "@mantine/core";
 import Providers from "../components/providers/providers";
 import {vazir} from "./fonts";
 import "@mantine/core/styles.css";
+import "@mantine/carousel/styles.css";
 import "@mantine/notifications/styles.css";
 import "./globals.css";
 

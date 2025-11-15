@@ -18,6 +18,7 @@ const nextConfig = {
       "@mantine/notifications",
       "@mantine/tiptap",
       "@mantine/code-highlight",
+      "@mantine/carousel",
     ],
   },
 };

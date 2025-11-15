@@ -26,6 +26,12 @@ export default async function HomePage() {
         latestArticles={homePageData.all}
         popularArticles={homePageData.popular}
       />
+
+      <Element
+        style={{marginTop: "1rem"}}
+        type="cards"
+        elements={homePageData.elements}
+      />
     </>
   );
 }
