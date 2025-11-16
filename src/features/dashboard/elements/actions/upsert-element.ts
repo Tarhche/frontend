@@ -1,5 +1,4 @@
 "use server";
-
 import {revalidatePath} from "next/cache";
 import {redirect} from "next/navigation";
 import {createElement, updateElement} from "@/dal/private/elements";
@@ -24,9 +23,9 @@ export async function upsertElementAction(
 
   try {
     if (formData.get("is_update")) {
-      await updateElement(values);
+      await updateElement(JSON.parse(values.jsonValue as string));
     } else {
-      await createElement(values);
+      await createElement(JSON.parse(values.jsonValue as string));
     }
   } catch (err: any) {
     return {

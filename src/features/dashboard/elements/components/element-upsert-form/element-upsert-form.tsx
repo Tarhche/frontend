@@ -83,7 +83,7 @@ export function ElementUpsertForm({element}: Props) {
 
     dispatch(
       FormDataCodec.fromObject({
-        ...JSON.parse(jsonValue),
+        jsonValue,
         is_update: !!element,
       }),
     );
