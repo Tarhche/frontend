@@ -17,7 +17,7 @@ import {
 } from "@mantine/core";
 import {IconEye, IconTrash, IconCheck} from "@tabler/icons-react";
 import {FILES_PUBLIC_URL} from "@/constants/envs";
-import {deleteFileAction} from "@/features/files/actions";
+import {deleteFileAction} from "./actions";
 import {mimeToIcon, defaultIcon} from "./mimetype-mapping";
 import classes from "./file-card.module.css";
 
@@ -30,7 +30,7 @@ type File = {
 type Props = {
   file: File;
   isSelected?: boolean;
-  onDelete: (id: string) => void;
+  onDelete?: (id: string) => void;
   onSelect?: (id: string) => void;
 };
 
@@ -39,7 +39,7 @@ export function FileCard({file, isSelected, onDelete, onSelect}: Props) {
     mutationKey: ["file-delete"],
     mutationFn: deleteFileAction,
     onSuccess: () => {
-      onDelete(file.uuid);
+      onDelete?.(file.uuid);
       handleClose();
     },
   });
@@ -58,6 +58,7 @@ export function FileCard({file, isSelected, onDelete, onSelect}: Props) {
   };
 
   const handleDelete = async () => {
+    if (!onDelete) return;
     const fd = new FormData();
     fd.set("id", file.uuid);
     mutate(fd);
@@ -128,16 +129,18 @@ export function FileCard({file, isSelected, onDelete, onSelect}: Props) {
                   >
                     <IconEye />
                   </ActionIcon>
-                  <ActionIcon
-                    size={"lg"}
-                    color="red"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowDeleteConfirm(true);
-                    }}
-                  >
-                    <IconTrash />
-                  </ActionIcon>
+                  {onDelete !== undefined && (
+                    <ActionIcon
+                      size={"lg"}
+                      color="red"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowDeleteConfirm(true);
+                      }}
+                    >
+                      <IconTrash />
+                    </ActionIcon>
+                  )}
                 </ActionIconGroup>
               </Box>
             </Overlay>

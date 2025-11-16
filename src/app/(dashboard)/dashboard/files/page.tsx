@@ -24,5 +24,5 @@ async function FilesPage() {
 }
 
 export default withPermissions(FilesPage, {
-  requiredPermissions: ["files.index"],
+  requiredPermissions: ["files.index", "self.files.index"],
 });
