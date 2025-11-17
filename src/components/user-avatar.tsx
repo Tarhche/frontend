@@ -46,8 +46,8 @@ export function UserAvatar({src, userId, width = 45, height = 45}: Props) {
       width={avatarSize}
       height={avatarSize}
       style={{
-        minWidth: avatarSize,
-        minHeight: avatarSize,
+        maxWidth: avatarSize,
+        maxHeight: avatarSize,
       }}
       className={classes.avatar}
       priority

@@ -19,12 +19,12 @@ export function UserAvatarInput({
 }: Props) {
   const [showFileExplorer, setShowFileExplorer] = useState(false);
   const [selectedFileId, setSelectedFileId] = useState("");
-  const avatarSrc = selectedFileId ? selectedFileId : defaultValue;
+  const fileId = selectedFileId ? selectedFileId : defaultValue;
 
   return (
     <>
       <Stack align="center" gap={"xs"}>
-        <UserAvatar userId={userId} src={avatarSrc} width={100} height={100} />
+        <UserAvatar userId={userId} src={fileId} width={138} height={138} />
         <Tooltip label="تغییر آواتار" withArrow>
           <ActionIcon
             color="dimmed"
@@ -37,7 +37,7 @@ export function UserAvatarInput({
           </ActionIcon>
         </Tooltip>
       </Stack>
-      <input name={inputName} value={selectedFileId} hidden readOnly />
+      <input name={inputName} value={fileId} hidden readOnly />
       <Modal
         size={"xl"}
         opened={showFileExplorer}

@@ -114,7 +114,7 @@ export function FilesExplorer({onSelect}: Props) {
   };
 
   const invalidateQuery = () => {
-    queryClient.invalidateQueries({queryKey: ["files"]});
+    queryClient.invalidateQueries();
   };
 
   const handleSelectFile = (id: string) => {
