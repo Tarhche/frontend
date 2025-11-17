@@ -13,7 +13,7 @@ type FormState = {
 
 const SCHEMA = z.object({
   title: z.string(),
-  uuid: z.string().uuid(),
+  uuid: z.uuid(),
 });
 
 export async function bookmark(

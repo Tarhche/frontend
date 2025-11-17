@@ -63,6 +63,10 @@ export const PERMISSIONS = {
       SHOW: "self.comments.show",
       UPDATE: "self.comments.update",
     },
+    files: {
+      DELETE: "self.files.delete",
+      INDEX: "self.files.index",
+    },
   },
   users: {
     CREATE: "users.create",

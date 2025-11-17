@@ -57,7 +57,7 @@ const SIDE_BAR_DATA: SidebarSchema[] = [
     label: "فایل ها",
     icon: IconFile,
     href: dashboard.files,
-    requiredPermissions: ["files.index"],
+    requiredPermissions: ["files.index", "self.files.index"],
   },
   {
     label: "کامنت های من",
