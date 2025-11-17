@@ -19,6 +19,7 @@ type Props = {
   onDelete?: (id: string) => void;
   canView: boolean;
   canDelete: boolean;
+  deleteFileAction: (formdata: FormData) => Promise<void>
 };
 
 export function FilesList({
@@ -29,6 +30,7 @@ export function FilesList({
   onDelete,
   canView,
   canDelete,
+  deleteFileAction
 }: Props) {
   if (isLoading) {
     return (
@@ -59,6 +61,7 @@ export function FilesList({
           isSelected={selectedFile === file.uuid}
           onSelect={canView && onSelect ? onSelect : undefined}
           onDelete={canDelete && onDelete ? onDelete : undefined}
+          deleteFileAction={deleteFileAction}
         />
       ))}
     </Group>

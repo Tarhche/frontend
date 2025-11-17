@@ -1,14 +1,16 @@
-"use server";
-
 import {getUserPermissions} from "@/lib/auth";
 import {PERMISSIONS} from "@/lib/app-permissions";
 import {hasPermission} from "@/lib/auth/shared";
+import {fetchFiles, fetchMyFiles} from "@/dal/private/files";
+import {AxiosRequestConfig} from "axios";
+import {deleteFileAction, deleteMyFileAction} from "./delete-action";
 
 export type FilesExplorerConfig = {
   accessibleTabs: Array<{
     id: string;
     label: string;
-    apiEndpoint: string;
+    fetchFiles: (config?: AxiosRequestConfig) => Promise<any>;
+    deleteFileAction: (formdata: FormData) => Promise<any>;
   }>;
   canUpload: boolean;
   canDeleteMyFiles: boolean;
@@ -27,13 +29,15 @@ export async function getFilesExplorerConfig(): Promise<FilesExplorerConfig | nu
     {
       id: 'my-files',
       label: 'فایل‌های من',
-      apiEndpoint: '/dashboard/my/files',
+      fetchFiles: fetchMyFiles,
+      deleteFileAction: deleteMyFileAction,
       requiredPermissions: [PERMISSIONS.self.files.INDEX],
     },
     {
       id: 'all-files',
       label: 'همه فایل‌ها',
-      apiEndpoint: '/dashboard/files',
+      fetchFiles: fetchFiles,
+      deleteFileAction: deleteFileAction,
       requiredPermissions: [PERMISSIONS.files.INDEX],
     },
   ] as const;
@@ -67,7 +71,8 @@ export async function getFilesExplorerConfig(): Promise<FilesExplorerConfig | nu
     accessibleTabs: accessibleTabs.map(tab => ({
       id: tab.id,
       label: tab.label,
-      apiEndpoint: tab.apiEndpoint,
+      fetchFiles: tab.fetchFiles,
+      deleteFileAction: tab.deleteFileAction,
     })),
     canUpload,
     canDeleteMyFiles,

@@ -17,7 +17,6 @@ import {
 } from "@mantine/core";
 import {IconEye, IconTrash, IconCheck} from "@tabler/icons-react";
 import {FILES_PUBLIC_URL} from "@/constants/envs";
-import {deleteFileAction} from "./actions";
 import {mimeToIcon, defaultIcon} from "./mimetype-mapping";
 import classes from "./file-card.module.css";
 
@@ -32,9 +31,10 @@ type Props = {
   isSelected?: boolean;
   onDelete?: (id: string) => void;
   onSelect?: (id: string) => void;
+  deleteFileAction: (formdata: FormData) => Promise<void>
 };
 
-export function FileCard({file, isSelected, onDelete, onSelect}: Props) {
+export function FileCard({file, isSelected, onDelete, onSelect, deleteFileAction}: Props) {
   const {mutate, isPending} = useMutation({
     mutationKey: ["file-delete"],
     mutationFn: deleteFileAction,

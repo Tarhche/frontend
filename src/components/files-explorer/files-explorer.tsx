@@ -5,7 +5,6 @@ import {Stack, Group, Alert} from "@mantine/core";
 import {IconInfoCircle} from "@tabler/icons-react";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {getFilesExplorerConfig, type FilesExplorerConfig} from "./get-files-explorer-config";
-import {clientDalDriver} from "@/dal/client/client-dal-driver";
 import {FilesTabsClient, FilesPagination, FileSelectButton} from "./files-explorer-components";
 import {AddFileButton} from "./add-file-button";
 import {FilesList} from "./files-list";
@@ -41,7 +40,7 @@ export function FilesExplorer({onSelect}: Props) {
   const {data: config, isLoading: isConfigLoading} = useQuery<FilesExplorerConfig | null>({
     queryKey: ["files-explorer-config"],
     queryFn: () => getFilesExplorerConfig(),
-    staleTime: 10 * 1000, // 10 seconds
+    staleTime: 1 * 1000, // 1 seconds
   });
 
   const accessibleTabs = config?.accessibleTabs || [];
@@ -84,9 +83,13 @@ export function FilesExplorer({onSelect}: Props) {
       if (!activeTabData || !currentTabState) {
         return { items: [], pagination: { total_pages: 0, current_page: 1 } };
       }
-      const searchParams = new URLSearchParams(currentTabState.searchParams);
-      const response = await clientDalDriver(`${activeTabData.apiEndpoint}?${searchParams}`);
-      return response.data;
+
+      const responseData = await activeTabData.fetchFiles({
+        params: {
+          page: currentTabState.searchParams.page,
+        },
+      });
+      return responseData;
     },
     enabled: !!activeTabData && !!currentTabState && !!config,
     retry: 1,
@@ -111,7 +114,7 @@ export function FilesExplorer({onSelect}: Props) {
   };
 
   const invalidateQuery = () => {
-    queryClient.invalidateQueries({queryKey: ["files", activeTab]});
+    queryClient.invalidateQueries({queryKey: ["files"]});
   };
 
   const handleSelectFile = (id: string) => {
@@ -155,6 +158,7 @@ export function FilesExplorer({onSelect}: Props) {
         onDelete={handleDeleteFile}
         canView={canView}
         canDelete={canDelete}
+        deleteFileAction={activeTabData.deleteFileAction}
       />
 
       <FilesPagination
