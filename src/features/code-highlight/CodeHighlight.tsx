@@ -60,11 +60,11 @@ function CodeHighlight({code, language, executable}) {
     socket.addEventListener("message", (ev) => {
       try {
         const msg = JSON.parse(ev.data);
-        msg.Payload = JSON.parse(b64.dec(msg.Payload));
-        msg.Payload.logs = b64.dec(msg.Payload.logs);
+        msg.payload = JSON.parse(b64.dec(msg.payload));
+        msg.payload.logs = b64.dec(msg.payload.logs);
         console.log("ws received", msg);
-        if (msg.RequestID === id) {
-          setOutput(msg.Payload?.logs ?? "<no output>");
+        if (msg.request_id === id) {
+          setOutput(msg.payload?.logs ?? "<no output>");
           socket.close(1000, "done");
         }
       } catch (err) {
