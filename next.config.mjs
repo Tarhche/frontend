@@ -3,6 +3,7 @@ const nextConfig = {
   compress: false,
   output: "standalone",
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: process.env.NEXT_PUBLIC_FILES_PROTOCOL,
