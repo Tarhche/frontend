@@ -112,7 +112,7 @@ jobs:
             # Run Docker Compose
             cd /tmp/deployment_frontend/
 
-            docker compose -f compose.frontend.yaml --project-name frontend up --quiet-pull --detach > /dev/null 2>&1
+            docker compose -f compose.frontend.yaml --project-name frontend up --pull always --detach > /dev/null 2>&1
 
             rm -rf /tmp/deployment_frontend
           EOF

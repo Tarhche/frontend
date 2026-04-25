@@ -3,10 +3,10 @@ import {
   Collection,
   Command,
   createDropdown,
+  ModelElement,
   Plugin,
   ViewModel as Model,
 } from "ckeditor5";
-import {ModelElement} from "@ckeditor/ckeditor5-engine/src/model/element";
 import {RUNTIMES} from "@/constants";
 
 const EXECUTABLE = "executable";
@@ -125,7 +125,7 @@ class SetExecutableCommand extends Command {
     const explicitAttr = block.getAttribute(EXECUTABLE);
     if (explicitAttr) return explicitAttr;
 
-    const entries = Array.from(block.getAttributes());
+    const entries = Array.from<[string, unknown]>(block.getAttributes());
     const htmlContent = entries.find(
       ([key]) => key === "htmlContentAttributes",
     )?.[1] as {attributes?: Record<string, unknown>} | undefined;

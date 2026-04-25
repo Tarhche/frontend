@@ -23,8 +23,7 @@ import {
   IconEye,
   IconPencil,
   IconFilePlus,
-  Icon,
-  IconProps,
+  type TablerIcon,
 } from "@tabler/icons-react";
 import {fetchAllArticles} from "@/dal/private/articles";
 import {formatDate} from "@/lib/date-and-time";
@@ -37,7 +36,7 @@ type Props = {
 
 type TableAction = {
   tooltipLabel: string;
-  Icon: React.ForwardRefExoticComponent<IconProps & React.RefAttributes<Icon>>;
+  Icon: TablerIcon;
   color: MantineColor;
   allowedPermissions: Permissions[];
   href: (uuid: string) => string;

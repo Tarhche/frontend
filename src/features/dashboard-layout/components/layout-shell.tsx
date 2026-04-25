@@ -5,7 +5,7 @@ import {
   AppShell,
   Burger,
   Group,
-  Text,
+  Anchor,
   ActionIcon,
   Indicator,
   useMantineColorScheme,
@@ -48,9 +48,9 @@ export function LayoutShell({children}: Props) {
               visibleFrom="sm"
               size="sm"
             />
-            <Text component={Link} href={"/"}>
+            <Anchor component={Link} href={"/"} c="bright" underline="never">
               طرح‌چه
-            </Text>
+            </Anchor>
           </Group>
           <Group h="100%" align="center">
             <Indicator color="red" size={8} offset={2}>

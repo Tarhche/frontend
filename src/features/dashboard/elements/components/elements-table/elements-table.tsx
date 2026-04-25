@@ -17,7 +17,7 @@ import {
 import {PermissionGuard} from "@/components/permission-guard";
 import {ArticlesPagination} from "./elements-table-pagination";
 import {ElementDeleteButton} from "./element-delete-button";
-import {IconPencil, IconFilePlus, Icon, IconProps} from "@tabler/icons-react";
+import {IconPencil, IconFilePlus, type TablerIcon} from "@tabler/icons-react";
 import {formatDate} from "@/lib/date-and-time";
 import {APP_PATHS} from "@/lib/app-paths";
 import {type Permissions} from "@/lib/app-permissions";
@@ -29,7 +29,7 @@ type Props = {
 
 type TableAction = {
   tooltipLabel: string;
-  Icon: React.ForwardRefExoticComponent<IconProps & React.RefAttributes<Icon>>;
+  Icon: TablerIcon;
   color: string;
   allowedPermissions: Permissions[];
   href: (uuid: string) => string;

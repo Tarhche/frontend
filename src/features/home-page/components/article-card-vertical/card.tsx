@@ -1,6 +1,6 @@
 import Link from "@/components/link";
 import Image from "next/image";
-import {Card, Text, Group, Box, Flex, Badge} from "@mantine/core";
+import {Card, Text, Group, Box, Flex, Badge, Anchor} from "@mantine/core";
 import {IconClockHour2} from "@tabler/icons-react";
 import {formatDate} from "@/lib/date-and-time";
 import {FILES_PUBLIC_URL} from "@/constants/envs";
@@ -50,15 +50,17 @@ export function VerticalArticleCard({article}: Props) {
           />
         </Box>
         <Box className={classes.body}>
-          <Text
+          <Anchor
             mt="xs"
             size="md"
             fw="bold"
+            c="bright"
+            underline="hover"
             component={Link}
             href={`/articles/${article.slug}`}
           >
             {article.title}
-          </Text>
+          </Anchor>
           <Text size="sm" c={"dimmed"} mt={5} mb="md" lineClamp={3}>
             {article.subtitle}
           </Text>

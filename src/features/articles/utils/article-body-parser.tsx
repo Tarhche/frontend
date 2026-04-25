@@ -1,23 +1,22 @@
-import parse, {Element, domToReact} from "html-react-parser";
+import parse, {domToReact} from "html-react-parser";
 import Image from "next/image";
 import {ImageZoom} from "@/components/image-zoom";
 import "@mantine/code-highlight/styles.css";
 import CodeHighlight from "@/features/code-highlight/CodeHighlight";
 import Sandpack from "@/components/html-code-preview/sandpack/Sandpack";
 
+const isTag = (node: any, name?: string): boolean =>
+  node?.type === "tag" && (name === undefined || node.name === name);
+
 export function parseArticleBodyToReact(html: string) {
   return parse(html, {
-    replace(domNode) {
-      if (domNode instanceof Element && domNode.name === "pre") {
-        const codeElement = domNode.children.find((child) => {
-          if (child instanceof Element && child.name === "code") {
-            return true;
-          }
-          return false;
-        });
+    replace(domNode: any) {
+      if (isTag(domNode, "pre")) {
+        const codeElement = domNode.children.find((child: any) =>
+          isTag(child, "code"),
+        );
 
-        if (codeElement instanceof Element && codeElement.childNodes) {
-          // @ts-expect-error I think because childNodes comes from react-html-parse this is okay to do
+        if (isTag(codeElement) && codeElement.childNodes) {
           const codeContent = domToReact(codeElement.childNodes).toString();
           const language = codeElement.attribs.class.replace("language-", "");
 
@@ -63,7 +62,7 @@ export function parseArticleBodyToReact(html: string) {
         }
 
         return null;
-      } else if (domNode instanceof Element && domNode.name === "img") {
+      } else if (isTag(domNode, "img")) {
         const {src, alt} = domNode.attribs;
 
         return (
@@ -76,7 +75,7 @@ export function parseArticleBodyToReact(html: string) {
             />
           </ImageZoom>
         );
-      } else if (domNode instanceof Element && domNode.name === "sandpack") {
+      } else if (isTag(domNode, "sandpack")) {
         const codeText = getText(domNode);
 
         if (!codeText) return null;

@@ -146,7 +146,7 @@ const ElementJumbotron = ({data}) => {
         </Box>
       </Box>
 
-      <Grid gutter={0} align="stretch" style={{margin: 0}} visibleFrom="md">
+      <Grid gap={0} align="stretch" style={{margin: 0}} visibleFrom="md">
         <Grid.Col span={{md: 6, lg: 5}} style={{padding: 0}}>
           <Box
             style={{

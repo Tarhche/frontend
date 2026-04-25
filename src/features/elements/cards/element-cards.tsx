@@ -119,7 +119,7 @@ export default function ElementCards({data}) {
           ))}
         </Carousel>
       ) : (
-        <Grid mt={hasTitle ? "0" : "lg"} gutter={{base: "md", md: "lg"}}>
+        <Grid mt={hasTitle ? "0" : "lg"} gap={{base: "md", md: "lg"}}>
           {cards.map((card, index) => (
             <Grid.Col key={index} span={{base: 12, md: 6, lg: 3}}>
               {card}

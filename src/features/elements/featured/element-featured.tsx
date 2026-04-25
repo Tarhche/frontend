@@ -2,7 +2,7 @@
 
 import {useState, useEffect} from "react";
 import Image from "next/image";
-import {Box, Text, Group, Badge, Stack, Container} from "@mantine/core";
+import {Box, Text, Group, Badge, Stack, Container, Anchor} from "@mantine/core";
 import {FILES_PUBLIC_URL} from "@/constants";
 import Link from "@/components/link";
 import {Grid, Title} from "@mantine/core";
@@ -210,22 +210,17 @@ const SideArticleItem = ({item}) => {
               wrap="wrap"
             >
               {item.tags.map((tag, index) => (
-                <Text
+                <Anchor
                   key={`${tag}-${index}`}
                   component={Link}
                   href={`/hashtags/${encodeURIComponent(tag)}`}
                   size="xs"
                   c="blue.6"
-                  style={{
-                    fontWeight: 500,
-                    textDecoration: "none",
-                    "&:hover": {
-                      textDecoration: "underline",
-                    },
-                  }}
+                  fw={500}
+                  underline="hover"
                 >
                   #{tag}
-                </Text>
+                </Anchor>
               ))}
             </Group>
           )}
@@ -261,7 +256,7 @@ const ElementFeatured = ({data}) => {
       }}
     >
       <Container size="lg" px={0}>
-        <Grid gutter={24} align="stretch">
+        <Grid gap={24} align="stretch">
           <Grid.Col span={{base: 12, md: 7}}>
             <MainFeaturedCard item={main.body} />
           </Grid.Col>
