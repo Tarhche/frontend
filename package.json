@@ -48,7 +48,6 @@
     "@uiw/codemirror-theme-monokai": "^4.25.9",
     "@uiw/codemirror-themes": "^4.25.9",
     "axios": "^1.15.2",
-    "axios-auth-refresh": "^5.0.2",
     "boring-avatars": "^2.0.4",
     "ckeditor5": "^48.0.1",
     "clsx": "^2.1.1",
