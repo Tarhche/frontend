@@ -31,10 +31,16 @@ type Props = {
   isSelected?: boolean;
   onDelete?: (id: string) => void;
   onSelect?: (id: string) => void;
-  deleteFileAction: (formdata: FormData) => Promise<void>
+  deleteFileAction: (formdata: FormData) => Promise<void>;
 };
 
-export function FileCard({file, isSelected, onDelete, onSelect, deleteFileAction}: Props) {
+export function FileCard({
+  file,
+  isSelected,
+  onDelete,
+  onSelect,
+  deleteFileAction,
+}: Props) {
   const {mutate, isPending} = useMutation({
     mutationKey: ["file-delete"],
     mutationFn: deleteFileAction,

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "@/components/link";
+import {ColorSchemeToggle} from "@/components/color-scheme-toggle";
 import {
   AppShell,
   Burger,
@@ -8,11 +9,9 @@ import {
   Anchor,
   ActionIcon,
   Indicator,
-  useMantineColorScheme,
 } from "@mantine/core";
-import {IconMoon, IconSun, IconBell} from "@tabler/icons-react";
+import {IconBell} from "@tabler/icons-react";
 import {useDisclosure} from "@mantine/hooks";
-import classes from "./layout.module.css";
 
 type Props = {
   children: React.ReactNode;
@@ -21,7 +20,6 @@ type Props = {
 export function LayoutShell({children}: Props) {
   const [mobileOpened, {toggle: toggleMobile}] = useDisclosure();
   const [desktopOpened, {toggle: toggleDesktop}] = useDisclosure(true);
-  const {toggleColorScheme} = useMantineColorScheme();
 
   return (
     <AppShell
@@ -59,23 +57,7 @@ export function LayoutShell({children}: Props) {
               </ActionIcon>
             </Indicator>
             <Indicator disabled>
-              <ActionIcon
-                variant="light"
-                size="lg"
-                radius="md"
-                onClick={toggleColorScheme}
-              >
-                <IconSun
-                  style={{width: "70%", height: "70%"}}
-                  stroke={1.5}
-                  className={classes.light}
-                />
-                <IconMoon
-                  style={{width: "70%", height: "70%"}}
-                  stroke={1.5}
-                  className={classes.dark}
-                />
-              </ActionIcon>
+              <ColorSchemeToggle />
             </Indicator>
           </Group>
         </Group>

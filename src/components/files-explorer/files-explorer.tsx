@@ -4,8 +4,15 @@ import {useState, useEffect} from "react";
 import {Stack, Group, Alert} from "@mantine/core";
 import {IconInfoCircle} from "@tabler/icons-react";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
-import {getFilesExplorerConfig, type FilesExplorerConfig} from "./get-files-explorer-config";
-import {FilesTabsClient, FilesPagination, FileSelectButton} from "./files-explorer-components";
+import {
+  getFilesExplorerConfig,
+  type FilesExplorerConfig,
+} from "./get-files-explorer-config";
+import {
+  FilesTabsClient,
+  FilesPagination,
+  FileSelectButton,
+} from "./files-explorer-components";
 import {AddFileButton} from "./add-file-button";
 import {FilesList} from "./files-list";
 
@@ -22,12 +29,18 @@ type Props = {
 };
 
 type TabState = {
-  searchParams: { page: string };
+  searchParams: {page: string};
   selectedFile?: string;
 };
 
 const NoAccessAlert = () => (
-  <Alert variant="filled" color="red" title="عدم دسترسی" mt={"sm"} icon={<IconInfoCircle />}>
+  <Alert
+    variant="filled"
+    color="red"
+    title="عدم دسترسی"
+    mt={"sm"}
+    icon={<IconInfoCircle />}
+  >
     شما به این قسمت دسترسی ندارید
   </Alert>
 );
@@ -37,11 +50,12 @@ const NoAccessAlert = () => (
  */
 export function FilesExplorer({onSelect}: Props) {
   // Fetch configuration - MUST be called unconditionally
-  const {data: config, isLoading: isConfigLoading} = useQuery<FilesExplorerConfig | null>({
-    queryKey: ["files-explorer-config"],
-    queryFn: () => getFilesExplorerConfig(),
-    staleTime: 1 * 1000, // 1 seconds
-  });
+  const {data: config, isLoading: isConfigLoading} =
+    useQuery<FilesExplorerConfig | null>({
+      queryKey: ["files-explorer-config"],
+      queryFn: () => getFilesExplorerConfig(),
+      staleTime: 1 * 1000, // 1 seconds
+    });
 
   const accessibleTabs = config?.accessibleTabs || [];
   const canUpload = config?.canUpload || false;
@@ -58,18 +72,18 @@ export function FilesExplorer({onSelect}: Props) {
   useEffect(() => {
     if (config && config.accessibleTabs.length > 0) {
       // Initialize tabs state, preserving existing tab states
-      setTabsState(prevState => {
+      setTabsState((prevState) => {
         const newState = {...prevState};
-        config.accessibleTabs.forEach(tab => {
+        config.accessibleTabs.forEach((tab) => {
           if (!newState[tab.id]) {
-            newState[tab.id] = { searchParams: { page: "1" } };
+            newState[tab.id] = {searchParams: {page: "1"}};
           }
         });
         return newState;
       });
-      
+
       // Set active tab to first tab if not already set
-      setActiveTab(prevTab => prevTab || config.accessibleTabs[0].id);
+      setActiveTab((prevTab) => prevTab || config.accessibleTabs[0].id);
     }
   }, [config]);
 
@@ -81,7 +95,7 @@ export function FilesExplorer({onSelect}: Props) {
     queryKey: ["files", activeTab, currentTabState?.searchParams.page],
     queryFn: async () => {
       if (!activeTabData || !currentTabState) {
-        return { items: [], pagination: { total_pages: 0, current_page: 1 } };
+        return {items: [], pagination: {total_pages: 0, current_page: 1}};
       }
 
       const responseData = await activeTabData.fetchFiles({
@@ -109,7 +123,7 @@ export function FilesExplorer({onSelect}: Props) {
   const updateTabState = (updates: Partial<TabState>) => {
     setTabsState((prev) => ({
       ...prev,
-      [activeTab]: { ...prev[activeTab], ...updates },
+      [activeTab]: {...prev[activeTab], ...updates},
     }));
   };
 
@@ -118,32 +132,33 @@ export function FilesExplorer({onSelect}: Props) {
   };
 
   const handleSelectFile = (id: string) => {
-    updateTabState({ selectedFile: id === selectedFile ? undefined : id });
+    updateTabState({selectedFile: id === selectedFile ? undefined : id});
   };
 
   const handleDeleteFile = (id: string) => {
     if (id === selectedFile) {
-      updateTabState({ selectedFile: undefined });
+      updateTabState({selectedFile: undefined});
     }
     invalidateQuery();
   };
 
   const handlePagination = (page: number) => {
-    updateTabState({ searchParams: { page: String(page) } });
+    updateTabState({searchParams: {page: String(page)}});
   };
 
   const handleAddFile = () => {
-    updateTabState({ searchParams: { page: "1" } });
+    updateTabState({searchParams: {page: "1"}});
     invalidateQuery();
   };
 
-  const canDelete = activeTab === 'my-files' ? canDeleteMyFiles : canDeleteAllFiles;
+  const canDelete =
+    activeTab === "my-files" ? canDeleteMyFiles : canDeleteAllFiles;
 
   return (
     <Stack gap={"md"}>
       <Group justify="space-between" mb={"sm"}>
         <FilesTabsClient
-          tabs={accessibleTabs.map(tab => ({ id: tab.id, label: tab.label }))}
+          tabs={accessibleTabs.map((tab) => ({id: tab.id, label: tab.label}))}
           activeTab={activeTab}
           onTabChange={setActiveTab}
         />

@@ -1,9 +1,16 @@
 "use client";
 
 import {useState} from "react";
-import {Tabs, FloatingIndicator, Group, Pagination, Divider, Button} from "@mantine/core";
+import {
+  Tabs,
+  FloatingIndicator,
+  Group,
+  Pagination,
+  Divider,
+  Button,
+} from "@mantine/core";
 import {IconCheck} from "@tabler/icons-react";
-import classes from './files-explorer.module.css';
+import classes from "./files-explorer.module.css";
 
 // Types
 type Tab = {
@@ -18,9 +25,15 @@ type FilesTabsClientProps = {
   onTabChange: (tab: string | null) => void;
 };
 
-export function FilesTabsClient({tabs, activeTab, onTabChange}: FilesTabsClientProps) {
+export function FilesTabsClient({
+  tabs,
+  activeTab,
+  onTabChange,
+}: FilesTabsClientProps) {
   const [rootRef, setRootRef] = useState<HTMLDivElement | null>(null);
-  const [controlsRefs, setControlsRefs] = useState<Record<string, HTMLButtonElement | null>>({});
+  const [controlsRefs, setControlsRefs] = useState<
+    Record<string, HTMLButtonElement | null>
+  >({});
 
   const setControlRef = (val: string) => (node: HTMLButtonElement) => {
     controlsRefs[val] = node;
@@ -57,14 +70,22 @@ type FilesPaginationProps = {
   onPageChange: (page: number) => void;
 };
 
-export function FilesPagination({currentPage, totalPages, onPageChange}: FilesPaginationProps) {
+export function FilesPagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: FilesPaginationProps) {
   if (currentPage <= 0 || totalPages <= 0) {
     return null;
   }
 
   return (
     <Group justify="flex-end" mt={"md"}>
-      <Pagination total={totalPages} value={currentPage} onChange={onPageChange} />
+      <Pagination
+        total={totalPages}
+        value={currentPage}
+        onChange={onPageChange}
+      />
     </Group>
   );
 }
@@ -75,7 +96,10 @@ type FileSelectButtonProps = {
   onSelect: (id: string) => void;
 };
 
-export function FileSelectButton({selectedFile, onSelect}: FileSelectButtonProps) {
+export function FileSelectButton({
+  selectedFile,
+  onSelect,
+}: FileSelectButtonProps) {
   return (
     <>
       <Divider />
@@ -90,4 +114,3 @@ export function FileSelectButton({selectedFile, onSelect}: FileSelectButtonProps
     </>
   );
 }
-

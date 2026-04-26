@@ -19,7 +19,7 @@ type Props = {
   onDelete?: (id: string) => void;
   canView: boolean;
   canDelete: boolean;
-  deleteFileAction: (formdata: FormData) => Promise<void>
+  deleteFileAction: (formdata: FormData) => Promise<void>;
 };
 
 export function FilesList({
@@ -30,7 +30,7 @@ export function FilesList({
   onDelete,
   canView,
   canDelete,
-  deleteFileAction
+  deleteFileAction,
 }: Props) {
   if (isLoading) {
     return (
@@ -42,7 +42,13 @@ export function FilesList({
 
   if (files.length === 0) {
     return (
-      <Alert variant="light" color="blue" title="فایلی یافت نشد" mt={"sm"} icon={<IconInfoCircle />}>
+      <Alert
+        variant="light"
+        color="blue"
+        title="فایلی یافت نشد"
+        mt={"sm"}
+        icon={<IconInfoCircle />}
+      >
         در حال حاضر هیچ فایلی وجود ندارد
       </Alert>
     );
@@ -67,4 +73,3 @@ export function FilesList({
     </Group>
   );
 }
-

@@ -10,6 +10,7 @@ import {
   UnstyledButton,
 } from "@mantine/core";
 import {useDisclosure} from "@mantine/hooks";
+import {ColorSchemeToggle} from "@/components/color-scheme-toggle";
 import {AuthButtons} from "./auth-button";
 
 type Props = {
@@ -42,8 +43,11 @@ export function AppMainShell({children}: Props) {
               <UnstyledButton fz={"h4"} component={Link} href={"/"}>
                 طرح‌چه
               </UnstyledButton>
-              <Group gap={0} visibleFrom="sm">
-                <AuthButtons />
+              <Group gap={"xs"}>
+                <Group gap={0} visibleFrom="sm">
+                  <AuthButtons />
+                </Group>
+                <ColorSchemeToggle />
               </Group>
             </Group>
           </Group>

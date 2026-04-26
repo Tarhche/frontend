@@ -4,11 +4,21 @@ import {useState, useCallback, useEffect, useRef} from "react";
 import {EditorView, keymap, lineNumbers, drawSelection} from "@codemirror/view";
 import {EditorState, Compartment} from "@codemirror/state";
 import {LanguageDescription, indentOnInput} from "@codemirror/language";
-import {defaultKeymap, history, historyKeymap, indentWithTab} from "@codemirror/commands";
+import {
+  defaultKeymap,
+  history,
+  historyKeymap,
+  indentWithTab,
+} from "@codemirror/commands";
 import {languages} from "@codemirror/language-data";
 import {monokai} from "@uiw/codemirror-theme-monokai";
 import {eclipseInit} from "@uiw/codemirror-theme-eclipse";
-import {IconPlayerPlay, IconLoader2, IconRotate, IconCopy} from "@tabler/icons-react";
+import {
+  IconPlayerPlay,
+  IconLoader2,
+  IconRotate,
+  IconCopy,
+} from "@tabler/icons-react";
 import {ActionIcon, Box, Paper, ScrollArea, Text, Tooltip} from "@mantine/core";
 import {
   CodeHighlight as MantineCodeHighlight,
@@ -68,7 +78,8 @@ function CodeHighlight({code, language, executable}) {
 
     const updateHeight = (editor: EditorView) => {
       if (containerRef.current) {
-        containerRef.current.style.height = editor.contentDOM.scrollHeight + 'px';
+        containerRef.current.style.height =
+          editor.contentDOM.scrollHeight + "px";
       }
     };
 
@@ -131,7 +142,9 @@ function CodeHighlight({code, language, executable}) {
   useEffect(() => {
     if (!editorRef.current) return;
     editorRef.current.dispatch({
-      effects: themeCompartment.reconfigure(colorScheme === "dark" ? monokai : eclipse),
+      effects: themeCompartment.reconfigure(
+        colorScheme === "dark" ? monokai : eclipse,
+      ),
     });
   }, [colorScheme]);
 
@@ -201,10 +214,7 @@ function CodeHighlight({code, language, executable}) {
     <Box mb="xl">
       {mounted ? (
         <Box mt="sm" mb="xs" style={{position: "relative", overflow: "hidden"}}>
-          <div
-            ref={containerRef}
-            style={{height: "auto"}}
-          />
+          <div ref={containerRef} style={{height: "auto"}} />
 
           {/* Action buttons */}
           <div
@@ -217,7 +227,16 @@ function CodeHighlight({code, language, executable}) {
               gap: 4,
             }}
           >
-            <Tooltip label={editableCode ? (editableCode.length > 0 ? "کپی شد!" : "کپی کردن") : "کپی کردن"} position="left">
+            <Tooltip
+              label={
+                editableCode
+                  ? editableCode.length > 0
+                    ? "کپی شد!"
+                    : "کپی کردن"
+                  : "کپی کردن"
+              }
+              position="left"
+            >
               <ActionIcon
                 variant="subtle"
                 color="gray"
@@ -261,7 +280,10 @@ function CodeHighlight({code, language, executable}) {
             )}
 
             {executable && (
-              <Tooltip label={running ? "در حال اجرا…" : "اجرا"} position="left">
+              <Tooltip
+                label={running ? "در حال اجرا…" : "اجرا"}
+                position="left"
+              >
                 <ActionIcon
                   variant="subtle"
                   color="gray"
@@ -272,7 +294,9 @@ function CodeHighlight({code, language, executable}) {
                   {running ? (
                     <IconLoader2
                       size={16}
-                      style={{animation: "code-highlight-spin 1s linear infinite"}}
+                      style={{
+                        animation: "code-highlight-spin 1s linear infinite",
+                      }}
                     />
                   ) : (
                     <IconPlayerPlay size={16} />
