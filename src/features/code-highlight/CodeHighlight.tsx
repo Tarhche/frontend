@@ -24,18 +24,10 @@ import {
   CodeHighlight as MantineCodeHighlight,
   CodeHighlightControl,
 } from "@mantine/code-highlight";
-import {PUBLIC_BACKEND_URL} from "@/constants";
 import {notifications} from "@mantine/notifications";
-import {encode, decode} from "js-base64";
+import {decode} from "js-base64";
+import {useWsPublish} from "@/hooks/use-ws-publish";
 import "./code-highlight.css";
-
-const b64 = {
-  enc: (input: string) => {
-    const cleaned = input.replace(/ /g, " ").replace(/\r\n/g, "\n");
-    return encode(cleaned);
-  },
-  dec: (str: string) => decode(str),
-};
 
 const themeCompartment = new Compartment();
 
@@ -150,65 +142,31 @@ function CodeHighlight({code, language, executable}) {
 
   const hasChanged = editableCode !== code;
 
-  const runCode = useCallback(() => {
+  const publish = useWsPublish();
+
+  const runCode = useCallback(async () => {
     if (running) return;
 
     setRunning(true);
     setOutput("");
 
-    const id = crypto.randomUUID();
-    const payload = {
-      id,
-      subject: "runCode",
-      payload: {
-        runner: executable.value,
-        code: editableCode,
-      },
-    };
-
-    const socket = new WebSocket(
-      `${PUBLIC_BACKEND_URL!.startsWith("https:") ? "wss" : "ws"}://${PUBLIC_BACKEND_URL!.replace("https://", "").replace("http://", "")}/api/ws`,
-    );
-
-    socket.addEventListener("open", () => {
-      console.log("ws sending: ", payload);
-      socket.send(
-        JSON.stringify({
-          ...payload,
-          payload: b64.enc(JSON.stringify(payload.payload)),
-        }),
-      );
-    });
-
-    socket.addEventListener("message", (ev) => {
-      try {
-        const msg = JSON.parse(ev.data);
-        msg.payload = JSON.parse(b64.dec(msg.payload));
-        msg.payload.logs = b64.dec(msg.payload.logs);
-        console.log("ws received", msg);
-        if (msg.request_id === id) {
-          setOutput(msg.payload?.logs ?? "<no output>");
-          socket.close(1000, "done");
-        }
-      } catch (err) {
-        console.error("Failed to parse WS message", err);
-        socket.close();
-        notifications.show({
-          title: "خطای غیرمنتظره",
-          message: "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
-          color: "red",
-        });
-      } finally {
-        setRunning(false);
-      }
-    });
-
-    socket.addEventListener("error", (err) => {
+    try {
+      const response = await publish<
+        {runner: string; code: string},
+        {logs: string}
+      >("runCode", {runner: executable.value, code: editableCode});
+      setOutput(decode(response.logs) ?? "<no output>");
+    } catch (err) {
       console.error("WebSocket error", err);
-      setOutput(`WebSocket error: ${err}`);
+      notifications.show({
+        title: "خطای غیرمنتظره",
+        message: "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
+        color: "red",
+      });
+    } finally {
       setRunning(false);
-    });
-  }, [editableCode, running, executable]);
+    }
+  }, [editableCode, running, executable, publish]);
 
   return (
     <Box mb="xl">
