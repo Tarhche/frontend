@@ -26,9 +26,6 @@ export default class ServerCookieManager extends CookieManager {
 
   async canSetCookie() {
     const headersStore = await nextHeaders();
-    const isFromApiRoutes = headersStore.has("client-to-proxy");
-    const isFromServerAction = headersStore.has("next-action");
-
-    return isFromApiRoutes || isFromServerAction;
+    return headersStore.has("next-action");
   }
 }
