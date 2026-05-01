@@ -8,6 +8,13 @@ import {
 } from "@/constants";
 import {refreshCoordinator} from "@/lib/auth/refresh/RefreshCoordinator";
 
+// 1. The middleware will ensure that for protected routes, if the access token is missing or expired,
+// it will attempt to refresh it using the refresh token.
+// 2. If refreshing fails or if there is no valid access token,
+// it will redirect the user to the login page. For successful refreshes,
+// it will update the cookies in the request header so that downstream handlers receive the new tokens.
+const protectedRoutes = ["/dashboard"];
+
 export default async function authMiddleware(req: NextRequest) {
   const accessToken = req.cookies.get(ACCESS_TOKEN_COOKIE_NAME)?.value;
   const refreshToken = req.cookies.get(REFRESH_TOKEN_COOKIE_NAME)?.value;
@@ -15,7 +22,7 @@ export default async function authMiddleware(req: NextRequest) {
   let newAccessToken: string | undefined;
   let newRefreshToken: string | undefined;
 
-  if (accessToken && refreshToken && isTokenExpired(accessToken)) {
+  if (refreshToken && (!accessToken || isTokenExpired(accessToken))) {
     try {
       const tokens = await refreshCoordinator.swap(refreshToken);
       newAccessToken = tokens.access_token;
@@ -23,6 +30,12 @@ export default async function authMiddleware(req: NextRequest) {
     } catch {
       // refresh failed; let the downstream handler decide what to do
     }
+  }
+
+  const isProtectedRoute = protectedRoutes.some(route => req.nextUrl.pathname.startsWith(route));
+  const hasValidAccessToken = !!newAccessToken || (!!accessToken && !isTokenExpired(accessToken));
+  if (isProtectedRoute && !hasValidAccessToken) {
+    return NextResponse.redirect(new URL("/auth/login", req.url));
   }
 
   const requestHeaders = new Headers(req.headers);
