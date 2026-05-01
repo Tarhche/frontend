@@ -26,7 +26,7 @@ import {
   type TablerIcon,
 } from "@tabler/icons-react";
 import {fetchAllArticles} from "@/dal/private/articles";
-import {formatDate} from "@/lib/date-and-time";
+import {formatDate, isGregorianStartDateTime} from "@/lib/date-and-time";
 import {APP_PATHS} from "@/lib/app-paths";
 import {type Permissions} from "@/lib/app-permissions";
 
@@ -105,8 +105,9 @@ export async function ArticlesTable({page}: Props) {
               </TableTr>
             )}
             {articles.map((article: any, index: number) => {
-              const isPublished =
-                new Date(article.published_at).getDate() !== 1;
+              const isPublished = !isGregorianStartDateTime(
+                article.published_at,
+              );
 
               return (
                 <TableTr key={article.uuid}>

@@ -18,7 +18,7 @@ import {PermissionGuard} from "@/components/permission-guard";
 import {ArticlesPagination} from "./elements-table-pagination";
 import {ElementDeleteButton} from "./element-delete-button";
 import {IconPencil, IconFilePlus, type TablerIcon} from "@tabler/icons-react";
-import {formatDate} from "@/lib/date-and-time";
+import {formatDate, isGregorianStartDateTime} from "@/lib/date-and-time";
 import {APP_PATHS} from "@/lib/app-paths";
 import {type Permissions} from "@/lib/app-permissions";
 import {fetchAllElements} from "@/dal/private/elements";
@@ -91,8 +91,9 @@ export async function ElementsTable({page}: Props) {
               </TableTr>
             )}
             {elements.map((element: any, index: number) => {
-              const isPublished =
-                new Date(element.published_at).getDate() !== 1;
+              const isPublished = !isGregorianStartDateTime(
+                element.published_at,
+              );
 
               return (
                 <TableTr key={element.uuid}>
