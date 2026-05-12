@@ -61,6 +61,7 @@ export async function FeaturedArticles({latestArticles, popularArticles}) {
                   publishedDate: la.published_at,
                   slug: la.uuid,
                   tags: la.tags,
+                  author: la.author,
                 }}
               />
             );

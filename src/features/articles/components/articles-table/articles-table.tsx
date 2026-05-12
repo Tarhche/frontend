@@ -29,6 +29,7 @@ import {fetchAllArticles} from "@/dal/private/articles";
 import {formatDate, isGregorianStartDateTime} from "@/lib/date-and-time";
 import {APP_PATHS} from "@/lib/app-paths";
 import {type Permissions} from "@/lib/app-permissions";
+import {AuthorInline} from "@/features/authors/components";
 
 type Props = {
   page: number | string;
@@ -92,6 +93,7 @@ export async function ArticlesTable({page}: Props) {
             <TableTr>
               <TableTh>#</TableTh>
               <TableTh>عنوان</TableTh>
+              <TableTh>نویسنده</TableTh>
               <TableTh>تاریخ انتشار</TableTh>
               <TableTh>عملیات</TableTh>
             </TableTr>
@@ -99,7 +101,7 @@ export async function ArticlesTable({page}: Props) {
           <TableTbody>
             {articles.length === 0 && (
               <TableTr>
-                <TableTd colSpan={4} ta={"center"}>
+                <TableTd colSpan={5} ta={"center"}>
                   مقاله های وجود ندارد
                 </TableTd>
               </TableTr>
@@ -113,6 +115,9 @@ export async function ArticlesTable({page}: Props) {
                 <TableTr key={article.uuid}>
                   <TableTd>{index + 1}</TableTd>
                   <TableTd>{article.title}</TableTd>
+                  <TableTd>
+                    <AuthorInline author={article.author} />
+                  </TableTd>
                   <TableTd>
                     {isPublished ? (
                       formatDate(article.published_at)

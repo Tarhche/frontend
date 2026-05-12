@@ -4,6 +4,8 @@ import {Card, Text, Group, Box, Flex, Badge, Anchor} from "@mantine/core";
 import {IconClockHour2} from "@tabler/icons-react";
 import {formatDate} from "@/lib/date-and-time";
 import {FILES_PUBLIC_URL} from "@/constants/envs";
+import {AuthorLink} from "@/features/authors/components";
+import {type Author} from "@/features/authors/types";
 import classes from "./card.module.css";
 
 type Props = {
@@ -14,6 +16,7 @@ type Props = {
     publishedDate: string;
     slug: string;
     tags: string[];
+    author?: Partial<Author>;
   };
 };
 
@@ -67,11 +70,19 @@ export function VerticalArticleCard({article}: Props) {
 
           {/* tags moved to image overlay */}
 
-          <Group wrap="nowrap" gap={5} c={"dimmed"}>
-            <IconClockHour2 spacing={0} size="1rem" />
-            <Text size="xs" c="dimmed">
-              {formatDate(article.publishedDate)}
-            </Text>
+          <Group
+            wrap="nowrap"
+            gap={"sm"}
+            mt={"auto"}
+            justify="space-between"
+          >
+            <AuthorLink author={article.author} />
+            <Group wrap="nowrap" gap={5} c={"dimmed"}>
+              <IconClockHour2 spacing={0} size="1rem" />
+              <Text size="xs" c="dimmed">
+                {formatDate(article.publishedDate)}
+              </Text>
+            </Group>
           </Group>
         </Box>
       </Flex>

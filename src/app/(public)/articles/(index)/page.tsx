@@ -36,6 +36,7 @@ async function ArticlesPage(props: Props) {
           publishedDate: article.published_at,
           slug: article.uuid,
           tags: [],
+          author: article.author,
         }}
       />
     );

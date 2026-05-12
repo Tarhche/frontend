@@ -11,6 +11,7 @@ import classes from "./content.module.css";
 import {fetchArticleByUUID} from "@/dal/public/articles";
 import {checkBookmarkStatus} from "@/dal/private/bookmarks";
 import ArticleTags from "@/features/articles/components/article-tags/ArticleTags";
+import {AuthorLink} from "@/features/authors/components";
 
 type Props = {
   slug: string;
@@ -32,11 +33,14 @@ export async function Content({slug}: Props) {
     <article>
       <Title order={2}>{article.title}</Title>
       <Group wrap="nowrap" c={"dimmed"} my={"sm"} justify="space-between">
-        <Group gap={5}>
-          <IconClockHour2 spacing={0} size={20} />
-          <Text size="sm" c="dimmed" mt={4}>
-            {formatDate(article.published_at)}
-          </Text>
+        <Group gap={"md"} wrap="nowrap">
+          <AuthorLink author={article.author} />
+          <Group gap={5} wrap="nowrap">
+            <IconClockHour2 spacing={0} size={20} />
+            <Text size="sm" c="dimmed" mt={4}>
+              {formatDate(article.published_at)}
+            </Text>
+          </Group>
         </Group>
         {isBookmarked === undefined ? null : (
           <BookmarkButton

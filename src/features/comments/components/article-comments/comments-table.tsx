@@ -21,6 +21,7 @@ import {IconEye, IconPencil} from "@tabler/icons-react";
 import {fetchAllComments} from "@/dal/private/comments";
 import {formatDate, isGregorianStartDateTime} from "@/lib/date-and-time";
 import {APP_PATHS} from "@/lib/app-paths";
+import {AuthorInline} from "@/features/authors/components";
 
 export const TABLE_HEADERS = [
   "#",
@@ -80,7 +81,9 @@ export async function CommentsTable({page}: Props) {
                     )}
                   </TableTd>
                   <TableTd>{formatDate(comment.created_at)}</TableTd>
-                  <TableTd>{comment.author.name}</TableTd>
+                  <TableTd>
+                    <AuthorInline author={comment.author} />
+                  </TableTd>
                   <TableTd>
                     <ActionIconGroup>
                       <Tooltip label="بازدید کردن کامنت" withArrow>

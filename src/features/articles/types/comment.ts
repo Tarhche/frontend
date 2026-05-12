@@ -7,5 +7,6 @@ export type Comment = {
     avatar: string;
     name: string;
     uuid: string;
+    username: string;
   };
 };

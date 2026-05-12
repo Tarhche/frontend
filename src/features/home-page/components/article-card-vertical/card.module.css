@@ -32,4 +32,6 @@
 .body {
   padding: var(--mantine-spacing-md);
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }

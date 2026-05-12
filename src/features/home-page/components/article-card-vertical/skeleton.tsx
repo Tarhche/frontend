@@ -12,9 +12,20 @@ export function VerticalArticleCardSkeleton() {
         <Box className={classes.body}>
           <Skeleton h={12} w={"100%"} mb={"sm"} />
           <Skeleton h={12} w={"90%"} />
-          <Group wrap="nowrap" gap={5} c={"dimmed"} mt={"lg"}>
-            <IconClockHour2 spacing={0} size={20} />
-            <Skeleton h={8} w={"10%"} />
+          <Group
+            wrap="nowrap"
+            gap={"sm"}
+            mt={"auto"}
+            justify="space-between"
+          >
+            <Group wrap="nowrap" gap={"xs"}>
+              <Skeleton circle h={40} w={40} />
+              <Skeleton h={10} w={70} />
+            </Group>
+            <Group wrap="nowrap" gap={5} c={"dimmed"}>
+              <IconClockHour2 spacing={0} size={20} />
+              <Skeleton h={8} w={50} />
+            </Group>
           </Group>
         </Box>
       </Flex>
