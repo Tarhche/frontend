@@ -16,11 +16,9 @@ type Props = {
 const APP_SETTING_FIELDS = ["user_default_roles"] as const;
 
 export function AppSettingForm({config}: Props) {
-  const [state, dispatch, isPending] = useActionState(updateSettingAction, {
-    success: false,
-  });
+  const [state, dispatch, isPending] = useActionState(updateSettingAction, null);
 
-  const formErrors = nonFieldErrors(state.errors, APP_SETTING_FIELDS);
+  const formErrors = nonFieldErrors(state?.errors, APP_SETTING_FIELDS);
 
   return (
     <form action={dispatch}>
@@ -30,14 +28,14 @@ export function AppSettingForm({config}: Props) {
           name="user_default_roles"
           label="نقش پیشفرض کاربران"
           rows={4}
-          defaultValue={state.values?.user_default_roles ?? config.userDefaultRoles}
+          defaultValue={state?.values?.user_default_roles ?? config.userDefaultRoles}
           dir="ltr"
           styles={{
             input: {
               textAlign: "left",
             },
           }}
-          error={state.errors?.user_default_roles ?? ""}
+          error={state?.errors?.user_default_roles ?? ""}
         />
         <ValidationErrorsAlert errors={formErrors} />
         <Group justify="flex-end" mt="md">

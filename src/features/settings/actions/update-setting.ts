@@ -10,7 +10,7 @@ import {
   type ValidationFormState,
 } from "@/lib/api/validation-errors";
 
-type FormState = ValidationFormState;
+type FormState = ValidationFormState | null;
 
 export async function updateSettingAction(
   formState: FormState,
