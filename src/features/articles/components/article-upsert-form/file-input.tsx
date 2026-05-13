@@ -8,6 +8,7 @@ import {
   Paper,
   Modal,
   InputLabel,
+  InputError,
   Button,
   ActionIcon,
 } from "@mantine/core";
@@ -21,9 +22,10 @@ type Props = {
   label: string;
   defaultValue?: string;
   icon: React.ReactNode;
+  error?: string;
 };
 
-export function FileInput({name, label, defaultValue, icon}: Props) {
+export function FileInput({name, label, defaultValue, icon, error}: Props) {
   const [isFileExplorerOpen, setIsFileExplorerOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(defaultValue || "");
 
@@ -75,6 +77,7 @@ export function FileInput({name, label, defaultValue, icon}: Props) {
         )}
       </Stack>
       <input name={name} value={selectedFile} hidden readOnly />
+      {error ? <InputError mt={4}>{error}</InputError> : null}
       <Modal
         size="xl"
         opened={isFileExplorerOpen}

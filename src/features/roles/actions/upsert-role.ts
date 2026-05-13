@@ -2,17 +2,15 @@
 
 import {revalidatePath} from "next/cache";
 import {redirect} from "next/navigation";
-import {DALDriverError} from "@/dal/dal-driver-error";
 import {createRole, updateRole} from "@/dal/private/roles";
 import {APP_PATHS} from "@/lib/app-paths";
+import {
+  captureFormValues,
+  extractValidationErrors,
+  type ValidationFormState,
+} from "@/lib/api/validation-errors";
 
-type FormState = {
-  success: boolean;
-  fieldErrors?: {
-    name?: string;
-    description?: string;
-  };
-};
+type FormState = ValidationFormState;
 
 export async function upsertRoleAction(
   formState: FormState,
@@ -34,18 +32,12 @@ export async function upsertRoleAction(
       await updateRole(values);
     }
   } catch (error) {
-    if (
-      error instanceof DALDriverError &&
-      (error.statusCode === 400 || error.statusCode === 422)
-    ) {
-      return {
-        success: false,
-        fieldErrors: error.response?.data.errors ?? {},
-      };
+    const echoed = captureFormValues(formData);
+    const errors = extractValidationErrors(error);
+    if (errors) {
+      return {success: false, errors, values: echoed};
     }
-    return {
-      success: false,
-    };
+    return {success: false, values: echoed};
   }
 
   revalidatePath(APP_PATHS.dashboard.roles.index);

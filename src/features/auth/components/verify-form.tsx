@@ -15,18 +15,26 @@ import {
   Button,
 } from "@mantine/core";
 import {IconInfoCircle} from "@tabler/icons-react";
+import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
+import {nonFieldErrors} from "@/lib/api/validation-errors";
 import {verifyUser} from "../actions/verify-user";
 
 type Props = {
   token: string;
 };
 
+const VERIFY_FIELDS = ["name", "username", "password", "repassword"] as const;
+
 export function VerifyForm({token}: Props) {
   const [state, dispatch, isPending] = useActionState(verifyUser, {
     success: false,
-    errorMessages: {},
   });
-  const fieldErrors = state.errorMessages;
+  const fieldErrors = state.errors;
+  const formErrors = nonFieldErrors(fieldErrors, VERIFY_FIELDS);
+  const fallbackErrors =
+    state.success === false && !state.errors
+      ? ["عملیات با خطا مواجه شد لطفا دوباره تلاش نمایید"]
+      : [];
 
   if (state.success) {
     return (
@@ -68,7 +76,8 @@ export function VerifyForm({token}: Props) {
                 name="name"
                 label="نام"
                 radius="md"
-                error={fieldErrors?.name}
+                defaultValue={state.values?.name ?? ""}
+                error={fieldErrors?.name ?? ""}
                 required
               />
             </Stack>
@@ -77,7 +86,8 @@ export function VerifyForm({token}: Props) {
                 name="username"
                 label="نام کاربری (یوزرنیم)"
                 radius="md"
-                error={fieldErrors?.username}
+                defaultValue={state.values?.username ?? ""}
+                error={fieldErrors?.username ?? ""}
                 required
               />
             </Stack>
@@ -86,7 +96,7 @@ export function VerifyForm({token}: Props) {
                 name="password"
                 label="کلمه عبور"
                 radius="md"
-                error={fieldErrors?.password}
+                error={fieldErrors?.password ?? ""}
                 required
               />
             </Stack>
@@ -95,33 +105,19 @@ export function VerifyForm({token}: Props) {
                 name="repassword"
                 label="تکرار کلمه عبور"
                 radius="md"
-                error={fieldErrors?.repassword}
+                error={fieldErrors?.repassword ?? ""}
                 required
               />
             </Stack>
             <input name="token" value={token} hidden readOnly />
           </Stack>
-          {state.errorMessages?._meta?.map((err) => {
-            return (
-              <Alert
-                key={err}
-                variant="filled"
-                color="red"
-                title="ثبت نام ناموفق"
-                mt={"sm"}
-                icon={<IconInfoCircle />}
-              >
-                {err}
-              </Alert>
-            );
-          })}
+          <ValidationErrorsAlert
+            errors={formErrors.length > 0 ? formErrors : fallbackErrors}
+            title="ثبت نام ناموفق"
+          />
           <Group
             justify="space-between"
-            mt={
-              (Object.values(state?.errorMessages || {}).length ?? 0) >= 1
-                ? "sm"
-                : "xl"
-            }
+            mt={formErrors.length > 0 || fallbackErrors.length > 0 ? "sm" : "xl"}
           >
             <Button type="submit" loading={isPending} fullWidth>
               تکمیل ثبت نام

@@ -2,20 +2,15 @@
 
 import {revalidatePath} from "next/cache";
 import {redirect} from "next/navigation";
-import {DALDriverError} from "@/dal/dal-driver-error";
 import {createUser, updateUser} from "@/dal/private/users";
 import {APP_PATHS} from "@/lib/app-paths";
+import {
+  captureFormValues,
+  extractValidationErrors,
+  type ValidationFormState,
+} from "@/lib/api/validation-errors";
 
-type FormState = {
-  success: boolean;
-  fieldErrors?: {
-    email: string;
-    name: string;
-    username: string;
-    password: string;
-    avatar: string;
-  };
-};
+type FormState = ValidationFormState;
 
 export async function upsertUserAction(
   formState: FormState,
@@ -34,18 +29,12 @@ export async function upsertUserAction(
       await updateUser(values);
     }
   } catch (error) {
-    if (
-      error instanceof DALDriverError &&
-      (error.statusCode === 400 || error.statusCode === 422)
-    ) {
-      return {
-        success: false,
-        fieldErrors: error.response?.data.errors ?? {},
-      };
+    const echoed = captureFormValues(formData, {exclude: ["password"]});
+    const errors = extractValidationErrors(error);
+    if (errors) {
+      return {success: false, errors, values: echoed};
     }
-    return {
-      success: false,
-    };
+    return {success: false, values: echoed};
   }
   revalidatePath(APP_PATHS.dashboard.users.index);
   redirect(APP_PATHS.dashboard.users.index);

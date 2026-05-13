@@ -20,12 +20,16 @@ import {
   Button,
 } from "@mantine/core";
 import {IconInfoCircle, IconChevronRight} from "@tabler/icons-react";
+import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
+import {nonFieldErrors} from "@/lib/api/validation-errors";
 import {APP_PATHS} from "@/lib/app-paths";
 import {login} from "../actions/login";
 
 type Props = {
   callbackUrl?: string;
 };
+
+const LOGIN_FIELDS = ["identity", "password"] as const;
 
 export function LoginForm({callbackUrl}: Props) {
   const router = useRouter();
@@ -42,6 +46,8 @@ export function LoginForm({callbackUrl}: Props) {
       }
     }
   }, [state, queryClient, router, callbackUrl]);
+
+  const formErrors = nonFieldErrors(state?.errors, LOGIN_FIELDS);
 
   return (
     <Box>
@@ -66,7 +72,9 @@ export function LoginForm({callbackUrl}: Props) {
               label="ایمیل یا نام کاربری"
               placeholder="you@email.com"
               name="identity"
+              defaultValue={state?.values?.identity ?? ""}
               disabled={state?.success}
+              error={state?.errors?.identity ?? ""}
               required
             />
           </Stack>
@@ -76,6 +84,7 @@ export function LoginForm({callbackUrl}: Props) {
               placeholder="..."
               name="password"
               disabled={state?.success}
+              error={state?.errors?.password ?? ""}
               required
             />
           </Stack>
@@ -108,22 +117,18 @@ export function LoginForm({callbackUrl}: Props) {
             </Alert>
           )}
           {state?.success === false && (
-            <Stack gap={"xs"}>
-              {state.errorMessages?.map?.((err) => {
-                return (
-                  <Alert
-                    key={err}
-                    variant="filled"
-                    color="red"
-                    title="ورود ناموفق"
-                    mt={"sm"}
-                    icon={<IconInfoCircle />}
-                  >
-                    {err}
-                  </Alert>
-                );
-              })}
-            </Stack>
+            <ValidationErrorsAlert
+              errors={
+                formErrors.length > 0
+                  ? formErrors
+                  : !state.errors
+                    ? [
+                        " ایمیل یا نام کاربری یا کلمه عبورتان را اشتباه وارد کرده اید",
+                      ]
+                    : []
+              }
+              title="ورود ناموفق"
+            />
           )}
           <Button
             mt="md"

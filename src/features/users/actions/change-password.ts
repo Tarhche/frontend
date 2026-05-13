@@ -4,28 +4,25 @@ import {revalidatePath} from "next/cache";
 import {redirect} from "next/navigation";
 import {updatePassword} from "@/dal/private/users";
 import {APP_PATHS} from "@/lib/app-paths";
+import {
+  extractValidationErrors,
+  type ValidationFormState,
+} from "@/lib/api/validation-errors";
 
-type FormStatus = {
-  success: boolean;
-  fieldErrors?: {
-    password?: string;
-    rePassword?: string;
-  };
-};
+type FormState = ValidationFormState;
 
 export async function updateUserPasswordAction(
-  formState: FormStatus,
+  formState: FormState,
   formData: FormData,
-): Promise<FormStatus> {
+): Promise<FormState> {
   const userId = formData.get("userId")?.toString() ?? "";
-  const password = formData.get("password")?.toString() ?? "";
+  const password = formData.get("new_password")?.toString() ?? "";
   const repassword = formData.get("repassword")?.toString() ?? "";
   if (password !== repassword) {
     return {
       success: false,
-      fieldErrors: {
-        password: "کلمه های عبور مطابقط ندارند",
-        rePassword: "کلمه های عبور مطابقط ندارند",
+      errors: {
+        repassword: "کلمه های عبور مطابقت ندارند",
       },
     };
   }
@@ -34,10 +31,12 @@ export async function updateUserPasswordAction(
       new_password: password,
       uuid: userId,
     });
-  } catch {
-    return {
-      success: false,
-    };
+  } catch (err) {
+    const errors = extractValidationErrors(err);
+    if (errors) {
+      return {success: false, errors};
+    }
+    return {success: false};
   }
   revalidatePath(APP_PATHS.dashboard.users.edit(userId));
   redirect(APP_PATHS.dashboard.users.edit(userId));

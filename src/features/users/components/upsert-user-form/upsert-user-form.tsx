@@ -12,6 +12,9 @@ import {
   Button,
 } from "@mantine/core";
 import {UserAvatarInput} from "@/components/user-avatar-input";
+import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
+import ServerComponentErrorHandler from "@/components/errors/server-component-error-handler";
+import {nonFieldErrors} from "@/lib/api/validation-errors";
 import {upsertUserAction} from "../../actions/upsert-user";
 import {APP_PATHS} from "@/lib/app-paths";
 
@@ -25,6 +28,15 @@ type Props = {
   }>;
 };
 
+const USER_UPSERT_FIELDS = [
+  "name",
+  "email",
+  "username",
+  "password",
+  "avatar",
+  "uuid",
+] as const;
+
 export function UpsertUserForm({userInfo = {}}: Props) {
   const {userId, defaultUsername, defaultAvatar, defaultEmail, defaultName} =
     userInfo;
@@ -32,38 +44,42 @@ export function UpsertUserForm({userInfo = {}}: Props) {
     success: true,
   });
 
+  const formErrors = nonFieldErrors(state.errors, USER_UPSERT_FIELDS);
+
   return (
     <Paper p={"xl"} withBorder>
       <form action={dispatch}>
+        <ServerComponentErrorHandler state={state} />
         <Group justify="center" align="flex-start" gap={"xl"}>
           <UserAvatarInput defaultValue={defaultAvatar} userId={userId} />
           <Stack gap={"sm"} flex={1}>
             <TextInput
               name="name"
               label="نام"
-              error={state.fieldErrors?.name}
-              defaultValue={defaultName || ""}
+              error={state.errors?.name ?? ""}
+              defaultValue={state.values?.name ?? defaultName ?? ""}
             />
             <TextInput
               type="email"
               name="email"
               label="ایمیل"
-              error={state.fieldErrors?.email}
-              defaultValue={defaultEmail || ""}
+              error={state.errors?.email ?? ""}
+              defaultValue={state.values?.email ?? defaultEmail ?? ""}
             />
             <TextInput
               name="username"
               label="نام کاربری"
-              error={state.fieldErrors?.username}
-              defaultValue={defaultUsername || ""}
+              error={state.errors?.username ?? ""}
+              defaultValue={state.values?.username ?? defaultUsername ?? ""}
             />
             {userId === undefined && (
               <TextInput
                 name="password"
                 label="کلمه عبور"
-                error={state.fieldErrors?.password}
+                error={state.errors?.password ?? ""}
               />
             )}
+            <ValidationErrorsAlert errors={formErrors} />
             {userId !== undefined && (
               <Alert mt={"xs"}>
                 برای تغییر کلمه عبور از{" "}

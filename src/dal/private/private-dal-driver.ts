@@ -3,6 +3,7 @@
 import axios from "axios";
 import {INTERNAL_BACKEND_URL} from "@/constants";
 import InterceptorManager from "@/lib/auth/interception/interceptor-manager/InterceptorManager";
+import ServerPublicInterceptor from "@/lib/auth/interception/interceptors/server/ServerPublicInterceptor";
 import ServerProxyHeaderInterceptor from "@/lib/auth/interception/interceptors/server/ServerProxyHeaderInterceptor";
 import {attachAuthHeaderServer} from "@/lib/auth/dal/attachAuthHeaderServer";
 
@@ -17,4 +18,6 @@ export const privateDalDriver = axios.create({
 
 attachAuthHeaderServer(privateDalDriver);
 
-InterceptorManager.create(privateDalDriver).add(ServerProxyHeaderInterceptor);
+InterceptorManager.create(privateDalDriver)
+  .add(ServerPublicInterceptor)
+  .add(ServerProxyHeaderInterceptor);

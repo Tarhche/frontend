@@ -12,15 +12,24 @@ import {
   Box,
   Button,
 } from "@mantine/core";
-import {FieldErrors} from "./field-errors";
 import {IconInfoCircle, IconChevronRight} from "@tabler/icons-react";
+import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
+import {nonFieldErrors} from "@/lib/api/validation-errors";
 import {forgotPassword} from "../actions/forgot-password";
+
+const FORGOT_PASSWORD_FIELDS = ["identity"] as const;
 
 export function ForgotPasswordForm() {
   const [state, dispatch, isPending] = useActionState(
     forgotPassword,
     undefined,
   );
+
+  const formErrors = nonFieldErrors(state?.errors, FORGOT_PASSWORD_FIELDS);
+  const fallbackErrors =
+    state?.success === false && !state.errors
+      ? ["خطایی ناشناخته رخ داد لطفا مجددا تلاش نمایید"]
+      : [];
 
   return (
     <Box pt={50}>
@@ -47,11 +56,11 @@ export function ForgotPasswordForm() {
               placeholder="you@email.com"
               name="identity"
               mt={"md"}
-              error={Boolean(state?.fieldErrors?.identity)}
+              defaultValue={state?.values?.identity ?? ""}
+              error={state?.errors?.identity ?? ""}
               disabled={state?.success}
               required
             />
-            <FieldErrors errors={[state?.fieldErrors?.identity ?? ""]} />
           </Stack>
           {state?.success === true && (
             <Alert
@@ -66,22 +75,10 @@ export function ForgotPasswordForm() {
             </Alert>
           )}
           {state?.success === false && (
-            <>
-              {state.errorMessages?.map?.((err) => {
-                return (
-                  <Alert
-                    key={err}
-                    variant="filled"
-                    color="red"
-                    title="عملیات ناموفق"
-                    mt={"sm"}
-                    icon={<IconInfoCircle />}
-                  >
-                    {err}
-                  </Alert>
-                );
-              })}
-            </>
+            <ValidationErrorsAlert
+              errors={formErrors.length > 0 ? formErrors : fallbackErrors}
+              title="عملیات ناموفق"
+            />
           )}
           <Button
             mt="sm"

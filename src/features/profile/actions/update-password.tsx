@@ -2,17 +2,14 @@
 
 import {revalidatePath} from "next/cache";
 import {redirect} from "next/navigation";
-import {DALDriverError} from "@/dal/dal-driver-error";
 import {updateProfilePassword} from "@/dal/private/password";
 import {APP_PATHS} from "@/lib/app-paths";
+import {
+  extractValidationErrors,
+  type ValidationFormState,
+} from "@/lib/api/validation-errors";
 
-type FormState = {
-  success: boolean;
-  fieldErrors?: {
-    current_password?: string;
-    new_password: string;
-  };
-};
+type FormState = ValidationFormState;
 
 export async function updateProfilePasswordAction(
   formState: FormState,
@@ -28,15 +25,11 @@ export async function updateProfilePasswordAction(
   try {
     await updateProfilePassword(values);
   } catch (err) {
-    if (err instanceof DALDriverError) {
-      return {
-        success: false,
-        fieldErrors: err.response?.data.errors || {},
-      };
+    const errors = extractValidationErrors(err);
+    if (errors) {
+      return {success: false, errors};
     }
-    return {
-      success: false,
-    };
+    return {success: false};
   }
 
   revalidatePath(APP_PATHS.dashboard.profile.index);

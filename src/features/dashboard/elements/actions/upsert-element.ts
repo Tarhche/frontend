@@ -4,15 +4,12 @@ import {redirect} from "next/navigation";
 import {createElement, updateElement} from "@/dal/private/elements";
 import {APP_PATHS} from "@/lib/app-paths";
 import {FormDataCodec} from "@/lib/form-data-codec";
-type FormState = {
-  status: any;
-  success?: boolean;
-  fieldErrors?: {
-    title?: string;
-    excerpt?: string;
-    body?: string;
-  };
-};
+import {
+  extractValidationErrors,
+  type ValidationFormState,
+} from "@/lib/api/validation-errors";
+
+type FormState = ValidationFormState;
 
 export async function upsertElementAction(
   formState: FormState,
@@ -27,12 +24,12 @@ export async function upsertElementAction(
     } else {
       await createElement(JSON.parse(values.jsonValue as string));
     }
-  } catch (err: any) {
-    return {
-      success: false,
-      status: err.response?.status,
-      fieldErrors: err.response?.data.errors ?? {},
-    };
+  } catch (err) {
+    const errors = extractValidationErrors(err);
+    if (errors) {
+      return {success: false, errors};
+    }
+    return {success: false};
   }
 
   revalidatePath(APP_PATHS.dashboard.elements.index);

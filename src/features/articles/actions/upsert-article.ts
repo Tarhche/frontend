@@ -2,18 +2,15 @@
 
 import {revalidatePath} from "next/cache";
 import {redirect} from "next/navigation";
-import {DALDriverError} from "@/dal/dal-driver-error";
 import {createArticle, updateArticle} from "@/dal/private/articles";
 import {APP_PATHS} from "@/lib/app-paths";
+import {
+  captureFormValues,
+  extractValidationErrors,
+  type ValidationFormState,
+} from "@/lib/api/validation-errors";
 
-type FormState = {
-  success: boolean;
-  fieldErrors?: {
-    title?: string;
-    excerpt?: string;
-    body?: string;
-  };
-};
+type FormState = ValidationFormState;
 
 export async function upsertArticleAction(
   formState: FormState,
@@ -26,7 +23,8 @@ export async function upsertArticleAction(
     }
   });
 
-  values.tags = formData.get("tags")?.toString().split(",") || "";
+  values.tags =
+    formData.get("tags")?.toString().split(",").filter(Boolean) ?? [];
   const articleId = formData.get("uuid")?.toString();
 
   try {
@@ -36,18 +34,12 @@ export async function upsertArticleAction(
       await createArticle(values);
     }
   } catch (err) {
-    if (
-      err instanceof DALDriverError &&
-      (err.statusCode === 400 || err.statusCode == 401)
-    ) {
-      return {
-        success: false,
-        fieldErrors: err.response?.data.errors ?? {},
-      };
+    const echoed = captureFormValues(formData);
+    const errors = extractValidationErrors(err);
+    if (errors) {
+      return {success: false, errors, values: echoed};
     }
-    return {
-      success: false,
-    };
+    return {success: false, values: echoed};
   }
 
   revalidatePath(APP_PATHS.dashboard.articles.index);

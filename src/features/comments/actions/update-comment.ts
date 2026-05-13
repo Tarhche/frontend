@@ -5,11 +5,13 @@ import {revalidatePath} from "next/cache";
 import {updateUserComment} from "@/dal/private/comments";
 import {getRootUrl} from "@/lib/http";
 import {APP_PATHS} from "@/lib/app-paths";
+import {
+  captureFormValues,
+  extractValidationErrors,
+  type ValidationFormState,
+} from "@/lib/api/validation-errors";
 
-type FormState = {
-  success?: boolean;
-  errorMessage?: string;
-};
+type FormState = ValidationFormState;
 
 export async function updateCommentAction(
   prevState: FormState,
@@ -29,11 +31,13 @@ export async function updateCommentAction(
       object_uuid: objectId,
       parent_uuid: parentId,
     });
-  } catch {
-    return {
-      success: false,
-      errorMessage: "ویرایش کامنت با خطا مواجه شد",
-    };
+  } catch (err) {
+    const echoed = captureFormValues(formData);
+    const errors = extractValidationErrors(err);
+    if (errors) {
+      return {success: false, errors, values: echoed};
+    }
+    return {success: false, values: echoed};
   }
 
   revalidatePath(APP_PATHS.dashboard.comments.index);

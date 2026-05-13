@@ -5,7 +5,9 @@ import {useActionState} from "react";
 import dynamic from "next/dynamic";
 import {Group, Stack, Button, Box, Text} from "@mantine/core";
 import {upsertElementAction} from "../../actions/upsert-element";
+import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import ServerComponentErrorHandler from "@/components/errors/server-component-error-handler";
+import {nonFieldErrors} from "@/lib/api/validation-errors";
 import {FormDataCodec} from "@/lib/form-data-codec";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
@@ -16,13 +18,13 @@ type Props = {
   element?: any;
 };
 
+const ELEMENT_UPSERT_FIELDS = ["jsonValue", "is_update", "uuid"] as const;
+
 export function ElementUpsertForm({element}: Props) {
   const [state, dispatch, isPending] = useActionState(upsertElementAction, {
     success: true,
-    status: null,
   });
 
-  // Derive an initial JSON string from possible element fields
   const initialJson = useMemo(() => {
     const candidate = element;
 
@@ -30,7 +32,7 @@ export function ElementUpsertForm({element}: Props) {
       try {
         return JSON.stringify(JSON.parse(candidate), null, 2);
       } catch {
-        return candidate; // already a string, keep as-is
+        return candidate;
       }
     }
     if (candidate && typeof candidate === "object") {
@@ -60,7 +62,6 @@ export function ElementUpsertForm({element}: Props) {
   const handleEditorChange = (value?: string) => {
     const v = value ?? "";
     setJsonValue(v);
-    // validate on each change (optional: debounce if editor feels sluggish)
     if (v.trim().length > 0) validateJson(v);
     else setJsonError("JSON خالی است");
   };
@@ -77,7 +78,6 @@ export function ElementUpsertForm({element}: Props) {
 
   const handleSubmit = async () => {
     if (!validateJson(jsonValue)) {
-      alert("Invalid json");
       return;
     }
 
@@ -88,6 +88,8 @@ export function ElementUpsertForm({element}: Props) {
       }),
     );
   };
+
+  const formErrors = nonFieldErrors(state.errors, ELEMENT_UPSERT_FIELDS);
 
   return (
     <form action={handleSubmit}>
@@ -120,12 +122,14 @@ export function ElementUpsertForm({element}: Props) {
               }}
             />
           </Box>
-          {(jsonError || state.fieldErrors) && (
+          {(jsonError || state.errors?.jsonValue) && (
             <Text c="red" size="sm" mt="xs">
-              {jsonError || JSON.stringify(state.fieldErrors)}
+              {jsonError || state.errors?.jsonValue}
             </Text>
           )}
         </div>
+
+        <ValidationErrorsAlert errors={formErrors} />
 
         <Group justify="space-between" mt="xs">
           <Button

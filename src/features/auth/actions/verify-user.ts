@@ -1,19 +1,15 @@
 "use server";
 
-import {DALDriverError} from "@/dal/dal-driver-error";
 import {verifyUser as completeUserProfile} from "@/dal/public/auth";
+import {
+  captureFormValues,
+  extractValidationErrors,
+  type ValidationFormState,
+} from "@/lib/api/validation-errors";
 
-type FormState = {
-  success: boolean;
-  errorMessages?: {
-    name?: string[];
-    password?: string[];
-    repassword?: string[];
-    username?: string[];
-    token?: string[];
-    _meta?: string[];
-  };
-};
+type FormState = ValidationFormState;
+
+const PASSWORD_FIELDS = ["password", "repassword"] as const;
 
 export async function verifyUser(
   state: unknown,
@@ -26,29 +22,18 @@ export async function verifyUser(
         data[key] = value as string;
       }
     });
+    const values = captureFormValues(formData, {exclude: PASSWORD_FIELDS});
     try {
       await completeUserProfile(data);
-      return {
-        success: true,
-      };
+      return {success: true};
     } catch (e) {
-      if (e instanceof DALDriverError) {
-        const errors = e.response?.data?.errors || {};
-        return {
-          success: false,
-          errorMessages: {
-            ...errors,
-            _meta: [errors?.token].filter((i) => Boolean(i)),
-          },
-        };
+      const errors = extractValidationErrors(e);
+      if (errors) {
+        return {success: false, errors, values};
       }
+      return {success: false, values};
     }
   }
 
-  return {
-    success: false,
-    errorMessages: {
-      _meta: ["عملیات با خطا مواجه شد لطفا دوباره تلاش نمایید"],
-    },
-  };
+  return {success: false};
 }

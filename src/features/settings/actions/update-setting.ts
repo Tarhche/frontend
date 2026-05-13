@@ -1,15 +1,16 @@
 "use server";
 
 import {revalidatePath} from "next/cache";
-import {DALDriverError} from "@/dal/dal-driver-error";
 import {updateConfigs} from "@/dal/private/config";
 import {convertFormDataActionToObject} from "@/lib/transformers";
 import {APP_PATHS} from "@/lib/app-paths";
+import {
+  captureFormValues,
+  extractValidationErrors,
+  type ValidationFormState,
+} from "@/lib/api/validation-errors";
 
-type FormState = {
-  success: boolean;
-  fieldErrors?: Record<string, string>;
-};
+type FormState = ValidationFormState;
 
 export async function updateSettingAction(
   formState: FormState,
@@ -22,19 +23,14 @@ export async function updateSettingAction(
     }
     await updateConfigs(data);
   } catch (error) {
-    if (error instanceof DALDriverError && error.statusCode === 400) {
-      return {
-        success: false,
-        fieldErrors: error.response?.data.errors,
-      };
+    const echoed = captureFormValues(formData);
+    const errors = extractValidationErrors(error);
+    if (errors) {
+      return {success: false, errors, values: echoed};
     }
-    return {
-      success: false,
-    };
+    return {success: false, values: echoed};
   }
 
   revalidatePath(APP_PATHS.dashboard.settings);
-  return {
-    success: true,
-  };
+  return {success: true};
 }

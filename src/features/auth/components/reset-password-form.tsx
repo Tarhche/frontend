@@ -5,7 +5,7 @@ import Link from "@/components/link";
 import {
   Alert,
   Anchor,
-  TextInput,
+  PasswordInput,
   Paper,
   Title,
   Text,
@@ -13,16 +13,26 @@ import {
   Box,
   Button,
 } from "@mantine/core";
-import {FieldErrors} from "./field-errors";
 import {IconInfoCircle} from "@tabler/icons-react";
+import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
+import {nonFieldErrors} from "@/lib/api/validation-errors";
 import {resetPassword} from "../actions/reset-password";
 
 type Props = {
   token: string;
 };
 
+const RESET_PASSWORD_FIELDS = ["password", "confirm_password", "token"] as const;
+
 export function ResetPasswordForm({token}: Props) {
   const [state, dispatch, isPending] = useActionState(resetPassword, null);
+
+  const formErrors = nonFieldErrors(state?.errors, RESET_PASSWORD_FIELDS);
+  const tokenError = state?.errors?.token;
+  const fallbackErrors =
+    state?.success === false && !state.errors
+      ? ["خطایی ناشناخته اتفاق افتاد. لطفا مجددا تلاش نمایید"]
+      : [];
 
   return (
     <Box pt={60}>
@@ -33,28 +43,26 @@ export function ResetPasswordForm({token}: Props) {
         </Text>
         <form action={dispatch}>
           <Stack gap={8}>
-            <TextInput
+            <PasswordInput
               label="کلمه عبور جدید"
               placeholder="..."
-              name="new-password"
+              name="password"
               mt={"md"}
-              error={Boolean(state?.fieldErrors?.password)}
+              error={state?.errors?.password ?? ""}
               disabled={state?.success}
               required
             />
-            <FieldErrors errors={[state?.fieldErrors?.password ?? ""]} />
           </Stack>
           <Stack gap={8}>
-            <TextInput
+            <PasswordInput
               label="تکرار کلمه عبور جدید"
               placeholder="..."
-              name="confirm-new-password"
+              name="confirm_password"
               mt={"sm"}
-              error={Boolean(state?.fieldErrors?.password)}
+              error={state?.errors?.confirm_password ?? ""}
               disabled={state?.success}
               required
             />
-            <FieldErrors errors={[state?.fieldErrors?.password ?? ""]} />
           </Stack>
           <input name="token" value={token} hidden readOnly />
           {state?.success === true && (
@@ -78,22 +86,16 @@ export function ResetPasswordForm({token}: Props) {
             </Alert>
           )}
           {state?.success === false && (
-            <>
-              {state.errorMessage?.map?.((err) => {
-                return (
-                  <Alert
-                    key={err}
-                    variant="filled"
-                    color="red"
-                    title="عملیات ناموفق"
-                    mt={"sm"}
-                    icon={<IconInfoCircle />}
-                  >
-                    {err}
-                  </Alert>
-                );
-              })}
-            </>
+            <ValidationErrorsAlert
+              errors={
+                formErrors.length > 0
+                  ? formErrors
+                  : tokenError
+                    ? [tokenError]
+                    : fallbackErrors
+              }
+              title="عملیات ناموفق"
+            />
           )}
           <Button
             mt="lg"

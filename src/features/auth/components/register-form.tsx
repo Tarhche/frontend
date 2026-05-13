@@ -13,44 +13,20 @@ import {
   Button,
 } from "@mantine/core";
 import {IconInfoCircle, IconChevronRight} from "@tabler/icons-react";
+import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
+import {nonFieldErrors} from "@/lib/api/validation-errors";
 import {registerUser} from "../actions/register-user";
+
+const REGISTER_FIELDS = ["identity"] as const;
 
 export function RegisterForm() {
   const [state, dispatch, isPending] = useActionState(registerUser, {
     success: undefined,
-    email: "",
   });
 
-  const renderFeedbackAlert = () => {
-    switch (state.success) {
-      case undefined:
-        return null;
-      case true:
-        return (
-          <Alert
-            variant="filled"
-            color="green"
-            title="عملیات موفق"
-            mt={"sm"}
-            icon={<IconInfoCircle />}
-          >
-            لینک ثبت نام برای شما ارسال شد. لطفا ایمیل خود را بررسی کنید.
-          </Alert>
-        );
-      case false:
-        return (
-          <Alert
-            variant="filled"
-            color="red"
-            title="عملیات ناموفق"
-            mt={"sm"}
-            icon={<IconInfoCircle />}
-          >
-            {state.errorMessage}
-          </Alert>
-        );
-    }
-  };
+  const fieldErrors = state.success === false ? state.errors : undefined;
+  const values = state.success === false ? state.values : undefined;
+  const formErrors = nonFieldErrors(fieldErrors, REGISTER_FIELDS);
 
   return (
     <Box pt={60}>
@@ -77,13 +53,36 @@ export function RegisterForm() {
           <TextInput
             label="ایمیل"
             placeholder="you@email.com"
-            name="email"
+            name="identity"
             mt={"md"}
             required
             disabled={state.success}
-            defaultValue={state.email}
+            defaultValue={values?.identity ?? ""}
+            error={fieldErrors?.identity ?? ""}
           />
-          {renderFeedbackAlert()}
+          {state.success === true && (
+            <Alert
+              variant="filled"
+              color="green"
+              title="عملیات موفق"
+              mt={"sm"}
+              icon={<IconInfoCircle />}
+            >
+              لینک ثبت نام برای شما ارسال شد. لطفا ایمیل خود را بررسی کنید.
+            </Alert>
+          )}
+          {state.success === false && (
+            <ValidationErrorsAlert
+              errors={
+                formErrors.length > 0
+                  ? formErrors
+                  : !state.errors
+                    ? ["خطایی ناشناخته اتفاق افتاد لطفا دوباره تلاش نمایید"]
+                    : []
+              }
+              title="عملیات ناموفق"
+            />
+          )}
           {(state.success === false || state.success === undefined) && (
             <Button mt="lg" type="submit" loading={isPending} fullWidth>
               ثبت نام

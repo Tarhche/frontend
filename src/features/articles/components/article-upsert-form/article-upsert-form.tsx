@@ -19,7 +19,9 @@ import {IconPhotoPlus, IconMovie} from "@tabler/icons-react";
 import {upsertArticleAction} from "../../actions/upsert-article";
 import {isGregorianStartDateTime} from "@/lib/date-and-time";
 import dynamic from "next/dynamic";
+import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import ServerComponentErrorHandler from "@/components/errors/server-component-error-handler";
+import {nonFieldErrors} from "@/lib/api/validation-errors";
 
 const ArticleEditor = dynamic(
   async () => {
@@ -45,6 +47,17 @@ type Props = {
   };
 };
 
+const ARTICLE_UPSERT_FIELDS = [
+  "title",
+  "excerpt",
+  "body",
+  "cover",
+  "video",
+  "tags",
+  "published_at",
+  "uuid",
+] as const;
+
 export function ArticleUpsertForm({article}: Props) {
   const editorRef = useRef<EditorRef>(null);
   const [state, dispatch, isPending] = useActionState(upsertArticleAction, {
@@ -68,6 +81,8 @@ export function ArticleUpsertForm({article}: Props) {
     dispatch(formData);
   };
 
+  const formErrors = nonFieldErrors(state.errors, ARTICLE_UPSERT_FIELDS);
+
   return (
     <form action={handleSubmit}>
       <ServerComponentErrorHandler state={state} />
@@ -75,14 +90,14 @@ export function ArticleUpsertForm({article}: Props) {
         <TextInput
           name="title"
           label="عنوان مقاله"
-          defaultValue={article?.defaultTitle ?? ""}
-          error={state.fieldErrors?.title ?? ""}
+          defaultValue={state.values?.title ?? article?.defaultTitle ?? ""}
+          error={state.errors?.title ?? ""}
         />
         <Textarea
           name="excerpt"
           label="خلاصه محتوا"
-          defaultValue={article?.defaultExcerpt ?? ""}
-          error={state.fieldErrors?.excerpt ?? ""}
+          defaultValue={state.values?.excerpt ?? article?.defaultExcerpt ?? ""}
+          error={state.errors?.excerpt ?? ""}
           autosize
         />
         <Box>
@@ -91,32 +106,42 @@ export function ArticleUpsertForm({article}: Props) {
             initialData={article?.defaultBody}
             editorRef={editorRef}
           />
+          {state.errors?.body && (
+            <Box c="red" fz="xs" mt={4}>
+              {state.errors.body}
+            </Box>
+          )}
         </Box>
         <FileInput
           name="cover"
           label="کاور"
           defaultValue={article?.defaultCover || ""}
           icon={<IconPhotoPlus size={50} />}
+          error={state.errors?.cover ?? ""}
         />
         <FileInput
           name="video"
           label="ویدئو"
           defaultValue={article?.defaultVideo || ""}
           icon={<IconMovie size={50} />}
+          error={state.errors?.video ?? ""}
         />
         <TagsInput
           name="tags"
           label="تگ ها"
           splitChars={[" "]}
           defaultValue={article?.defaultHashtags || []}
+          error={state.errors?.tags ?? ""}
           clearable
         />
         <DateTimeInput
           name="published_at"
           label="تاریخ انتشار"
           defaultValue={defaultPublishedDate}
+          error={state.errors?.published_at ?? ""}
           clearable
         />
+        <ValidationErrorsAlert errors={formErrors} />
         <Group justify="flex-end" mt="lg">
           <Button type="submit" loading={isPending} disabled={isPending}>
             {article?.articleId ? "بروزرسانی مقاله" : "ایجاد مقاله"}

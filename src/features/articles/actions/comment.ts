@@ -1,10 +1,17 @@
 "use server";
 
 import {createArticleComment} from "@/dal/private/comments";
+import {
+  captureFormValues,
+  extractValidationErrors,
+  type FormValues,
+  type ValidationErrorMap,
+} from "@/lib/api/validation-errors";
 
 type FormState = {
   success?: boolean;
-  errorMessage?: string;
+  errors?: ValidationErrorMap;
+  values?: FormValues;
 };
 
 export async function comment(
@@ -14,12 +21,6 @@ export async function comment(
   const objectUUID = formData.get("object-uuid")?.toString() ?? "";
   const parentUUID = formData.get("parent-uuid")?.toString() ?? "";
   const body = formData.get("body")?.toString() ?? "";
-  if (body.trim().length <= 5) {
-    return {
-      success: false,
-      errorMessage: "متن دیدگاه شما کوتاه است",
-    };
-  }
 
   try {
     await createArticleComment({
@@ -27,12 +28,13 @@ export async function comment(
       parent_uuid: parentUUID,
       body: body,
     });
-    return {
-      success: true,
-    };
-  } catch {
-    return {
-      success: false,
-    };
+    return {success: true};
+  } catch (err) {
+    const echoed = captureFormValues(formData);
+    const errors = extractValidationErrors(err);
+    if (errors) {
+      return {success: false, errors, values: echoed};
+    }
+    return {success: false, values: echoed};
   }
 }

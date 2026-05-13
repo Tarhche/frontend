@@ -9,6 +9,8 @@ import {
   IconCircleDashedCheck,
 } from "@tabler/icons-react";
 import clsx from "clsx";
+import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
+import {nonFieldErrors} from "@/lib/api/validation-errors";
 import {comment} from "../../actions/comment";
 import classes from "./comment-form.module.css";
 
@@ -16,6 +18,8 @@ type Props = {
   objectUUID: string;
   parentUUID: string;
 };
+
+const COMMENT_FIELDS = ["body", "object_uuid", "parent_uuid"] as const;
 
 export function CommentForm({objectUUID, parentUUID}: Props) {
   const formRef = useRef<HTMLFormElement>(null);
@@ -26,6 +30,9 @@ export function CommentForm({objectUUID, parentUUID}: Props) {
   if (isSuccessful) {
     formRef.current?.reset();
   }
+
+  const bodyError = state.errors?.body;
+  const formErrors = nonFieldErrors(state.errors, COMMENT_FIELDS);
 
   return (
     <form ref={formRef} action={dispatch}>
@@ -41,8 +48,12 @@ export function CommentForm({objectUUID, parentUUID}: Props) {
               }
               rows={4}
               name="body"
+              defaultValue={isSuccessful ? "" : (state.values?.body ?? "")}
+              error={bodyError ?? ""}
               classNames={{
-                input: clsx({[classes.redBorder]: isSuccessful === false}),
+                input: clsx({
+                  [classes.redBorder]: isSuccessful === false && !bodyError,
+                }),
               }}
             />
             {isSuccessful && (
@@ -54,13 +65,12 @@ export function CommentForm({objectUUID, parentUUID}: Props) {
                 دیدگاه شما با موفقیت ثبت گردید. پس از بازبینی منتشر خواهد شد
               </Text>
             )}
-            {isSuccessful === false && (
+            <ValidationErrorsAlert errors={formErrors} title="ثبت دیدگاه ناموفق" />
+            {isSuccessful === false && !state.errors && (
               <Text className={clsx(classes.text, classes.errorText)} size="sm">
                 <IconExclamationCircle size={20} />
-                {state.errorMessage
-                  ? state.errorMessage
-                  : `متاسفانه در پردازش دیدگاه شما خطایی بوجود آمد. لطفا مجددا تلاش
-                نمایید`}
+                متاسفانه در پردازش دیدگاه شما خطایی بوجود آمد. لطفا مجددا تلاش
+                نمایید
               </Text>
             )}
           </Stack>

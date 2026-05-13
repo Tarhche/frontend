@@ -1,17 +1,19 @@
 "use server";
 
 import {revalidatePath} from "next/cache";
-import {DALDriverError} from "@/dal/dal-driver-error";
 import {updateUserProfile} from "@/dal/private/profile";
 import {APP_PATHS} from "@/lib/app-paths";
+import {
+  captureFormValues,
+  extractValidationErrors,
+  type FormValues,
+  type ValidationErrorMap,
+} from "@/lib/api/validation-errors";
 
 type FormState = {
   success: boolean | null;
-  fieldErrors?: {
-    name?: string;
-    email?: string;
-    username?: string;
-  };
+  errors?: ValidationErrorMap;
+  values?: FormValues;
 };
 
 export async function updateProfileAction(
@@ -28,19 +30,14 @@ export async function updateProfileAction(
   try {
     await updateUserProfile(values);
   } catch (err) {
-    if (err instanceof DALDriverError && err.statusCode === 400) {
-      return {
-        success: false,
-        fieldErrors: err.response?.data.errors || {},
-      };
+    const echoed = captureFormValues(formData);
+    const errors = extractValidationErrors(err);
+    if (errors) {
+      return {success: false, errors, values: echoed};
     }
-    return {
-      success: false,
-    };
+    return {success: false, values: echoed};
   }
 
   revalidatePath(APP_PATHS.dashboard.profile.index);
-  return {
-    success: true,
-  };
+  return {success: true};
 }
