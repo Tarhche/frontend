@@ -17,10 +17,8 @@ export default class ServerPublicInterceptor extends ServerInterceptor {
             data: error.response?.data ?? {},
           });
         }
-        throw new DALDriverError(
-          "Unexpected error while fetching data from backend",
-          500,
-        );
+
+        throw error;
       },
     );
   }
