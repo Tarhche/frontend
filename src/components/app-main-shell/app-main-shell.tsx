@@ -11,6 +11,7 @@ import {
 } from "@mantine/core";
 import {useDisclosure} from "@mantine/hooks";
 import {ColorSchemeToggle} from "@/components/color-scheme-toggle";
+import {LanguageSwitcher} from "@/components/language/language-switcher";
 import {AuthButtons} from "./auth-button";
 
 type Props = {
@@ -47,6 +48,7 @@ export function AppMainShell({children}: Props) {
                 <Group gap={0} visibleFrom="sm">
                   <AuthButtons />
                 </Group>
+                <LanguageSwitcher />
                 <ColorSchemeToggle />
               </Group>
             </Group>

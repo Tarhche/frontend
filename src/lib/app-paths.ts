@@ -40,6 +40,11 @@ export const APP_PATHS = {
       new: "/dashboard/roles/new",
       edit: (uuid: string) => `/dashboard/roles/${uuid}`,
     },
+    languages: {
+      index: "/dashboard/languages",
+      new: "/dashboard/languages/new",
+      edit: (code: string) => `/dashboard/languages/${code}`,
+    },
     files: "/dashboard/files",
     settings: "/dashboard/settings",
     profile: {

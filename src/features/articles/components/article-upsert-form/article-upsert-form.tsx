@@ -7,6 +7,7 @@ import {
   Stack,
   Textarea,
   TextInput,
+  Select,
   InputLabel,
   TagsInput,
   Skeleton,
@@ -15,6 +16,7 @@ import {
 import {DateTimeInput} from "@/components/date-time-input";
 import {type EditorRef} from "@/features/articles/components/article-editor";
 import {FileInput} from "./file-input";
+import {ConnectArticleField} from "./connect-article-field";
 import {IconPhotoPlus, IconMovie} from "@tabler/icons-react";
 import {upsertArticleAction} from "../../actions/upsert-article";
 import {isGregorianStartDateTime} from "@/lib/date-and-time";
@@ -22,6 +24,7 @@ import dynamic from "next/dynamic";
 import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import ServerComponentErrorHandler from "@/components/errors/server-component-error-handler";
 import {nonFieldErrors} from "@/lib/api/validation-errors";
+import type {Language} from "@/dal/public/languages";
 
 const ArticleEditor = dynamic(
   async () => {
@@ -44,7 +47,12 @@ type Props = {
     defaultCover: string;
     defaultVideo: string;
     defaultPublishedAt: string;
+    defaultLanguageCode: string;
+    defaultCorrelationUuid: string;
   };
+  languages: Language[];
+  defaultCode: string;
+  connectableArticles: {uuid: string; title: string}[];
 };
 
 const ARTICLE_UPSERT_FIELDS = [
@@ -55,10 +63,17 @@ const ARTICLE_UPSERT_FIELDS = [
   "video",
   "tags",
   "published_at",
+  "language_code",
+  "correlation_uuid",
   "uuid",
 ] as const;
 
-export function ArticleUpsertForm({article}: Props) {
+export function ArticleUpsertForm({
+  article,
+  languages,
+  defaultCode,
+  connectableArticles,
+}: Props) {
   const editorRef = useRef<EditorRef>(null);
   const [state, dispatch, isPending] = useActionState(upsertArticleAction, {
     success: true,
@@ -92,6 +107,26 @@ export function ArticleUpsertForm({article}: Props) {
           label="عنوان مقاله"
           defaultValue={state.values?.title ?? article?.defaultTitle ?? ""}
           error={state.errors?.title ?? ""}
+        />
+        <Select
+          name="language_code"
+          label="زبان"
+          data={languages.map((language) => ({
+            value: language.code,
+            label: language.name,
+          }))}
+          defaultValue={
+            state.values?.language_code ??
+            article?.defaultLanguageCode ??
+            defaultCode
+          }
+          error={state.errors?.language_code ?? ""}
+          allowDeselect={false}
+        />
+        <ConnectArticleField
+          articles={connectableArticles}
+          defaultCorrelationUuid={article?.defaultCorrelationUuid}
+          ownUuid={article?.articleId}
         />
         <Textarea
           name="excerpt"

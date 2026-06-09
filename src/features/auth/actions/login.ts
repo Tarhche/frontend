@@ -25,22 +25,26 @@ export async function login(
 
   try {
     const response = await loginUser(identity, password);
+
     (await cookies()).set(ACCESS_TOKEN_COOKIE_NAME, response.access_token, {
       maxAge: ACCESS_TOKEN_EXP,
       httpOnly: false,
       secure: true,
     });
+
     (await cookies()).set(REFRESH_TOKEN_COOKIE_NAME, response.refresh_token, {
       maxAge: REFRESH_TOKEN_EXP,
       httpOnly: false,
       secure: true,
     });
+
     return {success: true};
   } catch (e) {
     const errors = extractValidationErrors(e);
     if (errors) {
       return {success: false, errors, values};
     }
+
     return {success: false, values};
   }
 }

@@ -2,12 +2,21 @@
 
 import Link from "@/components/link";
 import {useEffect, useActionState} from "react";
-import {Group, Stack, TextInput, Anchor, Alert, Button} from "@mantine/core";
+import {
+  Group,
+  Stack,
+  TextInput,
+  Select,
+  Anchor,
+  Alert,
+  Button,
+} from "@mantine/core";
 import {UserAvatarInput} from "@/components/user-avatar-input";
 import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import ServerComponentErrorHandler from "@/components/errors/server-component-error-handler";
 import {nonFieldErrors} from "@/lib/api/validation-errors";
 import {APP_PATHS} from "@/lib/app-paths";
+import type {Language} from "@/dal/public/languages";
 import {notifications} from "@mantine/notifications";
 import {updateProfileAction} from "../../actions/update-profile";
 
@@ -17,16 +26,24 @@ type Props = {
     email: string;
     username: string;
     avatar: string;
+    languageCode: string;
   };
+  languages: Language[];
 };
 
-const PROFILE_UPDATE_FIELDS = ["name", "email", "username", "avatar"] as const;
+const PROFILE_UPDATE_FIELDS = [
+  "name",
+  "email",
+  "username",
+  "avatar",
+  "language_code",
+] as const;
 
-export function ProfileUpdateForm({userInfo}: Props) {
+export function ProfileUpdateForm({userInfo, languages}: Props) {
   const [state, dispatch, isPending] = useActionState(updateProfileAction, {
     success: null,
   });
-  const {username, name, avatar, email} = userInfo;
+  const {username, name, avatar, email, languageCode} = userInfo;
 
   useEffect(() => {
     if (state.success) {
@@ -63,6 +80,17 @@ export function ProfileUpdateForm({userInfo}: Props) {
             type="text"
             defaultValue={state.values?.username ?? username}
             error={state.errors?.username ?? ""}
+          />
+          <Select
+            name="language_code"
+            label="زبان"
+            data={languages.map((language) => ({
+              value: language.code,
+              label: language.name,
+            }))}
+            defaultValue={state.values?.language_code ?? languageCode}
+            error={state.errors?.language_code ?? ""}
+            allowDeselect={false}
           />
           <ValidationErrorsAlert errors={formErrors} />
           <Alert>

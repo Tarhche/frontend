@@ -47,7 +47,10 @@ export function captureFormValues(
   const excluded = new Set(options?.exclude ?? []);
   const values: FormValues = {};
   formData.forEach((value, key) => {
-    if (typeof value !== "string" || excluded.has(key)) return;
+    // Skip React's internal server-action fields ($ACTION_REF_*, $ACTION_KEY…).
+    if (typeof value !== "string" || excluded.has(key) || key.startsWith("$")) {
+      return;
+    }
     values[key] = value;
   });
   return values;

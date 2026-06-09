@@ -17,12 +17,12 @@ export default function ElementCards({data}) {
 
   const cards = items.map((item) => {
     const article = item.body;
-    const articleSlug = article.slug || article.uuid;
+    const articleSlug = article.slug || article.correlation_uuid;
     const imageUrl = `${FILES_PUBLIC_URL}/${article.cover}`;
 
     return (
       <Card
-        key={article.uuid}
+        key={article.correlation_uuid}
         p={0}
         style={{
           height: "100%",

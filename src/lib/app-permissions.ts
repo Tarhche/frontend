@@ -42,6 +42,13 @@ export const PERMISSIONS = {
     INDEX: "files.index",
     SHOW: "files.show",
   },
+  languages: {
+    CREATE: "languages.create",
+    DELETE: "languages.delete",
+    INDEX: "languages.index",
+    SHOW: "languages.show",
+    UPDATE: "languages.update",
+  },
   permissions: {
     INDEX: "permissions.index",
   },

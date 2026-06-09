@@ -1,21 +1,27 @@
 "use client";
 
 import {useActionState} from "react";
-import {Group, Stack, Textarea, Button} from "@mantine/core";
+import {Group, Stack, Textarea, Select, Button} from "@mantine/core";
 import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import ServerComponentErrorHandler from "@/components/errors/server-component-error-handler";
 import {nonFieldErrors} from "@/lib/api/validation-errors";
+import type {Language} from "@/dal/public/languages";
 import {updateSettingAction} from "../actions/update-setting";
 
 type Props = {
   config: {
     userDefaultRoles: string[];
+    defaultLanguageCode: string;
   };
+  languages: Language[];
 };
 
-const APP_SETTING_FIELDS = ["user_default_roles"] as const;
+const APP_SETTING_FIELDS = [
+  "user_default_roles",
+  "default_language_code",
+] as const;
 
-export function AppSettingForm({config}: Props) {
+export function AppSettingForm({config, languages}: Props) {
   const [state, dispatch, isPending] = useActionState(updateSettingAction, null);
 
   const formErrors = nonFieldErrors(state?.errors, APP_SETTING_FIELDS);
@@ -36,6 +42,19 @@ export function AppSettingForm({config}: Props) {
             },
           }}
           error={state?.errors?.user_default_roles ?? ""}
+        />
+        <Select
+          name="default_language_code"
+          label="زبان پیشفرض"
+          data={languages.map((language) => ({
+            value: language.code,
+            label: language.name,
+          }))}
+          defaultValue={
+            state?.values?.default_language_code ?? config.defaultLanguageCode
+          }
+          error={state?.errors?.default_language_code ?? ""}
+          allowDeselect={false}
         />
         <ValidationErrorsAlert errors={formErrors} />
         <Group justify="flex-end" mt="md">

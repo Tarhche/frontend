@@ -14,6 +14,7 @@ import {
   IconUsers,
   IconKey,
   IconUser,
+  IconLanguage,
   IconPictureInPicture,
 } from "@tabler/icons-react";
 import {hasPermission} from "@/lib/auth/shared";
@@ -88,6 +89,12 @@ const SIDE_BAR_DATA: SidebarSchema[] = [
     icon: IconKey,
     href: dashboard.roles.index,
     requiredPermissions: ["roles.index"],
+  },
+  {
+    label: "زبان ها",
+    icon: IconLanguage,
+    href: dashboard.languages.index,
+    requiredPermissions: ["languages.index"],
   },
   {
     label: "تنظیمات",

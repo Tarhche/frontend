@@ -5,6 +5,7 @@ import Link from "@/components/link";
 import {
   TextInput,
   PasswordInput,
+  Select,
   Text,
   Paper,
   Group,
@@ -17,15 +18,24 @@ import {
 import {IconInfoCircle} from "@tabler/icons-react";
 import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import {nonFieldErrors} from "@/lib/api/validation-errors";
+import type {Language} from "@/dal/public/languages";
 import {verifyUser} from "../actions/verify-user";
 
 type Props = {
   token: string;
+  languages: Language[];
+  defaultCode: string;
 };
 
-const VERIFY_FIELDS = ["name", "username", "password", "repassword"] as const;
+const VERIFY_FIELDS = [
+  "name",
+  "username",
+  "language_code",
+  "password",
+  "repassword",
+] as const;
 
-export function VerifyForm({token}: Props) {
+export function VerifyForm({token, languages, defaultCode}: Props) {
   const [state, dispatch, isPending] = useActionState(verifyUser, {
     success: false,
   });
@@ -88,6 +98,21 @@ export function VerifyForm({token}: Props) {
                 radius="md"
                 defaultValue={state.values?.username ?? ""}
                 error={fieldErrors?.username ?? ""}
+                required
+              />
+            </Stack>
+            <Stack gap={8}>
+              <Select
+                name="language_code"
+                label="زبان"
+                radius="md"
+                data={languages.map((language) => ({
+                  value: language.code,
+                  label: language.name,
+                }))}
+                defaultValue={state.values?.language_code ?? defaultCode}
+                error={fieldErrors?.language_code ?? ""}
+                allowDeselect={false}
                 required
               />
             </Stack>

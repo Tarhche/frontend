@@ -8,20 +8,19 @@ import {IconClockHour2, IconInfoCircle} from "@tabler/icons-react";
 import {FILES_PUBLIC_URL} from "@/constants/envs";
 import {formatDate} from "@/lib/date-and-time";
 import classes from "./content.module.css";
-import {fetchArticleByUUID} from "@/dal/public/articles";
 import {checkBookmarkStatus} from "@/dal/private/bookmarks";
 import ArticleTags from "@/features/articles/components/article-tags/ArticleTags";
 import {AuthorLink} from "@/features/authors/components";
 
 type Props = {
-  slug: string;
+  article: any;
+  // The article's correlation uuid (shared across translations) — used to key
+  // bookmarks.
+  correlationUUID: string;
 };
 
-export async function Content({slug}: Props) {
-  const [article, isBookmarked] = await Promise.all([
-    fetchArticleByUUID(slug),
-    checkBookmarkStatus(slug),
-  ]);
+export async function Content({article, correlationUUID}: Props) {
+  const isBookmarked = await checkBookmarkStatus(correlationUUID);
 
   const tags = article?.status ?? [];
   const ARTICLE_COVER = `${FILES_PUBLIC_URL}/${article.cover}`;
@@ -44,7 +43,7 @@ export async function Content({slug}: Props) {
         </Group>
         {isBookmarked === undefined ? null : (
           <BookmarkButton
-            uuid={article.uuid}
+            uuid={correlationUUID}
             isBookmarked={isBookmarked}
             title={article.title}
           />

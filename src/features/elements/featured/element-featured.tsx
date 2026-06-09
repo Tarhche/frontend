@@ -19,7 +19,7 @@ const MainFeaturedCard = ({item}) => {
   return (
     <Box className={classes.featuredCard}>
       <Link
-        href={`/articles/${item.slug ?? item.uuid}`}
+        href={`/articles/${item.slug ?? item.correlation_uuid}`}
         style={{
           position: "absolute",
           inset: 0,
@@ -59,7 +59,7 @@ const MainFeaturedCard = ({item}) => {
       >
         <Stack gap={12}>
           <Link
-            href={`/articles/${item.slug ?? item.uuid}`}
+            href={`/articles/${item.slug ?? item.correlation_uuid}`}
             style={{
               textDecoration: "none",
               color: "inherit",
@@ -152,7 +152,7 @@ const SideArticleItem = ({item}) => {
     >
       <Box
         component={Link}
-        href={`/articles/${item.slug ?? item.uuid}`}
+        href={`/articles/${item.slug ?? item.correlation_uuid}`}
         style={{
           position: "relative",
           width: "20%",
@@ -174,7 +174,7 @@ const SideArticleItem = ({item}) => {
       <Stack gap="lg" style={{flex: 1, justifyContent: "space-between"}}>
         <Box>
           <Link
-            href={`/articles/${item.slug ?? item.uuid}`}
+            href={`/articles/${item.slug ?? item.correlation_uuid}`}
             style={{
               textDecoration: "none",
             }}
@@ -264,7 +264,7 @@ const ElementFeatured = ({data}) => {
             <Stack gap="md" style={{flex: 1, justifyContent: "space-between"}}>
               {aside.slice(0, 3).map((item, index) => (
                 <SideArticleItem
-                  key={item?.body?.uuid || index}
+                  key={item?.body?.correlation_uuid || index}
                   item={item.body}
                 />
               ))}

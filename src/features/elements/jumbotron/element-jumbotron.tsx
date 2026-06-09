@@ -70,7 +70,7 @@ const ElementJumbotron = ({data}) => {
     >
       <Box hiddenFrom="md" style={{position: "relative", minHeight: "300px"}}>
         <Link
-          href={`/articles/${article.slug ?? article.uuid}`}
+          href={`/articles/${article.slug ?? article.correlation_uuid}`}
           style={{
             position: "absolute",
             inset: 0,
@@ -103,7 +103,7 @@ const ElementJumbotron = ({data}) => {
         >
           <Stack gap={8} style={{width: "100%"}}>
             <Link
-              href={`/articles/${article.slug ?? article.uuid}`}
+              href={`/articles/${article.slug ?? article.correlation_uuid}`}
               style={{
                 textDecoration: "none",
                 color: "inherit",
@@ -157,7 +157,7 @@ const ElementJumbotron = ({data}) => {
             }}
           >
             <Link
-              href={`/articles/${article.slug ?? article.uuid}`}
+              href={`/articles/${article.slug ?? article.correlation_uuid}`}
               style={{
                 position: "absolute",
                 inset: 0,
@@ -198,7 +198,7 @@ const ElementJumbotron = ({data}) => {
         >
           <Stack gap={12} style={{height: "100%"}} justify="flex-start">
             <Link
-              href={`/articles/${article.slug ?? article.uuid}`}
+              href={`/articles/${article.slug ?? article.correlation_uuid}`}
               style={{
                 textDecoration: "none",
                 color: "inherit",
