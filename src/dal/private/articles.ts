@@ -15,11 +15,12 @@ export async function updateArticle(data: any) {
 }
 
 export async function fetchArticle(
-  articleId: string,
+  correlationUuid: string,
+  languageCode: string,
   config?: AxiosRequestConfig,
 ) {
   const response = await privateDalDriver.get(
-    `dashboard/articles/${articleId}`,
+    `dashboard/articles/${correlationUuid}/${languageCode}`,
     config,
   );
   return response.data;

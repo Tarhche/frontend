@@ -1,18 +1,17 @@
 import Link from "@/components/link";
 import {
-  Table,
-  TableTr,
-  TableTd,
-  TableTh,
-  TableThead,
-  TableTbody,
-  TableScrollContainer,
+  Accordion,
+  AccordionItem,
+  AccordionControl,
+  AccordionPanel,
   ActionIcon,
   ActionIconGroup,
-  Tooltip,
-  Group,
-  Button,
   Badge,
+  Button,
+  Group,
+  Stack,
+  Text,
+  Tooltip,
   rem,
   type MantineColor,
 } from "@mantine/core";
@@ -33,6 +32,7 @@ import {AuthorInline} from "@/features/authors/components";
 
 type Props = {
   page: number | string;
+  languageCode: string;
 };
 
 type TableAction = {
@@ -40,38 +40,50 @@ type TableAction = {
   Icon: TablerIcon;
   color: MantineColor;
   allowedPermissions: Permissions[];
-  href: (uuid: string) => string;
+  href: (correlationUuid: string, languageCode: string) => string;
   disabled: (...args: any[]) => boolean;
 };
 
-export async function ArticlesTable({page}: Props) {
+type CorrelatedItem = {
+  title: string;
+  cover: string;
+  video: string;
+  published_at: string;
+  author: any;
+  language: {code: string; name: string};
+};
+
+const tableActions: TableAction[] = [
+  {
+    tooltipLabel: "بازدید کردن مقاله",
+    Icon: IconEye,
+    color: "blue",
+    allowedPermissions: [],
+    href: (correlationUuid, code) =>
+      `/${code}${APP_PATHS.articles.detail(correlationUuid)}`,
+    disabled: (published: boolean) => published,
+  },
+  {
+    tooltipLabel: "ویرایش کردن مقاله",
+    Icon: IconPencil,
+    color: "blue",
+    allowedPermissions: ["articles.update"],
+    href: (correlationUuid, code) =>
+      APP_PATHS.dashboard.articles.edit(correlationUuid, code),
+    disabled: () => false,
+  },
+];
+
+export async function ArticlesTable({page, languageCode}: Props) {
   const articlesResponse = await fetchAllArticles({
     params: {
       page: page,
+      language_code: languageCode,
     },
   });
 
   const articles = articlesResponse.items;
   const {total_pages, current_page} = articlesResponse.pagination;
-
-  const tableActions: TableAction[] = [
-    {
-      tooltipLabel: "بازدید کردن مقاله",
-      Icon: IconEye,
-      color: "blue",
-      allowedPermissions: [],
-      href: (uuid: string) => APP_PATHS.articles.detail(uuid),
-      disabled: (published: boolean) => published,
-    },
-    {
-      tooltipLabel: "ویرایش کردن مقاله",
-      Icon: IconPencil,
-      color: "blue",
-      allowedPermissions: ["articles.update"],
-      href: (uuid: string) => APP_PATHS.dashboard.articles.edit(uuid),
-      disabled: () => false,
-    },
-  ];
 
   return (
     <>
@@ -87,93 +99,131 @@ export async function ArticlesTable({page}: Props) {
           </Button>
         </Group>
       </PermissionGuard>
-      <TableScrollContainer minWidth={500}>
-        <Table verticalSpacing="sm" striped withRowBorders>
-          <TableThead>
-            <TableTr>
-              <TableTh>#</TableTh>
-              <TableTh>عنوان</TableTh>
-              <TableTh>نویسنده</TableTh>
-              <TableTh>تاریخ انتشار</TableTh>
-              <TableTh>عملیات</TableTh>
-            </TableTr>
-          </TableThead>
-          <TableTbody>
-            {articles.length === 0 && (
-              <TableTr>
-                <TableTd colSpan={5} ta={"center"}>
-                  مقاله های وجود ندارد
-                </TableTd>
-              </TableTr>
-            )}
-            {articles.map((article: any, index: number) => {
-              const isPublished = !isGregorianStartDateTime(
-                article.published_at,
-              );
 
-              return (
-                <TableTr key={article.uuid}>
-                  <TableTd>{index + 1}</TableTd>
-                  <TableTd>{article.title}</TableTd>
-                  <TableTd>
-                    <AuthorInline author={article.author} />
-                  </TableTd>
-                  <TableTd>
-                    {isPublished ? (
-                      formatDate(article.published_at)
-                    ) : (
-                      <Badge color="yellow" variant="light">
-                        منتشر نشده
-                      </Badge>
-                    )}
-                  </TableTd>
-                  <TableTd>
-                    <ActionIconGroup>
-                      {tableActions.map(
-                        ({
-                          Icon,
-                          tooltipLabel,
-                          color,
-                          href,
-                          allowedPermissions,
-                          disabled,
-                        }) => {
-                          return (
-                            <PermissionGuard
-                              key={tooltipLabel}
-                              allowedPermissions={allowedPermissions}
-                            >
-                              <Tooltip label={tooltipLabel} withArrow>
-                                <ActionIcon
-                                  component={Link}
-                                  variant="light"
-                                  size="lg"
-                                  color={color}
-                                  href={href(article.uuid)}
-                                  disabled={disabled(isPublished === false)}
-                                  aria-label={tooltipLabel}
+      {articles.length === 0 ? (
+        <Text ta="center" c="dimmed" py="xl">
+          مقاله های وجود ندارد
+        </Text>
+      ) : (
+        <Accordion variant="separated" chevronPosition="left" mt="md" multiple>
+          {articles.map((article: any) => {
+            const items: CorrelatedItem[] = article.corrolated_items ?? [];
+            const correlationUuid = article.correlation_uuid;
+            // The row label is the first translation's title.
+            const headerTitle = items[0]?.title ?? "—";
+
+            return (
+              <AccordionItem key={correlationUuid} value={correlationUuid}>
+                <AccordionControl>
+                  <Group gap="sm" wrap="nowrap">
+                    <Text fw={500}>{headerTitle}</Text>
+                    <Group gap={4} wrap="nowrap">
+                      {items.map((item) => (
+                        <Badge
+                          key={item.language?.code}
+                          variant="light"
+                          color="gray"
+                          size="sm"
+                        >
+                          {item.language?.name ?? item.language?.code}
+                        </Badge>
+                      ))}
+                    </Group>
+                  </Group>
+                </AccordionControl>
+                <AccordionPanel>
+                  <Stack gap="xs">
+                    {items.map((item) => {
+                      const itemLanguageCode = item.language?.code ?? "";
+                      const isPublished = !isGregorianStartDateTime(
+                        item.published_at,
+                      );
+
+                      return (
+                        <Group
+                          key={itemLanguageCode}
+                          justify="space-between"
+                          wrap="nowrap"
+                          gap="md"
+                          p="xs"
+                          style={{borderRadius: "var(--mantine-radius-sm)"}}
+                          bg="var(--mantine-color-default-hover)"
+                        >
+                          <Group gap="md" wrap="nowrap">
+                            <Badge variant="light">
+                              {item.language?.name ?? itemLanguageCode}
+                            </Badge>
+                            <Text size="sm" lineClamp={1}>
+                              {item.title}
+                            </Text>
+                            <AuthorInline author={item.author} />
+                            {isPublished ? (
+                              <Text size="sm" c="dimmed">
+                                {formatDate(item.published_at)}
+                              </Text>
+                            ) : (
+                              <Badge color="yellow" variant="light">
+                                منتشر نشده
+                              </Badge>
+                            )}
+                          </Group>
+                          <ActionIconGroup>
+                            {tableActions.map(
+                              ({
+                                Icon,
+                                tooltipLabel,
+                                color,
+                                href,
+                                allowedPermissions,
+                                disabled,
+                              }) => (
+                                <PermissionGuard
+                                  key={tooltipLabel}
+                                  allowedPermissions={allowedPermissions}
                                 >
-                                  <Icon style={{width: rem(20)}} stroke={1.5} />
-                                </ActionIcon>
-                              </Tooltip>
+                                  <Tooltip label={tooltipLabel} withArrow>
+                                    <ActionIcon
+                                      component={Link}
+                                      variant="light"
+                                      size="lg"
+                                      color={color}
+                                      href={href(
+                                        correlationUuid,
+                                        itemLanguageCode,
+                                      )}
+                                      disabled={disabled(isPublished === false)}
+                                      aria-label={tooltipLabel}
+                                    >
+                                      <Icon
+                                        style={{width: rem(20)}}
+                                        stroke={1.5}
+                                      />
+                                    </ActionIcon>
+                                  </Tooltip>
+                                </PermissionGuard>
+                              ),
+                            )}
+                            <PermissionGuard
+                              allowedPermissions={["articles.delete"]}
+                            >
+                              <ArticleDeleteButton
+                                correlationUuid={correlationUuid}
+                                languageCode={itemLanguageCode}
+                                articleTitle={item.title}
+                              />
                             </PermissionGuard>
-                          );
-                        },
-                      )}
-                      <PermissionGuard allowedPermissions={["articles.delete"]}>
-                        <ArticleDeleteButton
-                          articleID={article.uuid}
-                          articleTitle={article.title}
-                        />
-                      </PermissionGuard>
-                    </ActionIconGroup>
-                  </TableTd>
-                </TableTr>
-              );
-            })}
-          </TableTbody>
-        </Table>
-      </TableScrollContainer>
+                          </ActionIconGroup>
+                        </Group>
+                      );
+                    })}
+                  </Stack>
+                </AccordionPanel>
+              </AccordionItem>
+            );
+          })}
+        </Accordion>
+      )}
+
       {articles.length >= 1 && (
         <Group mt="md" mb="xl" justify="flex-end">
           <ArticlesPagination total={total_pages} current={current_page} />

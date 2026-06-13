@@ -14,11 +14,16 @@ import {IconTrash} from "@tabler/icons-react";
 import {deleteArticle} from "../../actions/delete-article";
 
 type Props = {
-  articleID: string;
+  correlationUuid: string;
+  languageCode: string;
   articleTitle?: string;
 };
 
-export function ArticleDeleteButton({articleID, articleTitle}: Props) {
+export function ArticleDeleteButton({
+  correlationUuid,
+  languageCode,
+  articleTitle,
+}: Props) {
   const [, formAction, isPending] = useActionState(deleteArticle, false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
@@ -57,7 +62,12 @@ export function ArticleDeleteButton({articleID, articleTitle}: Props) {
             لفو کردن
           </Button>
           <form action={formAction}>
-            <input type="hidden" name="id" value={articleID} />
+            <input
+              type="hidden"
+              name="correlation_uuid"
+              value={correlationUuid}
+            />
+            <input type="hidden" name="language_code" value={languageCode} />
             <Button color="red" type="submit" loading={isPending}>
               حذف کردن
             </Button>

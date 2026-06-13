@@ -16,7 +16,7 @@ import {
 import {DateTimeInput} from "@/components/date-time-input";
 import {type EditorRef} from "@/features/articles/components/article-editor";
 import {FileInput} from "./file-input";
-import {ConnectArticleField} from "./connect-article-field";
+import {LanguageSwitchField} from "./language-switch-field";
 import {IconPhotoPlus, IconMovie} from "@tabler/icons-react";
 import {upsertArticleAction} from "../../actions/upsert-article";
 import {isGregorianStartDateTime} from "@/lib/date-and-time";
@@ -38,8 +38,12 @@ const ArticleEditor = dynamic(
 );
 
 type Props = {
+  mode: "create" | "update";
+  // Present when editing within a translation group (edit route). Absent when
+  // creating a brand-new article from scratch (the "new" page).
+  correlationUuid?: string;
+  languageCode?: string;
   article?: {
-    articleId: string;
     defaultTitle: string;
     defaultExcerpt: string;
     defaultBody: string;
@@ -47,12 +51,9 @@ type Props = {
     defaultCover: string;
     defaultVideo: string;
     defaultPublishedAt: string;
-    defaultLanguageCode: string;
-    defaultCorrelationUuid: string;
   };
   languages: Language[];
   defaultCode: string;
-  connectableArticles: {uuid: string; title: string}[];
 };
 
 const ARTICLE_UPSERT_FIELDS = [
@@ -65,19 +66,24 @@ const ARTICLE_UPSERT_FIELDS = [
   "published_at",
   "language_code",
   "correlation_uuid",
-  "uuid",
 ] as const;
 
 export function ArticleUpsertForm({
+  mode,
+  correlationUuid,
+  languageCode,
   article,
   languages,
   defaultCode,
-  connectableArticles,
 }: Props) {
   const editorRef = useRef<EditorRef>(null);
   const [state, dispatch, isPending] = useActionState(upsertArticleAction, {
     success: true,
   });
+
+  // The language is fixed by the route when editing a translation group; the
+  // brand-new article form lets the author pick it.
+  const isTranslationGroup = languageCode !== undefined;
 
   const defaultPublishedDate = article?.defaultPublishedAt
     ? isGregorianStartDateTime(article.defaultPublishedAt)
@@ -90,9 +96,6 @@ export function ArticleUpsertForm({
       throw new Error("ArticleEditor getData is undefined");
     }
     formData.set("body", editorRef.current?.editor?.getData() || "");
-    if (article?.articleId) {
-      formData.set("uuid", article.articleId);
-    }
     dispatch(formData);
   };
 
@@ -101,6 +104,15 @@ export function ArticleUpsertForm({
   return (
     <form action={handleSubmit}>
       <ServerComponentErrorHandler state={state} />
+      <input type="hidden" name="mode" value={mode} />
+      <input
+        type="hidden"
+        name="correlation_uuid"
+        value={correlationUuid ?? ""}
+      />
+      {isTranslationGroup && (
+        <input type="hidden" name="language_code" value={languageCode} />
+      )}
       <Stack gap="lg">
         <TextInput
           name="title"
@@ -108,26 +120,25 @@ export function ArticleUpsertForm({
           defaultValue={state.values?.title ?? article?.defaultTitle ?? ""}
           error={state.errors?.title ?? ""}
         />
-        <Select
-          name="language_code"
-          label="زبان"
-          data={languages.map((language) => ({
-            value: language.code,
-            label: language.name,
-          }))}
-          defaultValue={
-            state.values?.language_code ??
-            article?.defaultLanguageCode ??
-            defaultCode
-          }
-          error={state.errors?.language_code ?? ""}
-          allowDeselect={false}
-        />
-        <ConnectArticleField
-          articles={connectableArticles}
-          defaultCorrelationUuid={article?.defaultCorrelationUuid}
-          ownUuid={article?.articleId}
-        />
+        {isTranslationGroup ? (
+          <LanguageSwitchField
+            languages={languages}
+            correlationUuid={correlationUuid as string}
+            currentCode={languageCode as string}
+          />
+        ) : (
+          <Select
+            name="language_code"
+            label="زبان"
+            data={languages.map((language) => ({
+              value: language.code,
+              label: language.name,
+            }))}
+            defaultValue={state.values?.language_code ?? defaultCode}
+            error={state.errors?.language_code ?? ""}
+            allowDeselect={false}
+          />
+        )}
         <Textarea
           name="excerpt"
           label="خلاصه محتوا"
@@ -179,7 +190,7 @@ export function ArticleUpsertForm({
         <ValidationErrorsAlert errors={formErrors} />
         <Group justify="flex-end" mt="lg">
           <Button type="submit" loading={isPending} disabled={isPending}>
-            {article?.articleId ? "بروزرسانی مقاله" : "ایجاد مقاله"}
+            {mode === "update" ? "بروزرسانی مقاله" : "ایجاد مقاله"}
           </Button>
         </Group>
       </Stack>

@@ -2,7 +2,7 @@ export const APP_PATHS = {
   home: "/",
   articles: {
     index: "/articles",
-    detail: (uuid: string) => `/articles/${uuid}`,
+    detail: (correlationUuid: string) => `/articles/${correlationUuid}`,
   },
   auth: {
     login: "/auth/login",
@@ -19,7 +19,8 @@ export const APP_PATHS = {
     articles: {
       index: "/dashboard/articles",
       new: "/dashboard/articles/new",
-      edit: (uuid: string) => `/dashboard/articles/${uuid}`,
+      edit: (correlationUuid: string, languageCode: string) =>
+        `/dashboard/articles/${correlationUuid}/${languageCode}`,
     },
     comments: {
       index: "/dashboard/comments",

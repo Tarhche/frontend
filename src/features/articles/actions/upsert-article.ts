@@ -25,10 +25,16 @@ export async function upsertArticleAction(
 
   values.tags =
     formData.get("tags")?.toString().split(",").filter(Boolean) ?? [];
-  const articleId = formData.get("uuid")?.toString();
+
+  // `mode` decides create (POST) vs update (PUT); it isn't part of the payload.
+  const isUpdate = formData.get("mode")?.toString() === "update";
+  delete values.mode;
+
+  const correlationUuid = formData.get("correlation_uuid")?.toString();
+  const languageCode = formData.get("language_code")?.toString();
 
   try {
-    if (articleId) {
+    if (isUpdate) {
       await updateArticle(values);
     } else {
       await createArticle(values);
@@ -43,8 +49,10 @@ export async function upsertArticleAction(
   }
 
   revalidatePath(APP_PATHS.dashboard.articles.index);
-  if (articleId) {
-    revalidatePath(APP_PATHS.dashboard.articles.edit(articleId));
+  if (correlationUuid && languageCode) {
+    revalidatePath(
+      APP_PATHS.dashboard.articles.edit(correlationUuid, languageCode),
+    );
   }
   redirect(APP_PATHS.dashboard.articles.index);
 }
