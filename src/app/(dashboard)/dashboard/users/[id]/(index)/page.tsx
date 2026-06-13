@@ -5,6 +5,7 @@ import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumb
 import {UpsertUserForm} from "@/features/users/components/upsert-user-form";
 import {withPermissions} from "@/components/with-authorization";
 import {fetchUser} from "@/dal/private/users";
+import {fetchLanguages, type Language} from "@/dal/public/languages";
 import {APP_PATHS} from "@/lib/app-paths";
 
 const PAGE_TITLE = "بروزرسانی کاربر";
@@ -25,6 +26,16 @@ async function UpdateUserPage({params}: Props) {
     notFound();
   }
   const userData = await fetchUser(userId);
+
+  let languages: Language[] = [];
+  let defaultCode = "";
+  try {
+    const data = await fetchLanguages();
+    languages = data.items ?? [];
+    defaultCode = data.default_language?.code ?? "";
+  } catch {
+    // Fail open: the language select renders empty if unavailable.
+  }
 
   return (
     <Stack>
@@ -47,7 +58,9 @@ async function UpdateUserPage({params}: Props) {
             defaultName: userData.name,
             defaultEmail: userData.email,
             defaultUsername: userData.username,
+            defaultLanguageCode: userData.language_code ?? defaultCode,
           }}
+          languages={languages}
         />
       </Box>
     </Stack>

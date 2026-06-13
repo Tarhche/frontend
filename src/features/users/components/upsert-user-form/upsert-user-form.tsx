@@ -7,6 +7,7 @@ import {
   Stack,
   Group,
   TextInput,
+  Select,
   Alert,
   Anchor,
   Button,
@@ -15,6 +16,7 @@ import {UserAvatarInput} from "@/components/user-avatar-input";
 import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import ServerComponentErrorHandler from "@/components/errors/server-component-error-handler";
 import {nonFieldErrors} from "@/lib/api/validation-errors";
+import type {Language} from "@/dal/public/languages";
 import {upsertUserAction} from "../../actions/upsert-user";
 import {APP_PATHS} from "@/lib/app-paths";
 
@@ -25,7 +27,9 @@ type Props = {
     defaultName: string;
     defaultUsername: string;
     defaultEmail: string;
+    defaultLanguageCode: string;
   }>;
+  languages?: Language[];
 };
 
 const USER_UPSERT_FIELDS = [
@@ -34,12 +38,19 @@ const USER_UPSERT_FIELDS = [
   "username",
   "password",
   "avatar",
+  "language_code",
   "uuid",
 ] as const;
 
-export function UpsertUserForm({userInfo = {}}: Props) {
-  const {userId, defaultUsername, defaultAvatar, defaultEmail, defaultName} =
-    userInfo;
+export function UpsertUserForm({userInfo = {}, languages = []}: Props) {
+  const {
+    userId,
+    defaultUsername,
+    defaultAvatar,
+    defaultEmail,
+    defaultName,
+    defaultLanguageCode,
+  } = userInfo;
   const [state, dispatch, isPending] = useActionState(upsertUserAction, {
     success: true,
   });
@@ -71,6 +82,19 @@ export function UpsertUserForm({userInfo = {}}: Props) {
               label="نام کاربری"
               error={state.errors?.username ?? ""}
               defaultValue={state.values?.username ?? defaultUsername ?? ""}
+            />
+            <Select
+              name="language_code"
+              label="زبان"
+              data={languages.map((language) => ({
+                value: language.code,
+                label: language.name,
+              }))}
+              defaultValue={
+                state.values?.language_code ?? defaultLanguageCode ?? ""
+              }
+              error={state.errors?.language_code ?? ""}
+              allowDeselect={false}
             />
             {userId === undefined && (
               <TextInput

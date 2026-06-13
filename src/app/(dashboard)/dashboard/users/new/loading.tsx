@@ -2,7 +2,7 @@ import {Box, Stack} from "@mantine/core";
 import {BreadcrumbSkeleton} from "@/components/breadcrumb-skeleton";
 import {UserUpsertFormSkeleton} from "@/features/users/components";
 
-function UserUpsertFormLoading() {
+function NewUserLoading() {
   return (
     <Stack>
       <BreadcrumbSkeleton crumbsCount={2} />
@@ -13,4 +13,4 @@ function UserUpsertFormLoading() {
   );
 }
 
-export default UserUpsertFormLoading;
+export default NewUserLoading;
