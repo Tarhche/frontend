@@ -20,12 +20,14 @@ export async function comment(
 ): Promise<FormState> {
   const objectUUID = formData.get("object-uuid")?.toString() ?? "";
   const parentUUID = formData.get("parent-uuid")?.toString() ?? "";
+  const languageCode = formData.get("language-code")?.toString() ?? "";
   const body = formData.get("body")?.toString() ?? "";
 
   try {
     await createArticleComment({
       object_uuid: objectUUID,
       parent_uuid: parentUUID,
+      language_code: languageCode,
       body: body,
     });
     return {success: true};

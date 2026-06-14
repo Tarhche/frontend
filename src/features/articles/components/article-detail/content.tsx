@@ -14,13 +14,14 @@ import {AuthorLink} from "@/features/authors/components";
 
 type Props = {
   article: any;
-  // The article's correlation uuid (shared across translations) — used to key
-  // bookmarks.
+  // The article's correlation uuid (shared across translations) — used together
+  // with the language code to key bookmarks.
   correlationUUID: string;
+  languageCode: string;
 };
 
-export async function Content({article, correlationUUID}: Props) {
-  const isBookmarked = await checkBookmarkStatus(correlationUUID);
+export async function Content({article, correlationUUID, languageCode}: Props) {
+  const isBookmarked = await checkBookmarkStatus(correlationUUID, languageCode);
 
   const tags = article?.status ?? [];
   const ARTICLE_COVER = `${FILES_PUBLIC_URL}/${article.cover}`;
@@ -43,9 +44,10 @@ export async function Content({article, correlationUUID}: Props) {
         </Group>
         {isBookmarked === undefined ? null : (
           <BookmarkButton
-            uuid={correlationUUID}
+            correlationUUID={correlationUUID}
             isBookmarked={isBookmarked}
             title={article.title}
+            languageCode={languageCode}
           />
         )}
       </Group>

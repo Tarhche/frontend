@@ -17,11 +17,17 @@ import classes from "./comment-form.module.css";
 type Props = {
   objectUUID: string;
   parentUUID: string;
+  languageCode: string;
 };
 
-const COMMENT_FIELDS = ["body", "object_uuid", "parent_uuid"] as const;
+const COMMENT_FIELDS = [
+  "body",
+  "object_uuid",
+  "parent_uuid",
+  "language_code",
+] as const;
 
-export function CommentForm({objectUUID, parentUUID}: Props) {
+export function CommentForm({objectUUID, parentUUID, languageCode}: Props) {
   const formRef = useRef<HTMLFormElement>(null);
   const [state, dispatch, isPending] = useActionState(comment, {});
   const isSuccessful = state.success;
@@ -65,7 +71,10 @@ export function CommentForm({objectUUID, parentUUID}: Props) {
                 دیدگاه شما با موفقیت ثبت گردید. پس از بازبینی منتشر خواهد شد
               </Text>
             )}
-            <ValidationErrorsAlert errors={formErrors} title="ثبت دیدگاه ناموفق" />
+            <ValidationErrorsAlert
+              errors={formErrors}
+              title="ثبت دیدگاه ناموفق"
+            />
             {isSuccessful === false && !state.errors && (
               <Text className={clsx(classes.text, classes.errorText)} size="sm">
                 <IconExclamationCircle size={20} />
@@ -77,6 +86,7 @@ export function CommentForm({objectUUID, parentUUID}: Props) {
         </Group>
         <input name="object-uuid" value={objectUUID} hidden readOnly />
         <input name="parent-uuid" value={parentUUID} hidden readOnly />
+        <input name="language-code" value={languageCode} hidden readOnly />
         <Button
           type="submit"
           leftSection={<IconSend size={20} />}

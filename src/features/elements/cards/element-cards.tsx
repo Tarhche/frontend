@@ -15,87 +15,89 @@ export default function ElementCards({data}) {
   const {is_carousel = false, title, items} = data.body;
   const hasTitle = typeof title === "string" && title.trim().length > 0;
 
-  const cards = items.map((item) => {
-    const article = item.body;
-    const articleSlug = article.slug || article.correlation_uuid;
-    const imageUrl = `${FILES_PUBLIC_URL}/${article.cover}`;
+  const cards = items
+    .filter((item) => item?.body)
+    .map((item) => {
+      const article = item.body;
+      const articleSlug = article.slug || article.correlation_uuid;
+      const imageUrl = `${FILES_PUBLIC_URL}/${article.cover}`;
 
-    return (
-      <Card
-        key={article.correlation_uuid}
-        p={0}
-        style={{
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-          transition: "box-shadow 0.2s ease",
-        }}
-        styles={{
-          root: {
-            "&:hover": {
-              boxShadow: "var(--mantine-shadow-md)",
-            },
-          },
-        }}
-      >
-        <Box
-          component={Link}
-          href={`/articles/${articleSlug}`}
+      return (
+        <Card
+          key={article.correlation_uuid}
+          p={0}
           style={{
-            position: "relative",
-            width: "100%",
-            aspectRatio: "4/3",
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
             overflow: "hidden",
-            backgroundColor: "var(--mantine-color-gray-1)",
-            textDecoration: "none",
+            transition: "box-shadow 0.2s ease",
+          }}
+          styles={{
+            root: {
+              "&:hover": {
+                boxShadow: "var(--mantine-shadow-md)",
+              },
+            },
           }}
         >
-          <Image
-            src={imageUrl}
-            alt={article.title}
-            fill
-            style={{
-              objectFit: "cover",
-            }}
-            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          />
-        </Box>
-        <Stack gap="sm" p={{base: "md", md: "lg"}} style={{flex: 1}}>
-          <Link
+          <Box
+            component={Link}
             href={`/articles/${articleSlug}`}
             style={{
+              position: "relative",
+              width: "100%",
+              aspectRatio: "4/3",
+              overflow: "hidden",
+              backgroundColor: "var(--mantine-color-gray-1)",
               textDecoration: "none",
-              color: "inherit",
             }}
           >
-            <Title
-              order={3}
-              size="h4"
-              fw={600}
-              lineClamp={2}
+            <Image
+              src={imageUrl}
+              alt={article.title}
+              fill
               style={{
-                color: "var(--mantine-color-text)",
-                cursor: "pointer",
+                objectFit: "cover",
               }}
-              styles={{
-                root: {
-                  "&:hover": {
-                    color: "var(--mantine-color-gray-7)",
-                  },
-                },
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            />
+          </Box>
+          <Stack gap="sm" p={{base: "md", md: "lg"}} style={{flex: 1}}>
+            <Link
+              href={`/articles/${articleSlug}`}
+              style={{
+                textDecoration: "none",
+                color: "inherit",
               }}
             >
-              {article.title}
-            </Title>
-          </Link>
-          <Text size="sm" c="dimmed" lineClamp={3} style={{flex: 1}}>
-            {article.excerpt}
-          </Text>
-        </Stack>
-      </Card>
-    );
-  });
+              <Title
+                order={3}
+                size="h4"
+                fw={600}
+                lineClamp={2}
+                style={{
+                  color: "var(--mantine-color-text)",
+                  cursor: "pointer",
+                }}
+                styles={{
+                  root: {
+                    "&:hover": {
+                      color: "var(--mantine-color-gray-7)",
+                    },
+                  },
+                }}
+              >
+                {article.title}
+              </Title>
+            </Link>
+            <Text size="sm" c="dimmed" lineClamp={3} style={{flex: 1}}>
+              {article.excerpt}
+            </Text>
+          </Stack>
+        </Card>
+      );
+    });
 
   return (
     <>

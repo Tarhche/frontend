@@ -1,6 +1,7 @@
 import {type Metadata} from "next";
 import {FeaturedArticles} from "@/features/home-page/components/featured-articles";
 import {fetchHomePageData} from "@/dal/public/home";
+import {NoContent} from "@/components/no-content";
 import Element from "@/features/elements/element";
 
 export const metadata: Metadata = {
@@ -18,6 +19,14 @@ export default async function HomePage(props: Props) {
   const homePageData = await fetchHomePageData({
     params: {language_code: lang},
   });
+
+  const hasContent =
+    (homePageData.all?.length ?? 0) > 0 ||
+    (homePageData.popular?.length ?? 0) > 0;
+
+  if (!hasContent) {
+    return <NoContent />;
+  }
 
   return (
     <>

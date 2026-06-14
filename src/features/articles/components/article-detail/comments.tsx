@@ -7,11 +7,13 @@ import {IconInfoCircle} from "@tabler/icons-react";
 import {fetchArticleComments} from "@/dal/public/comments";
 
 type Props = {
-  uuid: string;
+  correlationUUID: string;
+  languageCode: string;
 };
 
-export async function Comments({uuid}: Props) {
-  const comments = (await fetchArticleComments(uuid)).items;
+export async function Comments({correlationUUID, languageCode}: Props) {
+  const comments = (await fetchArticleComments(correlationUUID, languageCode))
+    .items;
   const rootComments = comments.filter((c) => c.parent_uuid === undefined);
   const validIds = new Set(comments.map((c) => c.uuid));
   const orphanComments = comments.filter((c) => {
@@ -41,14 +43,19 @@ export async function Comments({uuid}: Props) {
         }
       >
         <Box mt={"lg"}>
-          <CommentForm objectUUID={uuid} parentUUID={""} />
+          <CommentForm
+            objectUUID={correlationUUID}
+            parentUUID={""}
+            languageCode={languageCode}
+          />
         </Box>
       </AuthGuard>
       <Stack mt={"xl"}>
         {rootComments.map((comment) => {
           return (
             <Comment
-              objectUUID={uuid}
+              objectUUID={correlationUUID}
+              languageCode={languageCode}
               key={comment.uuid}
               comments={comments}
               comment={comment}
@@ -58,7 +65,8 @@ export async function Comments({uuid}: Props) {
         {orphanComments.map((comment) => {
           return (
             <Comment
-              objectUUID={uuid}
+              objectUUID={correlationUUID}
+              languageCode={languageCode}
               key={comment.uuid}
               comments={comments}
               comment={comment}

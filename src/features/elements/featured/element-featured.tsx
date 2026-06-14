@@ -249,6 +249,12 @@ const ElementFeatured = ({data}) => {
 
   const {main, aside} = data.body;
 
+  if (!main.body) {
+    return null;
+  }
+
+  const asideItems = aside.filter((item) => item?.body);
+
   return (
     <Box
       style={{
@@ -262,7 +268,7 @@ const ElementFeatured = ({data}) => {
           </Grid.Col>
           <Grid.Col span={{base: 12, md: 5}} style={{display: "flex"}}>
             <Stack gap="md" style={{flex: 1, justifyContent: "space-between"}}>
-              {aside.slice(0, 3).map((item, index) => (
+              {asideItems.slice(0, 3).map((item, index) => (
                 <SideArticleItem
                   key={item?.body?.correlation_uuid || index}
                   item={item.body}

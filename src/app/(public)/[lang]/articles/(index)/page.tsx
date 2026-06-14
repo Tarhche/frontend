@@ -2,6 +2,7 @@ import {type Metadata} from "next";
 import {VerticalArticleCard} from "@/features/home-page/components/article-card-vertical";
 import {fetchArticles} from "@/dal/public/articles";
 import {Pagination} from "@/components/pagination";
+import {NoContent} from "@/components/no-content";
 import {Group} from "@mantine/core";
 
 type Props = {
@@ -30,16 +31,22 @@ async function ArticlesPage(props: Props) {
   });
   const {total_pages, current_page} = pagination;
 
+  // No published articles in the selected language: show a friendly
+  // empty-content message.
+  if (items.length === 0) {
+    return <NoContent />;
+  }
+
   const articles = items.map((article: any) => {
     return (
       <VerticalArticleCard
-        key={article.uuid}
+        key={article.correlation_uuid}
         article={{
           thumbnail: article.cover,
           title: article.title,
           subtitle: article.excerpt,
           publishedDate: article.published_at,
-          slug: article.correlation_uuid ?? article.uuid,
+          slug: article.correlation_uuid,
           tags: [],
           author: article.author,
         }}

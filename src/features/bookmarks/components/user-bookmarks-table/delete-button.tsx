@@ -15,10 +15,15 @@ import {removeBookmarkAction} from "../../actions/remove-bookmark";
 
 type Props = {
   bookmarkID: string;
+  languageCode: string;
   title?: string;
 };
 
-export function MyBookmarkDeleteButton({title, bookmarkID}: Props) {
+export function MyBookmarkDeleteButton({
+  title,
+  bookmarkID,
+  languageCode,
+}: Props) {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [, formAction, isPending] = useActionState(removeBookmarkAction, false);
 
@@ -58,6 +63,13 @@ export function MyBookmarkDeleteButton({title, bookmarkID}: Props) {
           </Button>
           <form action={formAction}>
             <input type="text" name="id" value={bookmarkID} readOnly hidden />
+            <input
+              type="text"
+              name="language-code"
+              value={languageCode}
+              readOnly
+              hidden
+            />
             <Button color="red" type="submit" loading={isPending}>
               حذف کردن
             </Button>

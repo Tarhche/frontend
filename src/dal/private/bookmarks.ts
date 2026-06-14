@@ -6,26 +6,32 @@ export async function fetchUserBookmarks(config?: AxiosRequestConfig) {
   return response.data;
 }
 
-export async function removeUserBookmark(id: string) {
+export async function removeUserBookmark(
+  correlationUUID: string,
+  languageCode: string,
+) {
   const response = await privateDalDriver.delete("dashboard/my/bookmarks", {
     data: {
       object_type: "article",
-      object_uuid: id,
+      object_uuid: correlationUUID,
+      language_code: languageCode,
     },
   });
   return response.data;
 }
 
 export async function checkBookmarkStatus(
-  uuid?: string,
+  correlationUUID?: string,
+  languageCode?: string,
 ): Promise<boolean | undefined> {
-  if (uuid === undefined) {
+  if (correlationUUID === undefined || languageCode === undefined) {
     return undefined;
   }
   try {
     const response = await privateDalDriver.post("bookmarks/exists", {
       object_type: "article",
-      object_uuid: uuid,
+      object_uuid: correlationUUID,
+      language_code: languageCode,
     });
 
     return response.data?.exist;
@@ -36,14 +42,16 @@ export async function checkBookmarkStatus(
 
 export async function bookmarkArticle(body: {
   keep: boolean;
-  uuid: string;
+  correlationUUID: string;
   title: string;
+  language_code: string;
 }) {
   const response = await privateDalDriver.put("bookmarks", {
     keep: body.keep,
     title: body.title,
     object_type: "article",
-    object_uuid: body.uuid,
+    object_uuid: body.correlationUUID,
+    language_code: body.language_code,
   });
   return response.data;
 }

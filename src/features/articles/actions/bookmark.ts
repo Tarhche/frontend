@@ -13,7 +13,8 @@ type FormState = {
 
 const SCHEMA = z.object({
   title: z.string(),
-  uuid: z.string().uuid(),
+  correlation_uuid: z.string().uuid(),
+  language_code: z.string().min(1),
 });
 
 export async function bookmark(
@@ -33,8 +34,9 @@ export async function bookmark(
     }
     await bookmarkArticle({
       keep: !isBookmarked,
-      uuid: validatedData.data.uuid,
+      correlationUUID: validatedData.data.correlation_uuid,
       title: validatedData.data.title,
+      language_code: validatedData.data.language_code,
     });
     revalidatePath(APP_PATHS.dashboard.my.bookmarks);
     return {

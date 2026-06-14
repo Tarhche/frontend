@@ -7,12 +7,18 @@ import {bookmark} from "../../actions/bookmark";
 import classes from "./bookmark-button.module.css";
 
 type Props = {
-  uuid: string;
+  correlationUUID: string;
   title: string;
   isBookmarked: boolean;
+  languageCode: string;
 };
 
-export function BookmarkButton({uuid, title, isBookmarked}: Props) {
+export function BookmarkButton({
+  correlationUUID,
+  title,
+  isBookmarked,
+  languageCode,
+}: Props) {
   const [state, dispatch, isPending] = useActionState(bookmark, {
     success: true,
     bookmarked: isBookmarked,
@@ -44,8 +50,21 @@ export function BookmarkButton({uuid, title, isBookmarked}: Props) {
           )}
         </ActionIcon>
       </Tooltip>
-      <input type="text" value={uuid} name="uuid" readOnly hidden />
+      <input
+        type="text"
+        value={correlationUUID}
+        name="correlation_uuid"
+        readOnly
+        hidden
+      />
       <input type="text" value={title} name="title" readOnly hidden />
+      <input
+        type="text"
+        value={languageCode}
+        name="language_code"
+        readOnly
+        hidden
+      />
     </Box>
   );
 }

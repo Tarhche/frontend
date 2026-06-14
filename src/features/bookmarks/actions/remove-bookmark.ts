@@ -8,12 +8,13 @@ export async function removeBookmarkAction(
   prevState: boolean,
   formData: FormData,
 ): Promise<boolean> {
-  const fileId = formData.get("id")?.toString();
-  if (fileId === undefined) {
+  const correlationUUID = formData.get("id")?.toString();
+  const languageCode = formData.get("language-code")?.toString();
+  if (correlationUUID === undefined || languageCode === undefined) {
     return false;
   }
   try {
-    await removeUserBookmark(fileId);
+    await removeUserBookmark(correlationUUID, languageCode);
     revalidatePath(APP_PATHS.dashboard.files);
     return true;
   } catch {

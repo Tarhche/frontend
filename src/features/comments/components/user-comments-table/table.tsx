@@ -84,7 +84,7 @@ export async function UserCommentsTable({page}: Props) {
                           color="blue"
                           aria-label="بازدید کردن کامنت"
                           component={Link}
-                          href={`${APP_PATHS.articles.detail(comment.object_uuid)}`}
+                          href={`/${comment.language_code}${APP_PATHS.articles.detail(comment.object_uuid)}`}
                         >
                           <IconEye style={{width: rem(20)}} stroke={1.5} />
                         </ActionIcon>

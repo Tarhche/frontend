@@ -70,7 +70,7 @@ export async function UserBookmarksTable({page}: Props) {
                           color="blue"
                           aria-label="بازدید کردن بوکمارک"
                           component={Link}
-                          href={`${APP_PATHS.articles.detail(bookmark.object_uuid)}`}
+                          href={`/${bookmark.language_code}${APP_PATHS.articles.detail(bookmark.object_uuid)}`}
                         >
                           <IconEye style={{width: rem(20)}} stroke={1.5} />
                         </ActionIcon>
@@ -81,6 +81,7 @@ export async function UserBookmarksTable({page}: Props) {
                         <MyBookmarkDeleteButton
                           title={bookmark.title}
                           bookmarkID={bookmark.object_uuid}
+                          languageCode={bookmark.language_code}
                         />
                       </PermissionGuard>
                     </ActionIconGroup>

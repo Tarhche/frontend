@@ -24,6 +24,8 @@ import classes from "./comment.module.css";
 type Props = {
   // This objectUUID is related to the article that the comment will be linked to
   objectUUID: string;
+  // The article's language code — replies belong to the same translation.
+  languageCode: string;
   comment: CommentType;
   comments: CommentType[];
   level?: number;
@@ -32,6 +34,7 @@ type Props = {
 
 export function Comment({
   objectUUID,
+  languageCode,
   isOrphan = false,
   comment,
   comments,
@@ -94,7 +97,11 @@ export function Comment({
       </Group>
       {isReplying && (
         <Box mt={"xs"}>
-          <CommentForm objectUUID={objectUUID} parentUUID={uuid ?? null} />
+          <CommentForm
+            objectUUID={objectUUID}
+            parentUUID={uuid ?? null}
+            languageCode={languageCode}
+          />
         </Box>
       )}
       {replies && (
@@ -103,6 +110,7 @@ export function Comment({
             <Comment
               key={index}
               objectUUID={objectUUID}
+              languageCode={languageCode}
               comment={reply}
               comments={comments}
               level={level + 1}

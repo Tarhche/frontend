@@ -42,6 +42,7 @@ export async function createArticleComment(body: {
   object_uuid: string;
   body: string;
   parent_uuid: string;
+  language_code: string;
 }) {
   const response = await privateDalDriver.post("comments", {
     ...body,

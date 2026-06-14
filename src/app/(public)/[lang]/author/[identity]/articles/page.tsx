@@ -75,13 +75,13 @@ export default async function AuthorArticlesPage(props: Props) {
         ) : (
           items.map((article: any) => (
             <VerticalArticleCard
-              key={article.uuid}
+              key={article.correlation_uuid}
               article={{
                 thumbnail: article.cover,
                 title: article.title,
                 subtitle: article.excerpt,
                 publishedDate: article.published_at,
-                slug: article.correlation_uuid ?? article.uuid,
+                slug: article.correlation_uuid,
                 tags: [],
               }}
             />

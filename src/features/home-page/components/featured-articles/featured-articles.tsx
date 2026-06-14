@@ -53,13 +53,13 @@ export async function FeaturedArticles({latestArticles, popularArticles}) {
           {latestArticles.map((la) => {
             return (
               <VerticalArticleCard
-                key={la.correlation_uuid ?? la.uuid}
+                key={la.correlation_uuid}
                 article={{
                   thumbnail: la.cover,
                   title: la.title,
                   subtitle: la.excerpt,
                   publishedDate: la.published_at,
-                  slug: la.correlation_uuid ?? la.uuid,
+                  slug: la.correlation_uuid,
                   tags: la.tags,
                   author: la.author,
                 }}
@@ -87,7 +87,7 @@ export async function FeaturedArticles({latestArticles, popularArticles}) {
                 return (
                   <ListItem
                     mb={"sm"}
-                    key={article.correlation_uuid ?? article.uuid}
+                    key={article.correlation_uuid}
                     icon={
                       <ThemeIcon color="teal" radius="xl" size="lg">
                         <Icon size="100%" />
@@ -96,7 +96,7 @@ export async function FeaturedArticles({latestArticles, popularArticles}) {
                   >
                     <Link
                       style={{textDecoration: "none", color: "inherit"}}
-                      href={`/articles/${article.correlation_uuid ?? article.uuid}`}
+                      href={`/articles/${article.correlation_uuid}`}
                     >
                       <Title size="md" order={3}>
                         {article.title}

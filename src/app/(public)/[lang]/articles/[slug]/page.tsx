@@ -9,7 +9,7 @@ import {
   CommentsSkeleton,
 } from "@/features/articles/components/article-detail";
 import {NotFound} from "@/components/not-found";
-import {fetchArticleByUUID} from "@/dal/public/articles";
+import {fetchArticleByCorrelationUUID} from "@/dal/public/articles";
 
 type Props = {
   params: Promise<{
@@ -25,7 +25,7 @@ export async function generateMetadata(props: Props): Promise<Metadata | null> {
     return null;
   }
 
-  const article = await fetchArticleByUUID(slug, params.lang);
+  const article = await fetchArticleByCorrelationUUID(slug, params.lang);
 
   return article ? {title: `${article.title}`} : null;
 }
@@ -38,13 +38,18 @@ async function ArticleDetailPage(props: Props) {
     notFound();
   }
 
-  const article = await fetchArticleByUUID(slug!, lang);
+  const article = await fetchArticleByCorrelationUUID(slug!, lang);
 
   // The article has no translation for this language: render not-found as plain
   // content (no thrown notFound mid-stream, so it can't get stuck on loading).
   if (!article) {
     return (
-      <Container component="section" px={{base: "0", sm: "md"}} size="sm" mt="xl">
+      <Container
+        component="section"
+        px={{base: "0", sm: "md"}}
+        size="sm"
+        mt="xl"
+      >
         <NotFound
           title="مقاله یافت نشد"
           text="این مقاله در زبان انتخاب‌شده موجود نیست."
@@ -53,13 +58,19 @@ async function ArticleDetailPage(props: Props) {
     );
   }
 
-  // Bookmarks and comments belong to the article group, so they are keyed by the
-  // correlation uuid (shared across translations), not the per-language uuid.
-  const correlationUUID = article.correlation_uuid ?? slug!;
+  // Bookmarks and comments belong to the article group within a language, so they
+  // are keyed by the correlation uuid (shared across translations) plus the
+  // language code, not the per-language uuid.
+  const correlationUUID = article.correlation_uuid;
+  const languageCode = article.language_code?.code ?? lang;
 
   return (
     <Container component="section" px={{base: "0", sm: "md"}} size="sm" mt="xl">
-      <Content article={article} correlationUUID={correlationUUID} />
+      <Content
+        article={article}
+        correlationUUID={correlationUUID}
+        languageCode={languageCode}
+      />
       <Box mt={"xl"}>
         <Group align="center" gap={"sm"}>
           <IconMessage />
@@ -68,7 +79,10 @@ async function ArticleDetailPage(props: Props) {
           </Title>
         </Group>
         <Suspense fallback={<CommentsSkeleton />}>
-          <Comments uuid={correlationUUID} />
+          <Comments
+            correlationUUID={correlationUUID}
+            languageCode={languageCode}
+          />
         </Suspense>
       </Box>
     </Container>
