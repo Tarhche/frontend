@@ -4,6 +4,7 @@ import {Container, Group, Stack, Text} from "@mantine/core";
 import {VerticalArticleCard} from "@/features/home-page/components/article-card-vertical";
 import {AuthorHeader} from "@/features/authors/components";
 import {Pagination} from "@/components/pagination";
+import Element from "@/features/elements/element";
 import {fetchAuthorArticles} from "@/dal/public/authors";
 
 type Props = {
@@ -61,12 +62,23 @@ export default async function AuthorArticlesPage(props: Props) {
     notFound();
   }
 
-  const {author, items, pagination} = data;
+  const {author, items, pagination, elements} = data;
   const {total_pages, current_page} = pagination;
+  const pageElements = elements ?? [];
 
   return (
     <Container size="sm" mt={50}>
       <AuthorHeader author={author} />
+      <Element
+        style={{marginTop: "1rem"}}
+        type="jumbotron"
+        elements={pageElements}
+      />
+      <Element
+        style={{marginTop: "1rem"}}
+        type="featured"
+        elements={pageElements}
+      />
       <Stack gap={"md"} mt={"lg"}>
         {items.length === 0 ? (
           <Text c={"dimmed"} ta={"center"} mt={"xl"}>
@@ -93,6 +105,11 @@ export default async function AuthorArticlesPage(props: Props) {
           </Group>
         )}
       </Stack>
+      <Element
+        style={{marginTop: "1rem"}}
+        type="cards"
+        elements={pageElements}
+      />
     </Container>
   );
 }

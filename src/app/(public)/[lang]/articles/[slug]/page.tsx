@@ -9,6 +9,7 @@ import {
   CommentsSkeleton,
 } from "@/features/articles/components/article-detail";
 import {NotFound} from "@/components/not-found";
+import Element from "@/features/elements/element";
 import {fetchArticleByCorrelationUUID} from "@/dal/public/articles";
 
 type Props = {
@@ -63,6 +64,7 @@ async function ArticleDetailPage(props: Props) {
   // language code, not the per-language uuid.
   const correlationUUID = article.correlation_uuid;
   const languageCode = article.language_code?.code ?? lang;
+  const pageElements = article.elements ?? [];
 
   return (
     <Container component="section" px={{base: "0", sm: "md"}} size="sm" mt="xl">
@@ -70,6 +72,21 @@ async function ArticleDetailPage(props: Props) {
         article={article}
         correlationUUID={correlationUUID}
         languageCode={languageCode}
+      />
+      <Element
+        style={{marginTop: "1rem"}}
+        type="jumbotron"
+        elements={pageElements}
+      />
+      <Element
+        style={{marginTop: "1rem"}}
+        type="featured"
+        elements={pageElements}
+      />
+      <Element
+        style={{marginTop: "1rem"}}
+        type="cards"
+        elements={pageElements}
       />
       <Box mt={"xl"}>
         <Group align="center" gap={"sm"}>
