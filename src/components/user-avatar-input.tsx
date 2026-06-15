@@ -5,6 +5,7 @@ import {Stack, Tooltip, ActionIcon, Modal} from "@mantine/core";
 import {UserAvatar} from "@/components/user-avatar";
 import {FilesExplorer} from "@/components/files-explorer";
 import {IconPencil} from "@tabler/icons-react";
+import {useTranslations} from "@/i18n/provider";
 
 type Props = {
   defaultValue?: string;
@@ -17,6 +18,7 @@ export function UserAvatarInput({
   userId,
   defaultValue,
 }: Props) {
+  const t = useTranslations();
   const [showFileExplorer, setShowFileExplorer] = useState(false);
   const [selectedFileId, setSelectedFileId] = useState("");
   const fileId = selectedFileId ? selectedFileId : defaultValue;
@@ -25,7 +27,7 @@ export function UserAvatarInput({
     <>
       <Stack align="center" gap={"xs"}>
         <UserAvatar userId={userId} src={fileId} width={138} height={138} />
-        <Tooltip label="تغییر آواتار" withArrow>
+        <Tooltip label={t("files.changeAvatar")} withArrow>
           <ActionIcon
             color="dimmed"
             variant="transparent"

@@ -8,9 +8,13 @@ import {useLanguage} from "@/components/language/language-context";
 export type AppLinkProps = ComponentPropsWithoutRef<typeof NextLink>;
 
 // Paths that are never language-prefixed.
-const NON_LOCALIZED_PREFIXES = ["/dashboard", "/auth", "/api"];
+const NON_LOCALIZED_PREFIXES = ["/dashboard", "/api"];
 
-function localizeHref(href: string, activeCode: string, codes: string[]): string {
+function localizeHref(
+  href: string,
+  activeLanguageCode: string,
+  languageCodes: string[],
+): string {
   if (!href.startsWith("/")) {
     return href; // external, anchor, or relative
   }
@@ -24,13 +28,20 @@ function localizeHref(href: string, activeCode: string, codes: string[]): string
   }
 
   const firstSegment = href.split(/[/?#]/).filter(Boolean)[0];
-  // Already language-prefixed — don't add it again. `activeCode` is checked too
-  // so we stay idempotent even if `codes` is momentarily empty/stale.
-  if (firstSegment && (codes.includes(firstSegment) || firstSegment === activeCode)) {
+  // Already language-prefixed — don't add it again. `activeLanguageCode` is
+  // checked too so we stay idempotent even if `languageCodes` is momentarily
+  // empty/stale.
+  if (
+    firstSegment &&
+    (languageCodes.includes(firstSegment) ||
+      firstSegment === activeLanguageCode)
+  ) {
     return href;
   }
 
-  return href === "/" ? `/${activeCode}` : `/${activeCode}${href}`;
+  return href === "/"
+    ? `/${activeLanguageCode}`
+    : `/${activeLanguageCode}${href}`;
 }
 
 // Drop-in replacement for next/link that, when rendered inside a
@@ -43,8 +54,12 @@ const Link = forwardRef(function Link(
   const language = useLanguage();
   let {href} = props;
 
-  if (language && language.activeCode && typeof href === "string") {
-    href = localizeHref(href, language.activeCode, language.codes);
+  if (language && language.activeLanguageCode && typeof href === "string") {
+    href = localizeHref(
+      href,
+      language.activeLanguageCode,
+      language.languageCodes,
+    );
   }
 
   return <NextLink ref={ref} {...props} href={href} />;

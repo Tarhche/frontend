@@ -4,24 +4,27 @@ import {Paper} from "@mantine/core";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {ProfilePasswordForm} from "@/features/profile/components";
 import {APP_PATHS} from "@/lib/app-paths";
+import {getServerDictionary} from "@/i18n/server";
 
-const PAGE_TITLE = "تغییر کلمه عبور";
-
-export const metadata: Metadata = {
-  title: PAGE_TITLE,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const {t} = await getServerDictionary();
+  return {
+    title: t("profile.password.title"),
+  };
+}
 
 async function ChangePasswordPage() {
+  const {t} = await getServerDictionary();
   return (
     <Stack>
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: "پروفایل",
+            label: t("profile.title"),
             href: APP_PATHS.dashboard.profile.index,
           },
           {
-            label: PAGE_TITLE,
+            label: t("profile.password.title"),
           },
         ]}
       />

@@ -4,6 +4,7 @@ import {useActionState} from "react";
 import {Tooltip, Box, ActionIcon} from "@mantine/core";
 import {IconBookmark, IconBookmarkFilled} from "@tabler/icons-react";
 import {bookmark} from "../../actions/bookmark";
+import {useTranslations} from "@/i18n/provider";
 import classes from "./bookmark-button.module.css";
 
 type Props = {
@@ -19,6 +20,7 @@ export function BookmarkButton({
   isBookmarked,
   languageCode,
 }: Props) {
+  const t = useTranslations();
   const [state, dispatch, isPending] = useActionState(bookmark, {
     success: true,
     bookmarked: isBookmarked,
@@ -29,7 +31,9 @@ export function BookmarkButton({
   return (
     <Box component="form" lh={0} action={dispatch}>
       <Tooltip
-        label={bookmarked ? "حذف از بوکمارک ها" : "ذخیره کردن"}
+        label={
+          bookmarked ? t("bookmarks.button.remove") : t("bookmarks.button.save")
+        }
         withArrow
       >
         <ActionIcon

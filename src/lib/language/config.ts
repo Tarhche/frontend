@@ -1,8 +1,8 @@
 import {INTERNAL_BACKEND_URL} from "@/constants";
 
 export type LanguageConfig = {
-  codes: string[];
-  defaultCode: string;
+  languageCodes: string[];
+  defaultLanguageCode: string;
 };
 
 const TTL_MS = 60_000;
@@ -28,16 +28,17 @@ export async function getLanguageConfig(): Promise<LanguageConfig | null> {
     }
 
     const json = await response.json();
-    const codes: string[] = Array.isArray(json?.items)
+    const languageCodes: string[] = Array.isArray(json?.items)
       ? json.items.map((l: any) => l?.code).filter(Boolean)
       : [];
-    const defaultCode: string = json?.default_language?.code ?? codes[0] ?? "";
+    const defaultLanguageCode: string =
+      json?.default_language?.code ?? languageCodes[0] ?? "";
 
-    if (codes.length === 0 || !defaultCode) {
+    if (languageCodes.length === 0 || !defaultLanguageCode) {
       return cache?.data ?? null;
     }
 
-    const data: LanguageConfig = {codes, defaultCode};
+    const data: LanguageConfig = {languageCodes, defaultLanguageCode};
     cache = {data, expiresAt: now + TTL_MS};
     return data;
   } catch {

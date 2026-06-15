@@ -5,6 +5,7 @@ import {CommentForm} from "./comment-form";
 import {Comment} from "./comment";
 import {IconInfoCircle} from "@tabler/icons-react";
 import {fetchArticleComments} from "@/dal/public/comments";
+import {getDictionary} from "@/i18n/dictionary";
 
 type Props = {
   correlationUUID: string;
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export async function Comments({correlationUUID, languageCode}: Props) {
+  const {t} = getDictionary(languageCode);
   const comments = (await fetchArticleComments(correlationUUID, languageCode))
     .items;
   const rootComments = comments.filter((c) => c.parent_uuid === undefined);
@@ -31,14 +33,14 @@ export async function Comments({correlationUUID, languageCode}: Props) {
             mt={"md"}
             variant="light"
             color="yellow"
-            title="نیازمند احراز هویت"
+            title={t("comments.form.authRequiredTitle")}
             icon={<IconInfoCircle />}
           >
-            برای اینکه بتوانید دیدگاه خود را ثبت کنید باید ابتدا{" "}
+            {t("comments.form.authRequiredPrefix")}
             <Anchor underline="always" href={"/auth/login"} component={Link}>
-              وارد حسابتان
-            </Anchor>{" "}
-            شوید
+              {t("comments.form.authRequiredLink")}
+            </Anchor>
+            {t("comments.form.authRequiredSuffix")}
           </Alert>
         }
       >
@@ -76,7 +78,7 @@ export async function Comments({correlationUUID, languageCode}: Props) {
         })}
         {comments.length === 0 && (
           <Alert variant="light" color="green" icon={<IconInfoCircle />}>
-            هنوز دیدگاهی برای این مقاله ثبت نشده!
+            {t("comments.list.empty")}
           </Alert>
         )}
       </Stack>

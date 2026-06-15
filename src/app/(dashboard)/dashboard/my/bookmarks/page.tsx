@@ -7,12 +7,14 @@ import {
   UserBookmarksTableSkeleton,
 } from "@/features/bookmarks/components";
 import {withPermissions} from "@/components/with-authorization";
+import {getServerDictionary} from "@/i18n/server";
 
-const title = "بوکمارک های من";
-
-export const metadata: Metadata = {
-  title: title,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const {t} = await getServerDictionary();
+  return {
+    title: t("bookmarks.page.title"),
+  };
+}
 
 type Props = {
   searchParams: Promise<{
@@ -21,6 +23,7 @@ type Props = {
 };
 
 async function MyBookmarksPage({searchParams}: Props) {
+  const {t} = await getServerDictionary();
   const page = Number((await searchParams).page) || 1;
 
   return (
@@ -28,7 +31,7 @@ async function MyBookmarksPage({searchParams}: Props) {
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: title,
+            label: t("bookmarks.page.title"),
           },
         ]}
       />

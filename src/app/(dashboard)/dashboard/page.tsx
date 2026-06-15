@@ -1,9 +1,12 @@
 import {Title} from "@mantine/core";
+import {getServerDictionary} from "@/i18n/server";
 
-function DashboardPage() {
+async function DashboardPage() {
+  const {t} = await getServerDictionary();
+
   return (
     <div>
-      <Title>پنل کاربری</Title>
+      <Title>{t("nav.dashboard")}</Title>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert
 import ServerComponentErrorHandler from "@/components/errors/server-component-error-handler";
 import {nonFieldErrors} from "@/lib/api/validation-errors";
 import {FormDataCodec} from "@/lib/form-data-codec";
+import {useTranslations} from "@/i18n/provider";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
@@ -21,6 +22,7 @@ type Props = {
 const ELEMENT_UPSERT_FIELDS = ["jsonValue", "is_update", "uuid"] as const;
 
 export function ElementUpsertForm({element}: Props) {
+  const t = useTranslations();
   const [state, dispatch, isPending] = useActionState(upsertElementAction, {
     success: true,
   });
@@ -54,7 +56,7 @@ export function ElementUpsertForm({element}: Props) {
       setJsonError(null);
       return true;
     } catch {
-      setJsonError("JSON نامعتبر است");
+      setJsonError(t("elements.form.invalidJson"));
       return false;
     }
   };
@@ -63,7 +65,7 @@ export function ElementUpsertForm({element}: Props) {
     const v = value ?? "";
     setJsonValue(v);
     if (v.trim().length > 0) validateJson(v);
-    else setJsonError("JSON خالی است");
+    else setJsonError(t("elements.form.emptyJson"));
   };
 
   const prettify = () => {
@@ -72,7 +74,7 @@ export function ElementUpsertForm({element}: Props) {
       setJsonValue(pretty);
       setJsonError(null);
     } catch {
-      setJsonError("برای قالب‌بندی، ابتدا JSON معتبر وارد کنید");
+      setJsonError(t("elements.form.prettifyError"));
     }
   };
 
@@ -97,7 +99,7 @@ export function ElementUpsertForm({element}: Props) {
       <Stack gap="lg">
         <div>
           <Text size="sm" fw={600} mb="xs">
-            ویرایش JSON
+            {t("elements.form.editJson")}
           </Text>
           <Box
             dir={"ltr"}
@@ -138,7 +140,7 @@ export function ElementUpsertForm({element}: Props) {
             disabled={isPending}
             type="button"
           >
-            قالب‌بندی JSON
+            {t("elements.form.prettify")}
           </Button>
 
           <Group justify="flex-end">
@@ -147,7 +149,7 @@ export function ElementUpsertForm({element}: Props) {
               loading={isPending}
               disabled={isPending || !!jsonError}
             >
-              {element ? "بروزرسانی المان" : "ایجاد المان"}
+              {element ? t("elements.form.update") : t("elements.form.create")}
             </Button>
           </Group>
         </Group>

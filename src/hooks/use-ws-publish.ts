@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback } from "react";
-import { getWebSocketBus } from "@/lib/ws/websocket-bus";
+import {useCallback} from "react";
+import {getWebSocketBus} from "@/lib/ws/websocket-bus";
 
 /**
  * Returns a stable `publish` function.

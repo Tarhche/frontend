@@ -2,28 +2,29 @@ import {Metadata} from "next";
 import {Stack} from "@mantine/core";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {APP_PATHS} from "@/lib/app-paths";
+import {getServerDictionary} from "@/i18n/server";
 
 type Props = {
   children: React.ReactNode;
 };
 
-const PAGE_TITLE = "ایجاد نقش";
+export async function generateMetadata(): Promise<Metadata> {
+  const {t} = await getServerDictionary();
+  return {title: t("roles.page.newTitle")};
+}
 
-export const metadata: Metadata = {
-  title: PAGE_TITLE,
-};
-
-function Layout({children}: Props) {
+async function Layout({children}: Props) {
+  const {t} = await getServerDictionary();
   return (
     <Stack>
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: "نقش ها",
+            label: t("roles.page.breadcrumbRoles"),
             href: APP_PATHS.dashboard.roles.index,
           },
           {
-            label: PAGE_TITLE,
+            label: t("roles.page.newTitle"),
           },
         ]}
       />

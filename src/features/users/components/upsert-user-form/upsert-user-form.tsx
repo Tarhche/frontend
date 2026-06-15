@@ -16,6 +16,7 @@ import {UserAvatarInput} from "@/components/user-avatar-input";
 import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import ServerComponentErrorHandler from "@/components/errors/server-component-error-handler";
 import {nonFieldErrors} from "@/lib/api/validation-errors";
+import {useTranslations} from "@/i18n/provider";
 import type {Language} from "@/dal/public/languages";
 import {upsertUserAction} from "../../actions/upsert-user";
 import {APP_PATHS} from "@/lib/app-paths";
@@ -43,6 +44,7 @@ const USER_UPSERT_FIELDS = [
 ] as const;
 
 export function UpsertUserForm({userInfo = {}, languages = []}: Props) {
+  const t = useTranslations();
   const {
     userId,
     defaultUsername,
@@ -66,26 +68,26 @@ export function UpsertUserForm({userInfo = {}, languages = []}: Props) {
           <Stack gap={"sm"} flex={1}>
             <TextInput
               name="name"
-              label="نام"
+              label={t("users.form.name")}
               error={state.errors?.name ?? ""}
               defaultValue={state.values?.name ?? defaultName ?? ""}
             />
             <TextInput
               type="email"
               name="email"
-              label="ایمیل"
+              label={t("users.form.email")}
               error={state.errors?.email ?? ""}
               defaultValue={state.values?.email ?? defaultEmail ?? ""}
             />
             <TextInput
               name="username"
-              label="نام کاربری"
+              label={t("users.form.username")}
               error={state.errors?.username ?? ""}
               defaultValue={state.values?.username ?? defaultUsername ?? ""}
             />
             <Select
               name="language_code"
-              label="زبان"
+              label={t("users.form.language")}
               data={languages.map((language) => ({
                 value: language.code,
                 label: language.name,
@@ -99,27 +101,29 @@ export function UpsertUserForm({userInfo = {}, languages = []}: Props) {
             {userId === undefined && (
               <TextInput
                 name="password"
-                label="کلمه عبور"
+                label={t("users.form.password")}
                 error={state.errors?.password ?? ""}
               />
             )}
             <ValidationErrorsAlert errors={formErrors} />
             {userId !== undefined && (
               <Alert mt={"xs"}>
-                برای تغییر کلمه عبور از{" "}
+                {t("users.form.changePasswordPrefix")}{" "}
                 <Anchor
                   component={Link}
                   href={APP_PATHS.dashboard.users.editPassword(userId)}
                 >
-                  اینجا
+                  {t("users.form.changePasswordLink")}
                 </Anchor>{" "}
-                اقدام کنید
+                {t("users.form.changePasswordSuffix")}
               </Alert>
             )}
             <input name="uuid" value={userId} readOnly hidden />
             <Group justify="flex-end" mt={userId ? "xs" : "lg"}>
               <Button type="submit" loading={isPending}>
-                {userId === undefined ? "ذخیره کردن کاربر" : "بروزرسانی"}
+                {userId === undefined
+                  ? t("users.form.save")
+                  : t("users.form.update")}
               </Button>
             </Group>
           </Stack>

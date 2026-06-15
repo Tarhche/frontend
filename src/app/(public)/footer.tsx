@@ -1,7 +1,11 @@
+"use client";
+
 import {Anchor, Box, Group, Text} from "@mantine/core";
 import {IconBrandGithub} from "@tabler/icons-react";
+import {useTranslations} from "@/i18n/provider";
 
 export default function Footer() {
+  const t = useTranslations();
   return (
     <Box
       py="lg"
@@ -21,7 +25,7 @@ export default function Footer() {
           }}
         >
           <Text span size="sm">
-            طرح‌چه | طرحی نو در اندازیم
+            {t("footer.tagline")}
           </Text>
         </Anchor>
 
@@ -39,7 +43,7 @@ export default function Footer() {
         >
           <IconBrandGithub size="2rem" />
           <Text span size="sm">
-            اوپن سورس
+            {t("footer.openSource")}
           </Text>
         </Anchor>
       </Group>

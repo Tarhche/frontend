@@ -1,10 +1,13 @@
 import {NotFound} from "@/components/not-found";
+import {getServerDictionary} from "@/i18n/server";
 
-function NotFoundPage() {
+async function NotFoundPage() {
+  const {t} = await getServerDictionary();
+
   return (
     <NotFound
-      anchorText="پنل کاربری"
-      title="این صفحه وجود ندارد"
+      anchorText={t("nav.dashboard")}
+      title={t("dashboard.notFoundTitle")}
       anchorLink="/dashboard"
     />
   );

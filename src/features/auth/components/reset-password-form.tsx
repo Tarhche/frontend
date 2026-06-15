@@ -16,35 +16,41 @@ import {
 import {IconInfoCircle} from "@tabler/icons-react";
 import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import {nonFieldErrors} from "@/lib/api/validation-errors";
+import {useTranslations} from "@/i18n/provider";
 import {resetPassword} from "../actions/reset-password";
 
 type Props = {
   token: string;
 };
 
-const RESET_PASSWORD_FIELDS = ["password", "confirm_password", "token"] as const;
+const RESET_PASSWORD_FIELDS = [
+  "password",
+  "confirm_password",
+  "token",
+] as const;
 
 export function ResetPasswordForm({token}: Props) {
+  const t = useTranslations();
   const [state, dispatch, isPending] = useActionState(resetPassword, null);
 
   const formErrors = nonFieldErrors(state?.errors, RESET_PASSWORD_FIELDS);
   const tokenError = state?.errors?.token;
   const fallbackErrors =
     state?.success === false && !state.errors
-      ? ["خطایی ناشناخته اتفاق افتاد. لطفا مجددا تلاش نمایید"]
+      ? [t("auth.resetPassword.unknownError")]
       : [];
 
   return (
     <Box pt={60}>
       <Paper withBorder shadow="md" p={30} radius="md">
-        <Title ta="center">تغییر کلمه عبور</Title>
+        <Title ta="center">{t("auth.resetPassword.title")}</Title>
         <Text c="dimmed" size="sm" ta="center" mt={5}>
-          کلمه عبور جدیدتان را وارد کنید
+          {t("auth.resetPassword.description")}
         </Text>
         <form action={dispatch}>
           <Stack gap={8}>
             <PasswordInput
-              label="کلمه عبور جدید"
+              label={t("auth.resetPassword.newPasswordLabel")}
               placeholder="..."
               name="password"
               mt={"md"}
@@ -55,7 +61,7 @@ export function ResetPasswordForm({token}: Props) {
           </Stack>
           <Stack gap={8}>
             <PasswordInput
-              label="تکرار کلمه عبور جدید"
+              label={t("auth.resetPassword.confirmNewPasswordLabel")}
               placeholder="..."
               name="confirm_password"
               mt={"sm"}
@@ -69,20 +75,20 @@ export function ResetPasswordForm({token}: Props) {
             <Alert
               variant="filled"
               color="green"
-              title="ثبت نام موفق"
+              title={t("auth.resetPassword.successTitle")}
               mt={"sm"}
               icon={<IconInfoCircle />}
             >
-              کلمه عبور شما با موفقیت تغییر یافت. میتوانید به صفحه{" "}
+              {t("auth.resetPassword.successMessagePrefix")}{" "}
               <Anchor
                 c={"white"}
                 underline="always"
                 component={Link}
                 href={"/auth/login"}
               >
-                ورود
+                {t("auth.resetPassword.successMessageLoginLink")}
               </Anchor>{" "}
-              مراجعه کنید و وارد حساب خود شوید
+              {t("auth.resetPassword.successMessageSuffix")}
             </Alert>
           )}
           {state?.success === false && (
@@ -94,7 +100,7 @@ export function ResetPasswordForm({token}: Props) {
                     ? [tokenError]
                     : fallbackErrors
               }
-              title="عملیات ناموفق"
+              title={t("auth.shared.operationFailed")}
             />
           )}
           <Button
@@ -104,7 +110,9 @@ export function ResetPasswordForm({token}: Props) {
             loading={isPending}
             fullWidth
           >
-            {state?.success === false ? "تلاش مجدد" : "تغییر کلمه عبور"}
+            {state?.success === false
+              ? t("common.tryAgain")
+              : t("auth.resetPassword.submit")}
           </Button>
         </form>
       </Paper>

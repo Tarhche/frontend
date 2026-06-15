@@ -70,12 +70,7 @@ export function VerticalArticleCard({article}: Props) {
 
           {/* tags moved to image overlay */}
 
-          <Group
-            wrap="nowrap"
-            gap={"sm"}
-            mt={"auto"}
-            justify="space-between"
-          >
+          <Group wrap="nowrap" gap={"sm"} mt={"auto"} justify="space-between">
             <AuthorLink author={article.author} />
             <Group wrap="nowrap" gap={5} c={"dimmed"}>
               <IconClockHour2 spacing={0} size="1rem" />

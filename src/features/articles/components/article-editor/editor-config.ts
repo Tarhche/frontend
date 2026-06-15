@@ -73,8 +73,9 @@ import {
 } from "ckeditor5";
 import {FileExplorerPlugin} from "./plugins/file-explorer-plugin";
 import {ExecutableCodeBlockPlugin} from "./plugins/executable-code-block-plugin";
+import {type TFunction} from "@/i18n/dictionary";
 
-export const editorConfig: EditorConfig = {
+export const getEditorConfig = (t: TFunction): EditorConfig => ({
   licenseKey: "GPL",
   language: {
     ui: "en",
@@ -317,7 +318,7 @@ export const editorConfig: EditorConfig = {
       },
     ],
   },
-  placeholder: "محتوا...",
+  placeholder: t("editor.contentPlaceholder"),
   style: {
     definitions: [
       {
@@ -408,4 +409,4 @@ export const editorConfig: EditorConfig = {
       {language: "yaml", label: "YAML"},
     ],
   },
-};
+});

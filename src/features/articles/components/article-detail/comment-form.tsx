@@ -11,6 +11,7 @@ import {
 import clsx from "clsx";
 import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import {nonFieldErrors} from "@/lib/api/validation-errors";
+import {useTranslations} from "@/i18n/provider";
 import {comment} from "../../actions/comment";
 import classes from "./comment-form.module.css";
 
@@ -28,6 +29,7 @@ const COMMENT_FIELDS = [
 ] as const;
 
 export function CommentForm({objectUUID, parentUUID, languageCode}: Props) {
+  const t = useTranslations();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, dispatch, isPending] = useActionState(comment, {});
   const isSuccessful = state.success;
@@ -49,8 +51,8 @@ export function CommentForm({objectUUID, parentUUID, languageCode}: Props) {
             <Textarea
               placeholder={
                 isReplying
-                  ? "پاسخ خود را بنویسید"
-                  : "دیدگاه خود را اینجا بنویسید"
+                  ? t("comments.form.replyPlaceholder")
+                  : t("comments.form.commentPlaceholder")
               }
               rows={4}
               name="body"
@@ -68,18 +70,17 @@ export function CommentForm({objectUUID, parentUUID, languageCode}: Props) {
                 size="sm"
               >
                 <IconCircleDashedCheck size={20} />
-                دیدگاه شما با موفقیت ثبت گردید. پس از بازبینی منتشر خواهد شد
+                {t("comments.form.success")}
               </Text>
             )}
             <ValidationErrorsAlert
               errors={formErrors}
-              title="ثبت دیدگاه ناموفق"
+              title={t("comments.form.submitFailedTitle")}
             />
             {isSuccessful === false && !state.errors && (
               <Text className={clsx(classes.text, classes.errorText)} size="sm">
                 <IconExclamationCircle size={20} />
-                متاسفانه در پردازش دیدگاه شما خطایی بوجود آمد. لطفا مجددا تلاش
-                نمایید
+                {t("comments.form.genericError")}
               </Text>
             )}
           </Stack>
@@ -95,7 +96,7 @@ export function CommentForm({objectUUID, parentUUID, languageCode}: Props) {
             alignSelf: "flex-end",
           }}
         >
-          ارسال دیدگاه
+          {t("comments.form.submit")}
         </Button>
       </Stack>
     </form>

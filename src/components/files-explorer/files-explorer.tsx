@@ -4,6 +4,8 @@ import {useState, useEffect} from "react";
 import {Stack, Group, Alert} from "@mantine/core";
 import {IconInfoCircle} from "@tabler/icons-react";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
+import {useTranslations} from "@/i18n/provider";
+import {type TFunction} from "@/i18n/dictionary";
 import {
   getFilesExplorerConfig,
   type FilesExplorerConfig,
@@ -33,15 +35,15 @@ type TabState = {
   selectedFile?: string;
 };
 
-const NoAccessAlert = () => (
+const NoAccessAlert = ({t}: {t: TFunction}) => (
   <Alert
     variant="filled"
     color="red"
-    title="عدم دسترسی"
+    title={t("files.noAccessTitle")}
     mt={"sm"}
     icon={<IconInfoCircle />}
   >
-    شما به این قسمت دسترسی ندارید
+    {t("files.noAccessMessage")}
   </Alert>
 );
 
@@ -49,11 +51,13 @@ const NoAccessAlert = () => (
  * FilesExplorer component - self-contained file explorer with permission-based access.
  */
 export function FilesExplorer({onSelect}: Props) {
+  const t = useTranslations();
+
   // Fetch configuration - MUST be called unconditionally
   const {data: config, isLoading: isConfigLoading} =
     useQuery<FilesExplorerConfig | null>({
       queryKey: ["files-explorer-config"],
-      queryFn: () => getFilesExplorerConfig(),
+      queryFn: () => getFilesExplorerConfig(t),
       staleTime: 1 * 1000, // 1 seconds
     });
 
@@ -116,7 +120,7 @@ export function FilesExplorer({onSelect}: Props) {
 
   // NOW we can do conditional returns after all hooks are called
   if (isConfigLoading) return null;
-  if (!config) return <NoAccessAlert />;
+  if (!config) return <NoAccessAlert t={t} />;
   if (!activeTabData || !activeTab || !currentTabState) return null;
 
   // Helper to update tab state

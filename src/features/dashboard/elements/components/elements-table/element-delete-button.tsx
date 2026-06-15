@@ -11,6 +11,7 @@ import {
   Text,
 } from "@mantine/core";
 import {IconTrash} from "@tabler/icons-react";
+import {useTranslations} from "@/i18n/provider";
 import {deleteElement} from "../../actions/delete-element";
 
 type Props = {
@@ -19,17 +20,18 @@ type Props = {
 };
 
 export function ElementDeleteButton({elementID, elementTitle}: Props) {
+  const t = useTranslations();
   const [, formAction, isPending] = useActionState(deleteElement, false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   return (
     <>
-      <Tooltip label="حذف کردن المان" withArrow>
+      <Tooltip label={t("elements.table.deleteElement")} withArrow>
         <ActionIcon
           variant="light"
           size="lg"
           color="red"
-          aria-label="حذف کردن المان"
+          aria-label={t("elements.table.deleteElement")}
           onClick={() => {
             setIsConfirmOpen(true);
           }}
@@ -38,7 +40,7 @@ export function ElementDeleteButton({elementID, elementTitle}: Props) {
         </ActionIcon>
       </Tooltip>
       <Modal
-        title="تایید عملیات"
+        title={t("common.confirmAction")}
         opened={isConfirmOpen}
         size="md"
         centered
@@ -46,7 +48,9 @@ export function ElementDeleteButton({elementID, elementTitle}: Props) {
           setIsConfirmOpen(false);
         }}
       >
-        <Text>از حذف {`"${elementTitle}"`} مطمئن هستید؟</Text>
+        <Text>
+          {t("elements.table.deleteConfirm", {title: elementTitle ?? ""})}
+        </Text>
         <Group justify="flex-end" mt={"md"}>
           <Button
             color="gray"
@@ -54,12 +58,12 @@ export function ElementDeleteButton({elementID, elementTitle}: Props) {
               setIsConfirmOpen(false);
             }}
           >
-            لفو کردن
+            {t("common.cancel")}
           </Button>
           <form action={formAction}>
             <input type="hidden" name="id" value={elementID} />
             <Button color="red" type="submit" loading={isPending}>
-              حذف کردن
+              {t("common.delete")}
             </Button>
           </form>
         </Group>

@@ -23,6 +23,7 @@ import {IconInfoCircle, IconChevronRight} from "@tabler/icons-react";
 import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import {nonFieldErrors} from "@/lib/api/validation-errors";
 import {APP_PATHS} from "@/lib/app-paths";
+import {useTranslations} from "@/i18n/provider";
 import {login} from "../actions/login";
 
 type Props = {
@@ -32,6 +33,7 @@ type Props = {
 const LOGIN_FIELDS = ["identity", "password"] as const;
 
 export function LoginForm({callbackUrl}: Props) {
+  const t = useTranslations();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [state, dispatch, isPending] = useActionState(login, null);
@@ -60,16 +62,16 @@ export function LoginForm({callbackUrl}: Props) {
         mb={"sm"}
         p={0}
       >
-        صفحه اصلی
+        {t("auth.shared.home")}
       </Button>
       <Paper withBorder shadow="md" p={30} radius="md">
         <Title order={2} ta="center">
-          ورود به پنل کاربری
+          {t("auth.login.title")}
         </Title>
         <Box component="form" mt={"xl"} action={dispatch}>
           <Stack gap={8} mt={"md"}>
             <TextInput
-              label="ایمیل یا نام کاربری"
+              label={t("auth.shared.identityLabel")}
               placeholder="you@email.com"
               name="identity"
               defaultValue={state?.values?.identity ?? ""}
@@ -80,7 +82,7 @@ export function LoginForm({callbackUrl}: Props) {
           </Stack>
           <Stack gap={8} mt={"md"}>
             <PasswordInput
-              label="کلمه عبور"
+              label={t("auth.login.passwordLabel")}
               placeholder="..."
               name="password"
               disabled={state?.success}
@@ -91,7 +93,7 @@ export function LoginForm({callbackUrl}: Props) {
           <Stack gap={8} mt={"md"}>
             <Checkbox
               name="remember"
-              label="من را به خاطر بسپار"
+              label={t("auth.login.rememberMe")}
               defaultChecked
             />
           </Stack>
@@ -106,12 +108,12 @@ export function LoginForm({callbackUrl}: Props) {
             <Alert
               variant="filled"
               color="green"
-              title="با موفقیت وارد شدید"
+              title={t("auth.login.successTitle")}
               mt={"sm"}
               icon={<IconInfoCircle />}
             >
               <Group gap={5}>
-                در حال منتقل شدن هستید
+                {t("auth.login.redirecting")}
                 <Loader color="white" type="dots" size="sm" />
               </Group>
             </Alert>
@@ -122,12 +124,10 @@ export function LoginForm({callbackUrl}: Props) {
                 formErrors.length > 0
                   ? formErrors
                   : !state.errors
-                    ? [
-                        " ایمیل یا نام کاربری یا کلمه عبورتان را اشتباه وارد کرده اید",
-                      ]
+                    ? [t("auth.login.invalidCredentials")]
                     : []
               }
-              title="ورود ناموفق"
+              title={t("auth.login.failedTitle")}
             />
           )}
           <Button
@@ -137,16 +137,16 @@ export function LoginForm({callbackUrl}: Props) {
             loading={isPending}
             fullWidth
           >
-            {state?.success === false ? "تلاش مجدد" : "ورود"}
+            {state?.success === false ? t("common.tryAgain") : t("nav.login")}
           </Button>
         </Box>
         <Divider my={"md"} />
         <Stack mt={"sm"} gap={"xs"}>
           <Anchor size={"15px"} component={Link} href={"/auth/forgot-password"}>
-            کلمه عبورتان را فراموش کرده اید؟
+            {t("auth.login.forgotPassword")}
           </Anchor>
           <Anchor size={"15px"} component={Link} href={"/auth/register"}>
-            حسابی ندارید؟ یکی بسازید
+            {t("auth.login.noAccount")}
           </Anchor>
         </Stack>
       </Paper>

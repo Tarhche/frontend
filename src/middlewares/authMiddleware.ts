@@ -32,8 +32,11 @@ export default async function authMiddleware(req: NextRequest) {
     }
   }
 
-  const isProtectedRoute = protectedRoutes.some(route => req.nextUrl.pathname.startsWith(route));
-  const hasValidAccessToken = !!newAccessToken || (!!accessToken && !isTokenExpired(accessToken));
+  const isProtectedRoute = protectedRoutes.some((route) =>
+    req.nextUrl.pathname.startsWith(route),
+  );
+  const hasValidAccessToken =
+    !!newAccessToken || (!!accessToken && !isTokenExpired(accessToken));
   if (isProtectedRoute && !hasValidAccessToken) {
     return NextResponse.redirect(new URL("/auth/login", req.url));
   }

@@ -1,7 +1,12 @@
+"use client";
+
 import {Popover, ActionIcon, Text} from "@mantine/core";
 import {IconInfoCircle} from "@tabler/icons-react";
+import {useTranslations} from "@/i18n/provider";
 
 export function OrphanCommentIndicator() {
+  const t = useTranslations();
+
   return (
     <Popover position="bottom" shadow="md" withArrow>
       <Popover.Target>
@@ -10,7 +15,7 @@ export function OrphanCommentIndicator() {
         </ActionIcon>
       </Popover.Target>
       <Popover.Dropdown>
-        <Text size="sm">والد این کامنت حذف یا مخفی شده است.</Text>
+        <Text size="sm">{t("comments.list.orphanInfo")}</Text>
       </Popover.Dropdown>
     </Popover>
   );

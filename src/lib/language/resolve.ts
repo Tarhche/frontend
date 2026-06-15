@@ -20,10 +20,13 @@ function languageFromAccessToken(token: string): string | null {
     : null;
 }
 
-// Resolves the language code for an unprefixed public request:
-//   1. authenticated users → the `lang` claim from their access token,
-//   2. otherwise → a remembered `lang` cookie when it is a known language,
-//   3. otherwise → the site default language (from /api/languages).
+// Resolves the language code for a request. Two precedence modes:
+//   - default (token-first), used by the DASHBOARD/auth so it always follows the
+//     user's profile: 1) token `lang` claim, 2) remembered `lang` cookie,
+//     3) site default.
+//   - `preferCookie` (cookie-first), used by PUBLIC page redirects so a visitor's
+//     explicit language switch (the `lang` cookie) is honored even when
+//     authenticated: 1) cookie, 2) token, 3) site default.
 // Every returned code is validated against the available languages so callers
 // never redirect to a segment the router can't recognize as a language (which
 // would cause an infinite redirect loop). Returns null only when languages can't
@@ -31,6 +34,7 @@ function languageFromAccessToken(token: string): string | null {
 export async function resolvePreferredLanguageCode(opts: {
   accessToken?: string;
   cookieLanguage?: string;
+  preferCookie?: boolean;
 }): Promise<string | null> {
   const config = await getLanguageConfig();
 
@@ -44,19 +48,29 @@ export async function resolvePreferredLanguageCode(opts: {
     return tokenLanguage;
   }
 
-  const {codes, defaultCode} = config;
+  const {languageCodes, defaultLanguageCode} = config;
+  const cookieIsValid = Boolean(
+    opts.cookieLanguage && languageCodes.includes(opts.cookieLanguage),
+  );
+  const tokenIsValid = Boolean(
+    tokenLanguage && languageCodes.includes(tokenLanguage),
+  );
 
-  // 1. Authenticated → token language, but only when it is an available
-  //    language (a stale/unknown code would loop the prefix redirect forever).
-  if (tokenLanguage && codes.includes(tokenLanguage)) {
-    return tokenLanguage;
+  // Public: an explicit switch (cookie) wins over the profile.
+  if (opts.preferCookie && cookieIsValid) {
+    return opts.cookieLanguage as string;
   }
 
-  // 2. Anonymous visitor with a remembered choice.
-  if (opts.cookieLanguage && codes.includes(opts.cookieLanguage)) {
-    return opts.cookieLanguage;
+  // Authenticated → profile/token language (validated to avoid redirect loops).
+  if (tokenIsValid) {
+    return tokenLanguage as string;
   }
 
-  // 3. Site default.
-  return defaultCode;
+  // Remembered choice.
+  if (cookieIsValid) {
+    return opts.cookieLanguage as string;
+  }
+
+  // Site default.
+  return defaultLanguageCode;
 }

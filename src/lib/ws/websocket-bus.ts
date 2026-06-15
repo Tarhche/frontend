@@ -1,5 +1,5 @@
-import { encode, decode } from "js-base64";
-import { PUBLIC_BACKEND_URL } from "@/constants";
+import {encode, decode} from "js-base64";
+import {PUBLIC_BACKEND_URL} from "@/constants";
 
 const DEFAULT_IDLE_TTL_MS = 30_000; // 30 seconds of idle time before auto-disconnecting the WebSocket
 
@@ -77,7 +77,7 @@ export class WebSocketBus {
         this.socket = null;
         this.connectingPromise = null;
         const err = new Error("[WsBus] Connection closed unexpectedly");
-        this.pending.forEach(({ reject }) => reject(err));
+        this.pending.forEach(({reject}) => reject(err));
         this.pending.clear();
       });
     });
@@ -159,9 +159,9 @@ export class WebSocketBus {
     const id = crypto.randomUUID();
 
     return new Promise<TRes>((resolve, reject) => {
-      this.pending.set(id, { resolve, reject });
+      this.pending.set(id, {resolve, reject});
 
-      const msg: { id: string; subject: string; payload?: string } = {
+      const msg: {id: string; subject: string; payload?: string} = {
         id,
         subject,
       };
@@ -179,7 +179,10 @@ export class WebSocketBus {
    * Returns an unsubscribe function — call it to stop receiving messages.
    * As long as at least one subscriber is active the connection stays open.
    */
-  subscribe<T = unknown>(subject: string, handler: TopicHandler<T>): () => void {
+  subscribe<T = unknown>(
+    subject: string,
+    handler: TopicHandler<T>,
+  ): () => void {
     if (!this.subscribers.has(subject)) {
       this.subscribers.set(subject, new Set());
     }

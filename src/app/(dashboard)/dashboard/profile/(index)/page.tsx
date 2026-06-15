@@ -4,22 +4,25 @@ import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumb
 import {ProfileUpdateForm} from "@/features/profile/components";
 import {fetchUserProfile} from "@/dal/private/profile";
 import {fetchLanguages, type Language} from "@/dal/public/languages";
+import {getServerDictionary} from "@/i18n/server";
 
-const PAGE_TITLE = "پروفایل";
-
-export const metadata: Metadata = {
-  title: PAGE_TITLE,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const {t} = await getServerDictionary();
+  return {
+    title: t("profile.title"),
+  };
+}
 
 async function UserProfilePage() {
+  const {t} = await getServerDictionary();
   const user = (await fetchUserProfile()).data;
 
   let languages: Language[] = [];
-  let defaultCode = "";
+  let defaultLanguageCode = "";
   try {
     const data = await fetchLanguages();
     languages = data.items ?? [];
-    defaultCode = data.default_language?.code ?? "";
+    defaultLanguageCode = data.default_language?.code ?? "";
   } catch {
     // Fail open: the language select renders empty if unavailable.
   }
@@ -29,7 +32,7 @@ async function UserProfilePage() {
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: PAGE_TITLE,
+            label: t("profile.title"),
           },
         ]}
       />
@@ -40,7 +43,7 @@ async function UserProfilePage() {
             email: user.email,
             username: user.username,
             avatar: user.avatar,
-            languageCode: user.language_code ?? defaultCode,
+            languageCode: user.language_code ?? defaultLanguageCode,
           }}
           languages={languages}
         />

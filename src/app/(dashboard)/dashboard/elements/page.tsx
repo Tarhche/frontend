@@ -3,15 +3,19 @@ import {Suspense} from "react";
 import {Box} from "@mantine/core";
 import {withPermissions} from "@/components/with-authorization";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
+import {getServerDictionary} from "@/i18n/server";
 import {APP_PATHS} from "@/lib/app-paths";
 import {
   ElementsTable,
   ElementsTableSkeleton,
 } from "@/features/dashboard/elements/components/elements-table";
 
-export const metadata: Metadata = {
-  title: "المان ها",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const {t} = await getServerDictionary();
+  return {
+    title: t("elements.title"),
+  };
+}
 
 type Props = {
   searchParams: Promise<{
@@ -20,6 +24,7 @@ type Props = {
 };
 
 async function ElementsPage({searchParams}: Props) {
+  const {t} = await getServerDictionary();
   const {page} = await searchParams;
 
   return (
@@ -27,7 +32,7 @@ async function ElementsPage({searchParams}: Props) {
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: "المان ها",
+            label: t("elements.title"),
             href: APP_PATHS.dashboard.elements.index,
           },
         ]}

@@ -5,6 +5,7 @@ import {Pagination} from "@/components/pagination";
 import {NoContent} from "@/components/no-content";
 import Element from "@/features/elements/element";
 import {Group} from "@mantine/core";
+import {getDictionary} from "@/i18n/dictionary";
 
 type Props = {
   params: Promise<{
@@ -15,9 +16,11 @@ type Props = {
   }>;
 };
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const {lang} = await props.params;
+  const {t} = getDictionary(lang);
   return {
-    title: `مقاله ها`,
+    title: t("articles.list.metaTitle"),
   };
 }
 

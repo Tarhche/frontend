@@ -19,12 +19,13 @@ import {IconInfoCircle} from "@tabler/icons-react";
 import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import {nonFieldErrors} from "@/lib/api/validation-errors";
 import type {Language} from "@/dal/public/languages";
+import {useTranslations} from "@/i18n/provider";
 import {verifyUser} from "../actions/verify-user";
 
 type Props = {
   token: string;
   languages: Language[];
-  defaultCode: string;
+  defaultLanguageCode: string;
 };
 
 const VERIFY_FIELDS = [
@@ -35,7 +36,8 @@ const VERIFY_FIELDS = [
   "repassword",
 ] as const;
 
-export function VerifyForm({token, languages, defaultCode}: Props) {
+export function VerifyForm({token, languages, defaultLanguageCode}: Props) {
+  const t = useTranslations();
   const [state, dispatch, isPending] = useActionState(verifyUser, {
     success: false,
   });
@@ -43,7 +45,7 @@ export function VerifyForm({token, languages, defaultCode}: Props) {
   const formErrors = nonFieldErrors(fieldErrors, VERIFY_FIELDS);
   const fallbackErrors =
     state.success === false && !state.errors
-      ? ["عملیات با خطا مواجه شد لطفا دوباره تلاش نمایید"]
+      ? [t("auth.verify.unknownError")]
       : [];
 
   if (state.success) {
@@ -53,20 +55,20 @@ export function VerifyForm({token, languages, defaultCode}: Props) {
           <Alert
             variant="filled"
             color="green"
-            title="ثبت نام موفق"
+            title={t("auth.verify.successTitle")}
             mt={"sm"}
             icon={<IconInfoCircle />}
           >
-            حساب شما با موفقیت تایید شد، لطفا به صفحه{" "}
+            {t("auth.verify.successMessagePrefix")}{" "}
             <Anchor
               c={"white"}
               underline="always"
               component={Link}
               href={"/auth/login"}
             >
-              ورود
+              {t("auth.verify.successMessageLoginLink")}
             </Anchor>{" "}
-            مراجعه کنید و وارد حساب خود شوید
+            {t("auth.verify.successMessageSuffix")}
           </Alert>
         </Paper>
       </Container>
@@ -77,14 +79,14 @@ export function VerifyForm({token, languages, defaultCode}: Props) {
     <Container size={500} p={0} mt={"xl"}>
       <Paper radius="md" p="xl" withBorder>
         <Text size="lg" mb={"lg"} fw={500}>
-          جهت تکمیل ثبت نام اطلاعات زیر را وارد کنید
+          {t("auth.verify.heading")}
         </Text>
         <form action={dispatch}>
           <Stack>
             <Stack gap={8}>
               <TextInput
                 name="name"
-                label="نام"
+                label={t("auth.verify.nameLabel")}
                 radius="md"
                 defaultValue={state.values?.name ?? ""}
                 error={fieldErrors?.name ?? ""}
@@ -94,7 +96,7 @@ export function VerifyForm({token, languages, defaultCode}: Props) {
             <Stack gap={8}>
               <TextInput
                 name="username"
-                label="نام کاربری (یوزرنیم)"
+                label={t("auth.verify.usernameLabel")}
                 radius="md"
                 defaultValue={state.values?.username ?? ""}
                 error={fieldErrors?.username ?? ""}
@@ -104,13 +106,15 @@ export function VerifyForm({token, languages, defaultCode}: Props) {
             <Stack gap={8}>
               <Select
                 name="language_code"
-                label="زبان"
+                label={t("auth.verify.languageLabel")}
                 radius="md"
                 data={languages.map((language) => ({
                   value: language.code,
                   label: language.name,
                 }))}
-                defaultValue={state.values?.language_code ?? defaultCode}
+                defaultValue={
+                  state.values?.language_code ?? defaultLanguageCode
+                }
                 error={fieldErrors?.language_code ?? ""}
                 allowDeselect={false}
                 required
@@ -119,7 +123,7 @@ export function VerifyForm({token, languages, defaultCode}: Props) {
             <Stack gap={8}>
               <PasswordInput
                 name="password"
-                label="کلمه عبور"
+                label={t("auth.verify.passwordLabel")}
                 radius="md"
                 error={fieldErrors?.password ?? ""}
                 required
@@ -128,7 +132,7 @@ export function VerifyForm({token, languages, defaultCode}: Props) {
             <Stack gap={8}>
               <PasswordInput
                 name="repassword"
-                label="تکرار کلمه عبور"
+                label={t("auth.verify.confirmPasswordLabel")}
                 radius="md"
                 error={fieldErrors?.repassword ?? ""}
                 required
@@ -138,14 +142,16 @@ export function VerifyForm({token, languages, defaultCode}: Props) {
           </Stack>
           <ValidationErrorsAlert
             errors={formErrors.length > 0 ? formErrors : fallbackErrors}
-            title="ثبت نام ناموفق"
+            title={t("auth.verify.failedTitle")}
           />
           <Group
             justify="space-between"
-            mt={formErrors.length > 0 || fallbackErrors.length > 0 ? "sm" : "xl"}
+            mt={
+              formErrors.length > 0 || fallbackErrors.length > 0 ? "sm" : "xl"
+            }
           >
             <Button type="submit" loading={isPending} fullWidth>
-              تکمیل ثبت نام
+              {t("auth.verify.submit")}
             </Button>
           </Group>
         </form>

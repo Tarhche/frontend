@@ -1,0 +1,451 @@
+{
+  "config": {
+    "direction": "ltr"
+  },
+  "common": {
+    "home": "Home",
+    "retry": "Retry",
+    "tryAgain": "Try again",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirmAction": "Confirm action",
+    "areYouSure": "Are you sure?",
+    "actions": "Actions",
+    "status": "Status",
+    "loading": "Loading",
+    "notFound": {
+      "title": "You found a hidden spot!",
+      "text": "Unfortunately you followed a wrong address, or the page you were looking for has moved somewhere else.",
+      "takeMeHome": "Take me home"
+    },
+    "noContent": {
+      "title": "Nothing published yet",
+      "text": "No articles have been published yet. Please check back later."
+    }
+  },
+  "validation": {},
+  "errors": {
+    "title": "Something went wrong",
+    "boundaryText": "An unexpected error occurred. Please try again, and if the problem persists, contact us.",
+    "permissionDenied": "You are not allowed to view this page",
+    "errorTitle": "Error",
+    "operationFailed": "The operation failed.",
+    "validationError": "Validation error",
+    "unexpectedError": "Unexpected error",
+    "http": {
+      "badRequest": "The request could not be processed.",
+      "unauthorized": "Please log in to continue.",
+      "forbidden": "You don't have permission to perform this action.",
+      "notFound": "The requested item was not found.",
+      "conflict": "This resource already exists.",
+      "serverError": "The server ran into a problem. Please try again later.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "nav": {
+    "brand": "Tarhche",
+    "login": "Log in",
+    "register": "Sign up",
+    "dashboard": "Dashboard",
+    "selectLanguage": "Select language"
+  },
+  "footer": {
+    "tagline": "Tarhche | A fresh design",
+    "openSource": "Open source"
+  },
+  "home": {
+    "title": "Home",
+    "latest": "Latest",
+    "popular": "Most viewed",
+    "moreArticles": "More articles"
+  },
+  "articles": {
+    "list": {
+      "title": "Articles",
+      "metaTitle": "Articles"
+    },
+    "detail": {
+      "notFoundTitle": "Article not found",
+      "notFoundText": "This article is not available in the selected language.",
+      "comments": "Comments"
+    },
+    "hashtags": {
+      "metaTitle": "{hashtag} | Tags"
+    },
+    "form": {
+      "titleLabel": "Article title",
+      "languageLabel": "Language",
+      "excerptLabel": "Content summary",
+      "bodyLabel": "Content",
+      "coverLabel": "Cover",
+      "videoLabel": "Video",
+      "tagsLabel": "Tags",
+      "publishedAtLabel": "Publish date",
+      "submitUpdate": "Update article",
+      "submitCreate": "Create article",
+      "addOrEditTranslation": "Add or edit translation"
+    },
+    "table": {
+      "newArticle": "New article",
+      "empty": "No articles available",
+      "notPublished": "Not published",
+      "viewArticle": "View article",
+      "editArticle": "Edit article",
+      "deleteArticle": "Delete article",
+      "deleteConfirm": "Are you sure you want to delete \"{title}\"?"
+    },
+    "dashboard": {
+      "listMetaTitle": "Articles",
+      "listCrumb": "Articles",
+      "newMetaTitle": "New article",
+      "newCrumb": "New article",
+      "editMetaTitle": "Article details",
+      "editCrumb": "Edit article"
+    }
+  },
+  "comments": {
+    "form": {
+      "replyPlaceholder": "Write your reply",
+      "commentPlaceholder": "Write your comment here",
+      "submit": "Submit comment",
+      "success": "Your comment has been submitted successfully. It will be published after review.",
+      "submitFailedTitle": "Failed to submit comment",
+      "genericError": "Unfortunately an error occurred while processing your comment. Please try again.",
+      "reply": "Reply",
+      "authRequiredTitle": "Authentication required",
+      "authRequiredPrefix": "To submit your comment you must first ",
+      "authRequiredLink": "log in to your account",
+      "authRequiredSuffix": "",
+      "messageLabel": "Comment text",
+      "approvalDatePlaceholder": "Enter the publish date",
+      "approvalDateLabel": "Approval date",
+      "editSubmit": "Edit comment",
+      "editRetry": "Try again",
+      "deleteConfirm": "Are you sure you want to delete \"{message}\"?"
+    },
+    "list": {
+      "empty": "No comments have been submitted for this article yet!",
+      "orphanInfo": "The parent of this comment has been deleted or hidden."
+    },
+    "table": {
+      "headerComment": "Comment",
+      "headerPublishDate": "Publish date",
+      "headerCreatedDate": "Submission date",
+      "headerAuthor": "Author",
+      "emptyAll": "There are no comments",
+      "emptyUser": "You have not submitted any comments yet",
+      "view": "View comment",
+      "edit": "Edit comment",
+      "delete": "Delete comment"
+    },
+    "status": {
+      "approved": "Approved",
+      "pending": "Pending approval",
+      "notApproved": "Not approved"
+    },
+    "dashboard": {
+      "allTitle": "User comments",
+      "myTitle": "My comments",
+      "editTitle": "Edit comment"
+    }
+  },
+  "bookmarks": {
+    "button": {
+      "remove": "Remove from bookmarks",
+      "save": "Save"
+    },
+    "delete": {
+      "tooltip": "Delete bookmark",
+      "ariaLabel": "Delete bookmark",
+      "confirm": "Are you sure you want to delete \"{title}\"?"
+    },
+    "table": {
+      "headerTitle": "Title",
+      "headerDate": "Date added",
+      "empty": "You haven't saved anything yet",
+      "view": "View bookmark"
+    },
+    "page": {
+      "title": "My bookmarks"
+    }
+  },
+  "authors": {
+    "fallbackName": "Author",
+    "memberSince": "Member since {date}",
+    "noArticles": "No articles published yet",
+    "metaTitle": "Articles by {name}"
+  },
+  "auth": {
+    "layout": {
+      "metadataTitleDefault": "Authentication | Tarhche",
+      "metadataTitleTemplate": "%s | Authentication | Tarhche"
+    },
+    "shared": {
+      "home": "Home page",
+      "identityLabel": "Email or username",
+      "operationFailed": "Operation failed"
+    },
+    "login": {
+      "metadataTitle": "Login",
+      "title": "Login to your account",
+      "passwordLabel": "Password",
+      "rememberMe": "Remember me",
+      "successTitle": "Successfully logged in",
+      "redirecting": "You are being redirected",
+      "invalidCredentials": " Your email, username, or password is incorrect",
+      "failedTitle": "Login failed",
+      "forgotPassword": "Forgot your password?",
+      "noAccount": "Don't have an account? Create one"
+    },
+    "register": {
+      "metadataTitle": "Register",
+      "welcome": "Welcome",
+      "alreadyHaveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "emailLabel": "Email",
+      "successTitle": "Operation successful",
+      "successMessage": "The registration link has been sent to you. Please check your email.",
+      "unknownError": "An unknown error occurred, please try again",
+      "submit": "Register"
+    },
+    "forgotPassword": {
+      "metadataTitle": "Forgot password",
+      "title": "Reset password",
+      "description": "You can change your password using your email or username",
+      "successTitle": "Operation successful",
+      "successMessage": "The password reset link has been sent to you successfully. Please check your email",
+      "unknownError": "An unknown error occurred, please try again",
+      "requestPrefix": "Request",
+      "requestRetry": "again",
+      "requestReset": "reset"
+    },
+    "resetPassword": {
+      "metadataTitle": "Reset password",
+      "title": "Change password",
+      "description": "Enter your new password",
+      "newPasswordLabel": "New password",
+      "confirmNewPasswordLabel": "Confirm new password",
+      "successTitle": "Registration successful",
+      "successMessagePrefix": "Your password was changed successfully. You can go to the ",
+      "successMessageLoginLink": "login",
+      "successMessageSuffix": " page and sign in to your account",
+      "passwordsMustMatch": "The passwords must match.",
+      "unknownError": "An unknown error occurred. Please try again",
+      "submit": "Change password"
+    },
+    "verify": {
+      "metadataTitle": "Complete account",
+      "successTitle": "Registration successful",
+      "successMessagePrefix": "Your account was verified successfully, please go to the ",
+      "successMessageLoginLink": "login",
+      "successMessageSuffix": " page and sign in to your account",
+      "heading": "Enter the following information to complete registration",
+      "nameLabel": "Name",
+      "usernameLabel": "Username",
+      "languageLabel": "Language",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm password",
+      "unknownError": "The operation failed, please try again",
+      "failedTitle": "Registration failed",
+      "submit": "Complete registration"
+    }
+  },
+  "files": {
+    "title": "Files",
+    "tabs": {
+      "myFiles": "My files",
+      "allFiles": "All files"
+    },
+    "addImage": "Add image",
+    "addingFiles": "Adding files",
+    "selectFile": "Select file",
+    "noAccessTitle": "No access",
+    "noAccessMessage": "You do not have access to this section",
+    "notFoundTitle": "No file found",
+    "emptyMessage": "There are currently no files",
+    "deleteConfirmTitle": "Are you sure you want to delete this file?",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "changeAvatar": "Change avatar"
+  },
+  "editor": {
+    "copy": "Copy",
+    "copied": "Copied!",
+    "codeCopied": "Code copied",
+    "success": "Success",
+    "resetCode": "Reset code",
+    "run": "Run",
+    "running": "Running…",
+    "unexpectedError": "Unexpected error",
+    "errorMessage": "Something went wrong. Please try again.",
+    "programOutput": "Program output:",
+    "contentPlaceholder": "Content..."
+  },
+  "dashboard": {
+    "brand": "Tarhche",
+    "notFoundTitle": "This page does not exist",
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "articles": "Articles",
+      "comments": "Comments",
+      "files": "Files",
+      "myComments": "My comments",
+      "elements": "Elements",
+      "myBookmarks": "My bookmarks",
+      "users": "Users",
+      "roles": "Roles",
+      "languages": "Languages",
+      "settings": "Settings",
+      "profile": "Profile",
+      "logout": "Logout"
+    }
+  },
+  "users": {
+    "table": {
+      "avatar": "Avatar",
+      "name": "Name",
+      "username": "Username",
+      "email": "Email",
+      "newUser": "New user",
+      "empty": "No users exist",
+      "editUser": "Edit user",
+      "deleteUser": "Delete user",
+      "confirmDelete": "Are you sure you want to delete \"{title}\"?"
+    },
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "username": "Username",
+      "language": "Language",
+      "password": "Password",
+      "changePasswordPrefix": "To change the password, proceed from",
+      "changePasswordLink": "here",
+      "changePasswordSuffix": "",
+      "save": "Save user",
+      "update": "Update"
+    },
+    "password": {
+      "newPassword": "Password",
+      "repeatPassword": "Repeat password",
+      "submit": "Change password",
+      "mismatch": "Passwords do not match",
+      "notEqual": "Passwords must match"
+    },
+    "page": {
+      "listTitle": "Users",
+      "newTitle": "New user",
+      "updateTitle": "Update user",
+      "changePasswordTitle": "Change user password",
+      "breadcrumbUsers": "Users"
+    }
+  },
+  "roles": {
+    "table": {
+      "title": "Title",
+      "description": "Description",
+      "newRole": "New role",
+      "empty": "No roles exist yet",
+      "editRole": "Edit role",
+      "deleteRole": "Delete role",
+      "confirmDelete": "Are you sure you want to delete \"{title}\"?"
+    },
+    "form": {
+      "name": "Role name",
+      "description": "Role description",
+      "users": "Users",
+      "create": "Create role",
+      "update": "Update role"
+    },
+    "page": {
+      "listTitle": "Roles",
+      "newTitle": "Create role",
+      "editTitle": "Edit role",
+      "breadcrumbRoles": "Roles"
+    }
+  },
+  "languages": {
+    "title": "Languages",
+    "table": {
+      "newLanguage": "New language",
+      "empty": "No languages yet",
+      "code": "Code",
+      "name": "Name",
+      "editLanguage": "Edit language",
+      "deleteLanguage": "Delete language",
+      "deleteConfirm": "Are you sure you want to delete \"{title}\"?"
+    },
+    "form": {
+      "codeLabel": "Language code",
+      "codeDescription": "Unique language code (e.g. EN or FA)",
+      "nameLabel": "Language name",
+      "create": "Create language",
+      "update": "Update language"
+    },
+    "breadcrumb": {
+      "edit": "Edit language",
+      "create": "Create language"
+    }
+  },
+  "elements": {
+    "title": "Elements",
+    "table": {
+      "newElement": "New element",
+      "empty": "No elements yet",
+      "titleColumn": "Title",
+      "type": "Type",
+      "createdAt": "Created at",
+      "editElement": "Edit element",
+      "deleteElement": "Delete element",
+      "deleteConfirm": "Are you sure you want to delete \"{title}\"?"
+    },
+    "form": {
+      "editJson": "Edit JSON",
+      "invalidJson": "Invalid JSON",
+      "emptyJson": "JSON is empty",
+      "prettifyError": "Enter valid JSON before formatting",
+      "prettify": "Format JSON",
+      "create": "Create element",
+      "update": "Update element"
+    },
+    "breadcrumb": {
+      "detail": "Element details",
+      "create": "New element",
+      "edit": "Edit element"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "form": {
+      "userDefaultRolesLabel": "Default user roles",
+      "defaultLanguageLabel": "Default language",
+      "submit": "Update"
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "update": {
+      "languageLabel": "Language",
+      "changePasswordPrefix": "To change your password, proceed from",
+      "changePasswordLink": "here",
+      "changePasswordSuffix": "",
+      "submit": "Edit profile",
+      "notification": {
+        "title": "Update successful",
+        "message": "Profile was updated successfully"
+      }
+    },
+    "password": {
+      "title": "Change password",
+      "currentPasswordLabel": "Current password",
+      "newPasswordLabel": "New password",
+      "repeatPasswordLabel": "Repeat new password",
+      "submit": "Change password",
+      "success": "Your password was changed successfully",
+      "validation": {
+        "mustMatch": "Passwords must be identical",
+        "doNotMatch": "Passwords do not match"
+      }
+    }
+  }
+}

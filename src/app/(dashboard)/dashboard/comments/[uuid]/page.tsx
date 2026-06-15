@@ -1,11 +1,17 @@
+import {type Metadata} from "next";
 import {notFound} from "next/navigation";
 import {EditCommentForm} from "@/features/comments/components/edit-comment-form";
 import {fetchUsersDetailComments} from "@/dal/private/comments";
 import {withPermissions} from "@/components/with-authorization";
+import {getServerDictionary} from "@/i18n/server";
 
-export const metadata = {
-  title: "ویرایش کامنت",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const {t} = await getServerDictionary();
+
+  return {
+    title: t("comments.dashboard.editTitle"),
+  };
+}
 
 type Props = {
   params: Promise<{

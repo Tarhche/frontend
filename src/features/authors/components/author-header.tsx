@@ -1,7 +1,10 @@
+"use client";
+
 import {Group, Paper, Stack, Text, Title} from "@mantine/core";
 import {IconCalendar} from "@tabler/icons-react";
 import {UserAvatar} from "@/components/user-avatar";
 import {formatDate, isGregorianStartDateTime} from "@/lib/date-and-time";
+import {useTranslations} from "@/i18n/provider";
 import {type AuthorWithCreatedAt} from "../types";
 
 type Props = {
@@ -9,6 +12,7 @@ type Props = {
 };
 
 export function AuthorHeader({author}: Props) {
+  const t = useTranslations();
   const hasJoinDate =
     Boolean(author.created_at) && !isGregorianStartDateTime(author.created_at);
 
@@ -22,7 +26,9 @@ export function AuthorHeader({author}: Props) {
           height={96}
         />
         <Stack gap={4}>
-          <Title order={2}>{author.name || author.username || "نویسنده"}</Title>
+          <Title order={2}>
+            {author.name || author.username || t("authors.fallbackName")}
+          </Title>
           {author.username && (
             <Text size="sm" c="dimmed">
               @{author.username}
@@ -31,7 +37,11 @@ export function AuthorHeader({author}: Props) {
           {hasJoinDate && (
             <Group gap={6} mt={4} c={"dimmed"} wrap="nowrap">
               <IconCalendar size={16} />
-              <Text size="xs">عضو از {formatDate(author.created_at)}</Text>
+              <Text size="xs">
+                {t("authors.memberSince", {
+                  date: formatDate(author.created_at),
+                })}
+              </Text>
             </Group>
           )}
         </Stack>

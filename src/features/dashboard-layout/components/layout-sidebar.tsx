@@ -2,6 +2,7 @@
 
 import Link from "@/components/link";
 import {usePathname} from "next/navigation";
+import {useTranslations} from "@/i18n/provider";
 import {UnstyledButton} from "@mantine/core";
 import {
   IconNotes,
@@ -29,7 +30,7 @@ type Props = {
 const dashboard = APP_PATHS.dashboard;
 
 type SidebarSchema = {
-  label: string;
+  labelKey: string;
   icon: any;
   href: string;
   requiredPermissions: Permissions[];
@@ -37,73 +38,73 @@ type SidebarSchema = {
 
 const SIDE_BAR_DATA: SidebarSchema[] = [
   {
-    label: "پنل کاربری",
+    labelKey: "nav.dashboard",
     icon: IconHome,
     href: dashboard.index,
     requiredPermissions: [],
   },
   {
-    label: "مقالات",
+    labelKey: "dashboard.sidebar.articles",
     icon: IconNotes,
     href: dashboard.articles.index,
     requiredPermissions: ["articles.index"],
   },
   {
-    label: "کامنت ها",
+    labelKey: "dashboard.sidebar.comments",
     icon: IconMessages,
     href: dashboard.comments.index,
     requiredPermissions: ["comments.index"],
   },
   {
-    label: "فایل ها",
+    labelKey: "dashboard.sidebar.files",
     icon: IconFile,
     href: dashboard.files,
     requiredPermissions: ["files.index", "self.files.index"],
   },
   {
-    label: "کامنت های من",
+    labelKey: "dashboard.sidebar.myComments",
     icon: IconMessage,
     href: dashboard.my.comments,
     requiredPermissions: ["self.comments.index"],
   },
   {
-    label: "المان ها",
+    labelKey: "dashboard.sidebar.elements",
     icon: IconPictureInPicture,
     href: dashboard.elements.index,
     requiredPermissions: ["elements.index"],
   },
   {
-    label: "بوکمارک های من",
+    labelKey: "dashboard.sidebar.myBookmarks",
     icon: IconBookmarks,
     href: dashboard.my.bookmarks,
     requiredPermissions: ["self.bookmarks.index"],
   },
   {
-    label: "کاربرها",
+    labelKey: "dashboard.sidebar.users",
     icon: IconUsers,
     href: dashboard.users.index,
     requiredPermissions: ["users.index"],
   },
   {
-    label: "نقش ها",
+    labelKey: "dashboard.sidebar.roles",
     icon: IconKey,
     href: dashboard.roles.index,
     requiredPermissions: ["roles.index"],
   },
   {
-    label: "زبان ها",
+    labelKey: "dashboard.sidebar.languages",
     icon: IconLanguage,
     href: dashboard.languages.index,
     requiredPermissions: ["languages.index"],
   },
   {
-    label: "تنظیمات",
+    labelKey: "dashboard.sidebar.settings",
     icon: IconSettings,
     href: dashboard.settings,
     requiredPermissions: ["config.show"],
   },
   {
-    label: "پروفایل",
+    labelKey: "dashboard.sidebar.profile",
     icon: IconUser,
     href: dashboard.profile.index,
     requiredPermissions: [],
@@ -111,6 +112,7 @@ const SIDE_BAR_DATA: SidebarSchema[] = [
 ];
 
 export function LayoutSidebar({userPermissions}: Props) {
+  const t = useTranslations();
   const pathname = usePathname();
 
   return SIDE_BAR_DATA.map((item) => {
@@ -122,12 +124,12 @@ export function LayoutSidebar({userPermissions}: Props) {
           component={Link}
           className={classes.link}
           href={item.href}
-          key={item.label}
+          key={item.labelKey}
           mb={5}
           data-active={pathname === item.href || undefined}
         >
           <item.icon className={classes.linkIcon} stroke={1.5} />
-          <span>{item.label}</span>
+          <span>{t(item.labelKey)}</span>
         </UnstyledButton>
       );
     }

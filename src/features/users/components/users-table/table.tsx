@@ -22,14 +22,15 @@ import {DeleteButton} from "./delete-button";
 import {IconPencil, IconUserPlus} from "@tabler/icons-react";
 import {fetchUsers} from "@/dal/private/users";
 import {APP_PATHS} from "@/lib/app-paths";
+import {getServerDictionary} from "@/i18n/server";
 
 export const TABLE_HEADERS = [
   "#",
-  "آواتار",
-  "نام",
-  "نام کاربری",
-  "ایمیل",
-  "عملیات",
+  "users.table.avatar",
+  "users.table.name",
+  "users.table.username",
+  "users.table.email",
+  "common.actions",
 ];
 
 type Props = {
@@ -37,6 +38,7 @@ type Props = {
 };
 
 export async function UsersTable({page}: Props) {
+  const {t} = await getServerDictionary();
   const {items: users, pagination} = await fetchUsers({
     params: {
       page: page,
@@ -53,7 +55,7 @@ export async function UsersTable({page}: Props) {
           leftSection={<IconUserPlus />}
           href={APP_PATHS.dashboard.users.new}
         >
-          کاربر جدید
+          {t("users.table.newUser")}
         </Button>
       </Group>
       <TableScrollContainer minWidth={500}>
@@ -61,7 +63,7 @@ export async function UsersTable({page}: Props) {
           <TableThead>
             <TableTr>
               {TABLE_HEADERS.map((h) => {
-                return <TableTh key={h}>{h}</TableTh>;
+                return <TableTh key={h}>{h === "#" ? h : t(h)}</TableTh>;
               })}
             </TableTr>
           </TableThead>
@@ -69,7 +71,7 @@ export async function UsersTable({page}: Props) {
             {users.length === 0 && (
               <TableTr>
                 <TableTd colSpan={TABLE_HEADERS.length} ta={"center"}>
-                  کاربری وجود ندارد
+                  {t("users.table.empty")}
                 </TableTd>
               </TableTr>
             )}
@@ -94,12 +96,12 @@ export async function UsersTable({page}: Props) {
                         allowedPermissions={["users.update", "users.show"]}
                         operator="AND"
                       >
-                        <Tooltip label={"ویرایش کردن کاربر"} withArrow>
+                        <Tooltip label={t("users.table.editUser")} withArrow>
                           <ActionIcon
                             variant="light"
                             size="lg"
                             color="blue"
-                            aria-label="ویرایش کردن کاربر"
+                            aria-label={t("users.table.editUser")}
                             component={Link}
                             href={`${APP_PATHS.dashboard.users.edit(user.uuid)}`}
                           >

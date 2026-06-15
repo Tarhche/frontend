@@ -4,11 +4,15 @@ import {ElementUpsertForm} from "@/features/dashboard/elements/components/elemen
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {withPermissions} from "@/components/with-authorization";
 import {fetchElement} from "@/dal/private/elements";
+import {getServerDictionary} from "@/i18n/server";
 import {APP_PATHS} from "@/lib/app-paths";
 
-export const metadata = {
-  title: "جزییات المان",
-};
+export async function generateMetadata() {
+  const {t} = await getServerDictionary();
+  return {
+    title: t("elements.breadcrumb.detail"),
+  };
+}
 
 type Props = {
   params: Promise<{
@@ -17,6 +21,7 @@ type Props = {
 };
 
 async function ElementDetailPage({params}: Props) {
+  const {t} = await getServerDictionary();
   const elementId = (await params).uuid;
   if (elementId === undefined) {
     notFound();
@@ -29,11 +34,11 @@ async function ElementDetailPage({params}: Props) {
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: "المان ها",
+            label: t("elements.title"),
             href: APP_PATHS.dashboard.elements.index,
           },
           {
-            label: "ویرایش المان",
+            label: t("elements.breadcrumb.edit"),
           },
         ]}
       />

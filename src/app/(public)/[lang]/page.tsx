@@ -3,16 +3,21 @@ import {FeaturedArticles} from "@/features/home-page/components/featured-article
 import {fetchHomePageData} from "@/dal/public/home";
 import {NoContent} from "@/components/no-content";
 import Element from "@/features/elements/element";
-
-export const metadata: Metadata = {
-  title: "خانه",
-};
+import {getDictionary} from "@/i18n/dictionary";
 
 type Props = {
   params: Promise<{
     lang: string;
   }>;
 };
+
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const {lang} = await props.params;
+  const {t} = getDictionary(lang);
+  return {
+    title: t("home.title"),
+  };
+}
 
 export default async function HomePage(props: Props) {
   const {lang} = await props.params;

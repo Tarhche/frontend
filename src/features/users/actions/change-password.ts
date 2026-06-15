@@ -4,6 +4,7 @@ import {revalidatePath} from "next/cache";
 import {redirect} from "next/navigation";
 import {updatePassword} from "@/dal/private/users";
 import {APP_PATHS} from "@/lib/app-paths";
+import {getServerDictionary} from "@/i18n/server";
 import {
   extractValidationErrors,
   type ValidationFormState,
@@ -19,10 +20,11 @@ export async function updateUserPasswordAction(
   const password = formData.get("new_password")?.toString() ?? "";
   const repassword = formData.get("repassword")?.toString() ?? "";
   if (password !== repassword) {
+    const {t} = await getServerDictionary();
     return {
       success: false,
       errors: {
-        repassword: "کلمه های عبور مطابقت ندارند",
+        repassword: t("users.password.mismatch"),
       },
     };
   }

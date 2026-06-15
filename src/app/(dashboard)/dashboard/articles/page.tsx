@@ -11,10 +11,14 @@ import {
 import {APP_PATHS} from "@/lib/app-paths";
 import {ACCESS_TOKEN_COOKIE_NAME, LANGUAGE_COOKIE_NAME} from "@/constants";
 import {resolvePreferredLanguageCode} from "@/lib/language/resolve";
+import {getServerDictionary} from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "مقاله ها",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const {t} = await getServerDictionary();
+  return {
+    title: t("articles.dashboard.listMetaTitle"),
+  };
+}
 
 type Props = {
   searchParams: Promise<{
@@ -24,6 +28,7 @@ type Props = {
 
 async function ArticlesPage({searchParams}: Props) {
   const {page} = await searchParams;
+  const {t} = await getServerDictionary();
 
   const cookieStore = await cookies();
   const languageCode =
@@ -37,7 +42,7 @@ async function ArticlesPage({searchParams}: Props) {
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: "مقاله ها",
+            label: t("articles.dashboard.listCrumb"),
             href: APP_PATHS.dashboard.articles.index,
           },
         ]}

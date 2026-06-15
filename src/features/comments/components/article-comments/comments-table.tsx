@@ -22,14 +22,15 @@ import {fetchAllComments} from "@/dal/private/comments";
 import {formatDate, isGregorianStartDateTime} from "@/lib/date-and-time";
 import {APP_PATHS} from "@/lib/app-paths";
 import {AuthorInline} from "@/features/authors/components";
+import {getServerDictionary} from "@/i18n/server";
 
 export const TABLE_HEADERS = [
   "#",
-  "کامنت",
-  "تاریخ انتشار",
-  "تاریخ ثبت",
-  "نویسنده",
-  "عملیات",
+  "comments.table.headerComment",
+  "comments.table.headerPublishDate",
+  "comments.table.headerCreatedDate",
+  "comments.table.headerAuthor",
+  "common.actions",
 ];
 
 type Props = {
@@ -37,6 +38,7 @@ type Props = {
 };
 
 export async function CommentsTable({page}: Props) {
+  const {t} = await getServerDictionary();
   const commentsResponse = await fetchAllComments({
     params: {
       page: page,
@@ -52,7 +54,7 @@ export async function CommentsTable({page}: Props) {
           <TableThead>
             <TableTr>
               {TABLE_HEADERS.map((h) => {
-                return <TableTh key={h}>{h}</TableTh>;
+                return <TableTh key={h}>{t(h)}</TableTh>;
               })}
             </TableTr>
           </TableThead>
@@ -60,7 +62,7 @@ export async function CommentsTable({page}: Props) {
             {comments.length === 0 && (
               <TableTr>
                 <TableTd colSpan={TABLE_HEADERS.length} ta={"center"}>
-                  کامنتی وجود ندارد
+                  {t("comments.table.emptyAll")}
                 </TableTd>
               </TableTr>
             )}
@@ -76,7 +78,7 @@ export async function CommentsTable({page}: Props) {
                       formatDate(comment.approved_at)
                     ) : (
                       <Badge color="yellow" variant="light">
-                        تایید نشده
+                        {t("comments.status.notApproved")}
                       </Badge>
                     )}
                   </TableTd>
@@ -86,20 +88,20 @@ export async function CommentsTable({page}: Props) {
                   </TableTd>
                   <TableTd>
                     <ActionIconGroup>
-                      <Tooltip label="بازدید کردن کامنت" withArrow>
+                      <Tooltip label={t("comments.table.view")} withArrow>
                         <ActionIcon
                           component={Link}
                           variant="light"
                           size="lg"
                           color="blue"
                           href={`/${comment.language_code}${APP_PATHS.articles.detail(comment.object_uuid)}`}
-                          aria-label="بازدید کردن کامنت"
+                          aria-label={t("comments.table.view")}
                         >
                           <IconEye style={{width: rem(20)}} stroke={1.5} />
                         </ActionIcon>
                       </Tooltip>
                       <PermissionGuard allowedPermissions={["comments.update"]}>
-                        <Tooltip label="ویرایش کردن کامنت" withArrow>
+                        <Tooltip label={t("comments.table.edit")} withArrow>
                           <ActionIcon
                             component={Link}
                             variant="light"
@@ -108,7 +110,7 @@ export async function CommentsTable({page}: Props) {
                             href={APP_PATHS.dashboard.comments.edit(
                               comment.uuid,
                             )}
-                            aria-label="ویرایش کردن کامنت"
+                            aria-label={t("comments.table.edit")}
                           >
                             <IconPencil style={{width: rem(20)}} stroke={1.5} />
                           </ActionIcon>

@@ -2,6 +2,7 @@
 
 import {Group, Alert} from "@mantine/core";
 import {IconInfoCircle} from "@tabler/icons-react";
+import {useTranslations} from "@/i18n/provider";
 import {FileCard} from "./file-card";
 import {FilesSkeleton} from "./files-skeleton";
 
@@ -32,6 +33,8 @@ export function FilesList({
   canDelete,
   deleteFileAction,
 }: Props) {
+  const t = useTranslations();
+
   if (isLoading) {
     return (
       <Group justify="center">
@@ -45,11 +48,11 @@ export function FilesList({
       <Alert
         variant="light"
         color="blue"
-        title="فایلی یافت نشد"
+        title={t("files.notFoundTitle")}
         mt={"sm"}
         icon={<IconInfoCircle />}
       >
-        در حال حاضر هیچ فایلی وجود ندارد
+        {t("files.emptyMessage")}
       </Alert>
     );
   }

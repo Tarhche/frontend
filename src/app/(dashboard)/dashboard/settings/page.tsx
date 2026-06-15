@@ -6,14 +6,17 @@ import {fetchConfigs} from "@/dal/private/config";
 import {fetchLanguages} from "@/dal/private/languages";
 import {type Language} from "@/dal/public/languages";
 import {withPermissions} from "@/components/with-authorization";
+import {getServerDictionary} from "@/i18n/server";
 
-const PAGE_TITLE = "تنظیمات";
-
-export const metadata: Metadata = {
-  title: PAGE_TITLE,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const {t} = await getServerDictionary();
+  return {
+    title: t("settings.title"),
+  };
+}
 
 async function SettingsPage() {
+  const {t} = await getServerDictionary();
   const config = await fetchConfigs();
 
   // Uses the dashboard languages endpoint (not the public /api/languages, which
@@ -31,7 +34,7 @@ async function SettingsPage() {
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: PAGE_TITLE,
+            label: t("settings.title"),
           },
         ]}
       />

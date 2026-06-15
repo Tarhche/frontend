@@ -1,9 +1,16 @@
 import {type Metadata} from "next";
 import {ResetPasswordForm} from "@/features/auth/components/reset-password-form";
+import {getDictionary} from "@/i18n/dictionary";
 
-export const metadata: Metadata = {
-  title: "بازیابی کلمه عبور",
-};
+export async function generateMetadata(props: {
+  params: Promise<{lang: string}>;
+}): Promise<Metadata> {
+  const {lang} = await props.params;
+  const {t} = getDictionary(lang);
+  return {
+    title: t("auth.resetPassword.metadataTitle"),
+  };
+}
 
 type Props = {
   searchParams: Promise<{

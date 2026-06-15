@@ -6,7 +6,8 @@ import {CKEditor} from "@ckeditor/ckeditor5-react";
 import {Modal} from "@mantine/core";
 import {FilesExplorer} from "@/components/files-explorer";
 import {FILES_PUBLIC_URL} from "@/constants/envs";
-import {editorConfig} from "./editor-config";
+import {useTranslations} from "@/i18n/provider";
+import {getEditorConfig} from "./editor-config";
 import "ckeditor5/ckeditor5.css";
 import "./article-editor.css";
 
@@ -18,17 +19,18 @@ type Props = {
 };
 
 export function ArticleEditor({initialData, editorRef}: Props) {
+  const t = useTranslations();
   const [isFileExplorerOpen, setIsFileExplorerOpen] = useState(false);
 
   const config: EditorConfig = useMemo(() => {
     return {
-      ...editorConfig,
+      ...getEditorConfig(t),
       fileExplorer: {
         onOpen: setIsFileExplorerOpen.bind(null, true),
       },
       initialData: initialData || "",
     };
-  }, [initialData]);
+  }, [initialData, t]);
 
   return (
     <div className="main-container">

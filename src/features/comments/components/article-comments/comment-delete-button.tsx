@@ -12,6 +12,7 @@ import {
 } from "@mantine/core";
 import {deleteCommentAction} from "../../actions/delete-comment";
 import {IconTrash} from "@tabler/icons-react";
+import {useTranslations} from "@/i18n/provider";
 
 type Props = {
   commentID: string;
@@ -19,17 +20,18 @@ type Props = {
 };
 
 export function CommentDeleteButton({commentID, commentMessage}: Props) {
+  const t = useTranslations();
   const [, formAction, isPending] = useActionState(deleteCommentAction, false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   return (
     <>
-      <Tooltip label="حذف کردن کامنت" withArrow>
+      <Tooltip label={t("comments.table.delete")} withArrow>
         <ActionIcon
           variant="light"
           size="lg"
           color="red"
-          aria-label="حذف کردن کامنت"
+          aria-label={t("comments.table.delete")}
           onClick={() => {
             setIsConfirmOpen(true);
           }}
@@ -38,7 +40,7 @@ export function CommentDeleteButton({commentID, commentMessage}: Props) {
         </ActionIcon>
       </Tooltip>
       <Modal
-        title="تایید عملیات"
+        title={t("common.confirmAction")}
         opened={isConfirmOpen}
         size="md"
         centered
@@ -46,7 +48,9 @@ export function CommentDeleteButton({commentID, commentMessage}: Props) {
           setIsConfirmOpen(false);
         }}
       >
-        <Text>از حذف {`"${commentMessage}"`} مطمئن هستید؟</Text>
+        <Text>
+          {t("comments.form.deleteConfirm", {message: commentMessage ?? ""})}
+        </Text>
         <Group justify="flex-end" mt={"md"}>
           <Button
             color="gray"
@@ -54,12 +58,12 @@ export function CommentDeleteButton({commentID, commentMessage}: Props) {
               setIsConfirmOpen(false);
             }}
           >
-            لفو کردن
+            {t("common.cancel")}
           </Button>
           <form action={formAction}>
             <input type="text" name="id" value={commentID} hidden readOnly />
             <Button color="red" type="submit" loading={isPending}>
-              حذف کردن
+              {t("common.delete")}
             </Button>
           </form>
         </Group>

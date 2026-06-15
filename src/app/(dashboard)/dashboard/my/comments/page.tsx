@@ -7,10 +7,15 @@ import {
   UserCommentsTableSkeleton,
 } from "@/features/comments/components/user-comments-table";
 import {withPermissions} from "@/components/with-authorization";
+import {getServerDictionary} from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "کامنت های من",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const {t} = await getServerDictionary();
+
+  return {
+    title: t("comments.dashboard.myTitle"),
+  };
+}
 
 type Props = {
   searchParams: Promise<{
@@ -19,6 +24,7 @@ type Props = {
 };
 
 async function MyCommentsPage({searchParams}: Props) {
+  const {t} = await getServerDictionary();
   const page = Number((await searchParams).page) || 1;
 
   return (
@@ -26,7 +32,7 @@ async function MyCommentsPage({searchParams}: Props) {
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: "کامنت های من",
+            label: t("comments.dashboard.myTitle"),
           },
         ]}
       />

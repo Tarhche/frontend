@@ -3,6 +3,7 @@
 import {useEffect} from "react";
 import {notifications} from "@mantine/notifications";
 import type {ValidationErrorMap} from "@/lib/api/validation-errors";
+import {useTranslations} from "@/i18n/provider";
 
 type Props = {
   state:
@@ -12,15 +13,16 @@ type Props = {
 };
 
 function ServerComponentErrorHandler({state}: Props) {
+  const t = useTranslations();
   useEffect(() => {
     if (state?.success === false && !state.errors) {
       notifications.show({
-        title: "خطا",
-        message: "عملیات به مشکل خورد.",
+        title: t("errors.errorTitle"),
+        message: t("errors.operationFailed"),
         color: "red",
       });
     }
-  }, [state]);
+  }, [state, t]);
 
   return null;
 }

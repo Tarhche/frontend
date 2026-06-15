@@ -4,8 +4,9 @@ import {getLanguageConfig} from "@/lib/language/config";
 import {resolvePreferredLanguageCode} from "@/lib/language/resolve";
 
 // Public content lives under a `/{language}` prefix. These path roots are never
-// language-prefixed (API, Next internals, dashboard and auth pages).
-const EXCLUDED_PREFIXES = ["/api", "/_next", "/dashboard", "/auth"];
+// language-prefixed (API, Next internals, dashboard). Auth pages ARE prefixed
+// (/{lang}/auth/...), so they are not excluded here.
+const EXCLUDED_PREFIXES = ["/api", "/_next", "/dashboard"];
 
 function isExcluded(pathname: string): boolean {
   if (
@@ -41,20 +42,22 @@ export default async function languageMiddleware(
   }
 
   const firstSegment = pathname.split("/").filter(Boolean)[0];
-  if (firstSegment && config.codes.includes(firstSegment)) {
+  if (firstSegment && config.languageCodes.includes(firstSegment)) {
     return;
   }
 
-  // Authenticated → the user's language (from the JWT); otherwise → remembered
-  // cookie or the site default. Same resolution the root page uses.
+  // Public pages honor an explicit language switch (the `lang` cookie) first,
+  // then fall back to the user's profile (JWT) and the site default. Same
+  // resolution the root page uses.
   const preferred = await resolvePreferredLanguageCode({
     accessToken: req.cookies.get(ACCESS_TOKEN_COOKIE_NAME)?.value,
     cookieLanguage: req.cookies.get(LANGUAGE_COOKIE_NAME)?.value,
+    preferCookie: true,
   });
 
   // Only redirect to a known language segment; otherwise the next request would
   // be unprefixed again and loop forever.
-  if (!preferred || !config.codes.includes(preferred)) {
+  if (!preferred || !config.languageCodes.includes(preferred)) {
     return;
   }
 

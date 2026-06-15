@@ -27,6 +27,7 @@ import {
 import {notifications} from "@mantine/notifications";
 import {decode} from "js-base64";
 import {useWsPublish} from "@/hooks/use-ws-publish";
+import {useTranslations} from "@/i18n/provider";
 import "./code-highlight.css";
 
 const themeCompartment = new Compartment();
@@ -42,6 +43,7 @@ const editorSetup = [
 ];
 
 function CodeHighlight({code, language, executable}) {
+  const t = useTranslations();
   const editorRef = useRef<EditorView | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [output, setOutput] = useState("");
@@ -159,8 +161,8 @@ function CodeHighlight({code, language, executable}) {
     } catch (err) {
       console.error("WebSocket error", err);
       notifications.show({
-        title: "خطای غیرمنتظره",
-        message: "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
+        title: t("editor.unexpectedError"),
+        message: t("editor.errorMessage"),
         color: "red",
       });
     } finally {
@@ -189,9 +191,9 @@ function CodeHighlight({code, language, executable}) {
               label={
                 editableCode
                   ? editableCode.length > 0
-                    ? "کپی شد!"
-                    : "کپی کردن"
-                  : "کپی کردن"
+                    ? t("editor.copied")
+                    : t("editor.copy")
+                  : t("editor.copy")
               }
               position="left"
             >
@@ -202,8 +204,8 @@ function CodeHighlight({code, language, executable}) {
                 onClick={() => {
                   navigator.clipboard.writeText(editableCode);
                   notifications.show({
-                    title: "موفق",
-                    message: "کد کپی شد",
+                    title: t("editor.success"),
+                    message: t("editor.codeCopied"),
                     color: "green",
                     autoClose: 2000,
                   });
@@ -214,7 +216,7 @@ function CodeHighlight({code, language, executable}) {
             </Tooltip>
 
             {hasChanged && (
-              <Tooltip label="بازنشانی کد" position="left">
+              <Tooltip label={t("editor.resetCode")} position="left">
                 <ActionIcon
                   variant="subtle"
                   color="gray"
@@ -239,7 +241,7 @@ function CodeHighlight({code, language, executable}) {
 
             {executable && (
               <Tooltip
-                label={running ? "در حال اجرا…" : "اجرا"}
+                label={running ? t("editor.running") : t("editor.run")}
                 position="left"
               >
                 <ActionIcon
@@ -270,8 +272,8 @@ function CodeHighlight({code, language, executable}) {
           mb="xs"
           code={code}
           language={language}
-          copyLabel="کپی کردن"
-          copiedLabel="کپی شد!"
+          copyLabel={t("editor.copy")}
+          copiedLabel={t("editor.copied")}
           controls={
             !executable
               ? []
@@ -279,7 +281,9 @@ function CodeHighlight({code, language, executable}) {
                   <CodeHighlightControl
                     component="button"
                     key="run"
-                    tooltipLabel={running ? "در حال اجرا…" : "اجرا"}
+                    tooltipLabel={
+                      running ? t("editor.running") : t("editor.run")
+                    }
                     disabled={running}
                     onClick={runCode}
                   >
@@ -302,7 +306,7 @@ function CodeHighlight({code, language, executable}) {
       {output && (
         <Paper radius="sm" p="md" withBorder>
           <Text fw={700} mb="xs">
-            خروجی برنامه:
+            {t("editor.programOutput")}
           </Text>
           <ScrollArea dir="ltr" type="always" mah={260}>
             <pre>{output}</pre>

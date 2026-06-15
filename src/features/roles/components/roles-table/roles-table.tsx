@@ -20,14 +20,21 @@ import {RoleDeleteButton} from "./role-delete-button";
 import {IconPencil, IconPlus} from "@tabler/icons-react";
 import {fetchRoles} from "@/dal/private/roles";
 import {APP_PATHS} from "@/lib/app-paths";
+import {getServerDictionary} from "@/i18n/server";
 
-export const TABLE_HEADERS = ["#", "عنوان", "توضیحات", "عملیات"];
+export const TABLE_HEADERS = [
+  "#",
+  "roles.table.title",
+  "roles.table.description",
+  "common.actions",
+];
 
 type Props = {
   page: number | string;
 };
 
 export async function RolesTable({page}: Props) {
+  const {t} = await getServerDictionary();
   await new Promise((res) => setTimeout(res, 3000));
   const {items: roles, pagination} = await fetchRoles({
     params: {
@@ -44,7 +51,7 @@ export async function RolesTable({page}: Props) {
           href={APP_PATHS.dashboard.roles.new}
           leftSection={<IconPlus />}
         >
-          نقش جدید
+          {t("roles.table.newRole")}
         </Button>
       </Group>
       <TableScrollContainer minWidth={500}>
@@ -52,7 +59,7 @@ export async function RolesTable({page}: Props) {
           <TableThead>
             <TableTr>
               {TABLE_HEADERS.map((h) => {
-                return <TableTh key={h}>{h}</TableTh>;
+                return <TableTh key={h}>{h === "#" ? h : t(h)}</TableTh>;
               })}
             </TableTr>
           </TableThead>
@@ -60,7 +67,7 @@ export async function RolesTable({page}: Props) {
             {roles.length === 0 && (
               <TableTr>
                 <TableTd colSpan={TABLE_HEADERS.length} ta={"center"}>
-                  نقشی هنوز وجود ندارد
+                  {t("roles.table.empty")}
                 </TableTd>
               </TableTr>
             )}
@@ -76,12 +83,12 @@ export async function RolesTable({page}: Props) {
                         allowedPermissions={["roles.update", "roles.show"]}
                         operator="AND"
                       >
-                        <Tooltip label={"ویرایش کردن نقش"} withArrow>
+                        <Tooltip label={t("roles.table.editRole")} withArrow>
                           <ActionIcon
                             variant="light"
                             size="lg"
                             color="blue"
-                            aria-label="ویرایش کردن نقش"
+                            aria-label={t("roles.table.editRole")}
                             component={Link}
                             href={`${APP_PATHS.dashboard.roles.edit(role.uuid)}`}
                           >

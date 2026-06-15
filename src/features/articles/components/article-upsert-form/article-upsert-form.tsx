@@ -25,6 +25,7 @@ import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert
 import ServerComponentErrorHandler from "@/components/errors/server-component-error-handler";
 import {nonFieldErrors} from "@/lib/api/validation-errors";
 import type {Language} from "@/dal/public/languages";
+import {useTranslations} from "@/i18n/provider";
 
 const ArticleEditor = dynamic(
   async () => {
@@ -53,7 +54,7 @@ type Props = {
     defaultPublishedAt: string;
   };
   languages: Language[];
-  defaultCode: string;
+  defaultLanguageCode: string;
 };
 
 const ARTICLE_UPSERT_FIELDS = [
@@ -74,8 +75,9 @@ export function ArticleUpsertForm({
   languageCode,
   article,
   languages,
-  defaultCode,
+  defaultLanguageCode,
 }: Props) {
+  const t = useTranslations();
   const editorRef = useRef<EditorRef>(null);
   const [state, dispatch, isPending] = useActionState(upsertArticleAction, {
     success: true,
@@ -116,7 +118,7 @@ export function ArticleUpsertForm({
       <Stack gap="lg">
         <TextInput
           name="title"
-          label="عنوان مقاله"
+          label={t("articles.form.titleLabel")}
           defaultValue={state.values?.title ?? article?.defaultTitle ?? ""}
           error={state.errors?.title ?? ""}
         />
@@ -129,25 +131,25 @@ export function ArticleUpsertForm({
         ) : (
           <Select
             name="language_code"
-            label="زبان"
+            label={t("articles.form.languageLabel")}
             data={languages.map((language) => ({
               value: language.code,
               label: language.name,
             }))}
-            defaultValue={state.values?.language_code ?? defaultCode}
+            defaultValue={state.values?.language_code ?? defaultLanguageCode}
             error={state.errors?.language_code ?? ""}
             allowDeselect={false}
           />
         )}
         <Textarea
           name="excerpt"
-          label="خلاصه محتوا"
+          label={t("articles.form.excerptLabel")}
           defaultValue={state.values?.excerpt ?? article?.defaultExcerpt ?? ""}
           error={state.errors?.excerpt ?? ""}
           autosize
         />
         <Box>
-          <InputLabel>محتوا</InputLabel>
+          <InputLabel>{t("articles.form.bodyLabel")}</InputLabel>
           <ArticleEditor
             initialData={article?.defaultBody}
             editorRef={editorRef}
@@ -160,21 +162,21 @@ export function ArticleUpsertForm({
         </Box>
         <FileInput
           name="cover"
-          label="کاور"
+          label={t("articles.form.coverLabel")}
           defaultValue={article?.defaultCover || ""}
           icon={<IconPhotoPlus size={50} />}
           error={state.errors?.cover ?? ""}
         />
         <FileInput
           name="video"
-          label="ویدئو"
+          label={t("articles.form.videoLabel")}
           defaultValue={article?.defaultVideo || ""}
           icon={<IconMovie size={50} />}
           error={state.errors?.video ?? ""}
         />
         <TagsInput
           name="tags"
-          label="تگ ها"
+          label={t("articles.form.tagsLabel")}
           splitChars={[" "]}
           defaultValue={article?.defaultHashtags || []}
           error={state.errors?.tags ?? ""}
@@ -182,7 +184,7 @@ export function ArticleUpsertForm({
         />
         <DateTimeInput
           name="published_at"
-          label="تاریخ انتشار"
+          label={t("articles.form.publishedAtLabel")}
           defaultValue={defaultPublishedDate}
           error={state.errors?.published_at ?? ""}
           clearable
@@ -190,7 +192,9 @@ export function ArticleUpsertForm({
         <ValidationErrorsAlert errors={formErrors} />
         <Group justify="flex-end" mt="lg">
           <Button type="submit" loading={isPending} disabled={isPending}>
-            {mode === "update" ? "بروزرسانی مقاله" : "ایجاد مقاله"}
+            {mode === "update"
+              ? t("articles.form.submitUpdate")
+              : t("articles.form.submitCreate")}
           </Button>
         </Group>
       </Stack>

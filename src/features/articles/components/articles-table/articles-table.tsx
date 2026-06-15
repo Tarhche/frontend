@@ -29,6 +29,7 @@ import {formatDate, isGregorianStartDateTime} from "@/lib/date-and-time";
 import {APP_PATHS} from "@/lib/app-paths";
 import {type Permissions} from "@/lib/app-permissions";
 import {AuthorInline} from "@/features/authors/components";
+import {getServerDictionary} from "@/i18n/server";
 
 type Props = {
   page: number | string;
@@ -53,28 +54,30 @@ type CorrelatedItem = {
   language: {code: string; name: string};
 };
 
-const tableActions: TableAction[] = [
-  {
-    tooltipLabel: "بازدید کردن مقاله",
-    Icon: IconEye,
-    color: "blue",
-    allowedPermissions: [],
-    href: (correlationUuid, code) =>
-      `/${code}${APP_PATHS.articles.detail(correlationUuid)}`,
-    disabled: (published: boolean) => published,
-  },
-  {
-    tooltipLabel: "ویرایش کردن مقاله",
-    Icon: IconPencil,
-    color: "blue",
-    allowedPermissions: ["articles.update"],
-    href: (correlationUuid, code) =>
-      APP_PATHS.dashboard.articles.edit(correlationUuid, code),
-    disabled: () => false,
-  },
-];
-
 export async function ArticlesTable({page, languageCode}: Props) {
+  const {t} = await getServerDictionary();
+
+  const tableActions: TableAction[] = [
+    {
+      tooltipLabel: t("articles.table.viewArticle"),
+      Icon: IconEye,
+      color: "blue",
+      allowedPermissions: [],
+      href: (correlationUuid, code) =>
+        `/${code}${APP_PATHS.articles.detail(correlationUuid)}`,
+      disabled: (published: boolean) => published,
+    },
+    {
+      tooltipLabel: t("articles.table.editArticle"),
+      Icon: IconPencil,
+      color: "blue",
+      allowedPermissions: ["articles.update"],
+      href: (correlationUuid, code) =>
+        APP_PATHS.dashboard.articles.edit(correlationUuid, code),
+      disabled: () => false,
+    },
+  ];
+
   const articlesResponse = await fetchAllArticles({
     params: {
       page: page,
@@ -95,14 +98,14 @@ export async function ArticlesTable({page, languageCode}: Props) {
             leftSection={<IconFilePlus />}
             href={APP_PATHS.dashboard.articles.new}
           >
-            مقاله جدید
+            {t("articles.table.newArticle")}
           </Button>
         </Group>
       </PermissionGuard>
 
       {articles.length === 0 ? (
         <Text ta="center" c="dimmed" py="xl">
-          مقاله های وجود ندارد
+          {t("articles.table.empty")}
         </Text>
       ) : (
         <Accordion variant="separated" chevronPosition="left" mt="md" multiple>
@@ -163,7 +166,7 @@ export async function ArticlesTable({page, languageCode}: Props) {
                               </Text>
                             ) : (
                               <Badge color="yellow" variant="light">
-                                منتشر نشده
+                                {t("articles.table.notPublished")}
                               </Badge>
                             )}
                           </Group>

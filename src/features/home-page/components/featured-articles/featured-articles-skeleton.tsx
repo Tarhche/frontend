@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Stack,
   Grid,
@@ -9,11 +11,13 @@ import {
   Group,
 } from "@mantine/core";
 import {VerticalArticleCardSkeleton} from "../article-card-vertical/skeleton";
+import {useTranslations} from "@/i18n/provider";
 import classes from "./featured-articles.module.css";
 
 const POPULAR_POSTS_COUNT = [1, 2, 3] as const;
 
 export function FeaturedArticlesSkeleton() {
+  const t = useTranslations();
   return (
     <>
       <Grid>
@@ -24,7 +28,7 @@ export function FeaturedArticlesSkeleton() {
           }}
         >
           <h2 className={classes.headingWithBorder}>
-            <span>جدیدترین ها</span>
+            <span>{t("home.latest")}</span>
           </h2>
           <Stack gap={"sm"}>
             <VerticalArticleCardSkeleton />
@@ -39,7 +43,7 @@ export function FeaturedArticlesSkeleton() {
           }}
         >
           <h2 className={classes.headingWithBorder}>
-            <span>پربازدید ترین ها</span>
+            <span>{t("home.popular")}</span>
           </h2>
           <Stack gap={"sm"}>
             <List listStyleType="none">

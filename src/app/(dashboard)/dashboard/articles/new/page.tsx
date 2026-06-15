@@ -5,18 +5,23 @@ import {ArticleUpsertForm} from "@/features/articles/components/article-upsert-f
 import {withPermissions} from "@/components/with-authorization";
 import {APP_PATHS} from "@/lib/app-paths";
 import {fetchLanguages, type Language} from "@/dal/public/languages";
+import {getServerDictionary} from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "مقاله جدید",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const {t} = await getServerDictionary();
+  return {
+    title: t("articles.dashboard.newMetaTitle"),
+  };
+}
 
 async function NewArticlesPage() {
+  const {t} = await getServerDictionary();
   let languages: Language[] = [];
-  let defaultCode = "";
+  let defaultLanguageCode = "";
   try {
     const data = await fetchLanguages();
     languages = data.items ?? [];
-    defaultCode = data.default_language?.code ?? "";
+    defaultLanguageCode = data.default_language?.code ?? "";
   } catch {
     // Fail open: the language select renders empty if unavailable.
   }
@@ -26,11 +31,11 @@ async function NewArticlesPage() {
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: "مقاله ها",
+            label: t("articles.dashboard.listCrumb"),
             href: APP_PATHS.dashboard.articles.index,
           },
           {
-            label: "مقاله جدید",
+            label: t("articles.dashboard.newCrumb"),
           },
         ]}
       />
@@ -38,7 +43,7 @@ async function NewArticlesPage() {
         <ArticleUpsertForm
           mode="create"
           languages={languages}
-          defaultCode={defaultCode}
+          defaultLanguageCode={defaultLanguageCode}
         />
       </Paper>
     </Box>

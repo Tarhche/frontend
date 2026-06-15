@@ -3,7 +3,7 @@
   padding: var(--mantine-spacing-md);
   display: flex;
   flex-direction: column;
-  border-left: rem(1px) solid
+  border-inline-end: rem(1px) solid
     light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
 }
 
@@ -50,7 +50,7 @@
 
 .linkIcon {
   color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-2));
-  margin-left: var(--mantine-spacing-sm);
+  margin-inline-end: var(--mantine-spacing-sm);
   width: rem(25px);
   height: rem(25px);
 }

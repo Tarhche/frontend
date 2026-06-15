@@ -17,6 +17,7 @@ import {CommentForm} from "./comment-form";
 import {OrphanCommentIndicator} from "./orphan-comment-indicator";
 import {useIsClient} from "@/hooks/use-is-client";
 import {useInit} from "@/hooks/data/init";
+import {useTranslations} from "@/i18n/provider";
 import {formatDate} from "@/lib/date-and-time";
 import {type Comment as CommentType} from "../../types/comment";
 import classes from "./comment.module.css";
@@ -40,6 +41,7 @@ export function Comment({
   comments,
   level = 0,
 }: Props) {
+  const t = useTranslations();
   const isClient = useIsClient();
   const {data, isLoading} = useInit();
   const isLoggedIn = data?.status === "authenticated";
@@ -74,7 +76,7 @@ export function Comment({
           {isLoading || !isClient ? (
             <Skeleton w={30} h={25} className={classes.replyButton} />
           ) : isLoggedIn ? (
-            <Tooltip label={"پاسخ دادن"} withArrow>
+            <Tooltip label={t("comments.form.reply")} withArrow>
               <Button
                 className={classes.replyButton}
                 variant="transparent"

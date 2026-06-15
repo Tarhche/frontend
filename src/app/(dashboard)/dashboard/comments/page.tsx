@@ -8,10 +8,15 @@ import {
 } from "@/features/comments/components/article-comments";
 import {withPermissions} from "@/components/with-authorization";
 import {APP_PATHS} from "@/lib/app-paths";
+import {getServerDictionary} from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "کامنت کاربران",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const {t} = await getServerDictionary();
+
+  return {
+    title: t("comments.dashboard.allTitle"),
+  };
+}
 
 type Props = {
   searchParams: Promise<{
@@ -20,6 +25,7 @@ type Props = {
 };
 
 async function CommentsPage({searchParams}: Props) {
+  const {t} = await getServerDictionary();
   const {page} = await searchParams;
 
   return (
@@ -27,7 +33,7 @@ async function CommentsPage({searchParams}: Props) {
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: "کامنت کاربران",
+            label: t("comments.dashboard.allTitle"),
             href: APP_PATHS.dashboard.comments.index,
           },
         ]}

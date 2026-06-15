@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "@/components/link";
 import {Title, Text, Button, Container, Group} from "@mantine/core";
+import {useTranslations} from "@/i18n/provider";
 import classes from "./not-found.module.css";
 
 type Props = {
@@ -10,16 +13,15 @@ type Props = {
 };
 
 export function NotFound({title, text, anchorLink, anchorText}: Props) {
-  const defaultText =
-    "متاسفانه آدرس اشتباهی را دنبال کرده اید یا صفحه ای که به دنبال آن بودید به یک آدرس دیگری منتقل شده";
+  const t = useTranslations();
   return (
     <Container className={classes.root}>
       <div className={classes.label}>404</div>
       <Title className={classes.title}>
-        {title ?? "یه جای مخفی پیدا کردی!"}
+        {title ?? t("common.notFound.title")}
       </Title>
       <Text c="dimmed" size="lg" ta="center" className={classes.description}>
-        {text ?? defaultText}
+        {text ?? t("common.notFound.text")}
       </Text>
       <Group justify="center">
         <Button
@@ -28,7 +30,7 @@ export function NotFound({title, text, anchorLink, anchorText}: Props) {
           component={Link}
           href={anchorLink ?? "/"}
         >
-          {anchorText ?? "منو به خانه ببر"}
+          {anchorText ?? t("common.notFound.takeMeHome")}
         </Button>
       </Group>
     </Container>

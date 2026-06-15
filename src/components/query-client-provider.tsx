@@ -8,39 +8,42 @@ import {
   MutationCache,
 } from "@tanstack/react-query";
 import {notifications} from "@mantine/notifications";
+import {getClientDictionary} from "@/i18n/provider";
+import type {TFunction} from "@/i18n/dictionary";
 
-function messageFor(status: number) {
+function messageFor(t: TFunction, status: number) {
   switch (status) {
     case 400:
-      return "درخواست قابل پردازش نیست.";
+      return t("errors.http.badRequest");
     case 401:
-      return "لطفاً برای ادامه وارد شوید.";
+      return t("errors.http.unauthorized");
     case 403:
-      return "شما مجوز انجام این عمل را ندارید.";
+      return t("errors.http.forbidden");
     case 404:
-      return "مورد درخواستی یافت نشد.";
+      return t("errors.http.notFound");
     case 409:
-      return "این منبع قبلاً وجود دارد.";
+      return t("errors.http.conflict");
     case 500:
-      return "سرور دچار مشکل شده است. لطفاً بعداً دوباره تلاش کنید.";
+      return t("errors.http.serverError");
     default:
-      return "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.";
+      return t("errors.http.generic");
   }
 }
 
 function handleError(err: any) {
+  const {t} = getClientDictionary();
   const status = err.response?.status;
   if (status) {
     notifications.show({
-      title: `خطا ${err.status}`,
-      message: messageFor(err.status),
+      title: `${t("errors.errorTitle")} ${err.status}`,
+      message: messageFor(t, err.status),
       color: err.status === 403 ? "yellow" : "red",
       withCloseButton: true,
     });
   } else {
     notifications.show({
-      title: "خطای غیرمنتظره",
-      message: "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
+      title: t("errors.unexpectedError"),
+      message: t("errors.http.generic"),
       color: "red",
     });
   }

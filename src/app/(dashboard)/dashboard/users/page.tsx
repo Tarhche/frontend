@@ -4,12 +4,14 @@ import {Box, Stack} from "@mantine/core";
 import {withPermissions} from "@/components/with-authorization";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {UsersTable, UsersTableSkeleton} from "@/features/users/components";
+import {getServerDictionary} from "@/i18n/server";
 
-const PAGE_TITLE = "کاربر ها";
-
-export const metadata: Metadata = {
-  title: PAGE_TITLE,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const {t} = await getServerDictionary();
+  return {
+    title: t("users.page.listTitle"),
+  };
+}
 
 type Props = {
   searchParams: Promise<{
@@ -18,6 +20,7 @@ type Props = {
 };
 
 async function MyBookmarksPage({searchParams}: Props) {
+  const {t} = await getServerDictionary();
   const page = Number((await searchParams).page) || 1;
 
   return (
@@ -25,7 +28,7 @@ async function MyBookmarksPage({searchParams}: Props) {
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: PAGE_TITLE,
+            label: t("users.page.listTitle"),
           },
         ]}
       />

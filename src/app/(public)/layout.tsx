@@ -9,19 +9,22 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   let languages: Language[] = [];
-  let defaultCode = "";
+  let defaultLanguageCode = "";
 
   try {
     const data = await fetchLanguages();
     languages = data.items ?? [];
-    defaultCode = data.default_language?.code ?? "";
+    defaultLanguageCode = data.default_language?.code ?? "";
   } catch {
     // Fail open: render the shell without language switching when the
     // languages endpoint is unavailable.
   }
 
   return (
-    <LanguageProvider languages={languages} defaultCode={defaultCode}>
+    <LanguageProvider
+      languages={languages}
+      defaultLanguageCode={defaultLanguageCode}
+    >
       <AppMainShell>
         {children} <Footer />
       </AppMainShell>

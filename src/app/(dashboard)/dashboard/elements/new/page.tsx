@@ -2,23 +2,29 @@ import {Stack, Paper} from "@mantine/core";
 import {ElementUpsertForm} from "@/features/dashboard/elements/components/element-upsert-form";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {withPermissions} from "@/components/with-authorization";
+import {getServerDictionary} from "@/i18n/server";
 import {APP_PATHS} from "@/lib/app-paths";
 
-export const metadata = {
-  title: "المان جدید",
-};
+export async function generateMetadata() {
+  const {t} = await getServerDictionary();
+  return {
+    title: t("elements.breadcrumb.create"),
+  };
+}
 
 async function ElementDetailPage() {
+  const {t} = await getServerDictionary();
+
   return (
     <Stack>
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: "المان ها",
+            label: t("elements.title"),
             href: APP_PATHS.dashboard.elements.index,
           },
           {
-            label: "ویرایش المان",
+            label: t("elements.breadcrumb.edit"),
           },
         ]}
       />

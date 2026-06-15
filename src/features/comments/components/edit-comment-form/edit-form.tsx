@@ -8,6 +8,7 @@ import ServerComponentErrorHandler from "@/components/errors/server-component-er
 import {nonFieldErrors} from "@/lib/api/validation-errors";
 import {updateCommentAction} from "../../actions/update-comment";
 import {isGregorianStartDateTime} from "@/lib/date-and-time";
+import {useTranslations} from "@/i18n/provider";
 
 type Props = {
   id: string;
@@ -37,6 +38,7 @@ export function EditCommentForm({
   id,
   objectId,
 }: Props) {
+  const t = useTranslations();
   const [state, dispatch, isPending] = useActionState(updateCommentAction, {
     success: true,
   });
@@ -51,7 +53,7 @@ export function EditCommentForm({
         <ServerComponentErrorHandler state={state} />
         <Stack>
           <Textarea
-            label="متن کامنت"
+            label={t("comments.form.messageLabel")}
             name="message"
             rows={4}
             defaultValue={state.values?.message ?? message}
@@ -59,8 +61,8 @@ export function EditCommentForm({
           />
           <DateTimeInput
             valueFormat="DD MMM YYYY hh:mm A"
-            placeholder="تاریخ انتشار را وارد کنید"
-            label="تاریخ تایید"
+            placeholder={t("comments.form.approvalDatePlaceholder")}
+            label={t("comments.form.approvalDateLabel")}
             name="approvalDate"
             defaultValue={
               isGregorianStartDateTime(approvalDate) === true
@@ -73,7 +75,9 @@ export function EditCommentForm({
           <ValidationErrorsAlert errors={formErrors} />
           <Group justify="flex-end" mt="md">
             <Button type="submit" loading={isPending}>
-              {state.success === false ? "تلاش مجدد" : "ویرایش کامنت"}
+              {state.success === false
+                ? t("comments.form.editRetry")
+                : t("comments.form.editSubmit")}
             </Button>
           </Group>
           <input type="text" name="id" value={id} readOnly hidden />

@@ -6,6 +6,7 @@ import {Pagination} from "@/components/pagination";
 import {NoContent} from "@/components/no-content";
 import Element from "@/features/elements/element";
 import {Group} from "@mantine/core";
+import {getDictionary} from "@/i18n/dictionary";
 
 type Props = {
   params: Promise<{
@@ -20,9 +21,10 @@ type Props = {
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params;
   const hashtag = decodeURI(params.hashtag ?? "");
+  const {t} = getDictionary(params.lang);
 
   return {
-    title: `${hashtag} | تگ ها`,
+    title: t("articles.hashtags.metaTitle", {hashtag}),
   };
 }
 

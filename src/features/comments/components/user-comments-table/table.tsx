@@ -21,14 +21,22 @@ import {IconEye} from "@tabler/icons-react";
 import {fetchUserComments} from "@/dal/private/comments";
 import {formatDate, isGregorianStartDateTime} from "@/lib/date-and-time";
 import {APP_PATHS} from "@/lib/app-paths";
+import {getServerDictionary} from "@/i18n/server";
 
-export const TABLE_HEADERS = ["#", "کامنت", "وضعیت", "تاریخ ثبت", "عملیات"];
+export const TABLE_HEADERS = [
+  "#",
+  "comments.table.headerComment",
+  "common.status",
+  "comments.table.headerCreatedDate",
+  "common.actions",
+];
 
 type Props = {
   page: number | string;
 };
 
 export async function UserCommentsTable({page}: Props) {
+  const {t} = await getServerDictionary();
   const commentsResponse = await fetchUserComments({
     params: {
       page: page,
@@ -44,7 +52,7 @@ export async function UserCommentsTable({page}: Props) {
           <TableThead>
             <TableTr>
               {TABLE_HEADERS.map((h) => {
-                return <TableTh key={h}>{h}</TableTh>;
+                return <TableTh key={h}>{t(h)}</TableTh>;
               })}
             </TableTr>
           </TableThead>
@@ -52,7 +60,7 @@ export async function UserCommentsTable({page}: Props) {
             {comments.length === 0 && (
               <TableTr>
                 <TableTd colSpan={TABLE_HEADERS.length} ta="center">
-                  هنوز کامنتی را ثبت نکرده اید
+                  {t("comments.table.emptyUser")}
                 </TableTd>
               </TableTr>
             )}
@@ -66,23 +74,23 @@ export async function UserCommentsTable({page}: Props) {
                   <TableTd>
                     {isApproved ? (
                       <Badge color="green" variant="light">
-                        تایید شده
+                        {t("comments.status.approved")}
                       </Badge>
                     ) : (
                       <Badge color="yellow" variant="light">
-                        در انتظار تایید
+                        {t("comments.status.pending")}
                       </Badge>
                     )}
                   </TableTd>
                   <TableTd>{formatDate(comment.created_at)}</TableTd>
                   <TableTd>
                     <ActionIconGroup>
-                      <Tooltip label="بازدید کردن کامنت" withArrow>
+                      <Tooltip label={t("comments.table.view")} withArrow>
                         <ActionIcon
                           variant="light"
                           size="lg"
                           color="blue"
-                          aria-label="بازدید کردن کامنت"
+                          aria-label={t("comments.table.view")}
                           component={Link}
                           href={`/${comment.language_code}${APP_PATHS.articles.detail(comment.object_uuid)}`}
                         >

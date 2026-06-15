@@ -15,11 +15,13 @@ import {
 import {IconInfoCircle, IconChevronRight} from "@tabler/icons-react";
 import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import {nonFieldErrors} from "@/lib/api/validation-errors";
+import {useTranslations} from "@/i18n/provider";
 import {forgotPassword} from "../actions/forgot-password";
 
 const FORGOT_PASSWORD_FIELDS = ["identity"] as const;
 
 export function ForgotPasswordForm() {
+  const t = useTranslations();
   const [state, dispatch, isPending] = useActionState(
     forgotPassword,
     undefined,
@@ -28,7 +30,7 @@ export function ForgotPasswordForm() {
   const formErrors = nonFieldErrors(state?.errors, FORGOT_PASSWORD_FIELDS);
   const fallbackErrors =
     state?.success === false && !state.errors
-      ? ["خطایی ناشناخته رخ داد لطفا مجددا تلاش نمایید"]
+      ? [t("auth.forgotPassword.unknownError")]
       : [];
 
   return (
@@ -42,17 +44,17 @@ export function ForgotPasswordForm() {
         mb={"sm"}
         p={0}
       >
-        صفحه اصلی
+        {t("auth.shared.home")}
       </Button>
       <Paper withBorder shadow="md" p={30} radius="md">
-        <Title ta="center">بازیابی کلمه عبور</Title>
+        <Title ta="center">{t("auth.forgotPassword.title")}</Title>
         <Text c="dimmed" size="sm" ta="center" mt={5}>
-          با ایمیل یا نام کاربری تان میتوانید کلمه عبورتان را تغییر دهید
+          {t("auth.forgotPassword.description")}
         </Text>
         <form action={dispatch}>
           <Stack gap={8}>
             <TextInput
-              label="ایمیل یا نام کاربری"
+              label={t("auth.shared.identityLabel")}
               placeholder="you@email.com"
               name="identity"
               mt={"md"}
@@ -66,18 +68,17 @@ export function ForgotPasswordForm() {
             <Alert
               variant="filled"
               color="green"
-              title="عملیات موفق"
+              title={t("auth.forgotPassword.successTitle")}
               mt={"sm"}
               icon={<IconInfoCircle />}
             >
-              لینک بازیابی کلمه عبور با موفقیت برای شما ارسال شد. لطفا ایمیل خود
-              را بررسی کنید
+              {t("auth.forgotPassword.successMessage")}
             </Alert>
           )}
           {state?.success === false && (
             <ValidationErrorsAlert
               errors={formErrors.length > 0 ? formErrors : fallbackErrors}
-              title="عملیات ناموفق"
+              title={t("auth.shared.operationFailed")}
             />
           )}
           <Button
@@ -87,7 +88,10 @@ export function ForgotPasswordForm() {
             loading={isPending}
             fullWidth
           >
-            درخواست {state?.success === false ? "مجدد" : "بازیابی"}
+            {t("auth.forgotPassword.requestPrefix")}{" "}
+            {state?.success === false
+              ? t("auth.forgotPassword.requestRetry")
+              : t("auth.forgotPassword.requestReset")}
           </Button>
         </form>
       </Paper>

@@ -3,18 +3,21 @@ import {Stack} from "@mantine/core";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {withPermissions} from "@/components/with-authorization";
 import {FilesList} from "@/features/files/components";
+import {getServerDictionary} from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "فایل ها",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const {t} = await getServerDictionary();
+  return {title: t("files.title")};
+}
 
 async function FilesPage() {
+  const {t} = await getServerDictionary();
   return (
     <Stack>
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: "فایل ها",
+            label: t("files.title"),
           },
         ]}
       />

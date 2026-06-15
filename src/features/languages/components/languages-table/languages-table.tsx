@@ -19,15 +19,22 @@ import {PermissionGuard} from "@/components/permission-guard";
 import {LanguageDeleteButton} from "./language-delete-button";
 import {IconPencil, IconPlus} from "@tabler/icons-react";
 import {fetchLanguages} from "@/dal/private/languages";
+import {getServerDictionary} from "@/i18n/server";
 import {APP_PATHS} from "@/lib/app-paths";
 
-export const TABLE_HEADERS = ["#", "کد", "نام", "عملیات"];
+export const TABLE_HEADERS = [
+  "#",
+  "languages.table.code",
+  "languages.table.name",
+  "common.actions",
+];
 
 type Props = {
   page: number | string;
 };
 
 export async function LanguagesTable({page}: Props) {
+  const {t} = await getServerDictionary();
   const {items: languages, pagination} = await fetchLanguages({
     params: {
       page,
@@ -44,7 +51,7 @@ export async function LanguagesTable({page}: Props) {
             href={APP_PATHS.dashboard.languages.new}
             leftSection={<IconPlus />}
           >
-            زبان جدید
+            {t("languages.table.newLanguage")}
           </Button>
         </PermissionGuard>
       </Group>
@@ -53,7 +60,7 @@ export async function LanguagesTable({page}: Props) {
           <TableThead>
             <TableTr>
               {TABLE_HEADERS.map((h) => {
-                return <TableTh key={h}>{h}</TableTh>;
+                return <TableTh key={h}>{t(h)}</TableTh>;
               })}
             </TableTr>
           </TableThead>
@@ -61,7 +68,7 @@ export async function LanguagesTable({page}: Props) {
             {languages.length === 0 && (
               <TableTr>
                 <TableTd colSpan={TABLE_HEADERS.length} ta={"center"}>
-                  زبانی هنوز وجود ندارد
+                  {t("languages.table.empty")}
                 </TableTd>
               </TableTr>
             )}
@@ -80,12 +87,15 @@ export async function LanguagesTable({page}: Props) {
                         ]}
                         operator="AND"
                       >
-                        <Tooltip label={"ویرایش کردن زبان"} withArrow>
+                        <Tooltip
+                          label={t("languages.table.editLanguage")}
+                          withArrow
+                        >
                           <ActionIcon
                             variant="light"
                             size="lg"
                             color="blue"
-                            aria-label="ویرایش کردن زبان"
+                            aria-label={t("languages.table.editLanguage")}
                             component={Link}
                             href={`${APP_PATHS.dashboard.languages.edit(language.code)}`}
                           >
@@ -93,7 +103,9 @@ export async function LanguagesTable({page}: Props) {
                           </ActionIcon>
                         </Tooltip>
                       </PermissionGuard>
-                      <PermissionGuard allowedPermissions={["languages.delete"]}>
+                      <PermissionGuard
+                        allowedPermissions={["languages.delete"]}
+                      >
                         <LanguageDeleteButton
                           code={language.code}
                           languageName={language.name}

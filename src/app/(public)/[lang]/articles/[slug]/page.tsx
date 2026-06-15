@@ -11,6 +11,7 @@ import {
 import {NotFound} from "@/components/not-found";
 import Element from "@/features/elements/element";
 import {fetchArticleByCorrelationUUID} from "@/dal/public/articles";
+import {getDictionary} from "@/i18n/dictionary";
 
 type Props = {
   params: Promise<{
@@ -34,6 +35,7 @@ export async function generateMetadata(props: Props): Promise<Metadata | null> {
 async function ArticleDetailPage(props: Props) {
   const params = await props.params;
   const {slug, lang} = params;
+  const {t} = getDictionary(lang);
 
   if (slug === undefined) {
     notFound();
@@ -52,8 +54,8 @@ async function ArticleDetailPage(props: Props) {
         mt="xl"
       >
         <NotFound
-          title="مقاله یافت نشد"
-          text="این مقاله در زبان انتخاب‌شده موجود نیست."
+          title={t("articles.detail.notFoundTitle")}
+          text={t("articles.detail.notFoundText")}
         />
       </Container>
     );
@@ -92,7 +94,7 @@ async function ArticleDetailPage(props: Props) {
         <Group align="center" gap={"sm"}>
           <IconMessage />
           <Title ta={"right"} order={3}>
-            دیدگاه ها
+            {t("articles.detail.comments")}
           </Title>
         </Group>
         <Suspense fallback={<CommentsSkeleton />}>

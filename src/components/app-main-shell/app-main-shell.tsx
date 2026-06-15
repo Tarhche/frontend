@@ -12,6 +12,7 @@ import {
 import {useDisclosure} from "@mantine/hooks";
 import {ColorSchemeToggle} from "@/components/color-scheme-toggle";
 import {LanguageSwitcher} from "@/components/language/language-switcher";
+import {useTranslations} from "@/i18n/provider";
 import {AuthButtons} from "./auth-button";
 
 type Props = {
@@ -20,6 +21,7 @@ type Props = {
 
 export function AppMainShell({children}: Props) {
   const [opened, {toggle}] = useDisclosure();
+  const t = useTranslations();
 
   return (
     <AppShell
@@ -42,7 +44,7 @@ export function AppMainShell({children}: Props) {
             />
             <Group justify="space-between" style={{flex: 1}}>
               <UnstyledButton fz={"h4"} component={Link} href={"/"}>
-                طرح‌چه
+                {t("nav.brand")}
               </UnstyledButton>
               <Group gap={"xs"}>
                 <Group gap={0} visibleFrom="sm">

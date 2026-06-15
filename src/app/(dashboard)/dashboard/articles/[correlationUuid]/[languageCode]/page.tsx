@@ -1,3 +1,4 @@
+import {type Metadata} from "next";
 import {notFound} from "next/navigation";
 import {Stack, Paper} from "@mantine/core";
 import {ArticleUpsertForm} from "@/features/articles/components/article-upsert-form";
@@ -6,10 +7,14 @@ import {withPermissions} from "@/components/with-authorization";
 import {fetchArticle} from "@/dal/private/articles";
 import {APP_PATHS} from "@/lib/app-paths";
 import {fetchLanguages, type Language} from "@/dal/public/languages";
+import {getServerDictionary} from "@/i18n/server";
 
-export const metadata = {
-  title: "جزییات مقاله",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const {t} = await getServerDictionary();
+  return {
+    title: t("articles.dashboard.editMetaTitle"),
+  };
+}
 
 type Props = {
   params: Promise<{
@@ -24,12 +29,14 @@ async function ArticleDetalPage({params}: Props) {
     notFound();
   }
 
+  const {t} = await getServerDictionary();
+
   let languages: Language[] = [];
-  let defaultCode = "";
+  let defaultLanguageCode = "";
   try {
     const data = await fetchLanguages();
     languages = data.items ?? [];
-    defaultCode = data.default_language?.code ?? "";
+    defaultLanguageCode = data.default_language?.code ?? "";
   } catch {
     // Fail open: the language select renders empty if unavailable.
   }
@@ -43,11 +50,11 @@ async function ArticleDetalPage({params}: Props) {
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: "مقاله ها",
+            label: t("articles.dashboard.listCrumb"),
             href: APP_PATHS.dashboard.articles.index,
           },
           {
-            label: "ویرایش مقاله",
+            label: t("articles.dashboard.editCrumb"),
           },
         ]}
       />
@@ -57,7 +64,7 @@ async function ArticleDetalPage({params}: Props) {
           correlationUuid={correlationUuid}
           languageCode={languageCode}
           languages={languages}
-          defaultCode={defaultCode}
+          defaultLanguageCode={defaultLanguageCode}
           article={{
             defaultTitle: article.title,
             defaultExcerpt: article.excerpt,

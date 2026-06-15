@@ -12,6 +12,7 @@ import {
 import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import ServerComponentErrorHandler from "@/components/errors/server-component-error-handler";
 import {nonFieldErrors} from "@/lib/api/validation-errors";
+import {useTranslations} from "@/i18n/provider";
 import {upsertRoleAction} from "../../actions/upsert-role";
 
 export type DefaultValues = {
@@ -35,6 +36,7 @@ const ROLE_UPSERT_FIELDS = [
 ] as const;
 
 export function FormFields({defaultValues, children}: Partial<Props>) {
+  const t = useTranslations();
   const isUpdating = defaultValues?.roleId !== undefined;
   const [state, dispatch, isPending] = useActionState(upsertRoleAction, {
     success: true,
@@ -49,7 +51,7 @@ export function FormFields({defaultValues, children}: Partial<Props>) {
         <Stack>
           <TextInput
             name="name"
-            label="نام نقش"
+            label={t("roles.form.name")}
             defaultValue={
               state.values?.name ?? defaultValues?.defaultRoleName ?? ""
             }
@@ -57,7 +59,7 @@ export function FormFields({defaultValues, children}: Partial<Props>) {
           />
           <TextInput
             name="description"
-            label="توضیحات نقش"
+            label={t("roles.form.description")}
             defaultValue={
               state.values?.description ??
               defaultValues?.defaultRoleDescription ??
@@ -68,7 +70,7 @@ export function FormFields({defaultValues, children}: Partial<Props>) {
           <Fieldset my={"md"}>{children}</Fieldset>
           <Textarea
             name="user_uuids"
-            label="کاربر ها"
+            label={t("roles.form.users")}
             rows={5}
             styles={{
               input: {
@@ -88,7 +90,7 @@ export function FormFields({defaultValues, children}: Partial<Props>) {
         )}
         <Group justify="flex-end" mt="xl">
           <Button type="submit" loading={isPending}>
-            {isUpdating ? "بروزرسانی نقش" : "ایجاد نقش"}
+            {isUpdating ? t("roles.form.update") : t("roles.form.create")}
           </Button>
         </Group>
       </Fieldset>

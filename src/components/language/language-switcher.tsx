@@ -4,6 +4,7 @@ import {useRouter, usePathname} from "next/navigation";
 import {Menu, ActionIcon, Tooltip} from "@mantine/core";
 import {IconLanguage, IconCheck} from "@tabler/icons-react";
 import {LANGUAGE_COOKIE_NAME} from "@/constants";
+import {useTranslations} from "@/i18n/provider";
 import {useLanguage} from "./language-context";
 
 // Topbar menu listing the available site languages. Selecting one swaps the
@@ -13,28 +14,33 @@ export function LanguageSwitcher() {
   const language = useLanguage();
   const router = useRouter();
   const pathname = usePathname();
+  const t = useTranslations();
 
   if (!language || language.languages.length === 0) {
     return null;
   }
 
-  const {languages, codes, activeCode} = language;
+  const {languages, languageCodes, activeLanguageCode} = language;
 
-  const switchTo = (code: string) => {
-    if (code === activeCode) {
+  const switchTo = (languageCode: string) => {
+    if (languageCode === activeLanguageCode) {
       return;
     }
 
-    document.cookie = `${LANGUAGE_COOKIE_NAME}=${code}; path=/; max-age=31536000`;
+    document.cookie = `${LANGUAGE_COOKIE_NAME}=${languageCode}; path=/; max-age=31536000`;
 
     const segments = pathname.split("/").filter(Boolean);
-    // Drop an existing leading language segment (matched against codes, or the
-    // active one as a fallback), then prepend the chosen one — so switching is
-    // idempotent and never produces e.g. /EN/EN.
-    if (segments[0] && (codes.includes(segments[0]) || segments[0] === activeCode)) {
+    // Drop an existing leading language segment (matched against languageCodes,
+    // or the active one as a fallback), then prepend the chosen one — so
+    // switching is idempotent and never produces e.g. /EN/EN.
+    if (
+      segments[0] &&
+      (languageCodes.includes(segments[0]) ||
+        segments[0] === activeLanguageCode)
+    ) {
       segments.shift();
     }
-    segments.unshift(code);
+    segments.unshift(languageCode);
 
     router.push(`/${segments.join("/")}`);
   };
@@ -42,12 +48,12 @@ export function LanguageSwitcher() {
   return (
     <Menu shadow="md" width={180} position="bottom-end">
       <Menu.Target>
-        <Tooltip label="انتخاب زبان" withArrow>
+        <Tooltip label={t("nav.selectLanguage")} withArrow>
           <ActionIcon
             variant="light"
             size="lg"
             radius="md"
-            aria-label="انتخاب زبان"
+            aria-label={t("nav.selectLanguage")}
           >
             <IconLanguage style={{width: "70%", height: "70%"}} stroke={1.5} />
           </ActionIcon>
@@ -59,7 +65,7 @@ export function LanguageSwitcher() {
             key={item.code}
             onClick={() => switchTo(item.code)}
             rightSection={
-              item.code === activeCode ? <IconCheck size={16} /> : null
+              item.code === activeLanguageCode ? <IconCheck size={16} /> : null
             }
           >
             {item.name}

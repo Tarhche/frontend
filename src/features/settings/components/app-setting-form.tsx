@@ -5,6 +5,7 @@ import {Group, Stack, Textarea, Select, Button} from "@mantine/core";
 import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import ServerComponentErrorHandler from "@/components/errors/server-component-error-handler";
 import {nonFieldErrors} from "@/lib/api/validation-errors";
+import {useTranslations} from "@/i18n/provider";
 import type {Language} from "@/dal/public/languages";
 import {updateSettingAction} from "../actions/update-setting";
 
@@ -22,7 +23,11 @@ const APP_SETTING_FIELDS = [
 ] as const;
 
 export function AppSettingForm({config, languages}: Props) {
-  const [state, dispatch, isPending] = useActionState(updateSettingAction, null);
+  const t = useTranslations();
+  const [state, dispatch, isPending] = useActionState(
+    updateSettingAction,
+    null,
+  );
 
   const formErrors = nonFieldErrors(state?.errors, APP_SETTING_FIELDS);
 
@@ -32,9 +37,11 @@ export function AppSettingForm({config, languages}: Props) {
       <Stack>
         <Textarea
           name="user_default_roles"
-          label="نقش پیشفرض کاربران"
+          label={t("settings.form.userDefaultRolesLabel")}
           rows={4}
-          defaultValue={state?.values?.user_default_roles ?? config.userDefaultRoles}
+          defaultValue={
+            state?.values?.user_default_roles ?? config.userDefaultRoles
+          }
           dir="ltr"
           styles={{
             input: {
@@ -45,7 +52,7 @@ export function AppSettingForm({config, languages}: Props) {
         />
         <Select
           name="default_language_code"
-          label="زبان پیشفرض"
+          label={t("settings.form.defaultLanguageLabel")}
           data={languages.map((language) => ({
             value: language.code,
             label: language.name,
@@ -59,7 +66,7 @@ export function AppSettingForm({config, languages}: Props) {
         <ValidationErrorsAlert errors={formErrors} />
         <Group justify="flex-end" mt="md">
           <Button type="submit" loading={isPending}>
-            بروزرسانی
+            {t("settings.form.submit")}
           </Button>
         </Group>
       </Stack>

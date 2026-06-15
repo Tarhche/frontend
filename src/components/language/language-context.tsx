@@ -6,16 +6,16 @@ import type {Language} from "@/dal/public/languages";
 
 type LanguageContextValue = {
   languages: Language[];
-  codes: string[];
-  defaultCode: string;
-  activeCode: string;
+  languageCodes: string[];
+  defaultLanguageCode: string;
+  activeLanguageCode: string;
 };
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 type Props = {
   languages: Language[];
-  defaultCode: string;
+  defaultLanguageCode: string;
   children: ReactNode;
 };
 
@@ -23,17 +23,23 @@ type Props = {
 // `LanguageSwitcher` know the available languages and which one is active. The
 // active language is derived from the first path segment, falling back to the
 // site default.
-export function LanguageProvider({languages, defaultCode, children}: Props) {
+export function LanguageProvider({
+  languages,
+  defaultLanguageCode,
+  children,
+}: Props) {
   const pathname = usePathname();
 
   const value = useMemo<LanguageContextValue>(() => {
-    const codes = languages.map((language) => language.code);
+    const languageCodes = languages.map((language) => language.code);
     const firstSegment = pathname.split("/").filter(Boolean)[0];
-    const activeCode =
-      firstSegment && codes.includes(firstSegment) ? firstSegment : defaultCode;
+    const activeLanguageCode =
+      firstSegment && languageCodes.includes(firstSegment)
+        ? firstSegment
+        : defaultLanguageCode;
 
-    return {languages, codes, defaultCode, activeCode};
-  }, [languages, defaultCode, pathname]);
+    return {languages, languageCodes, defaultLanguageCode, activeLanguageCode};
+  }, [languages, defaultLanguageCode, pathname]);
 
   return (
     <LanguageContext.Provider value={value}>

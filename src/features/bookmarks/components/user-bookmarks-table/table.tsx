@@ -20,14 +20,22 @@ import {IconEye} from "@tabler/icons-react";
 import {fetchUserBookmarks} from "@/dal/private/bookmarks";
 import {formatDate} from "@/lib/date-and-time";
 import {APP_PATHS} from "@/lib/app-paths";
+import {getServerDictionary} from "@/i18n/server";
 
-export const TABLE_HEADERS = ["#", "عنوان", "تاریخ ثبت", "عملیات"];
+export const TABLE_HEADERS = ["index", "title", "date", "actions"];
 
 type Props = {
   page: number | string;
 };
 
 export async function UserBookmarksTable({page}: Props) {
+  const {t} = await getServerDictionary();
+  const headers = [
+    "#",
+    t("bookmarks.table.headerTitle"),
+    t("bookmarks.table.headerDate"),
+    t("common.actions"),
+  ];
   const bookmarksResponse = await fetchUserBookmarks({
     params: {
       page: page,
@@ -42,7 +50,7 @@ export async function UserBookmarksTable({page}: Props) {
         <Table verticalSpacing={"sm"} striped withRowBorders>
           <TableThead>
             <TableTr>
-              {TABLE_HEADERS.map((h) => {
+              {headers.map((h) => {
                 return <TableTh key={h}>{h}</TableTh>;
               })}
             </TableTr>
@@ -50,8 +58,8 @@ export async function UserBookmarksTable({page}: Props) {
           <TableTbody>
             {bookmarks.length === 0 && (
               <TableTr>
-                <TableTd colSpan={TABLE_HEADERS.length} ta={"center"}>
-                  هنوز چیزی را ذخیره نکرده اید
+                <TableTd colSpan={headers.length} ta={"center"}>
+                  {t("bookmarks.table.empty")}
                 </TableTd>
               </TableTr>
             )}
@@ -63,12 +71,12 @@ export async function UserBookmarksTable({page}: Props) {
                   <TableTd>{formatDate(bookmark.created_at)}</TableTd>
                   <TableTd>
                     <ActionIconGroup>
-                      <Tooltip label={"بازدید کردن بوکمارک"} withArrow>
+                      <Tooltip label={t("bookmarks.table.view")} withArrow>
                         <ActionIcon
                           variant="light"
                           size="lg"
                           color="blue"
-                          aria-label="بازدید کردن بوکمارک"
+                          aria-label={t("bookmarks.table.view")}
                           component={Link}
                           href={`/${bookmark.language_code}${APP_PATHS.articles.detail(bookmark.object_uuid)}`}
                         >

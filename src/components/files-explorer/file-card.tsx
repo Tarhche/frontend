@@ -16,6 +16,7 @@ import {
   Badge,
 } from "@mantine/core";
 import {IconEye, IconTrash, IconCheck} from "@tabler/icons-react";
+import {useTranslations} from "@/i18n/provider";
 import {FILES_PUBLIC_URL} from "@/constants/envs";
 import {mimeToIcon, defaultIcon} from "./mimetype-mapping";
 import classes from "./file-card.module.css";
@@ -41,6 +42,7 @@ export function FileCard({
   onSelect,
   deleteFileAction,
 }: Props) {
+  const t = useTranslations();
   const {mutate, isPending} = useMutation({
     mutationKey: ["file-delete"],
     mutationFn: deleteFileAction,
@@ -154,7 +156,7 @@ export function FileCard({
         </Box>
       </Paper>
       <Modal
-        title="از حذف این فایل مطمئن هستید؟"
+        title={t("files.deleteConfirmTitle")}
         opened={showDeleteConfirm}
         size="md"
         centered
@@ -171,11 +173,11 @@ export function FileCard({
         </Group>
         <Group justify="flex-end" mt={"md"}>
           <Button color="gray" onClick={handleClose}>
-            لفو کردن
+            {t("files.cancel")}
           </Button>
           <form action={handleDelete}>
             <Button color="red" type="submit" loading={isPending}>
-              حذف کردن
+              {t("files.delete")}
             </Button>
           </form>
         </Group>

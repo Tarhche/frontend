@@ -1,5 +1,8 @@
+"use client";
+
 import {Alert, List, ListItem, type MantineSpacing} from "@mantine/core";
 import {IconInfoCircle} from "@tabler/icons-react";
+import {useTranslations} from "@/i18n/provider";
 
 type Props = {
   errors?: string[];
@@ -7,11 +10,8 @@ type Props = {
   mt?: MantineSpacing;
 };
 
-export function ValidationErrorsAlert({
-  errors = [],
-  title = "خطای اعتبارسنجی",
-  mt = "sm",
-}: Props) {
+export function ValidationErrorsAlert({errors = [], title, mt = "sm"}: Props) {
+  const t = useTranslations();
   const visible = errors.filter(Boolean);
   if (visible.length === 0) return null;
 
@@ -19,7 +19,7 @@ export function ValidationErrorsAlert({
     <Alert
       variant="filled"
       color="red"
-      title={title}
+      title={title ?? t("errors.validationError")}
       icon={<IconInfoCircle />}
       mt={mt}
     >

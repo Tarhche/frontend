@@ -11,6 +11,7 @@ import {
   Text,
 } from "@mantine/core";
 import {IconTrash} from "@tabler/icons-react";
+import {useTranslations} from "@/i18n/provider";
 import {deleteUserAction} from "../../actions/delete-user";
 
 type Props = {
@@ -19,17 +20,18 @@ type Props = {
 };
 
 export function DeleteButton({userID, username}: Props) {
+  const t = useTranslations();
   const [, formAction, isPending] = useActionState(deleteUserAction, false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   return (
     <>
-      <Tooltip label="حذف کردن کاربر" withArrow>
+      <Tooltip label={t("users.table.deleteUser")} withArrow>
         <ActionIcon
           variant="light"
           size="lg"
           color="red"
-          aria-label="حذف کردن کاربر"
+          aria-label={t("users.table.deleteUser")}
           onClick={() => {
             setIsConfirmOpen(true);
           }}
@@ -38,7 +40,7 @@ export function DeleteButton({userID, username}: Props) {
         </ActionIcon>
       </Tooltip>
       <Modal
-        title="تایید عملیات"
+        title={t("common.confirmAction")}
         opened={isConfirmOpen}
         size="md"
         centered
@@ -46,7 +48,7 @@ export function DeleteButton({userID, username}: Props) {
           setIsConfirmOpen(false);
         }}
       >
-        <Text>از حذف {`"${username}"`} مطمئن هستید؟</Text>
+        <Text>{t("users.table.confirmDelete", {title: username ?? ""})}</Text>
         <Group justify="flex-end" mt={"md"}>
           <Button
             color="gray"
@@ -54,12 +56,12 @@ export function DeleteButton({userID, username}: Props) {
               setIsConfirmOpen(false);
             }}
           >
-            لفو کردن
+            {t("common.cancel")}
           </Button>
           <form action={formAction}>
             <input type="text" name="id" value={userID} readOnly hidden />
             <Button type="submit" color="red" loading={isPending}>
-              حذف کردن
+              {t("common.delete")}
             </Button>
           </form>
         </Group>

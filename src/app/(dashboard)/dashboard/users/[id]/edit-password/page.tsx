@@ -6,12 +6,14 @@ import {UserPasswordForm} from "@/features/users/components";
 import {withPermissions} from "@/components/with-authorization";
 import {fetchUser} from "@/dal/private/users";
 import {APP_PATHS} from "@/lib/app-paths";
+import {getServerDictionary} from "@/i18n/server";
 
-const PAGE_TITLE = "تغییر کلمه عبور کاربر";
-
-export const metadata: Metadata = {
-  title: PAGE_TITLE,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const {t} = await getServerDictionary();
+  return {
+    title: t("users.page.changePasswordTitle"),
+  };
+}
 
 type Props = {
   params: Promise<{
@@ -20,6 +22,7 @@ type Props = {
 };
 
 async function UpdateUserPage({params}: Props) {
+  const {t} = await getServerDictionary();
   const userId = (await params).id;
   if (userId === undefined) {
     notFound();
@@ -31,7 +34,7 @@ async function UpdateUserPage({params}: Props) {
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: "کاربرها",
+            label: t("users.page.breadcrumbUsers"),
             href: APP_PATHS.dashboard.users.index,
           },
           {
@@ -39,7 +42,7 @@ async function UpdateUserPage({params}: Props) {
             href: APP_PATHS.dashboard.users.edit(userData.uuid),
           },
           {
-            label: PAGE_TITLE,
+            label: t("users.page.changePasswordTitle"),
           },
         ]}
       />

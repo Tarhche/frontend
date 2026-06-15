@@ -1,0 +1,451 @@
+{
+  "config": {
+    "direction": "rtl"
+  },
+  "common": {
+    "home": "خانه",
+    "retry": "تلاش مجدد",
+    "tryAgain": "تلاش مجدد",
+    "cancel": "لغو کردن",
+    "delete": "حذف کردن",
+    "edit": "ویرایش",
+    "confirmAction": "تایید عملیات",
+    "areYouSure": "مطمئن هستید؟",
+    "actions": "عملیات",
+    "status": "وضعیت",
+    "loading": "در حال بارگذاری",
+    "notFound": {
+      "title": "یه جای مخفی پیدا کردی!",
+      "text": "متاسفانه آدرس اشتباهی را دنبال کرده اید یا صفحه ای که به دنبال آن بودید به یک آدرس دیگری منتقل شده",
+      "takeMeHome": "منو به خانه ببر"
+    },
+    "noContent": {
+      "title": "هنوز محتوایی منتشر نشده",
+      "text": "در حال حاضر هیچ مقاله‌ای منتشر نشده است. لطفاً بعداً دوباره سر بزنید."
+    }
+  },
+  "validation": {},
+  "errors": {
+    "title": "خطایی رخ داد",
+    "boundaryText": "اتفاقی غیر منتظره رخ داد، لطفا دوباره تلاش کنید و اگر همچنان مشکل داشتید با ما در ارتباط باشید",
+    "permissionDenied": "شما مجاز به دیدن این صفحه نمی باشید",
+    "errorTitle": "خطا",
+    "operationFailed": "عملیات به مشکل خورد.",
+    "validationError": "خطای اعتبارسنجی",
+    "unexpectedError": "خطای غیرمنتظره",
+    "http": {
+      "badRequest": "درخواست قابل پردازش نیست.",
+      "unauthorized": "لطفاً برای ادامه وارد شوید.",
+      "forbidden": "شما مجوز انجام این عمل را ندارید.",
+      "notFound": "مورد درخواستی یافت نشد.",
+      "conflict": "این منبع قبلاً وجود دارد.",
+      "serverError": "سرور دچار مشکل شده است. لطفاً بعداً دوباره تلاش کنید.",
+      "generic": "مشکلی پیش آمد. لطفاً دوباره تلاش کنید."
+    }
+  },
+  "nav": {
+    "brand": "طرح‌چه",
+    "login": "ورود",
+    "register": "عضویت",
+    "dashboard": "پنل کاربری",
+    "selectLanguage": "انتخاب زبان"
+  },
+  "footer": {
+    "tagline": "طرح‌چه | طرحی نو در اندازیم",
+    "openSource": "اوپن سورس"
+  },
+  "home": {
+    "title": "خانه",
+    "latest": "جدیدترین ها",
+    "popular": "پربازدیدترین ها",
+    "moreArticles": "مقالات بیشتر"
+  },
+  "articles": {
+    "list": {
+      "title": "مقاله ها",
+      "metaTitle": "مقاله ها"
+    },
+    "detail": {
+      "notFoundTitle": "مقاله یافت نشد",
+      "notFoundText": "این مقاله در زبان انتخاب‌شده موجود نیست.",
+      "comments": "دیدگاه ها"
+    },
+    "hashtags": {
+      "metaTitle": "{hashtag} | تگ ها"
+    },
+    "form": {
+      "titleLabel": "عنوان مقاله",
+      "languageLabel": "زبان",
+      "excerptLabel": "خلاصه محتوا",
+      "bodyLabel": "محتوا",
+      "coverLabel": "کاور",
+      "videoLabel": "ویدئو",
+      "tagsLabel": "تگ ها",
+      "publishedAtLabel": "تاریخ انتشار",
+      "submitUpdate": "بروزرسانی مقاله",
+      "submitCreate": "ایجاد مقاله",
+      "addOrEditTranslation": "افزودن یا ویرایش ترجمه"
+    },
+    "table": {
+      "newArticle": "مقاله جدید",
+      "empty": "مقاله های وجود ندارد",
+      "notPublished": "منتشر نشده",
+      "viewArticle": "بازدید کردن مقاله",
+      "editArticle": "ویرایش کردن مقاله",
+      "deleteArticle": "حذف کردن مقاله",
+      "deleteConfirm": "از حذف \"{title}\" مطمئن هستید؟"
+    },
+    "dashboard": {
+      "listMetaTitle": "مقاله ها",
+      "listCrumb": "مقاله ها",
+      "newMetaTitle": "مقاله جدید",
+      "newCrumb": "مقاله جدید",
+      "editMetaTitle": "جزییات مقاله",
+      "editCrumb": "ویرایش مقاله"
+    }
+  },
+  "comments": {
+    "form": {
+      "replyPlaceholder": "پاسخ خود را بنویسید",
+      "commentPlaceholder": "دیدگاه خود را اینجا بنویسید",
+      "submit": "ارسال دیدگاه",
+      "success": "دیدگاه شما با موفقیت ثبت گردید. پس از بازبینی منتشر خواهد شد",
+      "submitFailedTitle": "ثبت دیدگاه ناموفق",
+      "genericError": "متاسفانه در پردازش دیدگاه شما خطایی بوجود آمد. لطفا مجددا تلاش نمایید",
+      "reply": "پاسخ دادن",
+      "authRequiredTitle": "نیازمند احراز هویت",
+      "authRequiredPrefix": "برای اینکه بتوانید دیدگاه خود را ثبت کنید باید ابتدا ",
+      "authRequiredLink": "وارد حسابتان",
+      "authRequiredSuffix": " شوید",
+      "messageLabel": "متن کامنت",
+      "approvalDatePlaceholder": "تاریخ انتشار را وارد کنید",
+      "approvalDateLabel": "تاریخ تایید",
+      "editSubmit": "ویرایش کامنت",
+      "editRetry": "تلاش مجدد",
+      "deleteConfirm": "از حذف \"{message}\" مطمئن هستید؟"
+    },
+    "list": {
+      "empty": "هنوز دیدگاهی برای این مقاله ثبت نشده!",
+      "orphanInfo": "والد این کامنت حذف یا مخفی شده است."
+    },
+    "table": {
+      "headerComment": "کامنت",
+      "headerPublishDate": "تاریخ انتشار",
+      "headerCreatedDate": "تاریخ ثبت",
+      "headerAuthor": "نویسنده",
+      "emptyAll": "کامنتی وجود ندارد",
+      "emptyUser": "هنوز کامنتی را ثبت نکرده اید",
+      "view": "بازدید کردن کامنت",
+      "edit": "ویرایش کردن کامنت",
+      "delete": "حذف کردن کامنت"
+    },
+    "status": {
+      "approved": "تایید شده",
+      "pending": "در انتظار تایید",
+      "notApproved": "تایید نشده"
+    },
+    "dashboard": {
+      "allTitle": "کامنت کاربران",
+      "myTitle": "کامنت های من",
+      "editTitle": "ویرایش کامنت"
+    }
+  },
+  "bookmarks": {
+    "button": {
+      "remove": "حذف از بوکمارک ها",
+      "save": "ذخیره کردن"
+    },
+    "delete": {
+      "tooltip": "حذف کردن بوکمارک",
+      "ariaLabel": "حذف کردن بوکمارک",
+      "confirm": "از حذف \"{title}\" مطمئن هستید؟"
+    },
+    "table": {
+      "headerTitle": "عنوان",
+      "headerDate": "تاریخ ثبت",
+      "empty": "هنوز چیزی را ذخیره نکرده اید",
+      "view": "بازدید کردن بوکمارک"
+    },
+    "page": {
+      "title": "بوکمارک های من"
+    }
+  },
+  "authors": {
+    "fallbackName": "نویسنده",
+    "memberSince": "عضو از {date}",
+    "noArticles": "هنوز مقاله‌ای منتشر نشده است",
+    "metaTitle": "مقاله‌های {name}"
+  },
+  "auth": {
+    "layout": {
+      "metadataTitleDefault": "احراز هویت | طرح‌چه",
+      "metadataTitleTemplate": "%s | احراز هویت | طرح‌چه"
+    },
+    "shared": {
+      "home": "صفحه اصلی",
+      "identityLabel": "ایمیل یا نام کاربری",
+      "operationFailed": "عملیات ناموفق"
+    },
+    "login": {
+      "metadataTitle": "ورود",
+      "title": "ورود به پنل کاربری",
+      "passwordLabel": "کلمه عبور",
+      "rememberMe": "من را به خاطر بسپار",
+      "successTitle": "با موفقیت وارد شدید",
+      "redirecting": "در حال منتقل شدن هستید",
+      "invalidCredentials": " ایمیل یا نام کاربری یا کلمه عبورتان را اشتباه وارد کرده اید",
+      "failedTitle": "ورود ناموفق",
+      "forgotPassword": "کلمه عبورتان را فراموش کرده اید؟",
+      "noAccount": "حسابی ندارید؟ یکی بسازید"
+    },
+    "register": {
+      "metadataTitle": "ثبت نام",
+      "welcome": "خوش آمدید",
+      "alreadyHaveAccount": "از قبل حساب دارید؟",
+      "signIn": "وارد شوید",
+      "emailLabel": "ایمیل",
+      "successTitle": "عملیات موفق",
+      "successMessage": "لینک ثبت نام برای شما ارسال شد. لطفا ایمیل خود را بررسی کنید.",
+      "unknownError": "خطایی ناشناخته اتفاق افتاد لطفا دوباره تلاش نمایید",
+      "submit": "ثبت نام"
+    },
+    "forgotPassword": {
+      "metadataTitle": "فراموشی کلمه عبور",
+      "title": "بازیابی کلمه عبور",
+      "description": "با ایمیل یا نام کاربری تان میتوانید کلمه عبورتان را تغییر دهید",
+      "successTitle": "عملیات موفق",
+      "successMessage": "لینک بازیابی کلمه عبور با موفقیت برای شما ارسال شد. لطفا ایمیل خود را بررسی کنید",
+      "unknownError": "خطایی ناشناخته رخ داد لطفا مجددا تلاش نمایید",
+      "requestPrefix": "درخواست",
+      "requestRetry": "مجدد",
+      "requestReset": "بازیابی"
+    },
+    "resetPassword": {
+      "metadataTitle": "بازیابی کلمه عبور",
+      "title": "تغییر کلمه عبور",
+      "description": "کلمه عبور جدیدتان را وارد کنید",
+      "newPasswordLabel": "کلمه عبور جدید",
+      "confirmNewPasswordLabel": "تکرار کلمه عبور جدید",
+      "successTitle": "ثبت نام موفق",
+      "successMessagePrefix": "کلمه عبور شما با موفقیت تغییر یافت. میتوانید به صفحه",
+      "successMessageLoginLink": "ورود",
+      "successMessageSuffix": "مراجعه کنید و وارد حساب خود شوید",
+      "passwordsMustMatch": "کلمه های عبور باید یکسان باشند.",
+      "unknownError": "خطایی ناشناخته اتفاق افتاد. لطفا مجددا تلاش نمایید",
+      "submit": "تغییر کلمه عبور"
+    },
+    "verify": {
+      "metadataTitle": "تکمیل حساب کاربری",
+      "successTitle": "ثبت نام موفق",
+      "successMessagePrefix": "حساب شما با موفقیت تایید شد، لطفا به صفحه",
+      "successMessageLoginLink": "ورود",
+      "successMessageSuffix": "مراجعه کنید و وارد حساب خود شوید",
+      "heading": "جهت تکمیل ثبت نام اطلاعات زیر را وارد کنید",
+      "nameLabel": "نام",
+      "usernameLabel": "نام کاربری (یوزرنیم)",
+      "languageLabel": "زبان",
+      "passwordLabel": "کلمه عبور",
+      "confirmPasswordLabel": "تکرار کلمه عبور",
+      "unknownError": "عملیات با خطا مواجه شد لطفا دوباره تلاش نمایید",
+      "failedTitle": "ثبت نام ناموفق",
+      "submit": "تکمیل ثبت نام"
+    }
+  },
+  "files": {
+    "title": "فایل ها",
+    "tabs": {
+      "myFiles": "فایل‌های من",
+      "allFiles": "همه فایل‌ها"
+    },
+    "addImage": "اضافه کردن تصویر",
+    "addingFiles": "در حال اضافه کردن فایل ها",
+    "selectFile": "انتخاب فایل",
+    "noAccessTitle": "عدم دسترسی",
+    "noAccessMessage": "شما به این قسمت دسترسی ندارید",
+    "notFoundTitle": "فایلی یافت نشد",
+    "emptyMessage": "در حال حاضر هیچ فایلی وجود ندارد",
+    "deleteConfirmTitle": "از حذف این فایل مطمئن هستید؟",
+    "cancel": "لفو کردن",
+    "delete": "حذف کردن",
+    "changeAvatar": "تغییر آواتار"
+  },
+  "editor": {
+    "copy": "کپی کردن",
+    "copied": "کپی شد!",
+    "codeCopied": "کد کپی شد",
+    "success": "موفق",
+    "resetCode": "بازنشانی کد",
+    "run": "اجرا",
+    "running": "در حال اجرا…",
+    "unexpectedError": "خطای غیرمنتظره",
+    "errorMessage": "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
+    "programOutput": "خروجی برنامه:",
+    "contentPlaceholder": "محتوا..."
+  },
+  "dashboard": {
+    "brand": "طرح‌چه",
+    "notFoundTitle": "این صفحه وجود ندارد",
+    "sidebar": {
+      "dashboard": "پنل کاربری",
+      "articles": "مقالات",
+      "comments": "کامنت ها",
+      "files": "فایل ها",
+      "myComments": "کامنت های من",
+      "elements": "المان ها",
+      "myBookmarks": "بوکمارک های من",
+      "users": "کاربرها",
+      "roles": "نقش ها",
+      "languages": "زبان ها",
+      "settings": "تنظیمات",
+      "profile": "پروفایل",
+      "logout": "خروج"
+    }
+  },
+  "users": {
+    "table": {
+      "avatar": "آواتار",
+      "name": "نام",
+      "username": "نام کاربری",
+      "email": "ایمیل",
+      "newUser": "کاربر جدید",
+      "empty": "کاربری وجود ندارد",
+      "editUser": "ویرایش کردن کاربر",
+      "deleteUser": "حذف کردن کاربر",
+      "confirmDelete": "از حذف \"{title}\" مطمئن هستید؟"
+    },
+    "form": {
+      "name": "نام",
+      "email": "ایمیل",
+      "username": "نام کاربری",
+      "language": "زبان",
+      "password": "کلمه عبور",
+      "changePasswordPrefix": "برای تغییر کلمه عبور از",
+      "changePasswordLink": "اینجا",
+      "changePasswordSuffix": "اقدام کنید",
+      "save": "ذخیره کردن کاربر",
+      "update": "بروزرسانی"
+    },
+    "password": {
+      "newPassword": "کلمه عبور",
+      "repeatPassword": "تکرار کلمه عبور",
+      "submit": "تغییر کلمه عبور",
+      "mismatch": "کلمه های عبور مطابقت ندارند",
+      "notEqual": "کلمه های عبور باید یکسان باشند"
+    },
+    "page": {
+      "listTitle": "کاربر ها",
+      "newTitle": "کاربر جدید",
+      "updateTitle": "بروزرسانی کاربر",
+      "changePasswordTitle": "تغییر کلمه عبور کاربر",
+      "breadcrumbUsers": "کاربرها"
+    }
+  },
+  "roles": {
+    "table": {
+      "title": "عنوان",
+      "description": "توضیحات",
+      "newRole": "نقش جدید",
+      "empty": "نقشی هنوز وجود ندارد",
+      "editRole": "ویرایش کردن نقش",
+      "deleteRole": "حذف کردن نقش",
+      "confirmDelete": "از حذف \"{title}\" مطمئن هستید؟"
+    },
+    "form": {
+      "name": "نام نقش",
+      "description": "توضیحات نقش",
+      "users": "کاربر ها",
+      "create": "ایجاد نقش",
+      "update": "بروزرسانی نقش"
+    },
+    "page": {
+      "listTitle": "نقش ها",
+      "newTitle": "ایجاد نقش",
+      "editTitle": "ویرایش نقش",
+      "breadcrumbRoles": "نقش ها"
+    }
+  },
+  "languages": {
+    "title": "زبان ها",
+    "table": {
+      "newLanguage": "زبان جدید",
+      "empty": "زبانی هنوز وجود ندارد",
+      "code": "کد",
+      "name": "نام",
+      "editLanguage": "ویرایش کردن زبان",
+      "deleteLanguage": "حذف کردن زبان",
+      "deleteConfirm": "از حذف \"{title}\" مطمئن هستید؟"
+    },
+    "form": {
+      "codeLabel": "کد زبان",
+      "codeDescription": "کد یکتای زبان (مثلا EN یا FA)",
+      "nameLabel": "نام زبان",
+      "create": "ایجاد زبان",
+      "update": "بروزرسانی زبان"
+    },
+    "breadcrumb": {
+      "edit": "ویرایش زبان",
+      "create": "ایجاد زبان"
+    }
+  },
+  "elements": {
+    "title": "المان ها",
+    "table": {
+      "newElement": "المان جدید",
+      "empty": "المان های وجود ندارد",
+      "titleColumn": "عنوان",
+      "type": "نوع",
+      "createdAt": "تاریخ ایجاد",
+      "editElement": "ویرایش المان",
+      "deleteElement": "حذف کردن المان",
+      "deleteConfirm": "از حذف \"{title}\" مطمئن هستید؟"
+    },
+    "form": {
+      "editJson": "ویرایش JSON",
+      "invalidJson": "JSON نامعتبر است",
+      "emptyJson": "JSON خالی است",
+      "prettifyError": "برای قالب‌بندی، ابتدا JSON معتبر وارد کنید",
+      "prettify": "قالب‌بندی JSON",
+      "create": "ایجاد المان",
+      "update": "بروزرسانی المان"
+    },
+    "breadcrumb": {
+      "detail": "جزییات المان",
+      "create": "المان جدید",
+      "edit": "ویرایش المان"
+    }
+  },
+  "settings": {
+    "title": "تنظیمات",
+    "form": {
+      "userDefaultRolesLabel": "نقش پیشفرض کاربران",
+      "defaultLanguageLabel": "زبان پیشفرض",
+      "submit": "بروزرسانی"
+    }
+  },
+  "profile": {
+    "title": "پروفایل",
+    "update": {
+      "languageLabel": "زبان",
+      "changePasswordPrefix": "برای تغییر کلمه عبور از",
+      "changePasswordLink": "اینجا",
+      "changePasswordSuffix": "اقدام کنید",
+      "submit": "ویرایش پروفایل",
+      "notification": {
+        "title": "بروزرسانی موفق",
+        "message": "پروفایل با موفقیت بروز شد"
+      }
+    },
+    "password": {
+      "title": "تغییر کلمه عبور",
+      "currentPasswordLabel": "کلمه عبور کنونی",
+      "newPasswordLabel": "کلمه عبور جدید",
+      "repeatPasswordLabel": "تکرار کلمه عبور جدید",
+      "submit": "تغییر کلمه عبور",
+      "success": "کلمه عبور شما با موفقیت تغییر یافت",
+      "validation": {
+        "mustMatch": "کلمه های عبور باید یکسان باشند",
+        "doNotMatch": "کلمه های عبور مطابقت ندارند"
+      }
+    }
+  }
+}

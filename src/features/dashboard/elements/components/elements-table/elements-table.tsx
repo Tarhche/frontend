@@ -21,6 +21,7 @@ import {IconPencil, IconFilePlus, type TablerIcon} from "@tabler/icons-react";
 import {formatDate, isGregorianStartDateTime} from "@/lib/date-and-time";
 import {APP_PATHS} from "@/lib/app-paths";
 import {type Permissions} from "@/lib/app-permissions";
+import {getServerDictionary} from "@/i18n/server";
 import {fetchAllElements} from "@/dal/private/elements";
 
 type Props = {
@@ -37,6 +38,7 @@ type TableAction = {
 };
 
 export async function ElementsTable({page}: Props) {
+  const {t} = await getServerDictionary();
   const elementsResponse = await fetchAllElements({
     params: {
       page: page,
@@ -48,7 +50,7 @@ export async function ElementsTable({page}: Props) {
 
   const tableActions: TableAction[] = [
     {
-      tooltipLabel: "ویرایش المان",
+      tooltipLabel: t("elements.table.editElement"),
       Icon: IconPencil,
       color: "blue",
       allowedPermissions: ["elements.update"],
@@ -67,7 +69,7 @@ export async function ElementsTable({page}: Props) {
             leftSection={<IconFilePlus />}
             href={APP_PATHS.dashboard.elements.new}
           >
-            المان جدید
+            {t("elements.table.newElement")}
           </Button>
         </Group>
       </PermissionGuard>
@@ -76,17 +78,17 @@ export async function ElementsTable({page}: Props) {
           <TableThead>
             <TableTr>
               <TableTh>#</TableTh>
-              <TableTh>عنوان</TableTh>
-              <TableTh>نوع</TableTh>
-              <TableTh>تاریخ ایجاد</TableTh>
-              <TableTh>عملیات</TableTh>
+              <TableTh>{t("elements.table.titleColumn")}</TableTh>
+              <TableTh>{t("elements.table.type")}</TableTh>
+              <TableTh>{t("elements.table.createdAt")}</TableTh>
+              <TableTh>{t("common.actions")}</TableTh>
             </TableTr>
           </TableThead>
           <TableTbody>
             {elements.length === 0 && (
               <TableTr>
                 <TableTd colSpan={4} ta={"center"}>
-                  المان های وجود ندارد
+                  {t("elements.table.empty")}
                 </TableTd>
               </TableTr>
             )}

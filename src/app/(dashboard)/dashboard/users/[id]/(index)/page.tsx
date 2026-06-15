@@ -7,12 +7,14 @@ import {withPermissions} from "@/components/with-authorization";
 import {fetchUser} from "@/dal/private/users";
 import {fetchLanguages, type Language} from "@/dal/public/languages";
 import {APP_PATHS} from "@/lib/app-paths";
+import {getServerDictionary} from "@/i18n/server";
 
-const PAGE_TITLE = "بروزرسانی کاربر";
-
-export const metadata: Metadata = {
-  title: PAGE_TITLE,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const {t} = await getServerDictionary();
+  return {
+    title: t("users.page.updateTitle"),
+  };
+}
 
 type Props = {
   params: Promise<{
@@ -21,6 +23,7 @@ type Props = {
 };
 
 async function UpdateUserPage({params}: Props) {
+  const {t} = await getServerDictionary();
   const userId = (await params).id;
   if (userId === undefined) {
     notFound();
@@ -28,11 +31,11 @@ async function UpdateUserPage({params}: Props) {
   const userData = await fetchUser(userId);
 
   let languages: Language[] = [];
-  let defaultCode = "";
+  let defaultLanguageCode = "";
   try {
     const data = await fetchLanguages();
     languages = data.items ?? [];
-    defaultCode = data.default_language?.code ?? "";
+    defaultLanguageCode = data.default_language?.code ?? "";
   } catch {
     // Fail open: the language select renders empty if unavailable.
   }
@@ -42,11 +45,11 @@ async function UpdateUserPage({params}: Props) {
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: "کاربرها",
+            label: t("users.page.breadcrumbUsers"),
             href: APP_PATHS.dashboard.users.index,
           },
           {
-            label: PAGE_TITLE,
+            label: t("users.page.updateTitle"),
           },
         ]}
       />
@@ -58,7 +61,7 @@ async function UpdateUserPage({params}: Props) {
             defaultName: userData.name,
             defaultEmail: userData.email,
             defaultUsername: userData.username,
-            defaultLanguageCode: userData.language_code ?? defaultCode,
+            defaultLanguageCode: userData.language_code ?? defaultLanguageCode,
           }}
           languages={languages}
         />

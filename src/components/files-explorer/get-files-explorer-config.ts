@@ -3,6 +3,7 @@ import {PERMISSIONS} from "@/lib/app-permissions";
 import {hasPermission} from "@/lib/auth/shared";
 import {fetchFiles, fetchMyFiles} from "@/dal/private/files";
 import {AxiosRequestConfig} from "axios";
+import {type TFunction} from "@/i18n/dictionary";
 import {deleteFileAction, deleteMyFileAction} from "./delete-action";
 
 export type FilesExplorerConfig = {
@@ -18,7 +19,9 @@ export type FilesExplorerConfig = {
   canView: boolean;
 };
 
-export async function getFilesExplorerConfig(): Promise<FilesExplorerConfig | null> {
+export async function getFilesExplorerConfig(
+  t: TFunction,
+): Promise<FilesExplorerConfig | null> {
   const userPermissions = await getUserPermissions();
 
   if (userPermissions === null) {
@@ -28,14 +31,14 @@ export async function getFilesExplorerConfig(): Promise<FilesExplorerConfig | nu
   const ALL_TABS = [
     {
       id: "my-files",
-      label: "فایل‌های من",
+      label: t("files.tabs.myFiles"),
       fetchFiles: fetchMyFiles,
       deleteFileAction: deleteMyFileAction,
       requiredPermissions: [PERMISSIONS.self.files.INDEX],
     },
     {
       id: "all-files",
-      label: "همه فایل‌ها",
+      label: t("files.tabs.allFiles"),
       fetchFiles: fetchFiles,
       deleteFileAction: deleteFileAction,
       requiredPermissions: [PERMISSIONS.files.INDEX],

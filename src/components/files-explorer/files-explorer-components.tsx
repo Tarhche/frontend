@@ -10,6 +10,7 @@ import {
   Button,
 } from "@mantine/core";
 import {IconCheck} from "@tabler/icons-react";
+import {useTranslations} from "@/i18n/provider";
 import classes from "./files-explorer.module.css";
 
 // Types
@@ -100,6 +101,8 @@ export function FileSelectButton({
   selectedFile,
   onSelect,
 }: FileSelectButtonProps) {
+  const t = useTranslations();
+
   return (
     <>
       <Divider />
@@ -108,7 +111,7 @@ export function FileSelectButton({
           leftSection={<IconCheck size={20} />}
           onClick={() => onSelect(selectedFile)}
         >
-          انتخاب فایل
+          {t("files.selectFile")}
         </Button>
       </Group>
     </>

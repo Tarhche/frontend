@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "@/components/link";
+import {useTranslations} from "@/i18n/provider";
 import {ColorSchemeToggle} from "@/components/color-scheme-toggle";
 import {
   AppShell,
@@ -15,9 +16,14 @@ import {useDisclosure} from "@mantine/hooks";
 
 type Props = {
   children: React.ReactNode;
+  // Language-prefixed public home href (e.g. "/en"). The dashboard has no
+  // LanguageProvider, so public links must carry the language code explicitly
+  // rather than relying on the cookie-dependent "/" redirect.
+  homeHref: string;
 };
 
-export function LayoutShell({children}: Props) {
+export function LayoutShell({children, homeHref}: Props) {
+  const t = useTranslations();
   const [mobileOpened, {toggle: toggleMobile}] = useDisclosure();
   const [desktopOpened, {toggle: toggleDesktop}] = useDisclosure(true);
 
@@ -46,8 +52,13 @@ export function LayoutShell({children}: Props) {
               visibleFrom="sm"
               size="sm"
             />
-            <Anchor component={Link} href={"/"} c="bright" underline="never">
-              طرح‌چه
+            <Anchor
+              component={Link}
+              href={homeHref}
+              c="bright"
+              underline="never"
+            >
+              {t("dashboard.brand")}
             </Anchor>
           </Group>
           <Group h="100%" align="center">

@@ -5,6 +5,7 @@ import {Box, Button, InputLabel, Menu, Stack} from "@mantine/core";
 import {IconChevronDown, IconLanguage, IconCheck} from "@tabler/icons-react";
 import {APP_PATHS} from "@/lib/app-paths";
 import type {Language} from "@/dal/public/languages";
+import {useTranslations} from "@/i18n/provider";
 
 type Props = {
   languages: Language[];
@@ -20,6 +21,7 @@ export function LanguageSwitchField({
   correlationUuid,
   currentCode,
 }: Props) {
+  const t = useTranslations();
   const router = useRouter();
 
   const current = languages.find((language) => language.code === currentCode);
@@ -33,7 +35,7 @@ export function LanguageSwitchField({
 
   return (
     <Stack gap={4}>
-      <InputLabel>زبان</InputLabel>
+      <InputLabel>{t("articles.form.languageLabel")}</InputLabel>
       <Box>
         <Menu shadow="md" width={220} position="bottom-start">
           <Menu.Target>
@@ -46,7 +48,7 @@ export function LanguageSwitchField({
             </Button>
           </Menu.Target>
           <Menu.Dropdown>
-            <Menu.Label>افزودن یا ویرایش ترجمه</Menu.Label>
+            <Menu.Label>{t("articles.form.addOrEditTranslation")}</Menu.Label>
             {languages.map((language) => (
               <Menu.Item
                 key={language.code}

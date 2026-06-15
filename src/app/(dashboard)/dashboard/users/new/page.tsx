@@ -5,20 +5,23 @@ import {UpsertUserForm} from "@/features/users/components";
 import {withPermissions} from "@/components/with-authorization";
 import {fetchLanguages, type Language} from "@/dal/public/languages";
 import {APP_PATHS} from "@/lib/app-paths";
+import {getServerDictionary} from "@/i18n/server";
 
-const PAGE_TITLE = "کاربر جدید";
-
-export const metadata: Metadata = {
-  title: PAGE_TITLE,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const {t} = await getServerDictionary();
+  return {
+    title: t("users.page.newTitle"),
+  };
+}
 
 async function NewUserPage() {
+  const {t} = await getServerDictionary();
   let languages: Language[] = [];
-  let defaultCode = "";
+  let defaultLanguageCode = "";
   try {
     const data = await fetchLanguages();
     languages = data.items ?? [];
-    defaultCode = data.default_language?.code ?? "";
+    defaultLanguageCode = data.default_language?.code ?? "";
   } catch {
     // Fail open: the language select renders empty if unavailable.
   }
@@ -28,17 +31,17 @@ async function NewUserPage() {
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: "کاربرها",
+            label: t("users.page.breadcrumbUsers"),
             href: APP_PATHS.dashboard.users.index,
           },
           {
-            label: PAGE_TITLE,
+            label: t("users.page.newTitle"),
           },
         ]}
       />
       <Box>
         <UpsertUserForm
-          userInfo={{defaultLanguageCode: defaultCode}}
+          userInfo={{defaultLanguageCode: defaultLanguageCode}}
           languages={languages}
         />
       </Box>

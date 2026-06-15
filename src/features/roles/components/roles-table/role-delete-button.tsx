@@ -11,6 +11,7 @@ import {
   Text,
 } from "@mantine/core";
 import {IconTrash} from "@tabler/icons-react";
+import {useTranslations} from "@/i18n/provider";
 import {deleteRoleAction} from "../../actions/delete-role";
 
 type Props = {
@@ -19,17 +20,18 @@ type Props = {
 };
 
 export function RoleDeleteButton({roleId, roleName}: Props) {
+  const t = useTranslations();
   const [, formAction, isPending] = useActionState(deleteRoleAction, false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   return (
     <>
-      <Tooltip label="حذف کردن نقش" withArrow>
+      <Tooltip label={t("roles.table.deleteRole")} withArrow>
         <ActionIcon
           variant="light"
           size="lg"
           color="red"
-          aria-label="حذف کردن نقش"
+          aria-label={t("roles.table.deleteRole")}
           onClick={() => {
             setIsConfirmOpen(true);
           }}
@@ -38,7 +40,7 @@ export function RoleDeleteButton({roleId, roleName}: Props) {
         </ActionIcon>
       </Tooltip>
       <Modal
-        title="تایید عملیات"
+        title={t("common.confirmAction")}
         opened={isConfirmOpen}
         size="md"
         centered
@@ -46,7 +48,7 @@ export function RoleDeleteButton({roleId, roleName}: Props) {
           setIsConfirmOpen(false);
         }}
       >
-        <Text>از حذف {`"${roleName}"`} مطمئن هستید؟</Text>
+        <Text>{t("roles.table.confirmDelete", {title: roleName ?? ""})}</Text>
         <Group justify="flex-end" mt={"md"}>
           <Button
             color="gray"
@@ -54,12 +56,12 @@ export function RoleDeleteButton({roleId, roleName}: Props) {
               setIsConfirmOpen(false);
             }}
           >
-            لفو کردن
+            {t("common.cancel")}
           </Button>
           <form action={formAction}>
             <input type="text" name="id" value={roleId} hidden readOnly />
             <Button color="red" type="submit" loading={isPending}>
-              حذف کردن
+              {t("common.delete")}
             </Button>
           </form>
         </Group>

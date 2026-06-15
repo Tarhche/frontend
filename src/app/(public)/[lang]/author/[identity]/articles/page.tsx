@@ -6,6 +6,7 @@ import {AuthorHeader} from "@/features/authors/components";
 import {Pagination} from "@/components/pagination";
 import Element from "@/features/elements/element";
 import {fetchAuthorArticles} from "@/dal/public/authors";
+import {getDictionary} from "@/i18n/dictionary";
 
 type Props = {
   params: Promise<{
@@ -37,8 +38,9 @@ export async function generateMetadata(props: Props): Promise<Metadata | null> {
     });
     const name =
       data?.author?.name || data?.author?.username || params.identity;
+    const {t} = getDictionary(params.lang);
     return {
-      title: `مقاله‌های ${name}`,
+      title: t("authors.metaTitle", {name}),
     };
   } catch {
     return null;
@@ -52,6 +54,7 @@ export default async function AuthorArticlesPage(props: Props) {
   }
 
   const page = Number((await props.searchParams).page) || 1;
+  const {t} = getDictionary(params.lang);
 
   let data: any;
   try {
@@ -82,7 +85,7 @@ export default async function AuthorArticlesPage(props: Props) {
       <Stack gap={"md"} mt={"lg"}>
         {items.length === 0 ? (
           <Text c={"dimmed"} ta={"center"} mt={"xl"}>
-            هنوز مقاله‌ای منتشر نشده است
+            {t("authors.noArticles")}
           </Text>
         ) : (
           items.map((article: any) => (

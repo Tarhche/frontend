@@ -3,6 +3,7 @@
 import {useState, useRef, useId} from "react";
 import {Tooltip, ActionIcon, Loader} from "@mantine/core";
 import {IconPlus} from "@tabler/icons-react";
+import {useTranslations} from "@/i18n/provider";
 import {addFileAction} from "./add-action";
 
 type Props = {
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export function AddFileButton({onAdd}: Props) {
+  const t = useTranslations();
   const [pending, setPending] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -34,7 +36,7 @@ export function AddFileButton({onAdd}: Props) {
   return (
     <form ref={formRef}>
       <Tooltip
-        label={pending ? "در حال اضافه کردن فایل ها" : "اضافه کردن تصویر"}
+        label={pending ? t("files.addingFiles") : t("files.addImage")}
         withArrow
       >
         <ActionIcon

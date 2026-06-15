@@ -5,6 +5,7 @@ import {
   extractValidationErrors,
   type ValidationFormState,
 } from "@/lib/api/validation-errors";
+import {getServerDictionary} from "@/i18n/server";
 
 type FormState = ValidationFormState | null;
 
@@ -12,6 +13,7 @@ export async function resetPassword(
   state: FormState,
   formData: FormData,
 ): Promise<FormState> {
+  const {t} = await getServerDictionary();
   const newPassword = formData.get("password")?.toString();
   const confirmNewPassword = formData.get("confirm_password")?.toString();
   const token = formData.get("token")?.toString();
@@ -20,7 +22,7 @@ export async function resetPassword(
     return {
       success: false,
       errors: {
-        confirm_password: "کلمه های عبور باید یکسان باشند.",
+        confirm_password: t("auth.resetPassword.passwordsMustMatch"),
       },
     };
   }

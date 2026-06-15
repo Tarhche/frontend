@@ -1,5 +1,8 @@
+"use client";
+
 import {Title, Text, Button, Container, Group} from "@mantine/core";
 import {IconRefresh, IconMoodSadDizzy} from "@tabler/icons-react";
+import {useTranslations} from "@/i18n/provider";
 import classes from "./error.module.css";
 
 type Props = {
@@ -7,16 +10,16 @@ type Props = {
 };
 
 export function Error({onReset}: Props) {
+  const t = useTranslations();
   return (
     <div className={classes.root}>
       <Container>
         <div className={classes.label}>
           <IconMoodSadDizzy size={150} />
         </div>
-        <Title className={classes.title}>خطایی رخ داد</Title>
+        <Title className={classes.title}>{t("errors.title")}</Title>
         <Text size="lg" ta="center" className={classes.description}>
-          اتفاقی غیر منتظره رخ داد، لطفا دوباره تلاش کنید و اگر همچنان مشکل
-          داشتید با ما در ارتباط باشید
+          {t("errors.boundaryText")}
         </Text>
         <Group justify="center">
           <Button
@@ -25,7 +28,7 @@ export function Error({onReset}: Props) {
             leftSection={<IconRefresh />}
             onClick={onReset}
           >
-            تلاش مجدد
+            {t("common.tryAgain")}
           </Button>
         </Group>
       </Container>

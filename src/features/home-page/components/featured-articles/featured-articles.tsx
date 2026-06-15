@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "@/components/link";
 import {
   Stack,
@@ -24,8 +26,10 @@ import {
   IconHexagon8,
   IconHexagon9,
 } from "@tabler/icons-react";
+import {useTranslations} from "@/i18n/provider";
 
-export async function FeaturedArticles({latestArticles, popularArticles}) {
+export function FeaturedArticles({latestArticles, popularArticles}) {
+  const t = useTranslations();
   const hexagonIcons = [
     IconHexagon1,
     IconHexagon2,
@@ -47,7 +51,7 @@ export async function FeaturedArticles({latestArticles, popularArticles}) {
         }}
       >
         <h2 className={classes.headingWithBorder}>
-          <span>جدیدترین ها</span>
+          <span>{t("home.latest")}</span>
         </h2>
         <Stack gap={"sm"}>
           {latestArticles.map((la) => {
@@ -75,7 +79,7 @@ export async function FeaturedArticles({latestArticles, popularArticles}) {
         }}
       >
         <h2 className={classes.headingWithBorder}>
-          <span>پربازدیدترین ها</span>
+          <span>{t("home.popular")}</span>
         </h2>
         <Stack gap={"sm"}>
           <List center={true}>
@@ -125,7 +129,7 @@ export async function FeaturedArticles({latestArticles, popularArticles}) {
             rightSection={<IconArrowLeft size={18} />}
             styles={{section: {marginInlineStart: 8}}}
           >
-            مقالات بیشتر
+            {t("home.moreArticles")}
           </Button>
         </Group>
       </GridCol>
