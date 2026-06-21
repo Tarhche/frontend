@@ -84,7 +84,9 @@
       "publishedAtLabel": "تاریخ انتشار",
       "submitUpdate": "بروزرسانی مقاله",
       "submitCreate": "ایجاد مقاله",
-      "addOrEditTranslation": "افزودن یا ویرایش ترجمه"
+      "addOrEditTranslation": "افزودن یا ویرایش ترجمه",
+      "missingTranslationTitle": "این ترجمه هنوز وجود ندارد",
+      "missingTranslationText": "هنوز نسخه {language} این مقاله ساخته نشده است. برای ایجاد آن، فرم زیر را تکمیل کنید."
     },
     "table": {
       "newArticle": "مقاله جدید",
@@ -100,6 +102,7 @@
       "listCrumb": "مقاله ها",
       "newMetaTitle": "مقاله جدید",
       "newCrumb": "مقاله جدید",
+      "newTranslationCrumb": "ترجمه جدید",
       "editMetaTitle": "جزییات مقاله",
       "editCrumb": "ویرایش مقاله"
     }

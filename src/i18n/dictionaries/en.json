@@ -84,7 +84,9 @@
       "publishedAtLabel": "Publish date",
       "submitUpdate": "Update article",
       "submitCreate": "Create article",
-      "addOrEditTranslation": "Add or edit translation"
+      "addOrEditTranslation": "Add or edit translation",
+      "missingTranslationTitle": "This translation doesn't exist yet",
+      "missingTranslationText": "There is no {language} version of this article yet. Fill in the form below to create it under the same article."
     },
     "table": {
       "newArticle": "New article",
@@ -100,6 +102,7 @@
       "listCrumb": "Articles",
       "newMetaTitle": "New article",
       "newCrumb": "New article",
+      "newTranslationCrumb": "New translation",
       "editMetaTitle": "Article details",
       "editCrumb": "Edit article"
     }
