@@ -46,13 +46,9 @@ export default async function languageMiddleware(
     return;
   }
 
-  // Public pages honor an explicit language switch (the `lang` cookie) first,
-  // then fall back to the user's profile (JWT) and the site default. Same
-  // resolution the root page uses.
   const preferred = await resolvePreferredLanguageCode({
     accessToken: req.cookies.get(ACCESS_TOKEN_COOKIE_NAME)?.value,
     cookieLanguage: req.cookies.get(LANGUAGE_COOKIE_NAME)?.value,
-    preferCookie: true,
   });
 
   // Only redirect to a known language segment; otherwise the next request would

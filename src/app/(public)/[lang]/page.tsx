@@ -3,6 +3,7 @@ import {FeaturedArticles} from "@/features/home-page/components/featured-article
 import {fetchHomePageData} from "@/dal/public/home";
 import {NoContent} from "@/components/no-content";
 import Element from "@/features/elements/element";
+import {LANGUAGE_CODE_HEADER} from "@/constants";
 import {getDictionary} from "@/i18n/dictionary";
 
 type Props = {
@@ -22,7 +23,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 export default async function HomePage(props: Props) {
   const {lang} = await props.params;
   const homePageData = await fetchHomePageData({
-    params: {language_code: lang},
+    headers: {[LANGUAGE_CODE_HEADER]: lang},
   });
 
   const hasContent =

@@ -1,4 +1,5 @@
 import {AxiosRequestConfig} from "axios";
+import {LANGUAGE_CODE_HEADER} from "@/constants";
 import {privateDalDriver} from "./private-dal-driver";
 
 export async function fetchUserBookmarks(config?: AxiosRequestConfig) {
@@ -16,6 +17,7 @@ export async function removeUserBookmark(
       object_uuid: correlationUUID,
       language_code: languageCode,
     },
+    headers: {[LANGUAGE_CODE_HEADER]: languageCode},
   });
   return response.data;
 }
@@ -28,11 +30,15 @@ export async function checkBookmarkStatus(
     return undefined;
   }
   try {
-    const response = await privateDalDriver.post("bookmarks/exists", {
-      object_type: "article",
-      object_uuid: correlationUUID,
-      language_code: languageCode,
-    });
+    const response = await privateDalDriver.post(
+      "bookmarks/exists",
+      {
+        object_type: "article",
+        object_uuid: correlationUUID,
+        language_code: languageCode,
+      },
+      {headers: {[LANGUAGE_CODE_HEADER]: languageCode}},
+    );
 
     return response.data?.exist;
   } catch {
@@ -46,12 +52,16 @@ export async function bookmarkArticle(body: {
   title: string;
   language_code: string;
 }) {
-  const response = await privateDalDriver.put("bookmarks", {
-    keep: body.keep,
-    title: body.title,
-    object_type: "article",
-    object_uuid: body.correlationUUID,
-    language_code: body.language_code,
-  });
+  const response = await privateDalDriver.put(
+    "bookmarks",
+    {
+      keep: body.keep,
+      title: body.title,
+      object_type: "article",
+      object_uuid: body.correlationUUID,
+      language_code: body.language_code,
+    },
+    {headers: {[LANGUAGE_CODE_HEADER]: body.language_code}},
+  );
   return response.data;
 }

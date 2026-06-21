@@ -1,4 +1,5 @@
 import {AxiosRequestConfig} from "axios";
+import {LANGUAGE_CODE_HEADER} from "@/constants";
 import {privateDalDriver} from "./private-dal-driver";
 
 export async function fetchAllComments(config?: AxiosRequestConfig) {
@@ -44,9 +45,16 @@ export async function createArticleComment(body: {
   parent_uuid: string;
   language_code: string;
 }) {
-  const response = await privateDalDriver.post("comments", {
-    ...body,
-    object_type: "article",
-  });
+  // The body keeps `language_code` (the backend validates/persists it on the
+  // comment); the header additionally scopes the request (e.g. validation
+  // messages) to the article's language rather than the author's profile.
+  const response = await privateDalDriver.post(
+    "comments",
+    {
+      ...body,
+      object_type: "article",
+    },
+    {headers: {[LANGUAGE_CODE_HEADER]: body.language_code}},
+  );
   return response.data;
 }

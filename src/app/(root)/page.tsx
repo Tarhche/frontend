@@ -11,8 +11,6 @@ export default async function RootPage() {
   const target = await resolvePreferredLanguageCode({
     accessToken: cookieStore.get(ACCESS_TOKEN_COOKIE_NAME)?.value,
     cookieLanguage: cookieStore.get(LANGUAGE_COOKIE_NAME)?.value,
-    // Public: honor an explicit language switch (cookie) over the profile.
-    preferCookie: true,
   });
 
   if (target) {

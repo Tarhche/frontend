@@ -5,6 +5,7 @@ import {Pagination} from "@/components/pagination";
 import {NoContent} from "@/components/no-content";
 import Element from "@/features/elements/element";
 import {Group} from "@mantine/core";
+import {LANGUAGE_CODE_HEADER} from "@/constants";
 import {getDictionary} from "@/i18n/dictionary";
 
 type Props = {
@@ -30,8 +31,8 @@ async function ArticlesPage(props: Props) {
   const {items, pagination, elements} = await fetchArticles({
     params: {
       page: page,
-      language_code: lang,
     },
+    headers: {[LANGUAGE_CODE_HEADER]: lang},
   });
   const {total_pages, current_page} = pagination;
   const pageElements = elements ?? [];

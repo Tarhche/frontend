@@ -6,6 +6,7 @@ import {AuthorHeader} from "@/features/authors/components";
 import {Pagination} from "@/components/pagination";
 import Element from "@/features/elements/element";
 import {fetchAuthorArticles} from "@/dal/public/authors";
+import {LANGUAGE_CODE_HEADER} from "@/constants";
 import {getDictionary} from "@/i18n/dictionary";
 
 type Props = {
@@ -34,7 +35,7 @@ export async function generateMetadata(props: Props): Promise<Metadata | null> {
 
   try {
     const data = await fetchAuthorArticles(resolveIdentity(params.identity), {
-      params: {language_code: params.lang},
+      headers: {[LANGUAGE_CODE_HEADER]: params.lang},
     });
     const name =
       data?.author?.name || data?.author?.username || params.identity;
@@ -59,7 +60,8 @@ export default async function AuthorArticlesPage(props: Props) {
   let data: any;
   try {
     data = await fetchAuthorArticles(resolveIdentity(params.identity!), {
-      params: {page, language_code: params.lang},
+      params: {page},
+      headers: {[LANGUAGE_CODE_HEADER]: params.lang},
     });
   } catch {
     notFound();

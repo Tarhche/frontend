@@ -1,5 +1,6 @@
 import {cache} from "react";
 import {AxiosRequestConfig} from "axios";
+import {LANGUAGE_CODE_HEADER} from "@/constants";
 import {publicDalDriver} from "./public-dal-driver";
 
 export async function fetchArticles(config?: AxiosRequestConfig) {
@@ -17,7 +18,7 @@ export async function fetchArticles(config?: AxiosRequestConfig) {
 export const fetchArticleByCorrelationUUID = cache(
   async (correlationUUID: string, languageCode?: string) => {
     const response = await publicDalDriver.get(`articles/${correlationUUID}`, {
-      params: languageCode ? {language_code: languageCode} : undefined,
+      headers: languageCode ? {[LANGUAGE_CODE_HEADER]: languageCode} : undefined,
       validateStatus: (status) => status < 500,
     });
     if (response.status === 404) {

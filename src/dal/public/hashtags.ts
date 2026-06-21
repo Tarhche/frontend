@@ -1,3 +1,4 @@
+import {LANGUAGE_CODE_HEADER} from "@/constants";
 import {publicDalDriver} from "./public-dal-driver";
 
 export async function fetchAllArticlesByHashtag(
@@ -8,8 +9,8 @@ export async function fetchAllArticlesByHashtag(
   const response = await publicDalDriver.get(`hashtags/${hashtag}`, {
     params: {
       page: page,
-      ...(languageCode ? {language_code: languageCode} : {}),
     },
+    headers: languageCode ? {[LANGUAGE_CODE_HEADER]: languageCode} : undefined,
   });
 
   return response.data;

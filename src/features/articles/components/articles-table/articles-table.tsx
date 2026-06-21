@@ -25,6 +25,7 @@ import {
   type TablerIcon,
 } from "@tabler/icons-react";
 import {fetchAllArticles} from "@/dal/private/articles";
+import {LANGUAGE_CODE_HEADER} from "@/constants";
 import {formatDate, isGregorianStartDateTime} from "@/lib/date-and-time";
 import {APP_PATHS} from "@/lib/app-paths";
 import {type Permissions} from "@/lib/app-permissions";
@@ -81,8 +82,8 @@ export async function ArticlesTable({page, languageCode}: Props) {
   const articlesResponse = await fetchAllArticles({
     params: {
       page: page,
-      language_code: languageCode,
     },
+    headers: {[LANGUAGE_CODE_HEADER]: languageCode},
   });
 
   const articles = articlesResponse.items;

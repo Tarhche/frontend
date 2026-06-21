@@ -15,14 +15,10 @@ type Props = {
 export async function DashboardLayout({children}: Props) {
   const userPermissions = await getUserPermissions();
 
-  // Public links from the dashboard carry the language code so they go straight
-  // to `/{lang}/...` instead of the cookie-dependent "/" redirect. Cookie-first
-  // so it matches the language the user switched the public site to.
   const store = await cookies();
   const publicLanguageCode = await resolvePreferredLanguageCode({
     accessToken: store.get(ACCESS_TOKEN_COOKIE_NAME)?.value,
     cookieLanguage: store.get(LANGUAGE_COOKIE_NAME)?.value,
-    preferCookie: true,
   });
   const homeHref = publicLanguageCode ? `/${publicLanguageCode}` : "/";
 

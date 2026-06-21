@@ -12,7 +12,11 @@ import {
   REFRESH_TOKEN_COOKIE_NAME,
   LANGUAGE_COOKIE_NAME,
 } from "@/constants/strings";
-import {ACCESS_TOKEN_EXP, REFRESH_TOKEN_EXP} from "@/constants/numbers";
+import {
+  ACCESS_TOKEN_EXP,
+  REFRESH_TOKEN_EXP,
+  LANGUAGE_COOKIE_EXP,
+} from "@/constants/numbers";
 
 // Server-side token refresh. Must use the INTERNAL backend URL: this runs inside
 // the container, where the public URL (localhost) points at the container
@@ -35,8 +39,6 @@ import {
   type FormValues,
   type ValidationErrorMap,
 } from "@/lib/api/validation-errors";
-
-const LANGUAGE_COOKIE_MAX_AGE = 31536000; // 1 year
 
 type FormState = {
   success: boolean | null;
@@ -75,15 +77,17 @@ async function syncProfileLanguage(newLanguage: string): Promise<boolean> {
     return false;
   }
 
-  // Public pages follow the profile after a save.
+  // Both public and dashboard follow the in-use language (the `lang` cookie), so
+  // a profile save updates them right away.
   store.set(LANGUAGE_COOKIE_NAME, newLanguage, {
-    maxAge: LANGUAGE_COOKIE_MAX_AGE,
+    maxAge: LANGUAGE_COOKIE_EXP,
     path: "/",
   });
 
-  // Re-issue tokens so the dashboard (token-driven) follows the new language.
-  // Best-effort: if it fails, the profile is still saved and the token catches
-  // up on the next natural refresh/login.
+  // Keep the token's `lang` claim (the cookie fallback) in sync with the profile
+  // by re-issuing tokens; the backend re-reads the updated user. Best-effort: if
+  // it fails, the profile is still saved and the token catches up on the next
+  // natural refresh/login.
   if (refreshToken) {
     try {
       const tokens = await refreshTokensServer(refreshToken);

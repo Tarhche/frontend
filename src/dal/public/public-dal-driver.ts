@@ -5,6 +5,7 @@ import {INTERNAL_BACKEND_URL} from "@/constants";
 import InterceptorManager from "@/lib/auth/interception/interceptor-manager/InterceptorManager";
 import ServerPublicInterceptor from "@/lib/auth/interception/interceptors/server/ServerPublicInterceptor";
 import ServerProxyHeaderInterceptor from "@/lib/auth/interception/interceptors/server/ServerProxyHeaderInterceptor";
+import {attachLanguageHeaderServer} from "@/lib/auth/dal/attachLanguageHeaderServer";
 
 const BASE_URL = `${INTERNAL_BACKEND_URL}/api`;
 
@@ -14,6 +15,8 @@ export const publicDalDriver = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+attachLanguageHeaderServer(publicDalDriver);
 
 InterceptorManager.create(publicDalDriver)
   .add(ServerPublicInterceptor)

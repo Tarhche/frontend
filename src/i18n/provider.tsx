@@ -44,21 +44,22 @@ type Props = {
 // Resolution by surface:
 //   - Public `[lang]` pages → the URL's first segment (authoritative; the public
 //     switcher changes it and the cookie).
-//   - Dashboard / auth (unprefixed) → the server-resolved
-//     `initialLanguageCode`, which comes from the profile (access-token `lang`
-//     claim). The dashboard ALWAYS
-//     follows the profile language and intentionally ignores the `lang` cookie,
-//     so switching the public site to another language never affects it.
+//   - Dashboard / auth (unprefixed) → the in-use language: the `lang` cookie
+//     (seeded from the profile at login, updated by the header switcher), falling
+//     back to the server-resolved `initialLanguageCode` to avoid a first-paint
+//     flash before the cookie is readable. Recomputes on navigation, so coming
+//     back to the dashboard after a public switch picks up the new language.
 export function I18nProvider({initialLanguageCode, children}: Props) {
   const pathname = usePathname();
   const {setDirection} = useDirection();
 
   const value = useMemo<I18nContextValue>(() => {
     const firstSegment = pathname.split("/").filter(Boolean)[0];
-    const languageCode = isLocale((firstSegment ?? "").toLowerCase())
-      ? firstSegment
-      : initialLanguageCode;
-    return getDictionary(languageCode);
+    if (isLocale((firstSegment ?? "").toLowerCase())) {
+      return getDictionary(firstSegment);
+    }
+    const cookieLanguage = readCookie(LANGUAGE_COOKIE_NAME);
+    return getDictionary(cookieLanguage ?? initialLanguageCode);
   }, [pathname, initialLanguageCode]);
 
   useEffect(() => {
