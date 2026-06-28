@@ -14,6 +14,7 @@ import {
   FilesTabsClient,
   FilesPagination,
   FileSelectButton,
+  RefreshButton,
 } from "./files-explorer-components";
 import {AddFileButton} from "./add-file-button";
 import {FilesList} from "./files-list";
@@ -95,7 +96,7 @@ export function FilesExplorer({onSelect}: Props) {
   const currentTabState = activeTab ? tabsState[activeTab] : null;
 
   // Fetch files data - MUST be called unconditionally
-  const {data, isLoading} = useQuery<Data>({
+  const {data, isLoading, isFetching, refetch} = useQuery<Data>({
     queryKey: ["files", activeTab, currentTabState?.searchParams.page],
     queryFn: async () => {
       if (!activeTabData || !currentTabState) {
@@ -133,6 +134,7 @@ export function FilesExplorer({onSelect}: Props) {
 
   const invalidateQuery = () => {
     queryClient.invalidateQueries();
+    refetch();
   };
 
   const handleSelectFile = (id: string) => {
@@ -148,6 +150,10 @@ export function FilesExplorer({onSelect}: Props) {
 
   const handlePagination = (page: number) => {
     updateTabState({searchParams: {page: String(page)}});
+  };
+
+  const handleRefresh = async () => {
+    refetch();
   };
 
   const handleAddFile = () => {
@@ -166,12 +172,15 @@ export function FilesExplorer({onSelect}: Props) {
           activeTab={activeTab}
           onTabChange={setActiveTab}
         />
-        {canUpload && <AddFileButton onAdd={handleAddFile} />}
+        <Group gap={"xs"}>
+          <RefreshButton onRefresh={handleRefresh} loading={isFetching} />
+          {canUpload && <AddFileButton onAdd={handleAddFile} />}
+        </Group>
       </Group>
 
       <FilesList
         files={files}
-        isLoading={isLoading}
+        isLoading={isLoading || isFetching}
         selectedFile={selectedFile}
         onSelect={handleSelectFile}
         onDelete={handleDeleteFile}

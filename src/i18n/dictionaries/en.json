@@ -262,6 +262,7 @@
     },
     "addImage": "Add image",
     "addingFiles": "Adding files",
+    "refresh": "Refresh",
     "selectFile": "Select file",
     "noAccessTitle": "No access",
     "noAccessMessage": "You do not have access to this section",

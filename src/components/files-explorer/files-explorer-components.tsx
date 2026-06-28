@@ -8,8 +8,10 @@ import {
   Pagination,
   Divider,
   Button,
+  Tooltip,
+  ActionIcon,
 } from "@mantine/core";
-import {IconCheck} from "@tabler/icons-react";
+import {IconCheck, IconRefresh} from "@tabler/icons-react";
 import {useTranslations} from "@/i18n/provider";
 import classes from "./files-explorer.module.css";
 
@@ -61,6 +63,29 @@ export function FilesTabsClient({
         />
       </Tabs.List>
     </Tabs>
+  );
+}
+
+// RefreshButton Component
+type RefreshButtonProps = {
+  onRefresh: () => void;
+  loading: boolean;
+};
+
+export function RefreshButton({onRefresh, loading}: RefreshButtonProps) {
+  const t = useTranslations();
+
+  return (
+    <Tooltip label={t("files.refresh")} withArrow>
+      <ActionIcon
+        variant="light"
+        size="lg"
+        onClick={onRefresh}
+        loading={loading}
+      >
+        <IconRefresh />
+      </ActionIcon>
+    </Tooltip>
   );
 }
 

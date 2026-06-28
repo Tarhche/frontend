@@ -262,6 +262,7 @@
     },
     "addImage": "اضافه کردن تصویر",
     "addingFiles": "در حال اضافه کردن فایل ها",
+    "refresh": "بارگذاری مجدد",
     "selectFile": "انتخاب فایل",
     "noAccessTitle": "عدم دسترسی",
     "noAccessMessage": "شما به این قسمت دسترسی ندارید",
