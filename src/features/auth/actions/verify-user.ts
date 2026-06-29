@@ -7,33 +7,24 @@ import {
   type ValidationFormState,
 } from "@/lib/api/validation-errors";
 
-type FormState = ValidationFormState;
+type FormState = ValidationFormState | undefined;
 
 const PASSWORD_FIELDS = ["password", "repassword"] as const;
 
 export async function verifyUser(
-  state: unknown,
-  formData: unknown,
+  formState: FormState,
+  formData: FormData,
 ): Promise<FormState> {
-  if (formData instanceof FormData) {
-    const data: Record<string, string> = {};
-    formData.forEach((value, key) => {
-      if (value instanceof File === false) {
-        data[key] = value as string;
-      }
-    });
-    const values = captureFormValues(formData, {exclude: PASSWORD_FIELDS});
-    try {
-      await completeUserProfile(data);
-      return {success: true};
-    } catch (e) {
-      const errors = extractValidationErrors(e);
-      if (errors) {
-        return {success: false, errors, values};
-      }
-      return {success: false, values};
+  const data = captureFormValues(formData);
+  const values = captureFormValues(formData, {exclude: PASSWORD_FIELDS});
+  try {
+    await completeUserProfile(data);
+    return {success: true, values};
+  } catch (error) {
+    const errors = extractValidationErrors(error);
+    if (errors) {
+      return {success: false, errors, values};
     }
+    return {success: false, values};
   }
-
-  return {success: false};
 }

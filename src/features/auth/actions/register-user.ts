@@ -10,6 +10,7 @@ import {
 
 type SuccessRegisterState = {
   success: true;
+  values?: FormValues;
 };
 
 type FailureRegisterState = {
@@ -33,9 +34,11 @@ export async function registerUser(
 
   try {
     await signUpUser(email);
-    return {success: true};
+
+    return {success: true, values};
   } catch (e) {
     const errors = extractValidationErrors(e);
+
     return {
       success: false,
       values,

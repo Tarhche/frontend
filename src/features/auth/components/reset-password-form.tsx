@@ -1,6 +1,6 @@
 "use client";
 
-import {useActionState} from "react";
+import {useActionState, useState} from "react";
 import Link from "@/components/link";
 import {
   Alert,
@@ -32,6 +32,10 @@ const RESET_PASSWORD_FIELDS = [
 export function ResetPasswordForm({token}: Props) {
   const t = useTranslations();
   const [state, dispatch, isPending] = useActionState(resetPassword, null);
+  // Keep passwords in client state so they survive React 19's post-action form
+  // reset without round-tripping the password back through the server.
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const formErrors = nonFieldErrors(state?.errors, RESET_PASSWORD_FIELDS);
   const tokenError = state?.errors?.token;
@@ -54,6 +58,8 @@ export function ResetPasswordForm({token}: Props) {
               placeholder="..."
               name="password"
               mt={"md"}
+              value={password}
+              onChange={(event) => setPassword(event.currentTarget.value)}
               error={state?.errors?.password ?? ""}
               disabled={state?.success}
               required
@@ -65,6 +71,8 @@ export function ResetPasswordForm({token}: Props) {
               placeholder="..."
               name="confirm_password"
               mt={"sm"}
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.currentTarget.value)}
               error={state?.errors?.confirm_password ?? ""}
               disabled={state?.success}
               required

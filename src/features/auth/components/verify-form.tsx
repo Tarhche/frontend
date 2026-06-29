@@ -38,17 +38,15 @@ const VERIFY_FIELDS = [
 
 export function VerifyForm({token, languages, defaultLanguageCode}: Props) {
   const t = useTranslations();
-  const [state, dispatch, isPending] = useActionState(verifyUser, {
-    success: false,
-  });
-  const fieldErrors = state.errors;
+  const [state, dispatch, isPending] = useActionState(verifyUser, undefined);
+  const fieldErrors = state?.errors;
   const formErrors = nonFieldErrors(fieldErrors, VERIFY_FIELDS);
   const fallbackErrors =
-    state.success === false && !state.errors
+    state?.success === false && !state.errors
       ? [t("auth.verify.unknownError")]
       : [];
 
-  if (state.success) {
+  if (state?.success) {
     return (
       <Container size={500} p={0} mt={"xl"}>
         <Paper radius={"md"} p={"xl"} withBorder>
@@ -88,7 +86,7 @@ export function VerifyForm({token, languages, defaultLanguageCode}: Props) {
                 name="name"
                 label={t("auth.verify.nameLabel")}
                 radius="md"
-                defaultValue={state.values?.name ?? ""}
+                defaultValue={state?.values?.name ?? ""}
                 error={fieldErrors?.name ?? ""}
                 required
               />
@@ -98,7 +96,7 @@ export function VerifyForm({token, languages, defaultLanguageCode}: Props) {
                 name="username"
                 label={t("auth.verify.usernameLabel")}
                 radius="md"
-                defaultValue={state.values?.username ?? ""}
+                defaultValue={state?.values?.username ?? ""}
                 error={fieldErrors?.username ?? ""}
                 required
               />
@@ -113,7 +111,7 @@ export function VerifyForm({token, languages, defaultLanguageCode}: Props) {
                   label: language.name,
                 }))}
                 defaultValue={
-                  state.values?.language_code ?? defaultLanguageCode
+                  state?.values?.language_code ?? defaultLanguageCode
                 }
                 error={fieldErrors?.language_code ?? ""}
                 allowDeselect={false}
@@ -140,10 +138,12 @@ export function VerifyForm({token, languages, defaultLanguageCode}: Props) {
             </Stack>
             <input name="token" value={token} hidden readOnly />
           </Stack>
-          <ValidationErrorsAlert
-            errors={formErrors.length > 0 ? formErrors : fallbackErrors}
-            title={t("auth.verify.failedTitle")}
-          />
+          {state?.success === false && (
+            <ValidationErrorsAlert
+              errors={formErrors.length > 0 ? formErrors : fallbackErrors}
+              title={t("auth.verify.failedTitle")}
+            />
+          )}
           <Group
             justify="space-between"
             mt={

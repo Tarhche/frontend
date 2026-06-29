@@ -27,7 +27,7 @@ export function RegisterForm() {
   });
 
   const fieldErrors = state.success === false ? state.errors : undefined;
-  const values = state.success === false ? state.values : undefined;
+  const values = state.success === undefined ? undefined : state.values;
   const formErrors = nonFieldErrors(fieldErrors, REGISTER_FIELDS);
 
   return (

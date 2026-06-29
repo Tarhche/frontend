@@ -20,7 +20,8 @@ export async function forgotPassword(
       throw new Error();
     }
     await recoverPassword(identity);
-    return {success: true};
+
+    return {success: true, values};
   } catch (error) {
     const errors = extractValidationErrors(error);
     if (errors) {
