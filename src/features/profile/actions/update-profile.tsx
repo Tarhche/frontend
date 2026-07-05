@@ -1,12 +1,12 @@
 "use server";
 
-import {cookies} from "next/headers";
+import {cookies, headers} from "next/headers";
 import {revalidatePath} from "next/cache";
-import axios from "axios";
 import jwt from "jsonwebtoken";
 import {updateUserProfile} from "@/dal/private/profile";
 import {APP_PATHS} from "@/lib/app-paths";
-import {INTERNAL_BACKEND_URL} from "@/constants/envs";
+import {refreshTokens} from "@/lib/auth/refresh/refreshTokens";
+import {resolveClientIp} from "@/lib/client-ip";
 import {
   ACCESS_TOKEN_COOKIE_NAME,
   REFRESH_TOKEN_COOKIE_NAME,
@@ -17,22 +17,6 @@ import {
   REFRESH_TOKEN_EXP,
   LANGUAGE_COOKIE_EXP,
 } from "@/constants/numbers";
-
-// Server-side token refresh. Must use the INTERNAL backend URL: this runs inside
-// the container, where the public URL (localhost) points at the container
-// itself, not the backend.
-async function refreshTokensServer(
-  refreshToken: string,
-): Promise<{access_token: string; refresh_token: string}> {
-  const {data} = await axios.post(
-    `${INTERNAL_BACKEND_URL}/api/auth/token/refresh`,
-    {token: refreshToken},
-  );
-  return {
-    access_token: data.access_token,
-    refresh_token: data.refresh_token,
-  };
-}
 import {
   captureFormValues,
   extractValidationErrors,
@@ -90,7 +74,10 @@ async function syncProfileLanguage(newLanguage: string): Promise<boolean> {
   // natural refresh/login.
   if (refreshToken) {
     try {
-      const tokens = await refreshTokensServer(refreshToken);
+      const tokens = await refreshTokens(
+        refreshToken,
+        resolveClientIp(await headers()),
+      );
       store.set(ACCESS_TOKEN_COOKIE_NAME, tokens.access_token, {
         maxAge: ACCESS_TOKEN_EXP,
         httpOnly: false,

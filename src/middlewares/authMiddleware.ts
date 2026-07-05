@@ -7,6 +7,7 @@ import {
   REFRESH_TOKEN_EXP,
 } from "@/constants";
 import {refreshCoordinator} from "@/lib/auth/refresh/RefreshCoordinator";
+import {resolveClientIp} from "@/lib/client-ip";
 
 // 1. The middleware will ensure that for protected routes, if the access token is missing or expired,
 // it will attempt to refresh it using the refresh token.
@@ -24,7 +25,10 @@ export default async function authMiddleware(req: NextRequest) {
 
   if (refreshToken && (!accessToken || isTokenExpired(accessToken))) {
     try {
-      const tokens = await refreshCoordinator.swap(refreshToken);
+      const tokens = await refreshCoordinator.swap(
+        refreshToken,
+        resolveClientIp(req.headers),
+      );
       newAccessToken = tokens.access_token;
       newRefreshToken = tokens.refresh_token;
     } catch {

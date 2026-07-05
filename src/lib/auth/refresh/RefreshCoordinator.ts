@@ -6,14 +6,17 @@ class RefreshCoordinator {
   private inFlight = new Map<string, Promise<NewTokens>>();
   private recentlyRotated = new Map<string, NewTokens>();
 
-  async swap(oldRefreshToken: string): Promise<NewTokens> {
+  async swap(
+    oldRefreshToken: string,
+    clientIp?: string | null,
+  ): Promise<NewTokens> {
     const cached = this.recentlyRotated.get(oldRefreshToken);
     if (cached) return cached;
 
     const inflight = this.inFlight.get(oldRefreshToken);
     if (inflight) return inflight;
 
-    const promise = refreshTokens(oldRefreshToken)
+    const promise = refreshTokens(oldRefreshToken, clientIp)
       .then((tokens) => {
         this.remember(oldRefreshToken, tokens);
         this.remember(tokens.refresh_token, tokens);

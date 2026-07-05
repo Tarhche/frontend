@@ -6,6 +6,7 @@ import {
   REFRESH_TOKEN_EXP,
 } from "@/constants";
 import {refreshCoordinator} from "@/lib/auth/refresh/RefreshCoordinator";
+import {resolveClientIp} from "@/lib/client-ip";
 
 export async function POST(request: NextRequest) {
   const refreshToken = request.cookies.get(REFRESH_TOKEN_COOKIE_NAME)?.value;
@@ -14,7 +15,10 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const tokens = await refreshCoordinator.swap(refreshToken);
+    const tokens = await refreshCoordinator.swap(
+      refreshToken,
+      resolveClientIp(request.headers),
+    );
     const response = new NextResponse(null, {status: 204});
     response.cookies.set(ACCESS_TOKEN_COOKIE_NAME, tokens.access_token, {
       maxAge: ACCESS_TOKEN_EXP,

@@ -1,6 +1,7 @@
 import ServerInterceptor from "@/lib/auth/interception/interceptors/ServerInterceptor";
 import {InternalAxiosRequestConfig} from "axios";
 import {headers as nextHeaders} from "next/headers";
+import {resolveClientIp} from "@/lib/client-ip";
 
 export default class ServerProxyHeaderInterceptor extends ServerInterceptor {
   add() {
@@ -15,10 +16,7 @@ export default class ServerProxyHeaderInterceptor extends ServerInterceptor {
   ) {
     try {
       const headersStore = await nextHeaders();
-      config.headers["x-forwarded-for"] =
-        headersStore.get("x-forwarded-for") ||
-        headersStore.get("x-real-ip") ||
-        headersStore.get("cf-connecting-ip");
+      config.headers["x-forwarded-for"] = resolveClientIp(headersStore);
     } catch (e) {
       // avoid errors on static generation
       console.error(e);
