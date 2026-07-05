@@ -34,8 +34,11 @@ export function languageFromAccessToken(token: string): string | null {
 export async function resolvePreferredLanguageCode(opts: {
   accessToken?: string;
   cookieLanguage?: string;
+  // Only needed where the ambient request scope is unavailable (middleware);
+  // elsewhere getLanguageConfig resolves the client IP itself.
+  clientIp?: string | null;
 }): Promise<string | null> {
-  const config = await getLanguageConfig();
+  const config = await getLanguageConfig(opts.clientIp);
 
   const tokenLanguage = opts.accessToken
     ? languageFromAccessToken(opts.accessToken)

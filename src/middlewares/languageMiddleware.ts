@@ -2,6 +2,7 @@ import {NextRequest, NextResponse} from "next/server";
 import {ACCESS_TOKEN_COOKIE_NAME, LANGUAGE_COOKIE_NAME} from "@/constants";
 import {getLanguageConfig} from "@/lib/language/config";
 import {resolvePreferredLanguageCode} from "@/lib/language/resolve";
+import {resolveClientIp} from "@/lib/client-ip";
 
 // Public content lives under a `/{language}` prefix. These path roots are never
 // language-prefixed (API, Next internals, dashboard). Auth pages ARE prefixed
@@ -36,7 +37,7 @@ export default async function languageMiddleware(
     return;
   }
 
-  const config = await getLanguageConfig();
+  const config = await getLanguageConfig(resolveClientIp(req.headers));
   if (!config) {
     return;
   }
@@ -49,6 +50,7 @@ export default async function languageMiddleware(
   const preferred = await resolvePreferredLanguageCode({
     accessToken: req.cookies.get(ACCESS_TOKEN_COOKIE_NAME)?.value,
     cookieLanguage: req.cookies.get(LANGUAGE_COOKIE_NAME)?.value,
+    clientIp: resolveClientIp(req.headers),
   });
 
   // Only redirect to a known language segment; otherwise the next request would
