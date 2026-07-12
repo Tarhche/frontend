@@ -18,6 +18,11 @@ services:
         limits:
           cpus: "0.30"
           memory: 200M
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
     environment:
       INTERNAL_BACKEND_BASE_URL: ${INTERNAL_BACKEND_BASE_URL}
       NEXT_PUBLIC_BACKEND_BASE_URL: ${NEXT_PUBLIC_BACKEND_BASE_URL}
