@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
       target: develop
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     ports:
       - "3000:3000"
     volumes:

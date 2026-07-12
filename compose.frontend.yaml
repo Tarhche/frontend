@@ -1,6 +1,8 @@
 services:
   frontend:
     image: ${FRONTEND_IMAGE}
+    security_opt:
+      - no-new-privileges:true
     networks:
       - frontend
       - app
