@@ -74,6 +74,7 @@ async function ArticleDetailPage(props: Props) {
         article={article}
         correlationUUID={correlationUUID}
         languageCode={languageCode}
+        elements={pageElements}
       />
       <Element
         style={{marginTop: "1rem"}}

@@ -22,6 +22,7 @@ import {
   IconEye,
   IconPencil,
   IconFilePlus,
+  IconCircleCheckFilled,
   type TablerIcon,
 } from "@tabler/icons-react";
 import {fetchAllArticles} from "@/dal/private/articles";
@@ -122,16 +123,31 @@ export async function ArticlesTable({page, languageCode}: Props) {
                   <Group gap="sm" wrap="nowrap">
                     <Text fw={500}>{headerTitle}</Text>
                     <Group gap={4} wrap="nowrap">
-                      {items.map((item) => (
-                        <Badge
-                          key={item.language?.code}
-                          variant="light"
-                          color="gray"
-                          size="sm"
-                        >
-                          {item.language?.name ?? item.language?.code}
-                        </Badge>
-                      ))}
+                      {items.map((item) => {
+                        const isPublished = !isGregorianStartDateTime(
+                          item.published_at,
+                        );
+
+                        return (
+                          <Badge
+                            key={item.language?.code}
+                            variant="light"
+                            color="gray"
+                            size="sm"
+                            rightSection={
+                              isPublished ? (
+                                <IconCircleCheckFilled
+                                  size={12}
+                                  color="var(--mantine-color-green-6)"
+                                  aria-label={t("articles.table.published")}
+                                />
+                              ) : null
+                            }
+                          >
+                            {item.language?.name ?? item.language?.code}
+                          </Badge>
+                        );
+                      })}
                     </Group>
                   </Group>
                 </AccordionControl>

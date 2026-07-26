@@ -18,6 +18,9 @@ import {OrphanCommentIndicator} from "./orphan-comment-indicator";
 import {useIsClient} from "@/hooks/use-is-client";
 import {useInit} from "@/hooks/data/init";
 import {useTranslations} from "@/i18n/provider";
+import {EditContentButton} from "@/components/edit-content-button";
+import {APP_PATHS} from "@/lib/app-paths";
+import {PERMISSIONS} from "@/lib/app-permissions";
 import {formatDate} from "@/lib/date-and-time";
 import {type Comment as CommentType} from "../../types/comment";
 import classes from "./comment.module.css";
@@ -73,28 +76,35 @@ export function Comment({
             {formatDate(created_at)}
           </Text>
           <Text mt="xs">{body}</Text>
-          {isLoading || !isClient ? (
-            <Skeleton w={30} h={25} className={classes.replyButton} />
-          ) : isLoggedIn ? (
-            <Tooltip label={t("comments.form.reply")} withArrow>
-              <Button
-                className={classes.replyButton}
-                variant="transparent"
-                c="dimmed"
-                size="xs"
-                mt="xs"
-                onClick={() => {
-                  setIsReplying(!isReplying);
-                }}
-              >
-                {isReplying ? (
-                  <IconX size={25} />
-                ) : (
-                  <IconCornerUpLeft size={25} />
-                )}
-              </Button>
-            </Tooltip>
-          ) : null}
+          <Group gap={4} mt="xs" className={classes.actions} wrap="nowrap">
+            {uuid && (
+              <EditContentButton
+                href={APP_PATHS.dashboard.comments.edit(uuid)}
+                permission={PERMISSIONS.comments.UPDATE}
+              />
+            )}
+            {isLoading || !isClient ? (
+              <Skeleton w={30} h={25} />
+            ) : isLoggedIn ? (
+              <Tooltip label={t("comments.form.reply")} withArrow>
+                <Button
+                  className={classes.replyButton}
+                  variant="transparent"
+                  c="dimmed"
+                  size="xs"
+                  onClick={() => {
+                    setIsReplying(!isReplying);
+                  }}
+                >
+                  {isReplying ? (
+                    <IconX size={25} />
+                  ) : (
+                    <IconCornerUpLeft size={25} />
+                  )}
+                </Button>
+              </Tooltip>
+            ) : null}
+          </Group>
         </div>
       </Group>
       {isReplying && (

@@ -1,0 +1,6 @@
+.floating {
+  position: absolute;
+  z-index: 2;
+  top: var(--mantine-spacing-xs);
+  inset-inline-end: var(--mantine-spacing-xs);
+}

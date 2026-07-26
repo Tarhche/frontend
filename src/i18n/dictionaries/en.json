@@ -9,6 +9,7 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
+    "editInDashboard": "Edit in dashboard",
     "confirmAction": "Confirm action",
     "areYouSure": "Are you sure?",
     "actions": "Actions",
@@ -24,7 +25,6 @@
       "text": "No articles have been published yet. Please check back later."
     }
   },
-  "validation": {},
   "errors": {
     "title": "Something went wrong",
     "boundaryText": "An unexpected error occurred. Please try again, and if the problem persists, contact us.",
@@ -92,6 +92,7 @@
       "newArticle": "New article",
       "empty": "No articles available",
       "notPublished": "Not published",
+      "published": "Published",
       "viewArticle": "View article",
       "editArticle": "Edit article",
       "deleteArticle": "Delete article",
@@ -416,6 +417,15 @@
       "detail": "Element details",
       "create": "New element",
       "edit": "Edit element"
+    },
+    "stack": {
+      "ariaLabel": "Articles in this series"
+    },
+    "types": {
+      "jumbotron": "Jumbotron",
+      "featured": "Featured",
+      "cards": "Cards",
+      "stack": "Stack"
     }
   },
   "settings": {

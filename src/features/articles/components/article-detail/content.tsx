@@ -11,6 +11,10 @@ import classes from "./content.module.css";
 import {checkBookmarkStatus} from "@/dal/private/bookmarks";
 import ArticleTags from "@/features/articles/components/article-tags/ArticleTags";
 import {AuthorLink} from "@/features/authors/components";
+import Element from "@/features/elements/element";
+import {EditContentButton} from "@/components/edit-content-button";
+import {APP_PATHS} from "@/lib/app-paths";
+import {PERMISSIONS} from "@/lib/app-permissions";
 
 type Props = {
   article: any;
@@ -18,12 +22,21 @@ type Props = {
   // with the language code to key bookmarks.
   correlationUUID: string;
   languageCode: string;
+  elements?: {type: string; body: {[key: string]: any}}[];
 };
 
-export async function Content({article, correlationUUID, languageCode}: Props) {
+export async function Content({
+  article,
+  correlationUUID,
+  languageCode,
+  elements = [],
+}: Props) {
   const isBookmarked = await checkBookmarkStatus(correlationUUID, languageCode);
 
   const tags = article?.status ?? [];
+  // The stack renders as a continuation of the excerpt, so the two sit close
+  // together and the spacing before the body moves onto the stack instead.
+  const hasStack = elements.some((element) => element?.type === "stack");
   const ARTICLE_COVER = `${FILES_PUBLIC_URL}/${article.cover}`;
   const ARTICLE_VIDEO = Boolean(article.video)
     ? `${FILES_PUBLIC_URL}/${article.video}`
@@ -42,14 +55,23 @@ export async function Content({article, correlationUUID, languageCode}: Props) {
             </Text>
           </Group>
         </Group>
-        {isBookmarked === undefined ? null : (
-          <BookmarkButton
-            correlationUUID={correlationUUID}
-            isBookmarked={isBookmarked}
-            title={article.title}
-            languageCode={languageCode}
+        <Group gap="xs" wrap="nowrap">
+          <EditContentButton
+            href={APP_PATHS.dashboard.articles.edit(
+              correlationUUID,
+              languageCode,
+            )}
+            permission={PERMISSIONS.articles.UPDATE}
           />
-        )}
+          {isBookmarked === undefined ? null : (
+            <BookmarkButton
+              correlationUUID={correlationUUID}
+              isBookmarked={isBookmarked}
+              title={article.title}
+              languageCode={languageCode}
+            />
+          )}
+        </Group>
       </Group>
       {article.video && (
         <video
@@ -79,10 +101,16 @@ export async function Content({article, correlationUUID, languageCode}: Props) {
         iconSize={30}
         icon={<IconInfoCircle />}
         mt="md"
-        mb="xl"
+        mb={hasStack ? "xs" : "xl"}
       >
         {article.excerpt}
       </Blockquote>
+      <Element
+        style={{marginBottom: "var(--mantine-spacing-xl)"}}
+        type="stack"
+        elements={elements}
+        currentUuid={correlationUUID}
+      />
       <Box className={classes.content}>
         {parseArticleBodyToReact(article.body)}
       </Box>

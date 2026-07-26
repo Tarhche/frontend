@@ -1,0 +1,63 @@
+/* Mirrors the excerpt Blockquote the stack sits under on an article page: accent
+   bar on the inline-start edge, only the far corners rounded, same colored tint. */
+.stack {
+  --stack-item-height: 3rem;
+  --stack-accent: var(--mantine-color-blue-filled);
+
+  overflow: hidden;
+  border-inline-start: 3px solid var(--stack-accent);
+  border-start-end-radius: var(--mantine-radius-md);
+  border-end-end-radius: var(--mantine-radius-md);
+
+  @mixin light {
+    background-color: alpha(var(--stack-accent), 0.07);
+  }
+
+  @mixin dark {
+    background-color: alpha(var(--stack-accent), 0.06);
+  }
+}
+
+.item {
+  height: var(--stack-item-height);
+  padding-inline: var(--mantine-spacing-md);
+}
+
+/* Only the rows that aren't highlighted — the highlighted one keeps the filled
+   background and its own hover color. */
+.item:not([data-active]):hover {
+  background-color: alpha(var(--stack-accent), 0.12);
+}
+
+.item + .item {
+  border-top: 1px solid alpha(var(--stack-accent), 0.15);
+}
+
+/* ScrollArea.Autosize sizes its content to `min-content`, which for a nowrap label
+   is the width of the whole title — the row would widen and scroll sideways rather
+   than truncate. Two classes, to outweigh Mantine's own rule. */
+.stack .viewportContent {
+  min-width: 100%;
+}
+
+/* A flex child defaults to `min-width: auto`, which keeps it as wide as its text
+   and leaves nothing to truncate. */
+.itemBody {
+  min-width: 0;
+}
+
+.itemLabel {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.itemOrder {
+  color: var(--mantine-color-dimmed);
+}
+
+/* Dimmed grey would drop out against the filled highlight. */
+.item[data-active] .itemOrder {
+  color: inherit;
+}

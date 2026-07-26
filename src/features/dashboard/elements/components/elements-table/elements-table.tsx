@@ -23,6 +23,7 @@ import {APP_PATHS} from "@/lib/app-paths";
 import {type Permissions} from "@/lib/app-permissions";
 import {getServerDictionary} from "@/i18n/server";
 import {fetchAllElements} from "@/dal/private/elements";
+import {elementTypeLabel} from "../../element-types";
 
 type Props = {
   page: number | string;
@@ -101,7 +102,7 @@ export async function ElementsTable({page}: Props) {
                 <TableTr key={element.uuid}>
                   <TableTd>{index + 1}</TableTd>
                   <TableTd>{element.uuid}</TableTd>
-                  <TableTd>{element.body_type}</TableTd>
+                  <TableTd>{elementTypeLabel(t, element.body_type)}</TableTd>
                   <TableTd>{formatDate(element.created_at)}</TableTd>
                   <TableTd>
                     <ActionIconGroup>

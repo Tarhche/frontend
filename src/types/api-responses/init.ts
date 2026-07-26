@@ -4,6 +4,7 @@ type UnAuthenticated = {
 
 type Authenticated = {
   status: "authenticated";
+  permissions: string[];
   profile: {
     avatar: string;
     email: string;

@@ -18,8 +18,12 @@ export async function upsertElementAction(
   const values: Record<string, string | string[]> =
     FormDataCodec.toObject(formData);
 
+  // FormData carries strings, so a `false` flag arrives as the (truthy) string
+  // "false" — it has to be compared, not tested for truthiness.
+  const isUpdate = formData.get("is_update") === "true";
+
   try {
-    if (formData.get("is_update")) {
+    if (isUpdate) {
       await updateElement(JSON.parse(values.jsonValue as string));
     } else {
       await createElement(JSON.parse(values.jsonValue as string));

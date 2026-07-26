@@ -38,6 +38,20 @@ export function nonFieldErrors(
     .map(([, message]) => message);
 }
 
+// Same as `nonFieldErrors`, but keeps the field each message belongs to. Forms that
+// submit a whole payload at once (rather than one input per field) need it to tell
+// which part of that payload the API rejected.
+export function nonFieldErrorEntries(
+  errors: ValidationErrorMap | undefined,
+  knownFields: readonly string[],
+): {field: string; message: string}[] {
+  if (!errors) return [];
+  const known = new Set(knownFields);
+  return Object.entries(errors)
+    .filter(([key, message]) => Boolean(message) && !known.has(key))
+    .map(([field, message]) => ({field, message}));
+}
+
 // React 19 auto-resets <form action> on submit, so on failure we echo
 // submitted values back and seed them as defaultValue to preserve input.
 export function captureFormValues(

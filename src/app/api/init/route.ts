@@ -1,6 +1,7 @@
 import {NextRequest, NextResponse} from "next/server";
 import {DALDriverError} from "@/dal/dal-driver-error";
 import {fetchUserProfile} from "@/dal/private/profile";
+import {getUserPermissions} from "@/lib/auth/server";
 import {AuthState} from "@/types/api-responses/init";
 
 export async function GET(request: NextRequest) {
@@ -8,6 +9,7 @@ export async function GET(request: NextRequest) {
     const profile = await fetchUserProfile();
     const data: AuthState = {
       status: "authenticated",
+      permissions: (await getUserPermissions()) ?? [],
       profile: profile.data,
     };
 

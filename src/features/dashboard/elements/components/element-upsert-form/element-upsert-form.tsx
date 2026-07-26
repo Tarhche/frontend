@@ -7,7 +7,7 @@ import {Group, Stack, Button, Box, Text} from "@mantine/core";
 import {upsertElementAction} from "../../actions/upsert-element";
 import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import ServerComponentErrorHandler from "@/components/errors/server-component-error-handler";
-import {nonFieldErrors} from "@/lib/api/validation-errors";
+import {nonFieldErrorEntries} from "@/lib/api/validation-errors";
 import {FormDataCodec} from "@/lib/form-data-codec";
 import {useTranslations} from "@/i18n/provider";
 
@@ -19,7 +19,10 @@ type Props = {
   element?: any;
 };
 
-const ELEMENT_UPSERT_FIELDS = ["jsonValue", "is_update", "uuid"] as const;
+// Only the editor has a field of its own; every other error the API reports is
+// about a path inside the submitted JSON (`body.items.0.content_uuid`, `uuid`, …)
+// and has nowhere else to be shown, so it belongs in the alert.
+const ELEMENT_UPSERT_FIELDS = ["jsonValue"] as const;
 
 export function ElementUpsertForm({element}: Props) {
   const t = useTranslations();
@@ -91,7 +94,12 @@ export function ElementUpsertForm({element}: Props) {
     );
   };
 
-  const formErrors = nonFieldErrors(state.errors, ELEMENT_UPSERT_FIELDS);
+  // The API returns these already translated; only the field path is added here,
+  // since the JSON editor has no per-field inputs to attach them to.
+  const formErrors = nonFieldErrorEntries(
+    state.errors,
+    ELEMENT_UPSERT_FIELDS,
+  ).map(({field, message}) => `${field}: ${message}`);
 
   return (
     <form action={handleSubmit}>

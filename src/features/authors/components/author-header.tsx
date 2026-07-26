@@ -5,6 +5,9 @@ import {IconCalendar} from "@tabler/icons-react";
 import {UserAvatar} from "@/components/user-avatar";
 import {formatDate, isGregorianStartDateTime} from "@/lib/date-and-time";
 import {useTranslations} from "@/i18n/provider";
+import {EditContentButton} from "@/components/edit-content-button";
+import {APP_PATHS} from "@/lib/app-paths";
+import {PERMISSIONS} from "@/lib/app-permissions";
 import {type AuthorWithCreatedAt} from "../types";
 
 type Props = {
@@ -17,7 +20,14 @@ export function AuthorHeader({author}: Props) {
     Boolean(author.created_at) && !isGregorianStartDateTime(author.created_at);
 
   return (
-    <Paper p={"lg"} radius={"md"} withBorder>
+    <Paper p={"lg"} radius={"md"} withBorder pos="relative">
+      {author.uuid && (
+        <EditContentButton
+          href={APP_PATHS.dashboard.users.edit(author.uuid)}
+          permission={PERMISSIONS.users.UPDATE}
+          floating
+        />
+      )}
       <Group align="center" wrap="nowrap" gap={"lg"}>
         <UserAvatar
           src={author.avatar || undefined}
