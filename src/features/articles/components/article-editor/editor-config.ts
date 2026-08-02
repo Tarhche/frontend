@@ -11,7 +11,6 @@ import {
   Bold,
   Bookmark,
   Code,
-  CodeBlock,
   Essentials,
   FindAndReplace,
   FontBackgroundColor,
@@ -72,7 +71,7 @@ import {
   WordCount,
 } from "ckeditor5";
 import {FileExplorerPlugin} from "./plugins/file-explorer-plugin";
-import {ExecutableCodeBlockPlugin} from "./plugins/executable-code-block-plugin";
+import {RunnableCodeBlockPlugin} from "./plugins/runnable-code-block";
 import {type TFunction} from "@/i18n/dictionary";
 
 export const getEditorConfig = (t: TFunction): EditorConfig => ({
@@ -103,7 +102,6 @@ export const getEditorConfig = (t: TFunction): EditorConfig => ({
       "highlight",
       "blockQuote",
       "codeBlock",
-      "executable",
       "|",
       "alignment",
       "|",
@@ -128,7 +126,6 @@ export const getEditorConfig = (t: TFunction): EditorConfig => ({
     Bold,
     Bookmark,
     Code,
-    CodeBlock,
     Essentials,
     FindAndReplace,
     FontBackgroundColor,
@@ -187,7 +184,8 @@ export const getEditorConfig = (t: TFunction): EditorConfig => ({
     TodoList,
     Underline,
     WordCount,
-    ExecutableCodeBlockPlugin,
+    // Brings the code block feature along with runtimes, so `CodeBlock` is not needed.
+    RunnableCodeBlockPlugin,
   ],
   balloonToolbar: [
     "bold",
