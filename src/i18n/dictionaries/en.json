@@ -71,7 +71,9 @@
       "comments": "Comments"
     },
     "hashtags": {
-      "metaTitle": "{hashtag} | Tags"
+      "metaTitle": "{hashtag} | Tags",
+      "articlesTab": "Articles",
+      "notesTab": "Notes"
     },
     "form": {
       "titleLabel": "Article title",
@@ -108,6 +110,56 @@
       "editCrumb": "Edit article"
     }
   },
+  "notes": {
+    "list": {
+      "title": "Notes",
+      "metaTitle": "Notes",
+      "readMore": "Read more",
+      "empty": "No notes published yet"
+    },
+    "detail": {
+      "notFoundTitle": "Note not found",
+      "notFoundText": "This note is not available in the selected language.",
+      "comments": "Comments",
+      "metaTitle": "A note by {name}"
+    },
+    "form": {
+      "languageLabel": "Language",
+      "bodyLabel": "Note",
+      "tagsLabel": "Tags",
+      "publishedAtLabel": "Publish date",
+      "submitUpdate": "Update note",
+      "submitCreate": "Create note",
+      "addOrEditTranslation": "Add or edit translation",
+      "missingTranslationTitle": "This translation doesn't exist yet",
+      "missingTranslationText": "There is no {language} version of this note yet. Fill in the form below to create it under the same note."
+    },
+    "table": {
+      "newNote": "New note",
+      "empty": "No notes available",
+      "notPublished": "Not published",
+      "published": "Published",
+      "viewNote": "View note",
+      "editNote": "Edit note",
+      "deleteNote": "Delete note",
+      "deleteConfirm": "Are you sure you want to delete this note?"
+    },
+    "dashboard": {
+      "listMetaTitle": "Notes",
+      "listCrumb": "Notes",
+      "myListMetaTitle": "My notes",
+      "myListCrumb": "My notes",
+      "newMetaTitle": "New note",
+      "newCrumb": "New note",
+      "newTranslationCrumb": "New translation",
+      "editMetaTitle": "Note details",
+      "editCrumb": "Edit note",
+      "tabs": {
+        "all": "All notes",
+        "own": "My notes"
+      }
+    }
+  },
   "comments": {
     "form": {
       "replyPlaceholder": "Write your reply",
@@ -129,7 +181,7 @@
       "deleteConfirm": "Are you sure you want to delete \"{message}\"?"
     },
     "list": {
-      "empty": "No comments have been submitted for this article yet!",
+      "empty": "No comments have been submitted yet!",
       "orphanInfo": "The parent of this comment has been deleted or hidden."
     },
     "table": {
@@ -149,8 +201,11 @@
       "notApproved": "Not approved"
     },
     "dashboard": {
-      "allTitle": "User comments",
-      "myTitle": "My comments",
+      "title": "Comments",
+      "tabs": {
+        "all": "All comments",
+        "own": "My comments"
+      },
       "editTitle": "Edit comment"
     }
   },
@@ -168,7 +223,10 @@
       "headerTitle": "Title",
       "headerDate": "Date added",
       "empty": "You haven't saved anything yet",
-      "view": "View bookmark"
+      "view": "View bookmark",
+      "headerType": "Type",
+      "typeArticle": "Article",
+      "typeNote": "Note"
     },
     "page": {
       "title": "My bookmarks"
@@ -178,7 +236,11 @@
     "fallbackName": "Author",
     "memberSince": "Member since {date}",
     "noArticles": "No articles published yet",
-    "metaTitle": "Articles by {name}"
+    "metaTitle": "Articles by {name}",
+    "noNotes": "No notes published yet",
+    "notesMetaTitle": "{name}'s notes",
+    "viewNotes": "Notes",
+    "viewArticles": "Articles"
   },
   "auth": {
     "layout": {
@@ -295,7 +357,6 @@
       "articles": "Articles",
       "comments": "Comments",
       "files": "Files",
-      "myComments": "My comments",
       "elements": "Elements",
       "myBookmarks": "My bookmarks",
       "users": "Users",
@@ -303,7 +364,8 @@
       "languages": "Languages",
       "settings": "Settings",
       "profile": "Profile",
-      "logout": "Logout"
+      "logout": "Logout",
+      "notes": "Notes"
     }
   },
   "users": {

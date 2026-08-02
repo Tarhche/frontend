@@ -33,6 +33,7 @@ async function ArticleDetalPage({params}: Props) {
       id={comment.uuid}
       parentId={comment.parent_uuid}
       objectId={comment.object_uuid}
+      objectType={comment.object_type}
       message={comment.body}
       approvalDate={comment.approved_at}
     />

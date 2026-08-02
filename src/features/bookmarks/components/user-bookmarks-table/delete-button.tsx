@@ -12,10 +12,14 @@ import {
 } from "@mantine/core";
 import {IconTrash} from "@tabler/icons-react";
 import {removeBookmarkAction} from "../../actions/remove-bookmark";
+import {type BookmarkObjectType} from "../../types";
 import {useTranslations} from "@/i18n/provider";
 
 type Props = {
   bookmarkID: string;
+  // The kind of content the bookmark points at, echoed back on delete so the
+  // right bookmark is removed.
+  objectType: BookmarkObjectType;
   languageCode: string;
   title?: string;
 };
@@ -23,6 +27,7 @@ type Props = {
 export function MyBookmarkDeleteButton({
   title,
   bookmarkID,
+  objectType,
   languageCode,
 }: Props) {
   const t = useTranslations();
@@ -65,6 +70,13 @@ export function MyBookmarkDeleteButton({
           </Button>
           <form action={formAction}>
             <input type="text" name="id" value={bookmarkID} readOnly hidden />
+            <input
+              type="text"
+              name="object-type"
+              value={objectType}
+              readOnly
+              hidden
+            />
             <input
               type="text"
               name="language-code"

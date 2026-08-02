@@ -3,11 +3,11 @@ import {Suspense} from "react";
 import {notFound} from "next/navigation";
 import {Container, Box, Group, Title} from "@mantine/core";
 import {IconMessage} from "@tabler/icons-react";
+import {Content} from "@/features/articles/components/article-detail";
 import {
-  Content,
   Comments,
   CommentsSkeleton,
-} from "@/features/articles/components/article-detail";
+} from "@/features/comments/components/content-comments";
 import {NotFound} from "@/components/not-found";
 import Element from "@/features/elements/element";
 import {fetchArticleByCorrelationUUID} from "@/dal/public/articles";
@@ -100,6 +100,7 @@ async function ArticleDetailPage(props: Props) {
         </Group>
         <Suspense fallback={<CommentsSkeleton />}>
           <Comments
+            objectType="article"
             correlationUUID={correlationUUID}
             languageCode={languageCode}
           />

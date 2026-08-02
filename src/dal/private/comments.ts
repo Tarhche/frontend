@@ -1,5 +1,6 @@
 import {AxiosRequestConfig} from "axios";
 import {LANGUAGE_CODE_HEADER} from "@/constants";
+import {type CommentObjectType} from "@/features/comments/types";
 import {privateDalDriver} from "./private-dal-driver";
 
 export async function fetchAllComments(config?: AxiosRequestConfig) {
@@ -24,10 +25,7 @@ export async function fetchUsersDetailComments(
 }
 
 export async function updateUserComment(body: any) {
-  const response = await privateDalDriver.put(`dashboard/comments`, {
-    object_type: "article",
-    ...body,
-  });
+  const response = await privateDalDriver.put(`dashboard/comments`, body);
   return response.data;
 }
 
@@ -39,7 +37,8 @@ export async function deleteSelfComment(commentId: string) {
   return await privateDalDriver.delete(`/dashboard/my/comments/${commentId}`);
 }
 
-export async function createArticleComment(body: {
+export async function createComment(body: {
+  object_type: CommentObjectType;
   object_uuid: string;
   body: string;
   parent_uuid: string;
@@ -47,14 +46,9 @@ export async function createArticleComment(body: {
 }) {
   // The body keeps `language_code` (the backend validates/persists it on the
   // comment); the header additionally scopes the request (e.g. validation
-  // messages) to the article's language rather than the author's profile.
-  const response = await privateDalDriver.post(
-    "comments",
-    {
-      ...body,
-      object_type: "article",
-    },
-    {headers: {[LANGUAGE_CODE_HEADER]: body.language_code}},
-  );
+  // messages) to the content's language rather than the author's profile.
+  const response = await privateDalDriver.post("comments", body, {
+    headers: {[LANGUAGE_CODE_HEADER]: body.language_code},
+  });
   return response.data;
 }

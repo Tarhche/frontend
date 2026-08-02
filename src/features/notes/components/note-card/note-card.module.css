@@ -1,0 +1,51 @@
+/* A note in a list reads as a sticky note pinned to the page: the shared paper
+   surface, sitting very slightly askew, straightening and lifting on hover. */
+.card {
+  composes: paper from "../../styles/sticky.module.css";
+
+  --tilt: -0.85deg;
+
+  transform: rotate(var(--tilt));
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+/* Alternating the lean keeps a column of notes from looking like one slanted
+   block. */
+.card:nth-child(even) {
+  --tilt: 0.9deg;
+}
+
+.card:hover,
+.card:focus-within {
+  transform: rotate(0deg) translateY(-2px);
+  box-shadow:
+    0 2px 2px light-dark(rgba(87, 74, 20, 0.18), rgba(0, 0, 0, 0.55)),
+    0 16px 24px -10px light-dark(rgba(87, 74, 20, 0.34), rgba(0, 0, 0, 0.65));
+}
+
+/* Honour users who'd rather not have things moving about. */
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    --tilt: 0deg;
+    transition: none;
+  }
+
+  .card:hover,
+  .card:focus-within {
+    transform: none;
+  }
+}
+
+/* The excerpt is the note's body rendered as plain text, cut to three lines
+   with an ellipsis so every card in the list keeps the same height. */
+.excerpt {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: pre-line;
+  word-break: break-word;
+}

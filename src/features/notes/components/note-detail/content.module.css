@@ -1,0 +1,37 @@
+/* The full note is one large sticky sheet. */
+.sheet {
+  composes: paper from "../../styles/sticky.module.css";
+
+  display: block;
+  padding: var(--mantine-spacing-xl);
+}
+
+.content {
+  p {
+    font-weight: lighter;
+  }
+
+  img {
+    max-width: 100%;
+    object-fit: cover;
+  }
+
+  figcaption {
+    font-weight: lighter;
+    text-align: center;
+  }
+
+  code {
+    direction: ltr;
+    display: inline-block;
+  }
+
+  /* Code and quotes need to stay readable against the paper tint. */
+  pre,
+  blockquote {
+    background-color: light-dark(
+      rgba(255, 255, 255, 0.55),
+      rgba(0, 0, 0, 0.25)
+    );
+  }
+}

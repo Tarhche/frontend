@@ -18,6 +18,13 @@ export const PERMISSIONS = {
     SHOW: "articles.show",
     UPDATE: "articles.update",
   },
+  notes: {
+    CREATE: "notes.create",
+    DELETE: "notes.delete",
+    INDEX: "notes.index",
+    SHOW: "notes.show",
+    UPDATE: "notes.update",
+  },
   comments: {
     CREATE: "comments.create",
     DELETE: "comments.delete",
@@ -73,6 +80,13 @@ export const PERMISSIONS = {
     files: {
       DELETE: "self.files.delete",
       INDEX: "self.files.index",
+    },
+    notes: {
+      CREATE: "self.notes.create",
+      DELETE: "self.notes.delete",
+      INDEX: "self.notes.index",
+      SHOW: "self.notes.show",
+      UPDATE: "self.notes.update",
     },
   },
   users: {

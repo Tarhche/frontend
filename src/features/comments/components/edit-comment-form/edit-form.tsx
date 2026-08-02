@@ -9,10 +9,14 @@ import {nonFieldErrors} from "@/lib/api/validation-errors";
 import {updateCommentAction} from "../../actions/update-comment";
 import {isGregorianStartDateTime} from "@/lib/date-and-time";
 import {useTranslations} from "@/i18n/provider";
+import {type CommentObjectType} from "../../types";
 
 type Props = {
   id: string;
   objectId: string;
+  // The kind of content the comment hangs off, echoed back on submit so the
+  // update doesn't reassign it.
+  objectType: CommentObjectType;
   parentId: string;
   message: string;
   approvalDate: string;
@@ -37,6 +41,7 @@ export function EditCommentForm({
   parentId,
   id,
   objectId,
+  objectType,
 }: Props) {
   const t = useTranslations();
   const [state, dispatch, isPending] = useActionState(updateCommentAction, {
@@ -82,6 +87,13 @@ export function EditCommentForm({
           </Group>
           <input type="text" name="id" value={id} readOnly hidden />
           <input type="text" name="objectId" value={objectId} readOnly hidden />
+          <input
+            type="text"
+            name="objectType"
+            value={objectType}
+            readOnly
+            hidden
+          />
           <input type="text" name="parentId" value={parentId} readOnly hidden />
         </Stack>
       </form>

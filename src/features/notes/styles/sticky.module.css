@@ -1,0 +1,78 @@
+/* Shared sticky-note surface, used by both the note cards in a list and the
+   full note page. Warm paper in light mode; in dark mode a warm amber-tinted
+   card, kept chromatic enough to still read as "note" rather than as mud.
+
+   Composed into a component's own class with
+   `composes: paper from "../../styles/sticky.module.css";` */
+
+.paper {
+  --sticky-bg: light-dark(#fdf7da, #43391d);
+  --sticky-bg-alt: light-dark(#f8ecb4, #382f18);
+  --sticky-edge: light-dark(#e6d38c, #574828);
+  --sticky-flap: light-dark(#eadb9d, #5b4b28);
+  /* The turned-up corner. Kept small so it never crowds the content. */
+  --sticky-fold: 1.25rem;
+
+  position: relative;
+  /* Lighter along the top, the way a lit sheet is. */
+  background: linear-gradient(
+    170deg,
+    var(--sticky-bg) 0%,
+    var(--sticky-bg-alt) 100%
+  );
+  color: light-dark(var(--mantine-color-dark-8), var(--mantine-color-gray-2));
+  border: 1px solid var(--sticky-edge);
+  /* Square-ish, like a real sticky note — only the dog-eared corner is cut. */
+  border-radius: 2px;
+  box-shadow:
+    0 1px 1px light-dark(rgba(87, 74, 20, 0.16), rgba(0, 0, 0, 0.5)),
+    0 8px 16px -8px light-dark(rgba(87, 74, 20, 0.3), rgba(0, 0, 0, 0.6));
+
+  /* Cut the bottom inline-start corner away for real, so the dog-ear shows the
+     page behind it instead of a page-coloured triangle painted on top. The
+     inline-start side is deliberate: the "read more" button sits at the
+     inline-end, and in RTL that is exactly where a bottom-right fold lands. */
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 100%,
+    var(--sticky-fold) 100%,
+    0 calc(100% - var(--sticky-fold))
+  );
+}
+
+/* The flap itself: the bit of paper that has curled up. */
+.paper::after {
+  content: "";
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-start: 0;
+  width: var(--sticky-fold);
+  height: var(--sticky-fold);
+  background: linear-gradient(
+    to bottom right,
+    transparent 0 50%,
+    var(--sticky-flap) 50% 100%
+  );
+  border-inline-end: 1px solid var(--sticky-edge);
+  border-block-start: 1px solid var(--sticky-edge);
+}
+
+/* RTL mirrors the layout, so the cut and the flap mirror with it. */
+:global([dir="rtl"]) .paper {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--sticky-fold)),
+    calc(100% - var(--sticky-fold)) 100%,
+    0 100%
+  );
+}
+
+:global([dir="rtl"]) .paper::after {
+  background: linear-gradient(
+    to bottom left,
+    transparent 0 50%,
+    var(--sticky-flap) 50% 100%
+  );
+}

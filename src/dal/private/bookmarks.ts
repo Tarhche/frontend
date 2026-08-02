@@ -1,5 +1,6 @@
 import {AxiosRequestConfig} from "axios";
 import {LANGUAGE_CODE_HEADER} from "@/constants";
+import {type BookmarkObjectType} from "@/features/bookmarks/types";
 import {privateDalDriver} from "./private-dal-driver";
 
 export async function fetchUserBookmarks(config?: AxiosRequestConfig) {
@@ -8,12 +9,13 @@ export async function fetchUserBookmarks(config?: AxiosRequestConfig) {
 }
 
 export async function removeUserBookmark(
+  objectType: BookmarkObjectType,
   correlationUUID: string,
   languageCode: string,
 ) {
   const response = await privateDalDriver.delete("dashboard/my/bookmarks", {
     data: {
-      object_type: "article",
+      object_type: objectType,
       object_uuid: correlationUUID,
       language_code: languageCode,
     },
@@ -23,6 +25,7 @@ export async function removeUserBookmark(
 }
 
 export async function checkBookmarkStatus(
+  objectType: BookmarkObjectType,
   correlationUUID?: string,
   languageCode?: string,
 ): Promise<boolean | undefined> {
@@ -33,7 +36,7 @@ export async function checkBookmarkStatus(
     const response = await privateDalDriver.post(
       "bookmarks/exists",
       {
-        object_type: "article",
+        object_type: objectType,
         object_uuid: correlationUUID,
         language_code: languageCode,
       },
@@ -46,9 +49,12 @@ export async function checkBookmarkStatus(
   }
 }
 
-export async function bookmarkArticle(body: {
+export async function saveBookmark(body: {
   keep: boolean;
+  objectType: BookmarkObjectType;
   correlationUUID: string;
+  // What the dashboard bookmark list shows. Notes have no title of their own,
+  // so their opening line stands in for one.
   title: string;
   language_code: string;
 }) {
@@ -57,7 +63,7 @@ export async function bookmarkArticle(body: {
     {
       keep: body.keep,
       title: body.title,
-      object_type: "article",
+      object_type: body.objectType,
       object_uuid: body.correlationUUID,
       language_code: body.language_code,
     },

@@ -71,7 +71,9 @@
       "comments": "دیدگاه ها"
     },
     "hashtags": {
-      "metaTitle": "{hashtag} | تگ ها"
+      "metaTitle": "{hashtag} | تگ ها",
+      "articlesTab": "مقاله ها",
+      "notesTab": "یادداشت ها"
     },
     "form": {
       "titleLabel": "عنوان مقاله",
@@ -108,6 +110,56 @@
       "editCrumb": "ویرایش مقاله"
     }
   },
+  "notes": {
+    "list": {
+      "title": "یادداشت ها",
+      "metaTitle": "یادداشت ها",
+      "readMore": "ادامه مطلب",
+      "empty": "هنوز یادداشتی منتشر نشده است"
+    },
+    "detail": {
+      "notFoundTitle": "یادداشت یافت نشد",
+      "notFoundText": "این یادداشت در زبان انتخاب‌شده موجود نیست.",
+      "comments": "دیدگاه ها",
+      "metaTitle": "یادداشتی از {name}"
+    },
+    "form": {
+      "languageLabel": "زبان",
+      "bodyLabel": "یادداشت",
+      "tagsLabel": "تگ ها",
+      "publishedAtLabel": "تاریخ انتشار",
+      "submitUpdate": "بروزرسانی یادداشت",
+      "submitCreate": "ایجاد یادداشت",
+      "addOrEditTranslation": "افزودن یا ویرایش ترجمه",
+      "missingTranslationTitle": "این ترجمه هنوز وجود ندارد",
+      "missingTranslationText": "هنوز نسخه {language} این یادداشت ساخته نشده است. برای ایجاد آن، فرم زیر را تکمیل کنید."
+    },
+    "table": {
+      "newNote": "یادداشت جدید",
+      "empty": "یادداشتی وجود ندارد",
+      "notPublished": "منتشر نشده",
+      "published": "منتشر شده",
+      "viewNote": "بازدید کردن یادداشت",
+      "editNote": "ویرایش کردن یادداشت",
+      "deleteNote": "حذف کردن یادداشت",
+      "deleteConfirm": "از حذف این یادداشت مطمئن هستید؟"
+    },
+    "dashboard": {
+      "listMetaTitle": "یادداشت ها",
+      "listCrumb": "یادداشت ها",
+      "myListMetaTitle": "یادداشت های من",
+      "myListCrumb": "یادداشت های من",
+      "newMetaTitle": "یادداشت جدید",
+      "newCrumb": "یادداشت جدید",
+      "newTranslationCrumb": "ترجمه جدید",
+      "editMetaTitle": "جزییات یادداشت",
+      "editCrumb": "ویرایش یادداشت",
+      "tabs": {
+        "all": "همه یادداشت ها",
+        "own": "یادداشت های من"
+      }
+    }
+  },
   "comments": {
     "form": {
       "replyPlaceholder": "پاسخ خود را بنویسید",
@@ -129,7 +181,7 @@
       "deleteConfirm": "از حذف \"{message}\" مطمئن هستید؟"
     },
     "list": {
-      "empty": "هنوز دیدگاهی برای این مقاله ثبت نشده!",
+      "empty": "هنوز دیدگاهی ثبت نشده!",
       "orphanInfo": "والد این کامنت حذف یا مخفی شده است."
     },
     "table": {
@@ -149,8 +201,11 @@
       "notApproved": "تایید نشده"
     },
     "dashboard": {
-      "allTitle": "کامنت کاربران",
-      "myTitle": "کامنت های من",
+      "title": "کامنت ها",
+      "tabs": {
+        "all": "همه کامنت ها",
+        "own": "کامنت های من"
+      },
       "editTitle": "ویرایش کامنت"
     }
   },
@@ -168,7 +223,10 @@
       "headerTitle": "عنوان",
       "headerDate": "تاریخ ثبت",
       "empty": "هنوز چیزی را ذخیره نکرده اید",
-      "view": "بازدید کردن بوکمارک"
+      "view": "بازدید کردن بوکمارک",
+      "headerType": "نوع",
+      "typeArticle": "مقاله",
+      "typeNote": "یادداشت"
     },
     "page": {
       "title": "بوکمارک های من"
@@ -178,7 +236,11 @@
     "fallbackName": "نویسنده",
     "memberSince": "عضو از {date}",
     "noArticles": "هنوز مقاله‌ای منتشر نشده است",
-    "metaTitle": "مقاله‌های {name}"
+    "metaTitle": "مقاله‌های {name}",
+    "noNotes": "هنوز یادداشتی منتشر نشده است",
+    "notesMetaTitle": "یادداشت‌های {name}",
+    "viewNotes": "یادداشت ها",
+    "viewArticles": "مقاله ها"
   },
   "auth": {
     "layout": {
@@ -295,7 +357,6 @@
       "articles": "مقالات",
       "comments": "کامنت ها",
       "files": "فایل ها",
-      "myComments": "کامنت های من",
       "elements": "المان ها",
       "myBookmarks": "بوکمارک های من",
       "users": "کاربرها",
@@ -303,7 +364,8 @@
       "languages": "زبان ها",
       "settings": "تنظیمات",
       "profile": "پروفایل",
-      "logout": "خروج"
+      "logout": "خروج",
+      "notes": "یادداشت ها"
     }
   },
   "users": {

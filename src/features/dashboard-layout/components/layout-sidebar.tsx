@@ -6,9 +6,9 @@ import {useTranslations} from "@/i18n/provider";
 import {UnstyledButton} from "@mantine/core";
 import {
   IconNotes,
+  IconNote,
   IconHome,
   IconFile,
-  IconMessage,
   IconSettings,
   IconBookmarks,
   IconMessages,
@@ -49,23 +49,26 @@ const SIDE_BAR_DATA: SidebarSchema[] = [
     href: dashboard.articles.index,
     requiredPermissions: ["articles.index"],
   },
+  // Notes, comments and files each list both scopes on one page, so one entry
+  // covers them — it shows for anyone who can read either scope, and the page
+  // itself decides which tabs to offer.
+  {
+    labelKey: "dashboard.sidebar.notes",
+    icon: IconNote,
+    href: dashboard.notes.index,
+    requiredPermissions: ["notes.index", "self.notes.index"],
+  },
   {
     labelKey: "dashboard.sidebar.comments",
     icon: IconMessages,
     href: dashboard.comments.index,
-    requiredPermissions: ["comments.index"],
+    requiredPermissions: ["comments.index", "self.comments.index"],
   },
   {
     labelKey: "dashboard.sidebar.files",
     icon: IconFile,
     href: dashboard.files,
     requiredPermissions: ["files.index", "self.files.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.myComments",
-    icon: IconMessage,
-    href: dashboard.my.comments,
-    requiredPermissions: ["self.comments.index"],
   },
   {
     labelKey: "dashboard.sidebar.elements",

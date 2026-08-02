@@ -22,6 +22,9 @@ export async function updateCommentAction(
   const approvalDate = formData.get("approvalDate")?.toString() || null;
   const objectId = formData.get("objectId")?.toString();
   const parentId = formData.get("parentId")?.toString() || null;
+  // Carried through the form so editing a note's comment doesn't turn it into
+  // an article comment.
+  const objectType = formData.get("objectType")?.toString();
 
   try {
     await updateUserComment({
@@ -29,6 +32,7 @@ export async function updateCommentAction(
       uuid: commentId,
       approved_at: approvalDate,
       object_uuid: objectId,
+      object_type: objectType,
       parent_uuid: parentId,
     });
   } catch (err) {

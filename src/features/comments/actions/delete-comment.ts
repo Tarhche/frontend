@@ -1,6 +1,7 @@
 "use server";
 
 import {revalidatePath} from "next/cache";
+import {unstable_rethrow} from "next/navigation";
 import {APP_PATHS} from "@/lib/app-paths";
 import {deleteComment, deleteSelfComment} from "@/dal/private/comments";
 
@@ -16,7 +17,8 @@ export async function deleteCommentAction(
     await deleteComment(commentId);
     revalidatePath(APP_PATHS.dashboard.comments.index);
     return true;
-  } catch {
+  } catch (error) {
+    unstable_rethrow(error);
     return false;
   }
 }
@@ -31,9 +33,12 @@ export async function deleteSelfCommentAction(
   }
   try {
     await deleteSelfComment(commentId);
-    revalidatePath(APP_PATHS.dashboard.my.comments);
+    // Both scopes are listed on the one path, so revalidating it covers the
+    // own-scope tab too.
+    revalidatePath(APP_PATHS.dashboard.comments.index);
     return true;
-  } catch {
+  } catch (error) {
+    unstable_rethrow(error);
     return false;
   }
 }

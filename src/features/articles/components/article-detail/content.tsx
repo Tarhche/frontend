@@ -3,7 +3,7 @@ import Link from "@/components/link";
 import {Title, Box, Group, Text, Blockquote, Badge} from "@mantine/core";
 import {ImageZoom} from "@/components/image-zoom";
 import {parseArticleBodyToReact} from "@/features/articles/utils/article-body-parser";
-import {BookmarkButton} from "./bookmark-button";
+import {BookmarkButton} from "@/features/bookmarks/components/bookmark-button";
 import {IconClockHour2, IconInfoCircle} from "@tabler/icons-react";
 import {FILES_PUBLIC_URL} from "@/constants/envs";
 import {formatDate} from "@/lib/date-and-time";
@@ -31,7 +31,11 @@ export async function Content({
   languageCode,
   elements = [],
 }: Props) {
-  const isBookmarked = await checkBookmarkStatus(correlationUUID, languageCode);
+  const isBookmarked = await checkBookmarkStatus(
+    "article",
+    correlationUUID,
+    languageCode,
+  );
 
   const tags = article?.status ?? [];
   // The stack renders as a continuation of the excerpt, so the two sit close
@@ -65,6 +69,7 @@ export async function Content({
           />
           {isBookmarked === undefined ? null : (
             <BookmarkButton
+              objectType="article"
               correlationUUID={correlationUUID}
               isBookmarked={isBookmarked}
               title={article.title}

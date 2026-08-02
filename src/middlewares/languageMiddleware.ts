@@ -18,9 +18,12 @@ function isExcluded(pathname: string): boolean {
     return true;
   }
 
-  // Static assets such as /favicon.ico, /icon.svg, /robots.txt.
-  const lastSegment = pathname.split("/").pop() ?? "";
-  return lastSegment.includes(".");
+  // Static assets such as /favicon.ico, /icon.svg, /robots.txt. They are served
+  // from `public/`, which is flat, so an asset is always a single segment with a
+  // file extension. A dot anywhere else does not make a path an asset —
+  // usernames may contain one, as in /authors/@ada.lovelace.
+  const segments = pathname.split("/").filter(Boolean);
+  return segments.length === 1 && /\.[a-z0-9]+$/i.test(segments[0]);
 }
 
 // For a public request that lacks a (valid) language prefix, permanently

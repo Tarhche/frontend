@@ -12,7 +12,7 @@ async function EditCommentLayout({children}: {children: ReactNode}) {
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: t("comments.dashboard.allTitle"),
+            label: t("comments.dashboard.title"),
             href: APP_PATHS.dashboard.comments.index,
           },
           {

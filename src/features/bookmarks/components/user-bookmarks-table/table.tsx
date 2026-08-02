@@ -9,6 +9,7 @@ import {
   TableScrollContainer,
   ActionIcon,
   ActionIconGroup,
+  Badge,
   Tooltip,
   Group,
   rem,
@@ -22,7 +23,7 @@ import {formatDate} from "@/lib/date-and-time";
 import {APP_PATHS} from "@/lib/app-paths";
 import {getServerDictionary} from "@/i18n/server";
 
-export const TABLE_HEADERS = ["index", "title", "date", "actions"];
+export const TABLE_HEADERS = ["index", "title", "type", "date", "actions"];
 
 type Props = {
   page: number | string;
@@ -33,6 +34,7 @@ export async function UserBookmarksTable({page}: Props) {
   const headers = [
     "#",
     t("bookmarks.table.headerTitle"),
+    t("bookmarks.table.headerType"),
     t("bookmarks.table.headerDate"),
     t("common.actions"),
   ];
@@ -64,10 +66,26 @@ export async function UserBookmarksTable({page}: Props) {
               </TableTr>
             )}
             {bookmarks.map((bookmark: any, index: number) => {
+              // Bookmarks span both content types, so each row links to the
+              // page that actually shows it.
+              const isNote = bookmark.object_type === "note";
+              const detailPath = isNote
+                ? APP_PATHS.notes.detail(bookmark.object_uuid)
+                : APP_PATHS.articles.detail(bookmark.object_uuid);
+
               return (
-                <TableTr key={bookmark.object_uuid}>
+                <TableTr
+                  key={`${bookmark.object_type}-${bookmark.object_uuid}`}
+                >
                   <TableTd>{index + 1}</TableTd>
                   <TableTd>{bookmark.title}</TableTd>
+                  <TableTd>
+                    <Badge variant="light" color={isNote ? "yellow" : "blue"}>
+                      {isNote
+                        ? t("bookmarks.table.typeNote")
+                        : t("bookmarks.table.typeArticle")}
+                    </Badge>
+                  </TableTd>
                   <TableTd>{formatDate(bookmark.created_at)}</TableTd>
                   <TableTd>
                     <ActionIconGroup>
@@ -78,7 +96,7 @@ export async function UserBookmarksTable({page}: Props) {
                           color="blue"
                           aria-label={t("bookmarks.table.view")}
                           component={Link}
-                          href={`/${bookmark.language_code}${APP_PATHS.articles.detail(bookmark.object_uuid)}`}
+                          href={`/${bookmark.language_code}${detailPath}`}
                         >
                           <IconEye style={{width: rem(20)}} stroke={1.5} />
                         </ActionIcon>
@@ -89,6 +107,7 @@ export async function UserBookmarksTable({page}: Props) {
                         <MyBookmarkDeleteButton
                           title={bookmark.title}
                           bookmarkID={bookmark.object_uuid}
+                          objectType={bookmark.object_type}
                           languageCode={bookmark.language_code}
                         />
                       </PermissionGuard>
