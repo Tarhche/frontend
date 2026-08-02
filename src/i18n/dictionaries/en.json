@@ -384,7 +384,10 @@
       "changePasswordLink": "here",
       "changePasswordSuffix": "",
       "save": "Save user",
-      "update": "Update"
+      "update": "Update",
+      "bannedAtLabel": "Blocked since",
+      "bannedAtPlaceholder": "Enter the date the block starts",
+      "bannedAtDescription": "Once this date arrives, the user loses access to their account."
     },
     "password": {
       "newPassword": "Password",

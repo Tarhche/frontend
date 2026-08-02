@@ -384,7 +384,10 @@
       "changePasswordLink": "اینجا",
       "changePasswordSuffix": "اقدام کنید",
       "save": "ذخیره کردن کاربر",
-      "update": "بروزرسانی"
+      "update": "بروزرسانی",
+      "bannedAtLabel": "مسدود از تاریخ",
+      "bannedAtPlaceholder": "تاریخ شروع مسدودیت را وارد کنید",
+      "bannedAtDescription": "با رسیدن این تاریخ، دسترسی کاربر به حسابش گرفته می‌شود."
     },
     "password": {
       "newPassword": "کلمه عبور",

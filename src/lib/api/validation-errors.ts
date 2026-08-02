@@ -1,3 +1,4 @@
+import {unstable_rethrow} from "next/navigation";
 import {DALDriverError} from "@/dal/dal-driver-error";
 
 export type ValidationErrorMap = Record<string, string>;
@@ -14,6 +15,10 @@ const VALIDATION_STATUS_CODES: readonly number[] = [400, 422];
 export function extractValidationErrors(
   err: unknown,
 ): ValidationErrorMap | null {
+  // `redirect()`, `notFound()` and `forbidden()` travel as throws, so they have
+  // to leave every `catch` that funnels through here.
+  unstable_rethrow(err);
+
   if (!isValidationFailure(err)) return null;
 
   const raw = err.response?.data?.errors;

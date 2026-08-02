@@ -15,7 +15,9 @@ import {
 import {UserAvatarInput} from "@/components/user-avatar-input";
 import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import ServerComponentErrorHandler from "@/components/errors/server-component-error-handler";
+import {DateTimeInput} from "@/components/date-time-input";
 import {nonFieldErrors} from "@/lib/api/validation-errors";
+import {isGregorianStartDateTime} from "@/lib/date-and-time";
 import {useTranslations} from "@/i18n/provider";
 import type {Language} from "@/dal/public/languages";
 import {upsertUserAction} from "../../actions/upsert-user";
@@ -29,6 +31,7 @@ type Props = {
     defaultUsername: string;
     defaultEmail: string;
     defaultLanguageCode: string;
+    defaultBannedAt: string;
   }>;
   languages?: Language[];
 };
@@ -40,6 +43,7 @@ const USER_UPSERT_FIELDS = [
   "password",
   "avatar",
   "language_code",
+  "banned_at",
   "uuid",
 ] as const;
 
@@ -52,6 +56,7 @@ export function UpsertUserForm({userInfo = {}, languages = []}: Props) {
     defaultEmail,
     defaultName,
     defaultLanguageCode,
+    defaultBannedAt,
   } = userInfo;
   const [state, dispatch, isPending] = useActionState(upsertUserAction, {
     success: true,
@@ -103,6 +108,20 @@ export function UpsertUserForm({userInfo = {}, languages = []}: Props) {
                 name="password"
                 label={t("users.form.password")}
                 error={state.errors?.password ?? ""}
+              />
+            )}
+            {userId !== undefined && (
+              <DateTimeInput
+                name="banned_at"
+                mt="xs"
+                label={t("users.form.bannedAtLabel")}
+                placeholder={t("users.form.bannedAtPlaceholder")}
+                description={t("users.form.bannedAtDescription")}
+                defaultValue={
+                  defaultBannedAt ? new Date(defaultBannedAt) : null
+                }
+                error={state.errors?.banned_at ?? ""}
+                clearable
               />
             )}
             <ValidationErrorsAlert errors={formErrors} />
