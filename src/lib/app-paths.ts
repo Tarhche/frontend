@@ -14,6 +14,7 @@ export const APP_PATHS = {
   hashtags: {
     index: "/hashtags",
   },
+  contactUs: "/contact-us",
   dashboard: {
     index: "/dashboard",
     articles: {
@@ -45,6 +46,10 @@ export const APP_PATHS = {
       index: "/dashboard/languages",
       new: "/dashboard/languages/new",
       edit: (code: string) => `/dashboard/languages/${code}`,
+    },
+    contactUs: {
+      index: "/dashboard/contact-us",
+      detail: (uuid: string) => `/dashboard/contact-us/${uuid}`,
     },
     files: "/dashboard/files",
     settings: "/dashboard/settings",

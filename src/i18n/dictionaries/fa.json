@@ -52,7 +52,8 @@
   },
   "footer": {
     "tagline": "طرح‌چه | طرحی نو در اندازیم",
-    "openSource": "اوپن سورس"
+    "openSource": "اوپن سورس",
+    "contactUs": "تماس با ما"
   },
   "home": {
     "title": "خانه",
@@ -152,6 +153,51 @@
       "allTitle": "کامنت کاربران",
       "myTitle": "کامنت های من",
       "editTitle": "ویرایش کامنت"
+    }
+  },
+  "contactUs": {
+    "form": {
+      "title": "تماس با ما",
+      "description": "پیام خود را برای ما بفرستید، در اولین فرصت پاسخ می‌دهیم.",
+      "subjectLabel": "موضوع",
+      "subjectPlaceholder": "موضوع پیام شما چیست؟",
+      "bodyLabel": "متن پیام",
+      "bodyPlaceholder": "متن پیام خود را اینجا بنویسید",
+      "emailLabel": "ایمیل",
+      "phoneLabel": "شماره تماس",
+      "phonePlaceholder": "۰۹۱۲۳۴۵۶۷۸۹",
+      "contactHint": "ایمیل یا شماره تماس خود را وارد کنید تا بتوانیم پاسخ دهیم.",
+      "submit": "ارسال پیام",
+      "successTitle": "پیام ارسال شد",
+      "success": "با تشکر! پیام شما دریافت شد و به زودی با شما تماس می‌گیریم.",
+      "failedTitle": "ارسال پیام ناموفق بود",
+      "genericError": "متاسفانه در ارسال پیام شما خطایی رخ داد. لطفا دوباره تلاش کنید."
+    },
+    "dashboard": {
+      "title": "پیام های تماس با ما",
+      "detailTitle": "پیام"
+    },
+    "table": {
+      "headerSubject": "موضوع",
+      "headerSender": "فرستنده",
+      "headerReceivedDate": "تاریخ دریافت",
+      "headerRead": "خوانده شده",
+      "empty": "پیامی وجود ندارد",
+      "view": "مشاهده پیام",
+      "delete": "حذف پیام",
+      "deleteConfirm": "آیا از حذف «{subject}» مطمئن هستید؟",
+      "markAsRead": "علامت گذاری به عنوان خوانده شده",
+      "markAsUnread": "علامت گذاری به عنوان خوانده نشده"
+    },
+    "status": {
+      "read": "خوانده شده",
+      "unread": "خوانده نشده"
+    },
+    "detail": {
+      "email": "ایمیل:",
+      "phone": "شماره تماس:",
+      "receivedAt": "تاریخ دریافت:",
+      "readAt": "تاریخ خواندن:"
     }
   },
   "bookmarks": {
@@ -303,7 +349,8 @@
       "languages": "زبان ها",
       "settings": "تنظیمات",
       "profile": "پروفایل",
-      "logout": "خروج"
+      "logout": "خروج",
+      "contactUs": "تماس با ما"
     }
   },
   "users": {

@@ -29,6 +29,12 @@ export const PERMISSIONS = {
     SHOW: "config.show",
     UPDATE: "config.update",
   },
+  contactus: {
+    DELETE: "contactus.delete",
+    INDEX: "contactus.index",
+    SHOW: "contactus.show",
+    MARK_AS_READ: "contactus.markAsRead",
+  },
   elements: {
     CREATE: "elements.create",
     DELETE: "elements.delete",
