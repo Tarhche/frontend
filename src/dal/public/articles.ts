@@ -18,7 +18,9 @@ export async function fetchArticles(config?: AxiosRequestConfig) {
 export const fetchArticleByCorrelationUUID = cache(
   async (correlationUUID: string, languageCode?: string) => {
     const response = await publicDalDriver.get(`articles/${correlationUUID}`, {
-      headers: languageCode ? {[LANGUAGE_CODE_HEADER]: languageCode} : undefined,
+      headers: languageCode
+        ? {[LANGUAGE_CODE_HEADER]: languageCode}
+        : undefined,
       validateStatus: (status) => status < 500,
     });
     if (response.status === 404) {
