@@ -299,6 +299,193 @@
   background-color: var(--mantine-color-dark-6);
 }
 
-.ck-button_fit_content .ck-button__label {
-  width: fit-content !important;
+/* Runnable code blocks show their runtime right next to the language label, by
+   extending the label CKEditor already pins to the corner of the block. */
+.ck.ck-editor__editable pre[data-language][data-runtime]::after {
+  content: attr(data-language) " \25B6 " attr(data-runtime);
+  background: var(--mantine-color-teal-7, #0c8599);
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* Same badge for blocks whose language carries no label of its own. */
+.ck.ck-editor__editable pre[data-runtime]:not([data-language])::after {
+  content: "\25B6 " attr(data-runtime);
+  position: absolute;
+  top: -1px;
+  right: 10px;
+  direction: ltr;
+  unicode-bidi: isolate;
+  background: var(--mantine-color-teal-7, #0c8599);
+  color: #fff;
+  font-family: var(--ck-font-face);
+  font-size: 10px;
+  line-height: 16px;
+  padding: var(--ck-spacing-tiny) var(--ck-spacing-medium);
+  white-space: nowrap;
+}
+
+/* Code block settings balloon. */
+.ck.ck-code-block-settings {
+  /* Scales every icon of the panel down to match its compact controls. */
+  --ck-icon-size: 14px;
+  /* The floating field labels sit on the border, so they take the panel colour. */
+  --ck-color-labeled-field-label-background: var(--ck-color-panel-background);
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 300px;
+  max-width: 380px;
+  padding: 12px;
+}
+
+.ck.ck-code-block-settings .ck-code-block-settings__fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Both dropdowns share the row evenly and shrink instead of overflowing. */
+.ck.ck-code-block-settings .ck-labeled-field-view {
+  flex: 1 1 132px;
+  min-width: 0;
+}
+
+.ck.ck-code-block-settings .ck-labeled-field-view .ck-label {
+  font-size: 11px;
+}
+
+.ck.ck-code-block-settings .ck-labeled-field-view .ck-dropdown,
+.ck.ck-code-block-settings .ck-labeled-field-view .ck-dropdown > .ck-button {
+  width: 100%;
+}
+
+/* The dropdowns read as input fields: a hairline box holding the current value.
+   The selectors are this long on purpose — they have to outweigh the CKEditor
+   rule that strips the background off dropdowns inside a labeled field. */
+.ck.ck-code-block-settings
+  .ck.ck-labeled-field-view
+  > .ck.ck-labeled-field-view__input-wrapper
+  > .ck-dropdown
+  > .ck.ck-button {
+  padding: 4px 8px;
+  min-height: 28px;
+  border: 1px solid var(--ck-color-input-border);
+  border-radius: var(--ck-border-radius);
+  background: var(--ck-color-input-background);
+  color: var(--ck-color-input-text);
+}
+
+.ck.ck-code-block-settings
+  .ck.ck-labeled-field-view
+  > .ck.ck-labeled-field-view__input-wrapper
+  > .ck-dropdown
+  > .ck.ck-button:hover:not(.ck-disabled) {
+  border-color: var(--ck-color-base-active);
+}
+
+.ck.ck-code-block-settings
+  .ck.ck-labeled-field-view
+  > .ck.ck-labeled-field-view__input-wrapper
+  > .ck-dropdown.ck-dropdown_open
+  > .ck.ck-button,
+.ck.ck-code-block-settings
+  .ck.ck-labeled-field-view
+  > .ck.ck-labeled-field-view__input-wrapper
+  > .ck-dropdown
+  > .ck.ck-button:focus {
+  border-color: var(--ck-color-focus-border);
+}
+
+.ck.ck-code-block-settings
+  .ck.ck-labeled-field-view.ck-disabled
+  > .ck.ck-labeled-field-view__input-wrapper
+  > .ck-dropdown
+  > .ck.ck-button {
+  border-color: var(--ck-color-input-disabled-border);
+  background: var(--ck-color-input-disabled-background);
+  color: var(--ck-color-input-disabled-text);
+}
+
+/* Long language and runtime names are truncated rather than widening the panel. */
+.ck.ck-code-block-settings .ck-dropdown > .ck-button > .ck-button__label {
+  flex-grow: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: start;
+}
+
+.ck.ck-code-block-settings .ck-dropdown__panel {
+  max-height: 250px;
+  overflow: hidden auto;
+}
+
+.ck.ck-code-block-settings .ck-code-block-settings__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ck.ck-code-block-settings .ck-code-block-settings__switch .ck-button__label {
+  font-size: 12px;
+}
+
+.ck.ck-code-block-settings .ck-code-block-settings__run {
+  /* Sticks to the end of the row, whichever side that is. */
+  margin-inline-start: auto;
+  padding: 4px 10px;
+}
+
+.ck.ck-code-block-settings .ck-code-block-settings__run .ck-button__label {
+  width: fit-content;
+  font-size: 12px;
+}
+
+.ck.ck-code-block-settings .ck-code-block-settings__output {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid var(--ck-color-base-border);
+  padding-top: 8px;
+}
+
+.ck.ck-code-block-settings .ck-code-block-settings__output-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--ck-color-text);
+}
+
+.ck.ck-code-block-settings .ck-code-block-settings__clear {
+  min-width: auto;
+  min-height: auto;
+  padding: 4px;
+}
+
+.ck.ck-code-block-settings .ck-code-block-settings__output-text {
+  /* Program output is code: it reads left to right regardless of the UI language. */
+  direction: ltr;
+  text-align: left;
+  margin: 0;
+  padding: 8px;
+  max-height: 160px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ck-color-text);
+  background: var(--ck-color-base-foreground);
+  border: 1px solid var(--ck-color-base-border);
+  border-radius: var(--ck-border-radius);
+}
+
+.ck.ck-code-block-settings
+  .ck-code-block-settings__output_error
+  .ck-code-block-settings__output-text {
+  color: var(--mantine-color-red-7, #c92a2a);
 }

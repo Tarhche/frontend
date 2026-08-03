@@ -4,9 +4,11 @@ import {useState, useMemo, type RefObject} from "react";
 import {ClassicEditor, EditorConfig} from "ckeditor5";
 import {CKEditor} from "@ckeditor/ckeditor5-react";
 import {Modal} from "@mantine/core";
+import {decode} from "js-base64";
 import {FilesExplorer} from "@/components/files-explorer";
 import {FILES_PUBLIC_URL} from "@/constants/envs";
-import {useTranslations} from "@/i18n/provider";
+import {useWsPublish} from "@/hooks/use-ws-publish";
+import {useI18n} from "@/i18n/provider";
 import {getEditorConfig} from "./editor-config";
 import "ckeditor5/ckeditor5.css";
 import "./article-editor.css";
@@ -19,7 +21,8 @@ type Props = {
 };
 
 export function ArticleEditor({initialData, editorRef}: Props) {
-  const t = useTranslations();
+  const {t, direction} = useI18n();
+  const publish = useWsPublish();
   const [isFileExplorerOpen, setIsFileExplorerOpen] = useState(false);
 
   const config: EditorConfig = useMemo(() => {
@@ -28,9 +31,23 @@ export function ArticleEditor({initialData, editorRef}: Props) {
       fileExplorer: {
         onOpen: setIsFileExplorerOpen.bind(null, true),
       },
+      runnableCodeBlock: {
+        // Runs snippets through the same channel the published article uses.
+        onRun: async ({runtime, code}: {runtime: string; code: string}) => {
+          const response = await publish<
+            {runner: string; code: string},
+            {logs: string}
+          >("runCode", {runner: runtime, code});
+
+          return decode(response.logs);
+        },
+        translate: t,
+        // The panel is translated by the app, so it follows the app direction.
+        direction,
+      },
       initialData: initialData || "",
     };
-  }, [initialData, t]);
+  }, [direction, initialData, publish, t]);
 
   return (
     <div className="main-container">

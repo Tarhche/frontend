@@ -42,7 +42,20 @@ const editorSetup = [
   keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
 ];
 
-function CodeHighlight({code, language, executable}) {
+type Executable = {
+  /** The runtime the snippet is executed with, e.g. `go-1.24`. */
+  value: string;
+  /** Set by the editor when readers are allowed to change the code before running it. */
+  editable?: string | boolean;
+} | null;
+
+type Props = {
+  code: string;
+  language?: string;
+  executable?: Executable;
+};
+
+function CodeHighlight({code, language, executable}: Props) {
   const t = useTranslations();
   const editorRef = useRef<EditorView | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -52,6 +65,13 @@ function CodeHighlight({code, language, executable}) {
   const [colorScheme, setColorScheme] = useState<"light" | "dark">("light");
   const [mounted, setMounted] = useState(false);
   const languageCompartmentRef = useRef(new Compartment());
+
+  const isRunnable = Boolean(executable?.value);
+  // Editing the snippet only makes sense when there is a runtime to re-run it with,
+  // and only when the author enabled it for this block.
+  const isEditable =
+    isRunnable &&
+    (executable?.editable === true || executable?.editable === "true");
 
   useEffect(() => {
     setMounted(true);
@@ -83,6 +103,8 @@ function CodeHighlight({code, language, executable}) {
         ...editorSetup,
         languageCompartmentRef.current.of([]),
         themeCompartment.of(colorScheme === "dark" ? monokai : eclipse),
+        EditorState.readOnly.of(!isEditable),
+        EditorView.editable.of(isEditable),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
             setEditableCode(update.state.doc.toString());
@@ -103,7 +125,7 @@ function CodeHighlight({code, language, executable}) {
     return () => {
       editor.destroy();
     };
-  }, [code, colorScheme, mounted]);
+  }, [code, colorScheme, isEditable, mounted]);
 
   useEffect(() => {
     // try to find the language description based on the provided language name
@@ -147,7 +169,7 @@ function CodeHighlight({code, language, executable}) {
   const publish = useWsPublish();
 
   const runCode = useCallback(async () => {
-    if (running) return;
+    if (running || !executable?.value) return;
 
     setRunning(true);
     setOutput("");
@@ -215,7 +237,7 @@ function CodeHighlight({code, language, executable}) {
               </ActionIcon>
             </Tooltip>
 
-            {hasChanged && (
+            {isEditable && hasChanged && (
               <Tooltip label={t("editor.resetCode")} position="left">
                 <ActionIcon
                   variant="subtle"
@@ -239,7 +261,7 @@ function CodeHighlight({code, language, executable}) {
               </Tooltip>
             )}
 
-            {executable && (
+            {isRunnable && (
               <Tooltip
                 label={running ? t("editor.running") : t("editor.run")}
                 position="left"
@@ -275,7 +297,7 @@ function CodeHighlight({code, language, executable}) {
           copyLabel={t("editor.copy")}
           copiedLabel={t("editor.copied")}
           controls={
-            !executable
+            !isRunnable
               ? []
               : [
                   <CodeHighlightControl

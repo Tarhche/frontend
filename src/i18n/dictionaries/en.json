@@ -285,7 +285,16 @@
     "unexpectedError": "Unexpected error",
     "errorMessage": "Something went wrong. Please try again.",
     "programOutput": "Program output:",
-    "contentPlaceholder": "Content..."
+    "contentPlaceholder": "Content...",
+    "language": "Language",
+    "runtime": "Runtime",
+    "noRuntime": "No runtime",
+    "editableCode": "Editable code",
+    "clearOutput": "Clear output",
+    "noOutput": "<no output>",
+    "runFailed": "Running the code failed.",
+    "insertCodeBlock": "Insert code block",
+    "codeBlockSettings": "Code block settings"
   },
   "dashboard": {
     "brand": "Tarhche",

@@ -285,7 +285,16 @@
     "unexpectedError": "خطای غیرمنتظره",
     "errorMessage": "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
     "programOutput": "خروجی برنامه:",
-    "contentPlaceholder": "محتوا..."
+    "contentPlaceholder": "محتوا...",
+    "language": "زبان",
+    "runtime": "زمان اجرا",
+    "noRuntime": "بدون زمان اجرا",
+    "editableCode": "کد قابل ویرایش",
+    "clearOutput": "پاک کردن خروجی",
+    "noOutput": "<بدون خروجی>",
+    "runFailed": "اجرای کد ناموفق بود.",
+    "insertCodeBlock": "درج بلوک کد",
+    "codeBlockSettings": "تنظیمات بلوک کد"
   },
   "dashboard": {
     "brand": "طرح‌چه",
