@@ -101,6 +101,10 @@ jobs:
 
           # Connect and deploy services
           ssh -q -i ~/hetzner-key.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $HETZNER_SSH_ENDPOINT << 'EOF' >/dev/null 2>&1
+            # a failure surfaces through the exit status, which set -e propagates back through ssh
+            set -e
+            trap 'rm -rf /tmp/deployment_frontend' EXIT
+
             echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin > /dev/null 2>&1
 
             export FRONTEND_IMAGE='${{ secrets.FRONTEND_IMAGE }}'
@@ -112,7 +116,8 @@ jobs:
             # Run Docker Compose
             cd /tmp/deployment_frontend/
 
-            docker compose -f compose.frontend.yaml --project-name frontend up --pull always --detach > /dev/null 2>&1
-
-            rm -rf /tmp/deployment_frontend
+            # --wait holds the deploy until every replica passes the healthcheck
+            # defined in the compose file, so a version that cannot serve traffic
+            # fails the job instead of being reported as deployed
+            docker compose -f compose.frontend.yaml --project-name frontend up --pull always --detach --wait --wait-timeout 180 > /dev/null 2>&1
           EOF
