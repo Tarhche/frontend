@@ -42,20 +42,13 @@ export type RunCodeCallback = (params: {
 }) => Promise<string> | string;
 
 export type RunnableCodeBlockConfig = {
-  /**
-   * Called when the author runs a snippet from the editor. Without it the editor
-   * still lets authors pick a runtime, it just cannot execute anything.
-   */
+  /** Called when the author runs a snippet. Without it nothing can execute. */
   onRun?: RunCodeCallback;
-  /** Runtimes available in the settings panel. Defaults to the app-wide `RUNTIMES`. */
+  /** Runtimes available in the settings panel. */
   runtimes?: Array<CodeBlockRuntimeOption>;
   /** Translation function used for the plugin UI. Falls back to English. */
   translate?: (key: string) => string;
-  /**
-   * Reading direction of the plugin UI. Defaults to the editor UI direction, which
-   * is what a monolingual editor wants; pass the app direction when the panel is
-   * translated into a language the editor UI itself is not.
-   */
+  /** Reading direction of the plugin UI. Defaults to the editor UI direction. */
   direction?: "ltr" | "rtl";
 };
 
@@ -77,13 +70,10 @@ type Labels = {
 const SETTINGS_ITEM = "__settings__";
 
 /**
- * A single code block feature: inserting code blocks, picking their language, the
- * runtime they are executed with, whether readers may edit them — and running them
- * right in the editor, the same way the published article does.
- *
- * The runtime is stored as `data-executable` and the editable flag as
- * `data-executable-editable` on the `<code>` element, which is what the article body
- * parser reads when rendering a published article.
+ * A single code block feature: language, runtime, reader-editable flag, and
+ * running the snippet in the editor the way a published article does. Stored as
+ * `data-executable` and `data-executable-editable` on the `<code>` element,
+ * which is where the article body parser reads them.
  */
 export class RunnableCodeBlockPlugin extends Plugin {
   public static get requires() {
@@ -96,7 +86,7 @@ export class RunnableCodeBlockPlugin extends Plugin {
 
   private _settingsView: CodeBlockSettingsView | null = null;
   private _activeBlock: ModelElement | null = null;
-  /** Set when the author closes the panel so it does not pop up again right away. */
+  /** Set when the author closes the panel, to keep it from reopening at once. */
   private _isDismissed = false;
   private _labels!: Labels;
 
@@ -136,7 +126,6 @@ export class RunnableCodeBlockPlugin extends Plugin {
     const label = (key: string, fallback: string) => {
       const translated = translate?.(key);
 
-      // The app dictionary falls back to the key itself for missing translations.
       return translated && translated !== key ? translated : fallback;
     };
 
@@ -168,8 +157,6 @@ export class RunnableCodeBlockPlugin extends Plugin {
   private _defineConverters(): void {
     const {editor} = this;
 
-    // The model `codeBlock` element is mapped to the `<code>` element, so both
-    // attributes end up on `<code>` — where the article body parser looks for them.
     editor.conversion.for("downcast").attributeToAttribute({
       model: {name: "codeBlock", key: RUNTIME_MODEL_ATTRIBUTE},
       view: (value) =>
@@ -182,7 +169,6 @@ export class RunnableCodeBlockPlugin extends Plugin {
         value ? {key: EDITABLE_DATA_ATTRIBUTE, value: "true"} : null,
     });
 
-    // Editing-only: label runnable blocks with their runtime, next to the language label.
     editor.editing.downcastDispatcher.on<DowncastAttributeEvent>(
       `attribute:${RUNTIME_MODEL_ATTRIBUTE}:codeBlock`,
       (evt, data, conversionApi) => {
@@ -230,7 +216,6 @@ export class RunnableCodeBlockPlugin extends Plugin {
             return;
           }
 
-          // Older content carries the attributes on `<pre>` instead of `<code>`.
           const readAttribute = (key: string) =>
             (viewCode.getAttribute(key) ?? viewPre.getAttribute(key)) as
               string | undefined;
@@ -246,12 +231,9 @@ export class RunnableCodeBlockPlugin extends Plugin {
             }
           }
 
-          // General HTML Support preserves unknown attributes of `<pre>`/`<code>`.
-          // Drop ours from there so that they are not written out twice.
           removePreservedAttributes(writer, codeBlock, "htmlContentAttributes");
           removePreservedAttributes(writer, codeBlock, "htmlPreAttributes");
         },
-        // Runs after the code block and the General HTML Support converters.
         {priority: "lowest"},
       );
     });
@@ -309,7 +291,6 @@ export class RunnableCodeBlockPlugin extends Plugin {
         withText: true,
       });
 
-      // The panel configures an existing block, so it needs one under the selection.
       settingsModel.bind("isEnabled").to(runtimeCommand, "isEnabled");
 
       items.add({type: "button", model: settingsModel});
@@ -395,7 +376,6 @@ export class RunnableCodeBlockPlugin extends Plugin {
 
     this.listenTo(view, "clearOutput", () => this._resetOutput());
 
-    // Closing the panel while the focus is inside it.
     view.keystrokes.set("Esc", (data, cancel) => {
       this._hideSettings();
       cancel();
@@ -425,10 +405,7 @@ export class RunnableCodeBlockPlugin extends Plugin {
     return !!this._settingsView && this._balloon.hasView(this._settingsView);
   }
 
-  /**
-   * Keeps the settings panel attached to the code block the selection is in and
-   * away from everything else.
-   */
+  /** Keeps the settings panel attached to the code block the selection is in. */
   private _updateSettingsVisibility(): void {
     const block = findCodeBlock(this.editor);
 
@@ -533,14 +510,21 @@ export class RunnableCodeBlockPlugin extends Plugin {
       return;
     }
 
-    view.isRunning = true;
+    const code = getCodeBlockText(block);
+
     view.hasError = false;
+
+    if (code.trim().length === 0) {
+      view.output = this._labels.noOutput;
+      return;
+    }
+
+    view.isRunning = true;
     view.output = null;
 
     try {
-      const output = await onRun({runtime, code: getCodeBlockText(block)});
+      const output = await onRun({runtime, code});
 
-      // The panel may have been destroyed while the code was running.
       if (this._settingsView !== view) {
         return;
       }
@@ -568,10 +552,7 @@ function asRuntime(value: unknown): string | null {
   return typeof value === "string" && value ? value : null;
 }
 
-/**
- * Removes the runtime attributes General HTML Support preserved on the model, so the
- * plugin stays the single source of truth for them.
- */
+/** Removes the runtime attributes General HTML Support preserved on the model. */
 function removePreservedAttributes(
   writer: ModelWriter,
   block: ModelElement,

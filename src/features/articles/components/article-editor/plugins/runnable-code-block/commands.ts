@@ -5,12 +5,7 @@ import {
   findCodeBlock,
 } from "./utils";
 
-/**
- * Sets (or clears) the runtime the current code block is executed with.
- *
- * The command value is the runtime identifier (e.g. `go-1.24`) or `null` when the
- * block is not executable.
- */
+/** Sets or clears the runtime the current code block is executed with. */
 export class CodeBlockRuntimeCommand extends Command {
   declare public value: string | null;
 
@@ -35,18 +30,13 @@ export class CodeBlockRuntimeCommand extends Command {
         writer.setAttribute(RUNTIME_MODEL_ATTRIBUTE, value, block);
       } else {
         writer.removeAttribute(RUNTIME_MODEL_ATTRIBUTE, block);
-        // An editable snippet only makes sense when there is a runtime to re-run it with.
         writer.removeAttribute(EDITABLE_MODEL_ATTRIBUTE, block);
       }
     });
   }
 }
 
-/**
- * Toggles whether readers may edit the code of a runnable block before running it.
- *
- * Disabled (and always `false`) for blocks without a runtime.
- */
+/** Toggles whether readers may edit a runnable block before running it. */
 export class CodeBlockEditableCommand extends Command {
   declare public value: boolean;
 

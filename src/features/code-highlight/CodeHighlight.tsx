@@ -171,15 +171,22 @@ function CodeHighlight({code, language, executable}: Props) {
   const runCode = useCallback(async () => {
     if (running || !executable?.value) return;
 
+    if (editableCode.trim().length === 0) {
+      setOutput(t("editor.noOutput"));
+      return;
+    }
+
     setRunning(true);
     setOutput("");
 
     try {
       const response = await publish<
         {runner: string; code: string},
-        {logs: string}
+        {logs: string | undefined} | undefined
       >("runCode", {runner: executable.value, code: editableCode});
-      setOutput(decode(response.logs) ?? "<no output>");
+      const logs = response?.logs ? decode(response.logs) : "";
+
+      setOutput(logs.trim().length > 0 ? logs : t("editor.noOutput"));
     } catch (err) {
       console.error("WebSocket error", err);
       notifications.show({
@@ -190,7 +197,7 @@ function CodeHighlight({code, language, executable}: Props) {
     } finally {
       setRunning(false);
     }
-  }, [editableCode, running, executable, publish]);
+  }, [editableCode, running, executable, publish, t]);
 
   return (
     <Box mb="xl">

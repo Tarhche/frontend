@@ -36,10 +36,10 @@ export function ArticleEditor({initialData, editorRef}: Props) {
         onRun: async ({runtime, code}: {runtime: string; code: string}) => {
           const response = await publish<
             {runner: string; code: string},
-            {logs: string}
+            {logs: string | undefined} | undefined
           >("runCode", {runner: runtime, code});
 
-          return decode(response.logs);
+          return response?.logs ? decode(response.logs) : "";
         },
         translate: t,
         // The panel is translated by the app, so it follows the app direction.
