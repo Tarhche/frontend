@@ -7,9 +7,7 @@ import {useTranslations} from "@/i18n/provider";
 
 type Props = {
   state:
-    | {success?: boolean | null; errors?: ValidationErrorMap}
-    | null
-    | undefined;
+    {success?: boolean | null; errors?: ValidationErrorMap} | null | undefined;
 };
 
 function ServerComponentErrorHandler({state}: Props) {

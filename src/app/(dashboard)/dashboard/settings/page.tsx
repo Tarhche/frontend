@@ -1,4 +1,5 @@
 import {Metadata} from "next";
+import {unstable_rethrow} from "next/navigation";
 import {Stack, Paper} from "@mantine/core";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {AppSettingForm} from "@/features/settings/components/app-setting-form";
@@ -25,8 +26,9 @@ async function SettingsPage() {
   let languages: Language[] = [];
   try {
     languages = (await fetchLanguages()).items ?? [];
-  } catch {
+  } catch (error) {
     // Fail open: the default-language select renders empty if unavailable.
+    unstable_rethrow(error);
   }
 
   return (

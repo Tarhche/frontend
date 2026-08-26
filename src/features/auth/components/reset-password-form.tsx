@@ -72,7 +72,9 @@ export function ResetPasswordForm({token}: Props) {
               name="confirm_password"
               mt={"sm"}
               value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.currentTarget.value)}
+              onChange={(event) =>
+                setConfirmPassword(event.currentTarget.value)
+              }
               error={state?.errors?.confirm_password ?? ""}
               disabled={state?.success}
               required

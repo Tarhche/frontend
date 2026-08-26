@@ -9,7 +9,10 @@ import fa from "./dictionaries/fa.json";
 type Dictionary = {config: {direction: Direction}} & Record<string, unknown>;
 type Messages = Omit<Dictionary, "config">;
 
-function adapt(dictionary: Dictionary): {direction: Direction; messages: Messages} {
+function adapt(dictionary: Dictionary): {
+  direction: Direction;
+  messages: Messages;
+} {
   const {config, ...messages} = dictionary;
   return {direction: config.direction, messages};
 }

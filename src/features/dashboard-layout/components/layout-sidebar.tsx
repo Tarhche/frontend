@@ -16,6 +16,7 @@ import {
   IconKey,
   IconUser,
   IconLanguage,
+  IconMail,
   IconPictureInPicture,
 } from "@tabler/icons-react";
 import {hasPermission} from "@/lib/auth/shared";
@@ -78,6 +79,12 @@ const SIDE_BAR_DATA: SidebarSchema[] = [
     icon: IconBookmarks,
     href: dashboard.my.bookmarks,
     requiredPermissions: ["self.bookmarks.index"],
+  },
+  {
+    labelKey: "dashboard.sidebar.contactUs",
+    icon: IconMail,
+    href: dashboard.contactUs.index,
+    requiredPermissions: ["contactus.index"],
   },
   {
     labelKey: "dashboard.sidebar.users",

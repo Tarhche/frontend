@@ -2,20 +2,20 @@
 
 import {revalidatePath} from "next/cache";
 import {unstable_rethrow} from "next/navigation";
-import {deleteRole} from "@/dal/private/roles";
 import {APP_PATHS} from "@/lib/app-paths";
+import {deleteContactMessage} from "@/dal/private/contact";
 
-export async function deleteRoleAction(
+export async function deleteContactMessageAction(
   prevState: boolean,
   formData: FormData,
 ): Promise<boolean> {
-  const fileId = formData.get("id")?.toString();
-  if (fileId === undefined) {
+  const uuid = formData.get("id")?.toString();
+  if (uuid === undefined) {
     return false;
   }
   try {
-    await deleteRole(fileId);
-    revalidatePath(APP_PATHS.dashboard.files);
+    await deleteContactMessage(uuid);
+    revalidatePath(APP_PATHS.dashboard.contactUs.index);
     return true;
   } catch (error) {
     unstable_rethrow(error);
