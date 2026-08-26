@@ -38,17 +38,15 @@ type Options = {
   languages: Array<CodeBlockLanguageOption>;
   runtimes: Array<CodeBlockRuntimeOption>;
   labels: CodeBlockSettingsLabels;
-  /** Reading direction of the panel. Its layout is written with logical properties. */
+  /** Reading direction of the panel. */
   direction: "ltr" | "rtl";
 };
 
 /**
- * The settings panel of a code block: its language, the runtime it is executed with,
- * whether readers may edit it — plus running it right in the editor.
- *
- * The view is intentionally "dumb": it exposes its state as observable properties and
- * announces user intent through the `languageChange`, `runtimeChange`, `editableChange`,
- * `run` and `clearOutput` events. Wiring those to commands is the plugin's job.
+ * The settings panel of a code block: language, runtime, reader-editable flag
+ * and running it in place. State is observable; intent is announced through the
+ * `languageChange`, `runtimeChange`, `editableChange`, `run` and `clearOutput`
+ * events, which the plugin wires to commands.
  */
 export class CodeBlockSettingsView extends View {
   public readonly focusTracker = new FocusTracker();
@@ -62,7 +60,7 @@ export class CodeBlockSettingsView extends View {
 
   /** The language of the code block the panel is attached to. */
   declare public language: string | null;
-  /** The runtime of the code block the panel is attached to, `null` when not runnable. */
+  /** The runtime of the code block, `null` when not runnable. */
   declare public runtime: string | null;
   /** Whether readers may edit the code before running it. */
   declare public isEditable: boolean;
@@ -70,7 +68,7 @@ export class CodeBlockSettingsView extends View {
   declare public output: string | null;
   declare public isRunning: boolean;
   declare public hasError: boolean;
-  /** Whether the integration is able to execute code at all (see the `onRun` config). */
+  /** Whether the integration is able to execute code at all. */
   declare public canRun: boolean;
 
   private readonly _focusables = new ViewCollection<FocusableView>();
@@ -124,7 +122,6 @@ export class CodeBlockSettingsView extends View {
           children: [this.languageInput, this.runtimeInput],
         },
         {
-          // Editing and running only apply to blocks that have a runtime.
           tag: "div",
           attributes: {
             class: [
@@ -202,8 +199,6 @@ export class CodeBlockSettingsView extends View {
     );
 
     labeledDropdown.label = labels.language;
-    // Labeled dropdowns start out "empty", which hides the value of the field.
-    // A code block always has a language, so the value is always there to show.
     labeledDropdown.isEmpty = false;
 
     const dropdown = labeledDropdown.fieldView;
@@ -254,14 +249,11 @@ export class CodeBlockSettingsView extends View {
     );
 
     labeledDropdown.label = labels.runtime;
-    // Without a runtime the field shows its label as a placeholder; once one is
-    // picked, the label floats onto the border and the runtime itself shows.
     labeledDropdown.bind("isEmpty").to(this, "runtime", (value) => !value);
 
     const dropdown = labeledDropdown.fieldView;
     const items = new Collection<ListDropdownItemDefinition>();
 
-    // `null` clears the runtime and turns the block back into a plain snippet.
     const options: Array<
       CodeBlockRuntimeOption | {value: null; label: string}
     > = [{value: null, label: labels.noRuntime}, ...runtimes];
@@ -333,7 +325,6 @@ export class CodeBlockSettingsView extends View {
       class: "ck-code-block-settings__run",
     });
 
-    // Running additionally requires an integration able to execute the code.
     view.bind("isVisible").to(this, "canRun");
     view
       .bind("label")
