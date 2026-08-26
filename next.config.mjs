@@ -12,6 +12,7 @@ const nextConfig = {
     ],
   },
   experimental: {
+    authInterrupts: true,
     optimizePackageImports: [
       "@mantine/core",
       "@mantine/dates",

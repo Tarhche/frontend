@@ -7,6 +7,7 @@ import {withPermissions} from "@/components/with-authorization";
 import {fetchUser} from "@/dal/private/users";
 import {fetchLanguages, type Language} from "@/dal/public/languages";
 import {APP_PATHS} from "@/lib/app-paths";
+import {isGregorianStartDateTime} from "@/lib/date-and-time";
 import {getServerDictionary} from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -29,6 +30,11 @@ async function UpdateUserPage({params}: Props) {
     notFound();
   }
   const userData = await fetchUser(userId);
+
+  const bannedAt =
+    userData.banned_at && !isGregorianStartDateTime(userData.banned_at)
+      ? userData.banned_at
+      : "";
 
   let languages: Language[] = [];
   let defaultLanguageCode = "";
@@ -62,6 +68,7 @@ async function UpdateUserPage({params}: Props) {
             defaultEmail: userData.email,
             defaultUsername: userData.username,
             defaultLanguageCode: userData.language_code ?? defaultLanguageCode,
+            defaultBannedAt: bannedAt,
           }}
           languages={languages}
         />

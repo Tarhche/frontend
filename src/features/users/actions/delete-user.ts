@@ -1,6 +1,7 @@
 "use server";
 
 import {revalidatePath} from "next/cache";
+import {unstable_rethrow} from "next/navigation";
 import {APP_PATHS} from "@/lib/app-paths";
 import {deleteUser} from "@/dal/private/users";
 
@@ -16,7 +17,8 @@ export async function deleteUserAction(
     await deleteUser(userID);
     revalidatePath(APP_PATHS.dashboard.users.index);
     return true;
-  } catch {
+  } catch (error) {
+    unstable_rethrow(error);
     return false;
   }
 }

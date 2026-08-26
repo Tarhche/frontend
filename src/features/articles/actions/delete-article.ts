@@ -1,6 +1,7 @@
 "use server";
 
 import {revalidatePath} from "next/cache";
+import {unstable_rethrow} from "next/navigation";
 import {APP_PATHS} from "@/lib/app-paths";
 import {privateDalDriver} from "@/dal/private/private-dal-driver";
 
@@ -20,7 +21,8 @@ export async function deleteArticle(
     );
     revalidatePath(APP_PATHS.dashboard.articles.index);
     return true;
-  } catch {
+  } catch (error) {
+    unstable_rethrow(error);
     return false;
   }
 }
