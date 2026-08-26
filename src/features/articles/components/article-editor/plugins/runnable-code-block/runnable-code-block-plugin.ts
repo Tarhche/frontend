@@ -510,12 +510,20 @@ export class RunnableCodeBlockPlugin extends Plugin {
       return;
     }
 
-    view.isRunning = true;
+    const code = getCodeBlockText(block);
+
     view.hasError = false;
+
+    if (code.trim().length === 0) {
+      view.output = this._labels.noOutput;
+      return;
+    }
+
+    view.isRunning = true;
     view.output = null;
 
     try {
-      const output = await onRun({runtime, code: getCodeBlockText(block)});
+      const output = await onRun({runtime, code});
 
       if (this._settingsView !== view) {
         return;
