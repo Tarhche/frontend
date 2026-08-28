@@ -38,7 +38,7 @@ type Props = {
 };
 
 export async function CommentsTable({page}: Props) {
-  const {t} = await getServerDictionary();
+  const {t, locale} = await getServerDictionary();
   const commentsResponse = await fetchAllComments({
     params: {
       page: page,
@@ -75,14 +75,14 @@ export async function CommentsTable({page}: Props) {
                   <TableTd>{comment.body}</TableTd>
                   <TableTd>
                     {isApproved ? (
-                      formatDate(comment.approved_at)
+                      formatDate(comment.approved_at, locale)
                     ) : (
                       <Badge color="yellow" variant="light">
                         {t("comments.status.notApproved")}
                       </Badge>
                     )}
                   </TableTd>
-                  <TableTd>{formatDate(comment.created_at)}</TableTd>
+                  <TableTd>{formatDate(comment.created_at, locale)}</TableTd>
                   <TableTd>
                     <AuthorInline author={comment.author} />
                   </TableTd>

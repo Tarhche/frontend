@@ -1,6 +1,6 @@
 "use client";
 
-import {useRef, useActionState} from "react";
+import {useRef, useState, useActionState} from "react";
 import {
   Box,
   Group,
@@ -86,6 +86,26 @@ export function ArticleUpsertForm({
   // The language is fixed by the route when editing a translation group; the
   // brand-new article form lets the author pick it.
   const isTranslationGroup = languageCode !== undefined;
+  const [selectedLanguageCode, setSelectedLanguageCode] = useState(
+    state.values?.language_code ?? defaultLanguageCode,
+  );
+  const [editorBody, setEditorBody] = useState(article?.defaultBody ?? "");
+  // What the editor writes in, so its direction matches the article rather than
+  // the dashboard's own language.
+  const articleLanguageCode = isTranslationGroup
+    ? (languageCode as string)
+    : selectedLanguageCode;
+
+  // Picking another language re-creates the editor with the matching writing
+  // direction, so the body written so far is carried over to the new instance.
+  const handleLanguageChange = (value: string | null) => {
+    const nextCode = value ?? defaultLanguageCode;
+    if (nextCode === selectedLanguageCode) {
+      return;
+    }
+    setEditorBody(editorRef.current?.editor?.getData() ?? editorBody);
+    setSelectedLanguageCode(nextCode);
+  };
 
   const defaultPublishedDate = article?.defaultPublishedAt
     ? isGregorianStartDateTime(article.defaultPublishedAt)
@@ -136,7 +156,8 @@ export function ArticleUpsertForm({
               value: language.code,
               label: language.name,
             }))}
-            defaultValue={state.values?.language_code ?? defaultLanguageCode}
+            value={selectedLanguageCode}
+            onChange={handleLanguageChange}
             error={state.errors?.language_code ?? ""}
             allowDeselect={false}
           />
@@ -151,8 +172,9 @@ export function ArticleUpsertForm({
         <Box>
           <InputLabel>{t("articles.form.bodyLabel")}</InputLabel>
           <ArticleEditor
-            initialData={article?.defaultBody}
+            initialData={editorBody}
             editorRef={editorRef}
+            languageCode={articleLanguageCode}
           />
           {state.errors?.body && (
             <Box c="red" fz="xs" mt={4}>

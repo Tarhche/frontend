@@ -9,6 +9,7 @@ import {FilesExplorer} from "@/components/files-explorer";
 import {FILES_PUBLIC_URL} from "@/constants/envs";
 import {useWsPublish} from "@/hooks/use-ws-publish";
 import {useI18n} from "@/i18n/provider";
+import {localeFromLanguageCode} from "@/i18n/config";
 import {getEditorConfig} from "./editor-config";
 import "ckeditor5/ckeditor5.css";
 import "./article-editor.css";
@@ -18,16 +19,22 @@ export type EditorRef = CKEditor<ClassicEditor>;
 type Props = {
   initialData?: string;
   editorRef?: RefObject<EditorRef | null>;
+  // Language of the article being written, which the content area's writing
+  // direction follows — LTR for an English article, RTL for a Persian one.
+  languageCode: string;
 };
 
-export function ArticleEditor({initialData, editorRef}: Props) {
-  const {t, direction} = useI18n();
+export function ArticleEditor({initialData, editorRef, languageCode}: Props) {
+  const {t, locale, direction} = useI18n();
   const publish = useWsPublish();
   const [isFileExplorerOpen, setIsFileExplorerOpen] = useState(false);
+  // CKEditor reads its languages once, when the instance is created, so the
+  // `id` below re-creates it when either of them changes.
+  const contentLocale = localeFromLanguageCode(languageCode);
 
   const config: EditorConfig = useMemo(() => {
     return {
-      ...getEditorConfig(t),
+      ...getEditorConfig(t, {ui: locale, content: contentLocale}),
       fileExplorer: {
         onOpen: setIsFileExplorerOpen.bind(null, true),
       },
@@ -47,14 +54,19 @@ export function ArticleEditor({initialData, editorRef}: Props) {
       },
       initialData: initialData || "",
     };
-  }, [direction, initialData, publish, t]);
+  }, [contentLocale, direction, initialData, locale, publish, t]);
 
   return (
     <div className="main-container">
       <div className="editor-container editor-container_classic-editor editor-container_include-style editor-container_include-block-toolbar editor-container_include-word-count">
         <div className="editor-container__editor">
           {config && (
-            <CKEditor editor={ClassicEditor} config={config} ref={editorRef} />
+            <CKEditor
+              editor={ClassicEditor}
+              config={config}
+              ref={editorRef}
+              id={`${locale}:${contentLocale}`}
+            />
           )}
         </div>
       </div>

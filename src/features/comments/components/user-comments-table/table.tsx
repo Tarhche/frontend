@@ -36,7 +36,7 @@ type Props = {
 };
 
 export async function UserCommentsTable({page}: Props) {
-  const {t} = await getServerDictionary();
+  const {t, locale} = await getServerDictionary();
   const commentsResponse = await fetchUserComments({
     params: {
       page: page,
@@ -82,7 +82,7 @@ export async function UserCommentsTable({page}: Props) {
                       </Badge>
                     )}
                   </TableTd>
-                  <TableTd>{formatDate(comment.created_at)}</TableTd>
+                  <TableTd>{formatDate(comment.created_at, locale)}</TableTd>
                   <TableTd>
                     <ActionIconGroup>
                       <Tooltip label={t("comments.table.view")} withArrow>

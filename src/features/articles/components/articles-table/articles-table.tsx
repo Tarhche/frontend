@@ -57,7 +57,7 @@ type CorrelatedItem = {
 };
 
 export async function ArticlesTable({page, languageCode}: Props) {
-  const {t} = await getServerDictionary();
+  const {t, locale} = await getServerDictionary();
 
   const tableActions: TableAction[] = [
     {
@@ -179,7 +179,7 @@ export async function ArticlesTable({page, languageCode}: Props) {
                             <AuthorInline author={item.author} />
                             {isPublished ? (
                               <Text size="sm" c="dimmed">
-                                {formatDate(item.published_at)}
+                                {formatDate(item.published_at, locale)}
                               </Text>
                             ) : (
                               <Badge color="yellow" variant="light">

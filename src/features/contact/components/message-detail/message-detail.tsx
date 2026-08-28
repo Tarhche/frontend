@@ -26,7 +26,7 @@ type Props = {
 };
 
 export async function ContactMessageDetail({message}: Props) {
-  const {t} = await getServerDictionary();
+  const {t, locale} = await getServerDictionary();
   const isRead = !isGregorianStartDateTime(message.read_at);
 
   return (
@@ -74,7 +74,7 @@ export async function ContactMessageDetail({message}: Props) {
           <Text c="dimmed" size="sm">
             {t("contactUs.detail.receivedAt")}
           </Text>
-          <Text size="sm">{formatDate(message.created_at)}</Text>
+          <Text size="sm">{formatDate(message.created_at, locale)}</Text>
         </Group>
         <Group gap="xs">
           <Text c="dimmed" size="sm">
@@ -82,7 +82,7 @@ export async function ContactMessageDetail({message}: Props) {
           </Text>
           <Text size="sm">
             {isRead
-              ? formatDate(message.read_at)
+              ? formatDate(message.read_at, locale)
               : t("contactUs.status.unread")}
           </Text>
         </Group>

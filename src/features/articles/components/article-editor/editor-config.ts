@@ -69,17 +69,39 @@ import {
   TodoList,
   Underline,
   WordCount,
+  type Translations,
 } from "ckeditor5";
+import faTranslations from "ckeditor5/translations/fa.js";
 import {FileExplorerPlugin} from "./plugins/file-explorer-plugin";
 import {RunnableCodeBlockPlugin} from "./plugins/runnable-code-block";
 import {type TFunction} from "@/i18n/dictionary";
+import {type Locale} from "@/i18n/config";
 
-export const getEditorConfig = (t: TFunction): EditorConfig => ({
+// English is CKEditor's built-in UI language; every other one needs its bundle
+// loaded for the toolbar and dialogs to be translated.
+const UI_TRANSLATIONS: Record<Locale, Translations[]> = {
+  en: [],
+  fa: [faTranslations],
+};
+
+type EditorLanguages = {
+  // Language of the editor chrome (toolbar, dialogs) — the dashboard UI language.
+  ui: Locale;
+  // Language of the article being written. CKEditor derives the writing
+  // direction from it, so an English article is edited LTR and a Persian one RTL.
+  content: Locale;
+};
+
+export const getEditorConfig = (
+  t: TFunction,
+  languages: EditorLanguages,
+): EditorConfig => ({
   licenseKey: "GPL",
   language: {
-    ui: "en",
-    content: "fa",
+    ui: languages.ui,
+    content: languages.content,
   },
+  translations: UI_TRANSLATIONS[languages.ui],
   toolbar: {
     items: [
       "sourceEditing",
