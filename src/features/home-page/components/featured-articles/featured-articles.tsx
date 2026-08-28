@@ -15,7 +15,6 @@ import {
 import {VerticalArticleCard} from "../article-card-vertical";
 import classes from "./featured-articles.module.css";
 import {
-  IconArrowLeft,
   IconHexagon1,
   IconHexagon2,
   IconHexagon3,
@@ -26,6 +25,7 @@ import {
   IconHexagon8,
   IconHexagon9,
 } from "@tabler/icons-react";
+import {IconArrowForward} from "@/components/icons";
 import {useI18n, useTranslations} from "@/i18n/provider";
 
 export function FeaturedArticles({latestArticles, popularArticles}) {
@@ -128,7 +128,7 @@ export function FeaturedArticles({latestArticles, popularArticles}) {
             href="/articles"
             size="md"
             radius="sm"
-            rightSection={<IconArrowLeft size={18} />}
+            rightSection={<IconArrowForward size={18} />}
             styles={{section: {marginInlineStart: 8}}}
           >
             {t("home.moreArticles")}
