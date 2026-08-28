@@ -18,9 +18,12 @@ type Props = {
     tags: string[];
     author?: Partial<Author>;
   };
+  // Language of the listing the card belongs to, so the published date reads
+  // in the same language as the title and excerpt next to it.
+  languageCode: string;
 };
 
-export function VerticalArticleCard({article}: Props) {
+export function VerticalArticleCard({article, languageCode}: Props) {
   return (
     <Card p={0} className={classes.card} radius="0">
       <Flex gap={0} className={classes.group}>
@@ -75,7 +78,7 @@ export function VerticalArticleCard({article}: Props) {
             <Group wrap="nowrap" gap={5} c={"dimmed"}>
               <IconClockHour2 spacing={0} size="1rem" />
               <Text size="xs" c="dimmed">
-                {formatDate(article.publishedDate)}
+                {formatDate(article.publishedDate, languageCode)}
               </Text>
             </Group>
           </Group>

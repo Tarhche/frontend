@@ -47,6 +47,7 @@ async function ArticlesPage(props: Props) {
     return (
       <VerticalArticleCard
         key={article.correlation_uuid}
+        languageCode={lang}
         article={{
           thumbnail: article.cover,
           title: article.title,

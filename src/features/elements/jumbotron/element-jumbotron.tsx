@@ -6,15 +6,18 @@ import {FILES_PUBLIC_URL} from "@/constants";
 import Link from "@/components/link";
 import {Grid, Title} from "@mantine/core";
 import {formatDate} from "@/lib/date-and-time";
+import {useI18n} from "@/i18n/provider";
 
 const ElementJumbotron = ({data}) => {
+  const {locale} = useI18n();
+
   if (!data?.body?.item?.body) {
     return null;
   }
 
   const article = data.body.item.body as any;
   const {cover, title, excerpt, published_at, tags = []}: any = article;
-  const formattedDate = formatDate(published_at);
+  const formattedDate = formatDate(published_at, locale);
 
   const renderBadges = () =>
     tags.map((tag) => (

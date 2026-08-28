@@ -73,7 +73,7 @@ export function Comment({
             {isOrphan && <OrphanCommentIndicator />}
           </Group>
           <Text size="xs" c="dimmed">
-            {formatDate(created_at)}
+            {formatDate(created_at, languageCode)}
           </Text>
           <Text mt="xs">{body}</Text>
           <Group gap={4} mt="xs" className={classes.actions} wrap="nowrap">

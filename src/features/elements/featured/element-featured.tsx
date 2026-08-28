@@ -8,13 +8,15 @@ import Link from "@/components/link";
 import {Grid, Title} from "@mantine/core";
 import classes from "./element-featured.module.css";
 import {formatDate} from "@/lib/date-and-time";
+import {useI18n} from "@/i18n/provider";
 
 const MainFeaturedCard = ({item}) => {
+  const {locale} = useI18n();
   const [formattedDate, setFormattedDate] = useState("");
 
   useEffect(() => {
-    setFormattedDate(formatDate(item.published_at));
-  }, [item.published_at]);
+    setFormattedDate(formatDate(item.published_at, locale));
+  }, [item.published_at, locale]);
 
   return (
     <Box className={classes.featuredCard}>
@@ -132,11 +134,12 @@ const MainFeaturedCard = ({item}) => {
 };
 
 const SideArticleItem = ({item}) => {
+  const {locale} = useI18n();
   const [formattedDate, setFormattedDate] = useState("");
 
   useEffect(() => {
-    setFormattedDate(formatDate(item.published_at));
-  }, [item.published_at]);
+    setFormattedDate(formatDate(item.published_at, locale));
+  }, [item.published_at, locale]);
 
   return (
     <Box
