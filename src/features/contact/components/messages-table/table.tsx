@@ -40,7 +40,7 @@ type Props = {
 };
 
 export async function ContactMessagesTable({page}: Props) {
-  const {t} = await getServerDictionary();
+  const {t, locale} = await getServerDictionary();
   const messagesResponse = await fetchContactMessages({
     params: {
       page: page,
@@ -89,7 +89,7 @@ export async function ContactMessagesTable({page}: Props) {
                       )}
                     </Stack>
                   </TableTd>
-                  <TableTd>{formatDate(message.created_at)}</TableTd>
+                  <TableTd>{formatDate(message.created_at, locale)}</TableTd>
                   <TableTd>
                     <Group gap="xs" wrap="nowrap">
                       <PermissionGuard
@@ -99,7 +99,7 @@ export async function ContactMessagesTable({page}: Props) {
                       </PermissionGuard>
                       {isRead ? (
                         <Badge color="green" variant="light">
-                          {formatDate(message.read_at)}
+                          {formatDate(message.read_at, locale)}
                         </Badge>
                       ) : (
                         <Badge color="yellow" variant="light">

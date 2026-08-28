@@ -39,7 +39,7 @@ type TableAction = {
 };
 
 export async function ElementsTable({page}: Props) {
-  const {t} = await getServerDictionary();
+  const {t, locale} = await getServerDictionary();
   const elementsResponse = await fetchAllElements({
     params: {
       page: page,
@@ -103,7 +103,7 @@ export async function ElementsTable({page}: Props) {
                   <TableTd>{index + 1}</TableTd>
                   <TableTd>{element.uuid}</TableTd>
                   <TableTd>{elementTypeLabel(t, element.body_type)}</TableTd>
-                  <TableTd>{formatDate(element.created_at)}</TableTd>
+                  <TableTd>{formatDate(element.created_at, locale)}</TableTd>
                   <TableTd>
                     <ActionIconGroup>
                       {tableActions.map(

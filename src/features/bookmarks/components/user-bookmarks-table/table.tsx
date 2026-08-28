@@ -29,7 +29,7 @@ type Props = {
 };
 
 export async function UserBookmarksTable({page}: Props) {
-  const {t} = await getServerDictionary();
+  const {t, locale} = await getServerDictionary();
   const headers = [
     "#",
     t("bookmarks.table.headerTitle"),
@@ -68,7 +68,7 @@ export async function UserBookmarksTable({page}: Props) {
                 <TableTr key={bookmark.object_uuid}>
                   <TableTd>{index + 1}</TableTd>
                   <TableTd>{bookmark.title}</TableTd>
-                  <TableTd>{formatDate(bookmark.created_at)}</TableTd>
+                  <TableTd>{formatDate(bookmark.created_at, locale)}</TableTd>
                   <TableTd>
                     <ActionIconGroup>
                       <Tooltip label={t("bookmarks.table.view")} withArrow>
