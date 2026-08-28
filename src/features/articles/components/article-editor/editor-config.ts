@@ -78,9 +78,11 @@ import {type TFunction} from "@/i18n/dictionary";
 import {type Locale} from "@/i18n/config";
 
 // English is CKEditor's built-in UI language; every other one needs its bundle
-// loaded for the toolbar and dialogs to be translated.
-const UI_TRANSLATIONS: Record<Locale, Translations[]> = {
-  en: [],
+// loaded for the toolbar and dialogs to be translated. CKEditor merges this
+// array with no seed value, so an empty one throws — a language without a
+// bundle has to leave `translations` unset and fall back to the built-in
+// strings instead.
+const UI_TRANSLATIONS: Partial<Record<Locale, Translations[]>> = {
   fa: [faTranslations],
 };
 
