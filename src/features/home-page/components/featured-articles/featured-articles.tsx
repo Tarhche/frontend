@@ -26,10 +26,11 @@ import {
   IconHexagon8,
   IconHexagon9,
 } from "@tabler/icons-react";
-import {useTranslations} from "@/i18n/provider";
+import {useI18n, useTranslations} from "@/i18n/provider";
 
 export function FeaturedArticles({latestArticles, popularArticles}) {
   const t = useTranslations();
+  const {locale} = useI18n();
   const hexagonIcons = [
     IconHexagon1,
     IconHexagon2,
@@ -58,6 +59,7 @@ export function FeaturedArticles({latestArticles, popularArticles}) {
             return (
               <VerticalArticleCard
                 key={la.correlation_uuid}
+                languageCode={locale}
                 article={{
                   thumbnail: la.cover,
                   title: la.title,

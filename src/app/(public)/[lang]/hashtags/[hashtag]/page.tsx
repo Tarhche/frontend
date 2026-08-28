@@ -54,6 +54,7 @@ async function HashtagPage(props: Props) {
     return (
       <VerticalArticleCard
         key={article.correlation_uuid}
+        languageCode={params.lang}
         article={{
           thumbnail: article.cover,
           title: article.title,

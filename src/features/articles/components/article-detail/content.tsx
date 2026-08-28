@@ -51,7 +51,7 @@ export async function Content({
           <Group gap={5} wrap="nowrap">
             <IconClockHour2 spacing={0} size={20} />
             <Text size="sm" c="dimmed" mt={4}>
-              {formatDate(article.published_at)}
+              {formatDate(article.published_at, languageCode)}
             </Text>
           </Group>
         </Group>

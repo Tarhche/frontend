@@ -4,7 +4,7 @@ import {Group, Paper, Stack, Text, Title} from "@mantine/core";
 import {IconCalendar} from "@tabler/icons-react";
 import {UserAvatar} from "@/components/user-avatar";
 import {formatDate, isGregorianStartDateTime} from "@/lib/date-and-time";
-import {useTranslations} from "@/i18n/provider";
+import {useI18n, useTranslations} from "@/i18n/provider";
 import {EditContentButton} from "@/components/edit-content-button";
 import {APP_PATHS} from "@/lib/app-paths";
 import {PERMISSIONS} from "@/lib/app-permissions";
@@ -16,6 +16,7 @@ type Props = {
 
 export function AuthorHeader({author}: Props) {
   const t = useTranslations();
+  const {locale} = useI18n();
   const hasJoinDate =
     Boolean(author.created_at) && !isGregorianStartDateTime(author.created_at);
 
@@ -49,7 +50,7 @@ export function AuthorHeader({author}: Props) {
               <IconCalendar size={16} />
               <Text size="xs">
                 {t("authors.memberSince", {
-                  date: formatDate(author.created_at),
+                  date: formatDate(author.created_at, locale),
                 })}
               </Text>
             </Group>

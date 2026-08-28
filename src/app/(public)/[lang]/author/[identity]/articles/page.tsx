@@ -93,6 +93,7 @@ export default async function AuthorArticlesPage(props: Props) {
           items.map((article: any) => (
             <VerticalArticleCard
               key={article.correlation_uuid}
+              languageCode={params.lang}
               article={{
                 thumbnail: article.cover,
                 title: article.title,
