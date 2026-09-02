@@ -58,6 +58,24 @@ export const PERMISSIONS = {
   permissions: {
     INDEX: "permissions.index",
   },
+  runner: {
+    containers: {
+      CREATE: "runner.containers.create",
+      DELETE: "runner.containers.delete",
+      INDEX: "runner.containers.index",
+      SHOW: "runner.containers.show",
+      LOGS: "runner.containers.logs",
+      MANAGE: "runner.containers.manage",
+      ATTACH: "runner.containers.attach",
+    },
+    stacks: {
+      CREATE: "runner.stacks.create",
+      DELETE: "runner.stacks.delete",
+      INDEX: "runner.stacks.index",
+      SHOW: "runner.stacks.show",
+      MANAGE: "runner.stacks.manage",
+    },
+  },
   roles: {
     CREATE: "roles.create",
     DELETE: "roles.delete",

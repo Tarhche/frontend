@@ -16,11 +16,47 @@ function b64Decode(s: string): string {
 // request_id is the only mandatory field in a response.
 // subject is present in server-pushed events but not guaranteed in responses.
 // payload is optional and can be null.
+// kind says whether a reply is the whole answer, one chunk of a longer one, or
+// the end of it. It is absent on the ordinary one-shot answers, whose kind is
+// the zero value.
 interface RawIncoming {
   request_id: string;
   subject?: string;
+  kind?: ReplyKind;
   payload?: string | null;
 }
+
+export const ReplyKind = {
+  Final: 0,
+  Chunk: 1,
+  EOF: 2,
+} as const;
+
+export type ReplyKind = (typeof ReplyKind)[keyof typeof ReplyKind];
+
+/**
+ * What a caller is told about a stream it opened. Chunks arrive as the raw
+ * base64 the server sent, because what is inside them differs by subject — a
+ * log line is JSON, a terminal's output is bytes — and only the caller knows
+ * which.
+ */
+export type StreamHandlers = {
+  onChunk: (payload: string | null) => void;
+  onEnd?: (payload: string | null) => void;
+  onError?: (error: Error) => void;
+};
+
+/**
+ * A stream the client has open. Sending carries something to it — keystrokes,
+ * a new window size — and closing ends it at both ends.
+ */
+export type StreamHandle = {
+  readonly id: string;
+  send<T>(subject: string, data: T): void;
+  close(): void;
+};
+
+type StreamEntry = StreamHandlers;
 
 type PendingEntry<T> = {
   resolve: (value: T) => void;
@@ -35,6 +71,7 @@ export class WebSocketBus {
   private connectingPromise: Promise<void> | null = null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private pending = new Map<string, PendingEntry<any>>();
+  private streams = new Map<string, StreamEntry>();
   private subscribers = new Map<string, Set<TopicHandler>>();
   private idleTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly idleTtl: number;
@@ -79,6 +116,8 @@ export class WebSocketBus {
         const err = new Error("[WsBus] Connection closed unexpectedly");
         this.pending.forEach(({reject}) => reject(err));
         this.pending.clear();
+        this.streams.forEach(({onError}) => onError?.(err));
+        this.streams.clear();
       });
     });
 
@@ -93,6 +132,23 @@ export class WebSocketBus {
       msg = JSON.parse(raw) as RawIncoming;
     } catch {
       console.error("[WsBus] Failed to parse message", raw);
+      return;
+    }
+
+    // A stream's chunks are handed over as they arrived: what is inside one
+    // differs by subject, so decoding it is the caller's business.
+    if (msg.request_id && this.streams.has(msg.request_id)) {
+      const stream = this.streams.get(msg.request_id)!;
+      const payload = msg.payload ?? null;
+
+      if (msg.kind === ReplyKind.Chunk) {
+        stream.onChunk(payload);
+      } else {
+        this.streams.delete(msg.request_id);
+        stream.onEnd?.(payload);
+        this.scheduleIdleDisconnect();
+      }
+
       return;
     }
 
@@ -127,7 +183,12 @@ export class WebSocketBus {
   // ─── Idle TTL ─────────────────────────────────────────────────────────────
 
   private scheduleIdleDisconnect() {
-    if (this.subscribers.size > 0 || this.pending.size > 0) return;
+    if (
+      this.subscribers.size > 0 ||
+      this.pending.size > 0 ||
+      this.streams.size > 0
+    )
+      return;
     if (this.idleTimer) clearTimeout(this.idleTimer);
     this.idleTimer = setTimeout(() => {
       this.socket?.close(1000, "idle");
@@ -171,6 +232,58 @@ export class WebSocketBus {
 
       this.socket!.send(JSON.stringify(msg));
     });
+  }
+
+  /**
+   * Open a stream: one request whose reply arrives in pieces, until the server
+   * says it has ended or the caller closes it.
+   *
+   * Chunks are handed over as the raw base64 the server sent, since a log line
+   * and a terminal's output are not the same thing inside.
+   */
+  async openStream<TReq = unknown>(
+    subject: string,
+    data: TReq | undefined,
+    handlers: StreamHandlers,
+  ): Promise<StreamHandle> {
+    await this.ensureConnected();
+    this.cancelIdleTimer();
+
+    const id = crypto.randomUUID();
+    this.streams.set(id, handlers);
+
+    const msg: {id: string; subject: string; payload?: string} = {id, subject};
+    if (data !== undefined) {
+      msg.payload = b64Encode(JSON.stringify(data));
+    }
+
+    this.socket!.send(JSON.stringify(msg));
+
+    return {
+      id,
+      // a request naming a stream is not a question, so it is not answered and
+      // does not need an id of its own.
+      send: <T>(inputSubject: string, input: T) => {
+        if (this.socket?.readyState !== WebSocket.OPEN) return;
+
+        this.socket.send(
+          JSON.stringify({
+            stream_id: id,
+            subject: inputSubject,
+            payload: b64Encode(JSON.stringify(input)),
+          }),
+        );
+      },
+      // a stream named with no subject to carry it to asks for it to end.
+      close: () => {
+        this.streams.delete(id);
+        this.scheduleIdleDisconnect();
+
+        if (this.socket?.readyState !== WebSocket.OPEN) return;
+
+        this.socket.send(JSON.stringify({stream_id: id}));
+      },
+    };
   }
 
   /**

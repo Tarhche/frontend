@@ -51,6 +51,16 @@ export const APP_PATHS = {
       index: "/dashboard/contact-us",
       detail: (uuid: string) => `/dashboard/contact-us/${uuid}`,
     },
+    containers: {
+      index: "/dashboard/containers",
+      new: "/dashboard/containers/new",
+      detail: (uuid: string) => `/dashboard/containers/${uuid}`,
+    },
+    stacks: {
+      index: "/dashboard/stacks",
+      new: "/dashboard/stacks/new",
+      detail: (uuid: string) => `/dashboard/stacks/${uuid}`,
+    },
     files: "/dashboard/files",
     settings: "/dashboard/settings",
     profile: {

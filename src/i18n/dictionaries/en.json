@@ -359,7 +359,9 @@
       "settings": "Settings",
       "profile": "Profile",
       "logout": "Logout",
-      "contactUs": "Contact us"
+      "contactUs": "Contact us",
+      "containers": "Containers",
+      "stacks": "Stacks"
     }
   },
   "users": {
@@ -519,6 +521,87 @@
         "mustMatch": "Passwords must be identical",
         "doNotMatch": "Passwords do not match"
       }
+    }
+  },
+  "containers": {
+    "title": "Containers",
+    "table": {
+      "newContainer": "Run a container",
+      "empty": "No containers running",
+      "name": "Name",
+      "image": "Image",
+      "state": "State",
+      "endpoints": "Addresses",
+      "createdAt": "Created at",
+      "noEndpoints": "No exposed ports",
+      "stop": "Stop",
+      "kill": "Kill",
+      "restart": "Restart",
+      "delete": "Delete",
+      "deleteConfirm": "Delete \"{name}\"? Its ports, its logs and the container itself all go.",
+      "killConfirm": "Kill \"{name}\"? It is stopped at once, with no chance to shut down cleanly."
+    },
+    "form": {
+      "name": "Name",
+      "nameHelp": "A unique address is derived from this, and its ports are served on that name.",
+      "image": "Image",
+      "command": "Command",
+      "entrypoint": "Entrypoint",
+      "workingDir": "Working directory",
+      "environment": "Environment",
+      "environmentHelp": "One KEY=value per line.",
+      "ports": "Exposed ports",
+      "portsHelp": "One container port per line. The runner picks the host side and serves it on the container's own name.",
+      "network": "Network access",
+      "networkNone": "None — no network at all",
+      "networkIsolated": "Isolated — its own stack and its ports, but no internet",
+      "networkPublic": "Public — reaches the internet",
+      "restart": "Restart policy",
+      "cpus": "CPUs",
+      "memory": "Memory",
+      "run": "Run",
+      "immutable": "A container cannot be changed once it is running. To change it, run a new one and delete this."
+    },
+    "detail": {
+      "logs": "Logs",
+      "terminal": "Terminal",
+      "overview": "Overview",
+      "follow": "Follow",
+      "noLogs": "Nothing written yet",
+      "terminalHint": "A shell inside the container. Closing this tab ends it.",
+      "terminalEnded": "The session ended.",
+      "notRunning": "The container is not running."
+    },
+    "breadcrumb": {
+      "create": "Run a container",
+      "detail": "Container"
+    }
+  },
+  "stacks": {
+    "title": "Stacks",
+    "table": {
+      "newStack": "Run a stack",
+      "empty": "No stacks running",
+      "name": "Name",
+      "state": "State",
+      "services": "Services",
+      "createdAt": "Created at",
+      "deleteConfirm": "Delete \"{name}\"? Its services, their logs and the network they shared all go."
+    },
+    "form": {
+      "name": "Name",
+      "services": "Services",
+      "servicesHelp": "The services block of a docker compose file. They share a private network and reach each other by service name.",
+      "invalidJson": "This is not valid JSON",
+      "run": "Run"
+    },
+    "detail": {
+      "services": "Services",
+      "service": "Service"
+    },
+    "breadcrumb": {
+      "create": "Run a stack",
+      "detail": "Stack"
     }
   }
 }
