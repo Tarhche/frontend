@@ -28,7 +28,6 @@ export const APP_PATHS = {
       edit: (uuid: string) => `/dashboard/comments/${uuid}`,
     },
     my: {
-      comments: "/dashboard/my/comments",
       bookmarks: "/dashboard/my/bookmarks",
     },
     users: {
