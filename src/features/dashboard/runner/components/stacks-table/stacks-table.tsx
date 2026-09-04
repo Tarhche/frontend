@@ -4,8 +4,6 @@ import {
   Group,
   Table,
   TableScrollContainer,
-  TableTbody,
-  TableTd,
   TableTh,
   TableThead,
   TableTr,
@@ -13,37 +11,39 @@ import {
 import {IconFilePlus} from "@tabler/icons-react";
 import {PermissionGuard} from "@/components/permission-guard";
 import {getServerDictionary} from "@/i18n/server";
-import {getUserPermissions, hasPermission} from "@/lib/auth";
+import {getUserPermissions, getUserUUID, hasPermission} from "@/lib/auth";
 import {APP_PATHS} from "@/lib/app-paths";
-import {formatDate} from "@/lib/date-and-time";
-import {fetchStacks} from "@/dal/private/runner";
-import {StateBadge} from "../state-badge";
-import {StackActions} from "./stack-actions";
+import {fetchStacks, fetchMyStacks} from "@/dal/private/runner";
+import {StackRows, type Stack} from "./stack-rows";
 import {StacksPagination} from "./stacks-table-pagination";
 
 type Props = {
   page: number | string;
+
+  /** whose stacks to show: everybody's, or the person asking. */
+  scope?: "all" | "mine";
 };
 
-type Stack = {
-  uuid: string;
-  name: string;
-  slug: string;
-  state: string;
-  services: unknown[];
-  created_at: string;
-};
-
-export async function StacksTable({page}: Props) {
-  const {t, locale} = await getServerDictionary();
-  const response = await fetchStacks({params: {page}});
+export async function StacksTable({page, scope = "all"}: Props) {
+  const {t} = await getServerDictionary();
+  const response = await (scope === "mine" ? fetchMyStacks : fetchStacks)({
+    params: {page},
+  });
 
   const stacks: Stack[] = response.items ?? [];
   const {total_pages, current_page} = response.pagination;
 
+  // acting on one of these turns on two permissions: over everybody's, or
+  // over one's own — so who is looking decides row by row.
   const permissions = (await getUserPermissions()) ?? [];
-  const canManage = hasPermission(permissions, ["runner.stacks.manage"]);
-  const canDelete = hasPermission(permissions, ["runner.stacks.delete"]);
+  const viewerUuid = (await getUserUUID()) ?? "";
+
+  const may = {
+    manageAll: hasPermission(permissions, ["runner.stacks.manage"]),
+    manageOwn: hasPermission(permissions, ["self.runner.stacks.manage"]),
+    deleteAll: hasPermission(permissions, ["runner.stacks.delete"]),
+    deleteOwn: hasPermission(permissions, ["self.runner.stacks.delete"]),
+  };
 
   return (
     <>
@@ -66,42 +66,12 @@ export async function StacksTable({page}: Props) {
               <TableTh>{t("stacks.table.name")}</TableTh>
               <TableTh>{t("stacks.table.state")}</TableTh>
               <TableTh>{t("stacks.table.services")}</TableTh>
+              <TableTh>{t("stacks.table.owner")}</TableTh>
               <TableTh>{t("stacks.table.createdAt")}</TableTh>
               <TableTh>{t("common.actions")}</TableTh>
             </TableTr>
           </TableThead>
-          <TableTbody>
-            {stacks.length === 0 && (
-              <TableTr>
-                <TableTd colSpan={5} ta="center">
-                  {t("stacks.table.empty")}
-                </TableTd>
-              </TableTr>
-            )}
-            {stacks.map((stack) => (
-              <TableTr key={stack.uuid}>
-                <TableTd>
-                  <Link href={APP_PATHS.dashboard.stacks.detail(stack.uuid)}>
-                    {stack.name}
-                  </Link>
-                </TableTd>
-                <TableTd>
-                  <StateBadge state={stack.state} />
-                </TableTd>
-                <TableTd>{stack.services?.length ?? 0}</TableTd>
-                <TableTd>{formatDate(stack.created_at, locale)}</TableTd>
-                <TableTd>
-                  <StackActions
-                    uuid={stack.uuid}
-                    name={stack.name}
-                    state={stack.state}
-                    canManage={canManage}
-                    canDelete={canDelete}
-                  />
-                </TableTd>
-              </TableTr>
-            ))}
-          </TableTbody>
+          <StackRows stacks={stacks} may={may} viewerUuid={viewerUuid} />
         </Table>
       </TableScrollContainer>
       {stacks.length >= 1 && (

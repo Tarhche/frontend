@@ -50,25 +50,19 @@ const SIDE_BAR_DATA: SidebarSchema[] = [
     labelKey: "dashboard.sidebar.articles",
     icon: IconNotes,
     href: dashboard.articles.index,
-    requiredPermissions: ["articles.index"],
+    requiredPermissions: ["articles.index", "self.articles.index"],
   },
   {
     labelKey: "dashboard.sidebar.comments",
     icon: IconMessages,
     href: dashboard.comments.index,
-    requiredPermissions: ["comments.index"],
+    requiredPermissions: ["comments.index", "self.comments.index"],
   },
   {
     labelKey: "dashboard.sidebar.files",
     icon: IconFile,
     href: dashboard.files,
     requiredPermissions: ["files.index", "self.files.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.myComments",
-    icon: IconMessage,
-    href: dashboard.my.comments,
-    requiredPermissions: ["self.comments.index"],
   },
   {
     labelKey: "dashboard.sidebar.elements",
@@ -92,13 +86,16 @@ const SIDE_BAR_DATA: SidebarSchema[] = [
     labelKey: "dashboard.sidebar.containers",
     icon: IconBox,
     href: dashboard.containers.index,
-    requiredPermissions: ["runner.containers.index"],
+    requiredPermissions: [
+      "runner.containers.index",
+      "self.runner.containers.index",
+    ],
   },
   {
     labelKey: "dashboard.sidebar.stacks",
     icon: IconStack2,
     href: dashboard.stacks.index,
-    requiredPermissions: ["runner.stacks.index"],
+    requiredPermissions: ["runner.stacks.index", "self.runner.stacks.index"],
   },
   {
     labelKey: "dashboard.sidebar.users",

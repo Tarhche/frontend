@@ -36,6 +36,12 @@ export function ContainerLogs({containerUuid, history}: Props) {
   const openStream = useWsStream();
 
   const [lines, setLines] = useState<Line[]>(history);
+
+  // where the stream has to pick up from, kept outside the effect so that
+  // opening it again does not replay what is already shown.
+  const caughtUpTo = useRef<string | undefined>(
+    history.length > 0 ? history[history.length - 1].at : undefined,
+  );
   const [following, setFollowing] = useState(true);
   const bottom = useRef<HTMLDivElement>(null);
 
@@ -43,7 +49,10 @@ export function ContainerLogs({containerUuid, history}: Props) {
     if (!payload) return;
 
     try {
-      setLines((current) => [...current, JSON.parse(decode(payload)) as Line]);
+      const line = JSON.parse(decode(payload)) as Line;
+      caughtUpTo.current = line.at;
+
+      setLines((current) => [...current, line]);
     } catch {
       // a line that will not parse is one line lost, not a reason to drop the
       // stream carrying the rest.
@@ -59,30 +68,30 @@ export function ContainerLogs({containerUuid, history}: Props) {
     let closed = false;
     let close: (() => void) | undefined;
 
-    const after = lines.length > 0 ? lines[lines.length - 1].at : undefined;
-
-    openStream(
-      FOLLOW_LOGS_SUBJECT,
-      {container_uuid: containerUuid, access_token: token, after},
-      {onChunk: append},
-    ).then((stream) => {
-      // the switch may have been turned off while the socket was opening.
-      if (closed) {
-        stream.close();
-        return;
-      }
-
-      close = () => stream.close();
+    // read when the stream is opened, and again if it has to be opened on a
+    // new connection: either way it picks up from the last line shown.
+    const request = () => ({
+      container_uuid: containerUuid,
+      access_token: token,
+      after: caughtUpTo.current,
     });
+
+    openStream(FOLLOW_LOGS_SUBJECT, request, {onChunk: append}).then(
+      (stream) => {
+        // the switch may have been turned off while the socket was opening.
+        if (closed) {
+          stream.close();
+          return;
+        }
+
+        close = () => stream.close();
+      },
+    );
 
     return () => {
       closed = true;
       close?.();
     };
-    // `lines` is deliberately not a dependency: it changes with every line, and
-    // re-opening the stream on each one would be a new stream per line. Where
-    // to resume from is read once, when the stream is opened.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [containerUuid, following, openStream, append]);
 
   useEffect(() => {

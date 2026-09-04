@@ -98,6 +98,28 @@ export const PERMISSIONS = {
       DELETE: "self.files.delete",
       INDEX: "self.files.index",
     },
+    articles: {
+      INDEX: "self.articles.index",
+      SHOW: "self.articles.show",
+      UPDATE: "self.articles.update",
+      DELETE: "self.articles.delete",
+    },
+    runner: {
+      containers: {
+        INDEX: "self.runner.containers.index",
+        SHOW: "self.runner.containers.show",
+        LOGS: "self.runner.containers.logs",
+        MANAGE: "self.runner.containers.manage",
+        ATTACH: "self.runner.containers.attach",
+        DELETE: "self.runner.containers.delete",
+      },
+      stacks: {
+        INDEX: "self.runner.stacks.index",
+        SHOW: "self.runner.stacks.show",
+        MANAGE: "self.runner.stacks.manage",
+        DELETE: "self.runner.stacks.delete",
+      },
+    },
   },
   users: {
     CREATE: "users.create",

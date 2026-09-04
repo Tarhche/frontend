@@ -18,6 +18,7 @@ import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumb
 import {getServerDictionary} from "@/i18n/server";
 import {APP_PATHS} from "@/lib/app-paths";
 import {fetchStack} from "@/dal/private/runner";
+import {OwnerInline} from "@/features/dashboard/runner/components/owner-inline";
 import {StateBadge} from "@/features/dashboard/runner/components/state-badge";
 import {ContainerEndpoints} from "@/features/dashboard/runner/components/containers-table/container-endpoints";
 
@@ -51,8 +52,11 @@ async function StackPage({params}: Props) {
       />
 
       <Group justify="space-between" py="md">
-        <Title order={2}>{stack.name}</Title>
-        <StateBadge state={stack.state} />
+        <Group gap="md">
+          <Title order={2}>{stack.name}</Title>
+          <OwnerInline owner={stack.owner} size={28} />
+        </Group>
+        <StateBadge state={stack.state} expectedState={stack.expected_state} />
       </Group>
 
       <TableScrollContainer minWidth={600}>
@@ -69,6 +73,9 @@ async function StackPage({params}: Props) {
             {(stack.services ?? []).map(
               (service: {
                 uuid: string;
+                expected_state?: string;
+                retries?: number;
+                max_retries?: number;
                 service_name: string;
                 image: string;
                 state: string;
@@ -88,7 +95,12 @@ async function StackPage({params}: Props) {
                   </TableTd>
                   <TableTd>{service.image}</TableTd>
                   <TableTd>
-                    <StateBadge state={service.state} />
+                    <StateBadge
+                      state={service.state}
+                      expectedState={service.expected_state}
+                      retries={service.retries}
+                      maxRetries={service.max_retries}
+                    />
                   </TableTd>
                   <TableTd>
                     <ContainerEndpoints

@@ -4,8 +4,6 @@ import {
   Group,
   Table,
   TableScrollContainer,
-  TableTbody,
-  TableTd,
   TableTh,
   TableThead,
   TableTr,
@@ -13,41 +11,45 @@ import {
 import {IconFilePlus} from "@tabler/icons-react";
 import {PermissionGuard} from "@/components/permission-guard";
 import {getServerDictionary} from "@/i18n/server";
-import {getUserPermissions, hasPermission} from "@/lib/auth";
+import {getUserPermissions, getUserUUID, hasPermission} from "@/lib/auth";
 import {APP_PATHS} from "@/lib/app-paths";
-import {formatDate} from "@/lib/date-and-time";
-import {fetchContainers} from "@/dal/private/runner";
-import {StateBadge} from "../state-badge";
-import {ContainerActions} from "./container-actions";
-import {ContainerEndpoints, type Endpoint} from "./container-endpoints";
+import {fetchContainers, fetchMyContainers} from "@/dal/private/runner";
+import {ContainerRows, type Container} from "./container-rows";
 import {ContainersPagination} from "./containers-table-pagination";
 
 type Props = {
   page: number | string;
+
+  /** whose containers to show: everybody's, or the person asking. */
+  scope?: "all" | "mine";
 };
 
-type Container = {
-  uuid: string;
-  name: string;
-  slug: string;
-  state: string;
-  image: string;
-  endpoints: Endpoint[];
-  created_at: string;
-};
+export async function ContainersTable({page, scope = "all"}: Props) {
+  // in somebody's own listing every row is theirs, so saying so on each one
+  // says nothing.
+  const showOwner = scope !== "mine";
 
-export async function ContainersTable({page}: Props) {
-  const {t, locale} = await getServerDictionary();
-  const response = await fetchContainers({params: {page}});
+  const {t} = await getServerDictionary();
+  const response = await (
+    scope === "mine" ? fetchMyContainers : fetchContainers
+  )({params: {page}});
 
   const containers: Container[] = response.items ?? [];
   const {total_pages, current_page} = response.pagination;
 
   // the row actions are rendered by a client component, so what the person may
   // do is worked out here and handed to it.
+  // acting on one of these turns on two permissions: over everybody's, or
+  // over one's own — so who is looking decides row by row.
   const permissions = (await getUserPermissions()) ?? [];
-  const canManage = hasPermission(permissions, ["runner.containers.manage"]);
-  const canDelete = hasPermission(permissions, ["runner.containers.delete"]);
+  const viewerUuid = (await getUserUUID()) ?? "";
+
+  const may = {
+    manageAll: hasPermission(permissions, ["runner.containers.manage"]),
+    manageOwn: hasPermission(permissions, ["self.runner.containers.manage"]),
+    deleteAll: hasPermission(permissions, ["runner.containers.delete"]),
+    deleteOwn: hasPermission(permissions, ["self.runner.containers.delete"]),
+  };
 
   return (
     <>
@@ -71,50 +73,17 @@ export async function ContainersTable({page}: Props) {
               <TableTh>{t("containers.table.image")}</TableTh>
               <TableTh>{t("containers.table.state")}</TableTh>
               <TableTh>{t("containers.table.endpoints")}</TableTh>
+              {showOwner && <TableTh>{t("containers.table.owner")}</TableTh>}
               <TableTh>{t("containers.table.createdAt")}</TableTh>
               <TableTh>{t("common.actions")}</TableTh>
             </TableTr>
           </TableThead>
-          <TableTbody>
-            {containers.length === 0 && (
-              <TableTr>
-                <TableTd colSpan={6} ta="center">
-                  {t("containers.table.empty")}
-                </TableTd>
-              </TableTr>
-            )}
-            {containers.map((container) => (
-              <TableTr key={container.uuid}>
-                <TableTd>
-                  <Link
-                    href={APP_PATHS.dashboard.containers.detail(container.uuid)}
-                  >
-                    {container.name}
-                  </Link>
-                </TableTd>
-                <TableTd>{container.image}</TableTd>
-                <TableTd>
-                  <StateBadge state={container.state} />
-                </TableTd>
-                <TableTd>
-                  <ContainerEndpoints
-                    endpoints={container.endpoints ?? []}
-                    empty={t("containers.table.noEndpoints")}
-                  />
-                </TableTd>
-                <TableTd>{formatDate(container.created_at, locale)}</TableTd>
-                <TableTd>
-                  <ContainerActions
-                    uuid={container.uuid}
-                    name={container.name}
-                    state={container.state}
-                    canManage={canManage}
-                    canDelete={canDelete}
-                  />
-                </TableTd>
-              </TableTr>
-            ))}
-          </TableTbody>
+          <ContainerRows
+            containers={containers}
+            may={may}
+            viewerUuid={viewerUuid}
+            showOwner={showOwner}
+          />
         </Table>
       </TableScrollContainer>
       {containers.length >= 1 && (

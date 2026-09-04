@@ -30,6 +30,13 @@ export async function isUserLoggedIn() {
   );
 }
 
+/** Who is signed in, as far as their token says. */
+export async function getUserUUID(): Promise<string | null> {
+  const {accessToken} = await getCredentialsFromCookies();
+
+  return decodeJWT(accessToken || "")?.sub ?? null;
+}
+
 export async function getUserPermissions(): Promise<string[] | null> {
   const {accessToken} = await getCredentialsFromCookies();
   const token = decodeJWT(accessToken || "");

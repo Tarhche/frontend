@@ -3,6 +3,11 @@ import {PUBLIC_BACKEND_URL} from "@/constants";
 
 const DEFAULT_IDLE_TTL_MS = 30_000; // 30 seconds of idle time before auto-disconnecting the WebSocket
 
+// how hard a lost connection is tried again before the streams on it are given
+// up as gone.
+const REOPEN_ATTEMPTS = 3;
+const REOPEN_WAIT_MS = 1_000;
+
 // Normalize whitespace and line endings before encoding — mirrors the existing
 // encoding convention used for code payloads.
 function b64Encode(s: string): string {
@@ -43,6 +48,15 @@ export type ReplyKind = (typeof ReplyKind)[keyof typeof ReplyKind];
 export type StreamHandlers = {
   onChunk: (payload: string | null) => void;
   onEnd?: (payload: string | null) => void;
+
+  /**
+   * Called when the stream had to be opened again on a new connection. What is
+   * behind it is a new stream — a new shell, a log followed from wherever the
+   * request says — so a caller that shows one says so.
+   */
+  onReopen?: () => void;
+
+  /** Called when the stream is gone and could not be opened again. */
   onError?: (error: Error) => void;
 };
 
@@ -56,7 +70,16 @@ export type StreamHandle = {
   close(): void;
 };
 
-type StreamEntry = StreamHandlers;
+/**
+ * A stream the bus is carrying: the request that opened it, so it can be
+ * opened again, and the id it currently answers to, which changes when it is.
+ */
+type StreamEntry = {
+  id: string;
+  subject: string;
+  data: unknown;
+  handlers: StreamHandlers;
+};
 
 type PendingEntry<T> = {
   resolve: (value: T) => void;
@@ -116,8 +139,12 @@ export class WebSocketBus {
         const err = new Error("[WsBus] Connection closed unexpectedly");
         this.pending.forEach(({reject}) => reject(err));
         this.pending.clear();
-        this.streams.forEach(({onError}) => onError?.(err));
-        this.streams.clear();
+
+        // a stream is a conversation the caller is still in the middle of —
+        // a terminal it is typing into, a log it is following — so the socket
+        // going away ends the connection, not the stream: it is opened again
+        // on a new one, and only a reconnection that fails is an error.
+        void this.reopenStreams(err);
       });
     });
 
@@ -142,10 +169,10 @@ export class WebSocketBus {
       const payload = msg.payload ?? null;
 
       if (msg.kind === ReplyKind.Chunk) {
-        stream.onChunk(payload);
+        stream.handlers.onChunk(payload);
       } else {
         this.streams.delete(msg.request_id);
-        stream.onEnd?.(payload);
+        stream.handlers.onEnd?.(payload);
         this.scheduleIdleDisconnect();
       }
 
@@ -178,6 +205,67 @@ export class WebSocketBus {
     if (msg.subject) {
       this.subscribers.get(msg.subject)?.forEach((h) => h(decoded));
     }
+  }
+
+  /**
+   * Opens every stream again on a fresh connection, under new ids: a stream
+   * belongs to the connection that carried it, so the server knows nothing of
+   * it any more.
+   */
+  private async reopenStreams(cause: Error) {
+    const entries = [...this.streams.values()];
+    this.streams.clear();
+
+    if (entries.length === 0) return;
+
+    for (let attempt = 0; attempt < REOPEN_ATTEMPTS; attempt++) {
+      try {
+        await this.ensureConnected();
+        break;
+      } catch {
+        if (attempt === REOPEN_ATTEMPTS - 1) {
+          entries.forEach(({handlers}) => handlers.onError?.(cause));
+
+          return;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, REOPEN_WAIT_MS));
+      }
+    }
+
+    if (this.socket?.readyState !== WebSocket.OPEN) {
+      entries.forEach(({handlers}) => handlers.onError?.(cause));
+
+      return;
+    }
+
+    this.cancelIdleTimer();
+
+    for (const entry of entries) {
+      entry.id = crypto.randomUUID();
+      this.streams.set(entry.id, entry);
+      this.socket.send(JSON.stringify(this.streamRequest(entry)));
+      entry.handlers.onReopen?.();
+    }
+  }
+
+  /** The message that opens one stream, with what the caller asks for now. */
+  private streamRequest(entry: StreamEntry) {
+    const data =
+      typeof entry.data === "function"
+        ? (entry.data as () => unknown)()
+        : entry.data;
+
+    const msg: {id: string; subject: string; payload?: string} = {
+      id: entry.id,
+      subject: entry.subject,
+    };
+
+    if (data !== undefined) {
+      msg.payload = b64Encode(JSON.stringify(data));
+    }
+
+    return msg;
   }
 
   // ─── Idle TTL ─────────────────────────────────────────────────────────────
@@ -243,24 +331,28 @@ export class WebSocketBus {
    */
   async openStream<TReq = unknown>(
     subject: string,
-    data: TReq | undefined,
+    data: TReq | (() => TReq) | undefined,
     handlers: StreamHandlers,
   ): Promise<StreamHandle> {
     await this.ensureConnected();
     this.cancelIdleTimer();
 
-    const id = crypto.randomUUID();
-    this.streams.set(id, handlers);
+    const entry: StreamEntry = {
+      id: crypto.randomUUID(),
+      subject,
+      data,
+      handlers,
+    };
 
-    const msg: {id: string; subject: string; payload?: string} = {id, subject};
-    if (data !== undefined) {
-      msg.payload = b64Encode(JSON.stringify(data));
-    }
-
-    this.socket!.send(JSON.stringify(msg));
+    this.streams.set(entry.id, entry);
+    this.socket!.send(JSON.stringify(this.streamRequest(entry)));
 
     return {
-      id,
+      // the id follows the stream: opening it again on a new connection gives
+      // it a new one, and the handle still names the stream it was handed.
+      get id() {
+        return entry.id;
+      },
       // a request naming a stream is not a question, so it is not answered and
       // does not need an id of its own.
       send: <T>(inputSubject: string, input: T) => {
@@ -268,7 +360,7 @@ export class WebSocketBus {
 
         this.socket.send(
           JSON.stringify({
-            stream_id: id,
+            stream_id: entry.id,
             subject: inputSubject,
             payload: b64Encode(JSON.stringify(input)),
           }),
@@ -276,12 +368,12 @@ export class WebSocketBus {
       },
       // a stream named with no subject to carry it to asks for it to end.
       close: () => {
-        this.streams.delete(id);
+        this.streams.delete(entry.id);
         this.scheduleIdleDisconnect();
 
         if (this.socket?.readyState !== WebSocket.OPEN) return;
 
-        this.socket.send(JSON.stringify({stream_id: id}));
+        this.socket.send(JSON.stringify({stream_id: entry.id}));
       },
     };
   }

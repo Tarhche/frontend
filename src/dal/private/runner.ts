@@ -9,6 +9,14 @@ export async function fetchContainers(config?: AxiosRequestConfig) {
   return response.data;
 }
 
+export async function fetchMyContainers(config?: AxiosRequestConfig) {
+  const response = await privateDalDriver.get(
+    "dashboard/my/runner/containers",
+    config,
+  );
+  return response.data;
+}
+
 export async function fetchContainer(
   uuid: string,
   config?: AxiosRequestConfig,
@@ -34,6 +42,14 @@ export async function fetchContainerLogs(
 export async function fetchStacks(config?: AxiosRequestConfig) {
   const response = await privateDalDriver.get(
     "dashboard/runner/stacks",
+    config,
+  );
+  return response.data;
+}
+
+export async function fetchMyStacks(config?: AxiosRequestConfig) {
+  const response = await privateDalDriver.get(
+    "dashboard/my/runner/stacks",
     config,
   );
   return response.data;

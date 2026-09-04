@@ -1,4 +1,4 @@
-import {encode} from "js-base64";
+import {decode, encode} from "js-base64";
 import {ReplyKind, WebSocketBus} from "./websocket-bus";
 
 /**
@@ -55,8 +55,10 @@ beforeEach(() => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (globalThis as any).WebSocket = FakeSocket;
 
+  let requests = 0;
+
   Object.defineProperty(globalThis, "crypto", {
-    value: {randomUUID: () => "req-1"},
+    value: {randomUUID: () => `req-${++requests}`},
     configurable: true,
   });
 });
@@ -185,15 +187,83 @@ describe("WebSocketBus streaming", () => {
     expect(onChunk).not.toHaveBeenCalled();
   });
 
-  it("tells every open stream when the connection goes away", async () => {
+  it("opens a stream again on a new connection when the old one goes away", async () => {
     const bus = newBus();
 
+    const onChunk = jest.fn();
+    const onReopen = jest.fn();
     const onError = jest.fn();
-    await bus.openStream("s", undefined, {onChunk: jest.fn(), onError});
+
+    const stream = await bus.openStream(
+      "runnerContainerAttach",
+      {container_uuid: "c-1"},
+      {onChunk, onReopen, onError},
+    );
 
     FakeSocket.instances[0].close();
 
-    expect(onError).toHaveBeenCalledTimes(1);
+    // the reconnection is a socket of its own, opened on the next tick.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(FakeSocket.instances).toHaveLength(2);
+    expect(onReopen).toHaveBeenCalledTimes(1);
+    expect(onError).not.toHaveBeenCalled();
+
+    const reopened = FakeSocket.instances[1];
+    expect(reopened.messages[0]).toMatchObject({
+      subject: "runnerContainerAttach",
+    });
+
+    // the stream answers to the id it was opened again under, and the handle
+    // names that one.
+    const id = (reopened.messages[0] as {id: string}).id;
+    expect(stream.id).toBe(id);
+
+    reopened.deliver({
+      request_id: id,
+      kind: ReplyKind.Chunk,
+      payload: encode("after the drop"),
+    });
+
+    expect(onChunk).toHaveBeenCalledWith(encode("after the drop"));
+  });
+
+  it("asks for what the caller wants now when it opens a stream again", async () => {
+    const bus = newBus();
+
+    let after = "09:00";
+
+    await bus.openStream("runnerContainerLogs", () => ({after}), {
+      onChunk: jest.fn(),
+    });
+
+    // the caller has caught up since; opening the stream again picks up from
+    // there rather than replaying what it already has.
+    after = "09:05";
+
+    FakeSocket.instances[0].close();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const message = FakeSocket.instances[1].messages[0] as {payload: string};
+    expect(JSON.parse(decode(message.payload))).toEqual({after: "09:05"});
+  });
+
+  it("a stream the caller closed is not opened again", async () => {
+    const bus = newBus();
+
+    const onReopen = jest.fn();
+    const stream = await bus.openStream("s", undefined, {
+      onChunk: jest.fn(),
+      onReopen,
+    });
+
+    stream.close();
+    FakeSocket.instances[0].close();
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(onReopen).not.toHaveBeenCalled();
+    expect(FakeSocket.instances).toHaveLength(1);
   });
 
   it("leaves a one-shot request to the pending map, not to the streams", async () => {
