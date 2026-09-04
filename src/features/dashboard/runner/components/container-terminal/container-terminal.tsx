@@ -9,6 +9,7 @@ import {ACCESS_TOKEN_COOKIE_NAME} from "@/constants";
 import {useTranslations} from "@/i18n/provider";
 import {useWsStream} from "@/hooks/use-ws-stream";
 import {ATTACH_SUBJECT, ATTACH_INPUT_SUBJECT} from "./subjects";
+import classes from "./container-terminal.module.css";
 import "@xterm/xterm/css/xterm.css";
 
 type Props = {
@@ -57,7 +58,11 @@ export function ContainerTerminal({containerUuid, running}: Props) {
         terminal.open(mount.current);
         fit.fit();
 
-        const stream = await openStream(
+        // the handlers below are handed to the stream that carries them, so
+        // the handle they reach for is filled in as soon as there is one.
+        let stream: Awaited<ReturnType<typeof openStream>> | undefined;
+
+        stream = await openStream(
           ATTACH_SUBJECT,
           {container_uuid: containerUuid, access_token: token},
           {
@@ -68,6 +73,26 @@ export function ContainerTerminal({containerUuid, running}: Props) {
               setEnded(true);
               terminal.write(
                 `\r\n\x1b[90m${t("containers.detail.terminalEnded")}\x1b[0m\r\n`,
+              );
+            },
+            // the connection dropped and the terminal was opened again: what
+            // is behind it now is a new shell, so say so rather than leaving
+            // somebody typing into what looks like the old one.
+            onReopen: () => {
+              setEnded(false);
+              terminal.write(
+                `\r\n\x1b[90m${t("containers.detail.terminalReconnected")}\x1b[0m\r\n`,
+              );
+              stream?.send(ATTACH_INPUT_SUBJECT, {
+                type: "resize",
+                rows: terminal.rows,
+                cols: terminal.cols,
+              });
+            },
+            onError: () => {
+              setEnded(true);
+              terminal.write(
+                `\r\n\x1b[90m${t("containers.detail.terminalLost")}\x1b[0m\r\n`,
               );
             },
           },
@@ -88,8 +113,19 @@ export function ContainerTerminal({containerUuid, running}: Props) {
 
         // the command draws to the size of the window it is shown in, so it is
         // told whenever that changes.
+        let drawnTo = {rows: 0, cols: 0};
+
         const resize = () => {
           fit.fit();
+
+          if (
+            terminal.rows === drawnTo.rows &&
+            terminal.cols === drawnTo.cols
+          ) {
+            return;
+          }
+
+          drawnTo = {rows: terminal.rows, cols: terminal.cols};
           stream.send(ATTACH_INPUT_SUBJECT, {
             type: "resize",
             rows: terminal.rows,
@@ -97,11 +133,14 @@ export function ContainerTerminal({containerUuid, running}: Props) {
           });
         };
 
-        resize();
-        window.addEventListener("resize", resize);
+        // the terminal is drawn in a tab, and a tab that is not showing has no
+        // size to fit to. Watching the box is what catches it being shown, as
+        // well as the window being resized.
+        const box = new ResizeObserver(() => resize());
+        box.observe(mount.current);
 
         cleanup = () => {
-          window.removeEventListener("resize", resize);
+          box.disconnect();
           typed.dispose();
           stream.close();
           terminal.dispose();
@@ -131,13 +170,8 @@ export function ContainerTerminal({containerUuid, running}: Props) {
       <Box
         ref={mount}
         aria-label={t("containers.detail.terminal")}
-        style={{
-          height: "60vh",
-          backgroundColor: "#000",
-          padding: "var(--mantine-spacing-xs)",
-          borderRadius: "var(--mantine-radius-sm)",
-          opacity: ended ? 0.7 : 1,
-        }}
+        className={classes.shell}
+        style={{opacity: ended ? 0.7 : 1}}
       />
     </Box>
   );

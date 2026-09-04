@@ -4,8 +4,6 @@ import {
   Group,
   Table,
   TableScrollContainer,
-  TableTbody,
-  TableTd,
   TableTh,
   TableThead,
   TableTr,
@@ -15,35 +13,42 @@ import {PermissionGuard} from "@/components/permission-guard";
 import {getServerDictionary} from "@/i18n/server";
 import {getUserPermissions, hasPermission} from "@/lib/auth";
 import {APP_PATHS} from "@/lib/app-paths";
-import {formatDate} from "@/lib/date-and-time";
-import {fetchStacks} from "@/dal/private/runner";
-import {StateBadge} from "../state-badge";
-import {StackActions} from "./stack-actions";
+import {fetchStacks, fetchMyStacks} from "@/dal/private/runner";
+import {StackRows, type Stack} from "./stack-rows";
 import {StacksPagination} from "./stacks-table-pagination";
 
 type Props = {
   page: number | string;
+
+  /** whose stacks to show: everybody's, or the person asking. */
+  scope?: "all" | "mine";
 };
 
-type Stack = {
-  uuid: string;
-  name: string;
-  slug: string;
-  state: string;
-  services: unknown[];
-  created_at: string;
-};
-
-export async function StacksTable({page}: Props) {
-  const {t, locale} = await getServerDictionary();
-  const response = await fetchStacks({params: {page}});
+export async function StacksTable({page, scope = "all"}: Props) {
+  const {t} = await getServerDictionary();
+  const response = await (scope === "mine" ? fetchMyStacks : fetchStacks)({
+    params: {page},
+  });
 
   const stacks: Stack[] = response.items ?? [];
   const {total_pages, current_page} = response.pagination;
 
+  // the row actions are rendered by a client component, so what the person may
+  // do is worked out here and handed to it. Every stack in one's own listing is
+  // one's own, so the permission over one's own decides there, and the one over
+  // everybody's decides in everybody's listing.
   const permissions = (await getUserPermissions()) ?? [];
-  const canManage = hasPermission(permissions, ["runner.stacks.manage"]);
-  const canDelete = hasPermission(permissions, ["runner.stacks.delete"]);
+  const own = scope === "mine";
+
+  const may = {
+    own,
+    manage: hasPermission(permissions, [
+      own ? "self.runner.stacks.manage" : "runner.stacks.manage",
+    ]),
+    delete: hasPermission(permissions, [
+      own ? "self.runner.stacks.delete" : "runner.stacks.delete",
+    ]),
+  };
 
   return (
     <>
@@ -66,42 +71,12 @@ export async function StacksTable({page}: Props) {
               <TableTh>{t("stacks.table.name")}</TableTh>
               <TableTh>{t("stacks.table.state")}</TableTh>
               <TableTh>{t("stacks.table.services")}</TableTh>
+              <TableTh>{t("stacks.table.owner")}</TableTh>
               <TableTh>{t("stacks.table.createdAt")}</TableTh>
               <TableTh>{t("common.actions")}</TableTh>
             </TableTr>
           </TableThead>
-          <TableTbody>
-            {stacks.length === 0 && (
-              <TableTr>
-                <TableTd colSpan={5} ta="center">
-                  {t("stacks.table.empty")}
-                </TableTd>
-              </TableTr>
-            )}
-            {stacks.map((stack) => (
-              <TableTr key={stack.uuid}>
-                <TableTd>
-                  <Link href={APP_PATHS.dashboard.stacks.detail(stack.uuid)}>
-                    {stack.name}
-                  </Link>
-                </TableTd>
-                <TableTd>
-                  <StateBadge state={stack.state} />
-                </TableTd>
-                <TableTd>{stack.services?.length ?? 0}</TableTd>
-                <TableTd>{formatDate(stack.created_at, locale)}</TableTd>
-                <TableTd>
-                  <StackActions
-                    uuid={stack.uuid}
-                    name={stack.name}
-                    state={stack.state}
-                    canManage={canManage}
-                    canDelete={canDelete}
-                  />
-                </TableTd>
-              </TableTr>
-            ))}
-          </TableTbody>
+          <StackRows stacks={stacks} may={may} />
         </Table>
       </TableScrollContainer>
       {stacks.length >= 1 && (

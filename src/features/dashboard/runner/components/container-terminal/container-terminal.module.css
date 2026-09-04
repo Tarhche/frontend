@@ -1,0 +1,19 @@
+/*
+ * The box a terminal is drawn in.
+ *
+ * It paints the black the terminal itself paints, and the terminal is stretched
+ * to fill it: a terminal is a whole number of rows, so there is almost always a
+ * sliver left under the last one, and that sliver has to belong to the terminal
+ * rather than show the box through from behind.
+ */
+.shell {
+  height: 60vh;
+  padding: var(--mantine-spacing-xs);
+  background-color: #000;
+  border-radius: var(--mantine-radius-sm);
+  overflow: hidden;
+}
+
+.shell :global(.xterm) {
+  height: 100%;
+}

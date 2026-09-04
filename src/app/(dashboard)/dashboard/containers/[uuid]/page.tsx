@@ -1,29 +1,25 @@
 import {type Metadata} from "next";
 import {notFound} from "next/navigation";
-import {
-  Box,
-  Code,
-  Group,
-  Paper,
-  Stack,
-  Tabs,
-  TabsList,
-  TabsPanel,
-  TabsTab,
-  Text,
-  Title,
-} from "@mantine/core";
-import {IconFileText, IconInfoCircle, IconTerminal2} from "@tabler/icons-react";
+import {Box, Code, Group, Paper, Stack, Text, Title} from "@mantine/core";
 import {withPermissions} from "@/components/with-authorization";
 import {PermissionGuard} from "@/components/permission-guard";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {getServerDictionary} from "@/i18n/server";
 import {APP_PATHS} from "@/lib/app-paths";
-import {fetchContainer, fetchContainerLogs} from "@/dal/private/runner";
+import {
+  fetchContainer,
+  fetchContainerLogs,
+  fetchMyContainer,
+  fetchMyContainerLogs,
+} from "@/dal/private/runner";
+import {PERMISSIONS} from "@/lib/app-permissions";
+import {getUserPermissions, hasPermission} from "@/lib/auth";
+import {OwnerInline} from "@/features/dashboard/runner/components/owner-inline";
 import {StateBadge} from "@/features/dashboard/runner/components/state-badge";
 import {ContainerEndpoints} from "@/features/dashboard/runner/components/containers-table/container-endpoints";
 import {ContainerLogs} from "@/features/dashboard/runner/components/container-logs";
 import {ContainerTerminal} from "@/features/dashboard/runner/components/container-terminal";
+import {ContainerTabs} from "@/features/dashboard/runner/components/container-tabs";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
@@ -40,7 +36,13 @@ async function ContainerPage({params}: Props) {
   const {t} = await getServerDictionary();
   const {uuid} = await params;
 
-  const container = await fetchContainer(uuid);
+  // Somebody trusted with everybody's containers asks for this one as
+  // anybody's; somebody trusted with only their own asks for it as theirs, and
+  // is told it does not exist when it is not.
+  const permissions = (await getUserPermissions()) ?? [];
+  const own = !hasPermission(permissions, [PERMISSIONS.runner.containers.SHOW]);
+
+  const container = await (own ? fetchMyContainer : fetchContainer)(uuid);
   if (!container) {
     notFound();
   }
@@ -48,7 +50,9 @@ async function ContainerPage({params}: Props) {
   // what the container has already written. The live stream picks up from the
   // last of these, so nothing is shown twice and nothing is missed between the
   // page rendering and the stream opening.
-  const logs = await fetchContainerLogs(uuid).catch(() => ({items: []}));
+  const logs = await (own ? fetchMyContainerLogs : fetchContainerLogs)(
+    uuid,
+  ).catch(() => ({items: []}));
 
   return (
     <Box>
@@ -67,27 +71,31 @@ async function ContainerPage({params}: Props) {
 
       <Group justify="space-between" py="md">
         <Title order={2}>{container.name}</Title>
-        <StateBadge state={container.state} />
+        <StateBadge
+          state={container.state}
+          expectedState={container.expected_state}
+          retries={container.retries}
+          maxRetries={container.max_retries}
+        />
       </Group>
 
-      <Tabs defaultValue="overview">
-        <TabsList>
-          <TabsTab value="overview" leftSection={<IconInfoCircle size={16} />}>
-            {t("containers.detail.overview")}
-          </TabsTab>
-          <TabsTab value="logs" leftSection={<IconFileText size={16} />}>
-            {t("containers.detail.logs")}
-          </TabsTab>
-          <TabsTab value="terminal" leftSection={<IconTerminal2 size={16} />}>
-            {t("containers.detail.terminal")}
-          </TabsTab>
-        </TabsList>
-
-        <TabsPanel value="overview" pt="md">
+      <ContainerTabs
+        hasTerminal={container.state === "running"}
+        overview={
           <Paper withBorder p="md">
             <Stack gap="sm">
               <Field label={t("containers.table.image")}>
                 <Code>{container.image}</Code>
+              </Field>
+              <Field label={t("containers.table.owner")}>
+                <OwnerInline owner={container.owner} size={28} />
+              </Field>
+              <Field label={t("containers.form.readOnly")}>
+                <Code>
+                  {container.read_only
+                    ? t("containers.table.readOnlyOn")
+                    : t("containers.table.readOnlyOff")}
+                </Code>
               </Field>
               <Field label={t("containers.table.endpoints")}>
                 <ContainerEndpoints
@@ -107,23 +115,21 @@ async function ContainerPage({params}: Props) {
               )}
             </Stack>
           </Paper>
-        </TabsPanel>
-
-        <TabsPanel value="logs" pt="md">
+        }
+        logs={
           <PermissionGuard allowedPermissions={["runner.containers.logs"]}>
             <ContainerLogs containerUuid={uuid} history={logs.items ?? []} />
           </PermissionGuard>
-        </TabsPanel>
-
-        <TabsPanel value="terminal" pt="md">
+        }
+        terminal={
           <PermissionGuard allowedPermissions={["runner.containers.attach"]}>
             <ContainerTerminal
               containerUuid={uuid}
               running={container.state === "running"}
             />
           </PermissionGuard>
-        </TabsPanel>
-      </Tabs>
+        }
+      />
     </Box>
   );
 }
@@ -140,5 +146,8 @@ function Field({label, children}: {label: string; children: React.ReactNode}) {
 }
 
 export default withPermissions(ContainerPage, {
-  requiredPermissions: ["runner.containers.show"],
+  requiredPermissions: [
+    "runner.containers.show",
+    "self.runner.containers.show",
+  ],
 });

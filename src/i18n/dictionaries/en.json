@@ -23,7 +23,8 @@
     "noContent": {
       "title": "Nothing published yet",
       "text": "No articles have been published yet. Please check back later."
-    }
+    },
+    "guestUser": "Guest user"
   },
   "errors": {
     "title": "Something went wrong",
@@ -539,7 +540,12 @@
       "restart": "Restart",
       "delete": "Delete",
       "deleteConfirm": "Delete \"{name}\"? Its ports, its logs and the container itself all go.",
-      "killConfirm": "Kill \"{name}\"? It is stopped at once, with no chance to shut down cleanly."
+      "killConfirm": "Kill \"{name}\"? It is stopped at once, with no chance to shut down cleanly.",
+      "readOnlyOn": "Read-only",
+      "readOnlyOff": "Writable",
+      "owner": "Owner",
+      "retrying": "retrying",
+      "retryingCount": "retrying {current} of {total}"
     },
     "form": {
       "name": "Name",
@@ -560,7 +566,9 @@
       "cpus": "CPUs",
       "memory": "Memory",
       "run": "Run",
-      "immutable": "A container cannot be changed once it is running. To change it, run a new one and delete this."
+      "immutable": "A container cannot be changed once it is running. To change it, run a new one and delete this.",
+      "readOnly": "Read-only filesystem",
+      "readOnlyHelp": "The container cannot write to its own filesystem. Compose's read_only."
     },
     "detail": {
       "logs": "Logs",
@@ -570,11 +578,27 @@
       "noLogs": "Nothing written yet",
       "terminalHint": "A shell inside the container. Closing this tab ends it.",
       "terminalEnded": "The session ended.",
-      "notRunning": "The container is not running."
+      "notRunning": "The container is not running.",
+      "terminalReconnected": "The connection dropped. This is a new session.",
+      "terminalLost": "The connection was lost. Reload the page to start a new session.",
+      "leaveTerminalConfirm": "Leaving this tab ends the terminal session, and the command running in it stops. Leave anyway?",
+      "leaveTerminal": "Leave and end it",
+      "stayInTerminal": "Stay here"
     },
     "breadcrumb": {
       "create": "Run a container",
       "detail": "Container"
+    },
+    "tabs": {
+      "allContainers": "All containers",
+      "myContainers": "My containers"
+    },
+    "transitions": {
+      "starting": "running...",
+      "stopping": "stopping...",
+      "killing": "killing...",
+      "restarting": "restarting...",
+      "deleting": "deleting..."
     }
   },
   "stacks": {
@@ -586,13 +610,17 @@
       "state": "State",
       "services": "Services",
       "createdAt": "Created at",
-      "deleteConfirm": "Delete \"{name}\"? Its services, their logs and the network they shared all go."
+      "deleteConfirm": "Delete \"{name}\"? Its services, their logs and the network they shared all go.",
+      "owner": "Owner"
     },
     "form": {
       "name": "Name",
       "services": "Services",
       "servicesHelp": "The services block of a docker compose file. They share a private network and reach each other by service name.",
       "invalidJson": "This is not valid JSON",
+      "emptyJson": "JSON is empty",
+      "prettifyError": "Enter valid JSON before formatting",
+      "prettify": "Format JSON",
       "run": "Run"
     },
     "detail": {
@@ -602,6 +630,10 @@
     "breadcrumb": {
       "create": "Run a stack",
       "detail": "Stack"
+    },
+    "tabs": {
+      "allStacks": "All stacks",
+      "myStacks": "My stacks"
     }
   }
 }

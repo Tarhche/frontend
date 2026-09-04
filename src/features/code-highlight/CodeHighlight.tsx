@@ -182,8 +182,16 @@ function CodeHighlight({code, language, executable}: Props) {
     try {
       const response = await publish<
         {runner: string; code: string},
-        {logs: string | undefined} | undefined
+        {logs?: string; error?: string} | undefined
       >("runCode", {runner: executable.value, code: editableCode});
+
+      // code that never ran has no output to show, only the reason it did not.
+      if (response?.error) {
+        setOutput(response.error);
+
+        return;
+      }
+
       const logs = response?.logs ? decode(response.logs) : "";
 
       setOutput(logs.trim().length > 0 ? logs : t("editor.noOutput"));
