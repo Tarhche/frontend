@@ -449,21 +449,6 @@
   font-size: 12px;
 }
 
-/* Where a run is drawn: the same surface a reader is shown, so the panel grows
-   to make room for it. */
-.ck.ck-code-block-settings:has(.ck-code-block-settings__surface > *) {
-  max-width: 640px;
-}
-
-.ck.ck-code-block-settings .ck-code-block-settings__surface:empty {
-  display: none;
-}
-
-.ck.ck-code-block-settings .ck-code-block-settings__surface {
-  border-top: 1px solid var(--ck-color-base-border);
-  padding-top: 8px;
-}
-
 /* The two names above the box, and how the run is going, in one row. */
 .ck.ck-code-block-settings .ck-code-block-settings__panel-tab {
   padding: 2px 6px;
@@ -539,4 +524,9 @@
   .ck-code-block-settings__output_error
   .ck-code-block-settings__output-text {
   color: var(--mantine-color-red-7, #c92a2a);
+}
+
+/* What running a snippet shows, under the editor it was written in. */
+.editor-run-surface {
+  margin-top: 12px;
 }

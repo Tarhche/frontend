@@ -14,11 +14,13 @@ import {
   type ListDropdownItemDefinition,
   type ModelElement,
   type UpcastElementEvent,
+  type ViewElement,
   type ModelWriter,
 } from "ckeditor5";
 import {RUNTIMES} from "@/constants";
 import {
   CodeBlockEditableCommand,
+  CodeBlockLogsCommand,
   CodeBlockPortsCommand,
   CodeBlockRuntimeCommand,
   CodeBlockTerminalCommand,
@@ -29,6 +31,8 @@ import {
 } from "./code-block-settings-view";
 import {
   EDITABLE_COMMAND,
+  LOGS_COMMAND,
+  LOGS_DATA_ATTRIBUTE,
   PORTS_COMMAND,
   PORTS_DATA_ATTRIBUTE,
   LOGS_MODEL_ATTRIBUTE,
@@ -49,14 +53,13 @@ import {
 } from "./utils";
 
 /**
- * Runs a snippet and draws what it does into the given element.
+ * Runs a snippet the panel is attached to.
  *
- * The editor hands over a box inside its panel; whoever owns the editor draws
- * the same thing there that a reader is shown, so an author sees what they are
- * setting up.
+ * The panel says what a snippet is; whoever owns the editor draws what running
+ * it does, in the surface a reader is shown, so an author sees what they are
+ * setting up rather than an approximation of it.
  */
-export type RunCodeCallback = (surface: {
-  element: HTMLElement;
+export type RunCodeCallback = (snippet: {
   runtime: string;
   code: string;
   ports: Array<number>;
@@ -132,6 +135,7 @@ export class RunnableCodeBlockPlugin extends Plugin {
     editor.commands.add(EDITABLE_COMMAND, new CodeBlockEditableCommand(editor));
     editor.commands.add(PORTS_COMMAND, new CodeBlockPortsCommand(editor));
     editor.commands.add(TERMINAL_COMMAND, new CodeBlockTerminalCommand(editor));
+    editor.commands.add(LOGS_COMMAND, new CodeBlockLogsCommand(editor));
 
     this._createToolbarDropdown();
     this._enableBalloonInteractions();
@@ -193,6 +197,7 @@ export class RunnableCodeBlockPlugin extends Plugin {
         EDITABLE_MODEL_ATTRIBUTE,
         PORTS_MODEL_ATTRIBUTE,
         TERMINAL_MODEL_ATTRIBUTE,
+        LOGS_MODEL_ATTRIBUTE,
       ],
     });
   }
@@ -224,6 +229,12 @@ export class RunnableCodeBlockPlugin extends Plugin {
         value ? {key: TERMINAL_DATA_ATTRIBUTE, value: "true"} : null,
     });
 
+    editor.conversion.for("downcast").attributeToAttribute({
+      model: {name: "codeBlock", key: LOGS_MODEL_ATTRIBUTE},
+      view: (value) =>
+        value ? {key: LOGS_DATA_ATTRIBUTE, value: "true"} : null,
+    });
+
     editor.editing.downcastDispatcher.on<DowncastAttributeEvent>(
       `attribute:${RUNTIME_MODEL_ATTRIBUTE}:codeBlock`,
       (evt, data, conversionApi) => {
@@ -252,14 +263,20 @@ export class RunnableCodeBlockPlugin extends Plugin {
       {priority: "low"},
     );
 
+    // What an article was saved with has to come back: the runtime and what it
+    // offers are read off the element, whichever of the two carries them.
+    // `pre` is the element the code block itself is converted from, so that is
+    // where the model is there to be written to.
     editor.conversion.for("upcast").add((dispatcher) => {
       dispatcher.on<UpcastElementEvent>(
-        "element:code",
+        "element:pre",
         (evt, data, conversionApi) => {
-          const viewCode = data.viewItem;
-          const viewPre = viewCode.parent;
+          const viewPre = data.viewItem;
+          const viewCode = Array.from(viewPre.getChildren()).find(
+            (child): child is ViewElement => child.is("element", "code"),
+          );
 
-          if (!viewPre || !viewPre.is("element", "pre") || !data.modelRange) {
+          if (!viewCode || !data.modelRange) {
             return;
           }
 
@@ -277,7 +294,6 @@ export class RunnableCodeBlockPlugin extends Plugin {
 
           const runtime = readAttribute(RUNTIME_DATA_ATTRIBUTE);
           const {writer} = conversionApi;
-
           if (runtime) {
             writer.setAttribute(RUNTIME_MODEL_ATTRIBUTE, runtime, codeBlock);
 
@@ -296,6 +312,10 @@ export class RunnableCodeBlockPlugin extends Plugin {
 
             if (readAttribute(TERMINAL_DATA_ATTRIBUTE) === "true") {
               writer.setAttribute(TERMINAL_MODEL_ATTRIBUTE, true, codeBlock);
+            }
+
+            if (readAttribute(LOGS_DATA_ATTRIBUTE) === "true") {
+              writer.setAttribute(LOGS_MODEL_ATTRIBUTE, true, codeBlock);
             }
           }
 
@@ -403,6 +423,7 @@ export class RunnableCodeBlockPlugin extends Plugin {
     const editableCommand = editor.commands.get(EDITABLE_COMMAND)!;
     const portsCommand = editor.commands.get(PORTS_COMMAND)!;
     const terminalCommand = editor.commands.get(TERMINAL_COMMAND)!;
+    const logsCommand = editor.commands.get(LOGS_COMMAND)!;
 
     const view = new CodeBlockSettingsView(editor.locale, {
       languages: getLanguageDefinitions(editor),
@@ -426,11 +447,13 @@ export class RunnableCodeBlockPlugin extends Plugin {
         typeof value === "string" ? value : null,
       );
     view.bind("hasTerminal").to(terminalCommand, "value", Boolean);
+    view.bind("hasLogs").to(logsCommand, "value", Boolean);
 
     view.languageInput.bind("isEnabled").to(codeBlockCommand, "isEnabled");
     view.runtimeInput.bind("isEnabled").to(runtimeCommand, "isEnabled");
     view.editableSwitch.bind("isEnabled").to(editableCommand, "isEnabled");
     view.terminalSwitch.bind("isEnabled").to(terminalCommand, "isEnabled");
+    view.logsSwitch.bind("isEnabled").to(logsCommand, "isEnabled");
     view.portsInput.bind("isEnabled").to(portsCommand, "isEnabled");
 
     this.listenTo(view, "languageChange", (evt, language: string) => {
@@ -455,6 +478,11 @@ export class RunnableCodeBlockPlugin extends Plugin {
 
     // the field keeps what the author is typing; the block keeps the ports
     // themselves, which is what it is told here.
+    this.listenTo(view, "logsChange", (evt, hasLogs: boolean) => {
+      editor.execute(LOGS_COMMAND, {value: hasLogs});
+      editor.editing.view.focus();
+    });
+
     this.listenTo(view, "portsChange", (evt, ports: string) => {
       editor.execute(PORTS_COMMAND, {value: ports});
     });
@@ -593,16 +621,12 @@ export class RunnableCodeBlockPlugin extends Plugin {
     }
 
     const runtime = asRuntime(block.getAttribute(RUNTIME_MODEL_ATTRIBUTE));
-    const surface = view.element?.querySelector<HTMLElement>(
-      ".ck-code-block-settings__surface",
-    );
 
-    if (!runtime || !surface) {
+    if (!runtime) {
       return;
     }
 
     onRun({
-      element: surface,
       runtime,
       code: getCodeBlockText(block),
       ports: parsePorts(
@@ -637,17 +661,21 @@ function removePreservedAttributes(
   }
 
   const attributes = {...(preserved.attributes as Record<string, unknown>)};
-  const hadRuntimeAttributes = [
+  const runtimeAttributes = [
     RUNTIME_DATA_ATTRIBUTE,
     EDITABLE_DATA_ATTRIBUTE,
-  ].some((key) => key in attributes);
+    PORTS_DATA_ATTRIBUTE,
+    TERMINAL_DATA_ATTRIBUTE,
+    LOGS_DATA_ATTRIBUTE,
+  ];
 
-  if (!hadRuntimeAttributes) {
+  if (!runtimeAttributes.some((key) => key in attributes)) {
     return;
   }
 
-  delete attributes[RUNTIME_DATA_ATTRIBUTE];
-  delete attributes[EDITABLE_DATA_ATTRIBUTE];
+  for (const key of runtimeAttributes) {
+    delete attributes[key];
+  }
 
   const rest: Record<string, unknown> = {...preserved, attributes};
 

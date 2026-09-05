@@ -1,7 +1,6 @@
 "use client";
 
 import {useState, useMemo, type RefObject} from "react";
-import {createPortal} from "react-dom";
 import {ClassicEditor, EditorConfig} from "ckeditor5";
 import {CKEditor} from "@ckeditor/ckeditor5-react";
 import {Modal} from "@mantine/core";
@@ -27,7 +26,6 @@ type Props = {
 
 /** What the code block panel hands over when an author runs a snippet. */
 type CodeSurface = {
-  element: HTMLElement;
   runtime: string;
   code: string;
   ports: Array<number>;
@@ -56,10 +54,10 @@ export function ArticleEditor({initialData, editorRef, languageCode}: Props) {
       },
       runnableCodeBlock: {
         // Running a snippet in the editor shows exactly what a reader is
-        // shown: the panel hands over a box, and the surface below is drawn
-        // into it.
-        onRun: (surface: CodeSurface) =>
-          setSurface({...surface, token: Date.now()}),
+        // shown: the panel says what the snippet is, and the surface under the
+        // editor draws what running it does.
+        onRun: (snippet: CodeSurface) =>
+          setSurface({...snippet, token: Date.now()}),
         translate: t,
         // The panel is translated by the app, so it follows the app direction.
         direction,
@@ -70,22 +68,6 @@ export function ArticleEditor({initialData, editorRef, languageCode}: Props) {
 
   return (
     <div className="main-container">
-      {surface &&
-        createPortal(
-          <CodeRunSurface
-            key={surface.token}
-            runtime={surface.runtime}
-            code={surface.code}
-            ports={surface.ports}
-            terminal={surface.terminal}
-            logs={surface.logs}
-            runToken={surface.token}
-            open={openPanel}
-            onOpen={setOpenPanel}
-            onRunningChange={surface.onRunningChange}
-          />,
-          surface.element,
-        )}
       <div className="editor-container editor-container_classic-editor editor-container_include-style editor-container_include-block-toolbar editor-container_include-word-count">
         <div className="editor-container__editor">
           {config && (
@@ -98,6 +80,25 @@ export function ArticleEditor({initialData, editorRef, languageCode}: Props) {
           )}
         </div>
       </div>
+
+      {/* what running a snippet does, drawn the way a reader is shown it. */}
+      {surface && (
+        <div className="editor-run-surface">
+          <CodeRunSurface
+            key={surface.token}
+            runtime={surface.runtime}
+            code={surface.code}
+            ports={surface.ports}
+            terminal={surface.terminal}
+            logs={surface.logs}
+            runToken={surface.token}
+            open={openPanel}
+            onOpen={setOpenPanel}
+            onRunningChange={surface.onRunningChange}
+          />
+        </div>
+      )}
+
       <Modal
         size="xl"
         opened={isFileExplorerOpen}

@@ -51,8 +51,8 @@ type Options = {
  * and running it in place. State is observable; intent is announced through the
  * `languageChange`, `runtimeChange`, `editableChange`, `portsChange`,
  * `terminalChange`, `logsChange` and `run` events, which the plugin wires to
- * commands. What a run has to show is drawn into the box at the bottom by
- * whoever owns the panel, so an author sees what a reader will.
+ * commands. What running one has to show is drawn under the editor by whoever
+ * owns the panel, in the surface a reader is shown.
  */
 export class CodeBlockSettingsView extends View {
   public readonly focusTracker = new FocusTracker();
@@ -150,17 +150,6 @@ export class CodeBlockSettingsView extends View {
             this.logsSwitch,
             this.runButton,
           ],
-        },
-        {
-          tag: "div",
-          attributes: {
-            class: [
-              "ck",
-              "ck-code-block-settings__surface",
-              bind.if("isRunning", "ck-code-block-settings__surface_running"),
-            ],
-          },
-          children: [],
         },
       ],
     });
@@ -331,8 +320,6 @@ export class CodeBlockSettingsView extends View {
     view.class = "ck-code-block-settings__ports";
     view.fieldView.placeholder = labels.portsPlaceholder;
 
-    view.bind("isEnabled").to(this, "canRun");
-
     // what is typed is announced as it is typed; the field itself is filled in
     // when the panel opens, so a list is not rewritten under the author's
     // cursor as they write it.
@@ -386,11 +373,6 @@ export class CodeBlockSettingsView extends View {
 
     return view;
   }
-
-  /**
-   * One of the two names above the box: what the snippet printed, and what its
-   * container wrote. The second is only there when the author offered it.
-   */
 
   private _createRunButton(labels: CodeBlockSettingsLabels): ButtonView {
     const view = new ButtonView(this.locale);
