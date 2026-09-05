@@ -107,6 +107,10 @@
       "newTranslationCrumb": "New translation",
       "editMetaTitle": "Article details",
       "editCrumb": "Edit article"
+    },
+    "tabs": {
+      "allArticles": "All articles",
+      "myArticles": "My articles"
     }
   },
   "comments": {
@@ -151,8 +155,11 @@
     },
     "dashboard": {
       "allTitle": "User comments",
-      "myTitle": "My comments",
       "editTitle": "Edit comment"
+    },
+    "tabs": {
+      "allComments": "All comments",
+      "myComments": "My comments"
     }
   },
   "contactUs": {

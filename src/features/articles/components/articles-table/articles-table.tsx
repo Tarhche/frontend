@@ -25,7 +25,7 @@ import {
   IconCircleCheckFilled,
   type TablerIcon,
 } from "@tabler/icons-react";
-import {fetchAllArticles} from "@/dal/private/articles";
+import {fetchAllArticles, fetchMyArticles} from "@/dal/private/articles";
 import {LANGUAGE_CODE_HEADER} from "@/constants";
 import {formatDate, isGregorianStartDateTime} from "@/lib/date-and-time";
 import {APP_PATHS} from "@/lib/app-paths";
@@ -36,6 +36,9 @@ import {getServerDictionary} from "@/i18n/server";
 type Props = {
   page: number | string;
   languageCode: string;
+
+  /** whose articles to show: everybody's, or the person asking. */
+  scope?: "all" | "mine";
 };
 
 type TableAction = {
@@ -56,7 +59,22 @@ type CorrelatedItem = {
   language: {code: string; name: string};
 };
 
-export async function ArticlesTable({page, languageCode}: Props) {
+export async function ArticlesTable({
+  page,
+  languageCode,
+  scope = "all",
+}: Props) {
+  // every article in one's own listing is one's own, so what may be done to a
+  // row is the permission over one's own; in everybody's listing it is the
+  // permission over everybody's.
+  const own = scope === "mine";
+
+  const mayUpdate: Permissions[] = own
+    ? ["self.articles.update"]
+    : ["articles.update"];
+  const mayDelete: Permissions[] = own
+    ? ["self.articles.delete"]
+    : ["articles.delete"];
   const {t, locale} = await getServerDictionary();
 
   const tableActions: TableAction[] = [
@@ -80,7 +98,9 @@ export async function ArticlesTable({page, languageCode}: Props) {
     },
   ];
 
-  const articlesResponse = await fetchAllArticles({
+  const articlesResponse = await (
+    scope === "mine" ? fetchMyArticles : fetchAllArticles
+  )({
     params: {
       page: page,
     },
@@ -176,7 +196,11 @@ export async function ArticlesTable({page, languageCode}: Props) {
                             <Text size="sm" lineClamp={1}>
                               {item.title}
                             </Text>
-                            <AuthorInline author={item.author} />
+                            {/* in somebody's own listing every article is
+                                theirs, so saying who wrote it says nothing. */}
+                            {scope !== "mine" && (
+                              <AuthorInline author={item.author} />
+                            )}
                             {isPublished ? (
                               <Text size="sm" c="dimmed">
                                 {formatDate(item.published_at, locale)}
@@ -199,7 +223,11 @@ export async function ArticlesTable({page, languageCode}: Props) {
                               }) => (
                                 <PermissionGuard
                                   key={tooltipLabel}
-                                  allowedPermissions={allowedPermissions}
+                                  allowedPermissions={
+                                    allowedPermissions.length === 0
+                                      ? allowedPermissions
+                                      : mayUpdate
+                                  }
                                 >
                                   <Tooltip label={tooltipLabel} withArrow>
                                     <ActionIcon
@@ -223,13 +251,12 @@ export async function ArticlesTable({page, languageCode}: Props) {
                                 </PermissionGuard>
                               ),
                             )}
-                            <PermissionGuard
-                              allowedPermissions={["articles.delete"]}
-                            >
+                            <PermissionGuard allowedPermissions={mayDelete}>
                               <ArticleDeleteButton
                                 correlationUuid={correlationUuid}
                                 languageCode={itemLanguageCode}
                                 articleTitle={item.title}
+                                own={own}
                               />
                             </PermissionGuard>
                           </ActionIconGroup>
