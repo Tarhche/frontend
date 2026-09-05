@@ -348,7 +348,19 @@
     "noOutput": "<no output>",
     "runFailed": "Running the code failed.",
     "insertCodeBlock": "Insert code block",
-    "codeBlockSettings": "Code block settings"
+    "codeBlockSettings": "Code block settings",
+    "ports": "Exposed ports",
+    "portsPlaceholder": "8080, 3000",
+    "terminal": "Terminal",
+    "logs": "Logs",
+    "terminalNotRunning": "The snippet is not running, so there is nothing to open.",
+    "tabs": {
+      "output": "Output",
+      "logs": "Logs",
+      "terminal": "Terminal"
+    },
+    "addresses": "Addresses",
+    "reload": "Reload"
   },
   "dashboard": {
     "brand": "Tarhche",

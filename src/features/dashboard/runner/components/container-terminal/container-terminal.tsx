@@ -15,6 +15,15 @@ import "@xterm/xterm/css/xterm.css";
 type Props = {
   containerUuid: string;
   running: boolean;
+
+  /**
+   * Which terminal this is. The dashboard's is opened on somebody's own
+   * container and carries who they are; the one a snippet offers is opened on
+   * the container that snippet is running in, and carries nothing — knowing
+   * that container is what stands for permission there.
+   */
+  subjects?: {attach: string; input: string};
+  authenticated?: boolean;
 };
 
 /**
@@ -24,7 +33,12 @@ type Props = {
  * what is typed goes back on a second subject naming that same stream, so the
  * whole session travels over the one websocket the page already has.
  */
-export function ContainerTerminal({containerUuid, running}: Props) {
+export function ContainerTerminal({
+  containerUuid,
+  running,
+  subjects = {attach: ATTACH_SUBJECT, input: ATTACH_INPUT_SUBJECT},
+  authenticated = true,
+}: Props) {
   const t = useTranslations();
   const openStream = useWsStream();
 
@@ -34,8 +48,11 @@ export function ContainerTerminal({containerUuid, running}: Props) {
   useEffect(() => {
     if (!running || mount.current === null) return;
 
-    const token = JsCookie.get(ACCESS_TOKEN_COOKIE_NAME);
-    if (!token) return;
+    const token = authenticated
+      ? JsCookie.get(ACCESS_TOKEN_COOKIE_NAME)
+      : undefined;
+
+    if (authenticated && !token) return;
 
     let disposed = false;
     let cleanup: (() => void) | undefined;
@@ -63,8 +80,10 @@ export function ContainerTerminal({containerUuid, running}: Props) {
         let stream: Awaited<ReturnType<typeof openStream>> | undefined;
 
         stream = await openStream(
-          ATTACH_SUBJECT,
-          {container_uuid: containerUuid, access_token: token},
+          subjects.attach,
+          token
+            ? {container_uuid: containerUuid, access_token: token}
+            : {container_uuid: containerUuid},
           {
             onChunk: (payload) => {
               if (payload) terminal.write(toUint8Array(payload));
@@ -83,7 +102,7 @@ export function ContainerTerminal({containerUuid, running}: Props) {
               terminal.write(
                 `\r\n\x1b[90m${t("containers.detail.terminalReconnected")}\x1b[0m\r\n`,
               );
-              stream?.send(ATTACH_INPUT_SUBJECT, {
+              stream?.send(subjects.input, {
                 type: "resize",
                 rows: terminal.rows,
                 cols: terminal.cols,
@@ -106,7 +125,7 @@ export function ContainerTerminal({containerUuid, running}: Props) {
 
         const encoder = new TextEncoder();
         const typed = terminal.onData((data) => {
-          stream.send(ATTACH_INPUT_SUBJECT, {
+          stream.send(subjects.input, {
             data: fromUint8Array(encoder.encode(data)),
           });
         });
@@ -126,7 +145,7 @@ export function ContainerTerminal({containerUuid, running}: Props) {
           }
 
           drawnTo = {rows: terminal.rows, cols: terminal.cols};
-          stream.send(ATTACH_INPUT_SUBJECT, {
+          stream.send(subjects.input, {
             type: "resize",
             rows: terminal.rows,
             cols: terminal.cols,
@@ -152,7 +171,7 @@ export function ContainerTerminal({containerUuid, running}: Props) {
       disposed = true;
       cleanup?.();
     };
-  }, [containerUuid, running, openStream, t]);
+  }, [containerUuid, running, openStream, subjects, authenticated, t]);
 
   if (!running) {
     return (

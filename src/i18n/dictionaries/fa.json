@@ -348,7 +348,19 @@
     "noOutput": "<بدون خروجی>",
     "runFailed": "اجرای کد ناموفق بود.",
     "insertCodeBlock": "درج بلوک کد",
-    "codeBlockSettings": "تنظیمات بلوک کد"
+    "codeBlockSettings": "تنظیمات بلوک کد",
+    "ports": "پورت‌های منتشرشده",
+    "portsPlaceholder": "۸۰۸۰، ۳۰۰۰",
+    "terminal": "ترمینال",
+    "logs": "لاگ‌ها",
+    "terminalNotRunning": "این قطعه کد در حال اجرا نیست، پس چیزی برای باز کردن وجود ندارد.",
+    "tabs": {
+      "output": "خروجی",
+      "logs": "لاگ‌ها",
+      "terminal": "ترمینال"
+    },
+    "addresses": "نشانی‌ها",
+    "reload": "بارگذاری دوباره"
   },
   "dashboard": {
     "brand": "طرح‌چه",
