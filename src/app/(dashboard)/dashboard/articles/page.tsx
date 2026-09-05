@@ -12,6 +12,9 @@ import {APP_PATHS} from "@/lib/app-paths";
 import {ACCESS_TOKEN_COOKIE_NAME, LANGUAGE_COOKIE_NAME} from "@/constants";
 import {resolvePreferredLanguageCode} from "@/lib/language/resolve";
 import {getServerDictionary} from "@/i18n/server";
+import {PERMISSIONS} from "@/lib/app-permissions";
+import {getUserPermissions, hasPermission} from "@/lib/auth";
+import {ScopeSwitch} from "@/components/scope-switch";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
@@ -29,6 +32,12 @@ type Props = {
 async function ArticlesPage({searchParams}: Props) {
   const {page} = await searchParams;
   const {t} = await getServerDictionary();
+
+  const permissions = (await getUserPermissions()) ?? [];
+  const canSeeAll = hasPermission(permissions, [PERMISSIONS.articles.INDEX]);
+  const canSeeMine = hasPermission(permissions, [
+    PERMISSIONS.self.articles.INDEX,
+  ]);
 
   const cookieStore = await cookies();
   const languageCode =
@@ -48,17 +57,39 @@ async function ArticlesPage({searchParams}: Props) {
         ]}
       />
       <Box py="md">
-        <Suspense
-          key={`${page}-${languageCode}`}
-          fallback={<ArticlesTableSkeleton />}
-        >
-          <ArticlesTable page={page ?? 1} languageCode={languageCode} />
-        </Suspense>
+        <ScopeSwitch
+          canSeeAll={canSeeAll}
+          canSeeMine={canSeeMine}
+          labels={{
+            all: t("articles.tabs.allArticles"),
+            mine: t("articles.tabs.myArticles"),
+          }}
+          all={
+            <Suspense
+              key={`all-${page}-${languageCode}`}
+              fallback={<ArticlesTableSkeleton />}
+            >
+              <ArticlesTable page={page ?? 1} languageCode={languageCode} />
+            </Suspense>
+          }
+          mine={
+            <Suspense
+              key={`mine-${page}-${languageCode}`}
+              fallback={<ArticlesTableSkeleton />}
+            >
+              <ArticlesTable
+                page={page ?? 1}
+                languageCode={languageCode}
+                scope="mine"
+              />
+            </Suspense>
+          }
+        />
       </Box>
     </Box>
   );
 }
 
 export default withPermissions(ArticlesPage, {
-  requiredPermissions: ["articles.index"],
+  requiredPermissions: ["articles.index", "self.articles.index"],
 });

@@ -31,7 +31,9 @@ export async function deleteSelfCommentAction(
   }
   try {
     await deleteSelfComment(commentId);
-    revalidatePath(APP_PATHS.dashboard.my.comments);
+    // the listing is one page with two tabs now, so refreshing it is
+    // refreshing both.
+    revalidatePath(APP_PATHS.dashboard.comments.index);
     return true;
   } catch {
     return false;

@@ -108,6 +108,10 @@
       "newTranslationCrumb": "ترجمه جدید",
       "editMetaTitle": "جزییات مقاله",
       "editCrumb": "ویرایش مقاله"
+    },
+    "tabs": {
+      "allArticles": "همه مقاله‌ها",
+      "myArticles": "مقاله‌های من"
     }
   },
   "comments": {
@@ -152,8 +156,11 @@
     },
     "dashboard": {
       "allTitle": "کامنت کاربران",
-      "myTitle": "کامنت های من",
       "editTitle": "ویرایش کامنت"
+    },
+    "tabs": {
+      "allComments": "همه دیدگاه‌ها",
+      "myComments": "دیدگاه‌های من"
     }
   },
   "contactUs": {

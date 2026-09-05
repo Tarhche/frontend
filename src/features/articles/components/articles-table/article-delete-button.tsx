@@ -11,22 +11,33 @@ import {
   Text,
 } from "@mantine/core";
 import {IconTrash} from "@tabler/icons-react";
-import {deleteArticle} from "../../actions/delete-article";
+import {
+  deleteArticle,
+  deleteMyArticleAction,
+} from "../../actions/delete-article";
 import {useTranslations} from "@/i18n/provider";
 
 type Props = {
   correlationUuid: string;
   languageCode: string;
   articleTitle?: string;
+
+  // whether this is asked for as one's own, which is a different thing to ask
+  // for: an article somebody else wrote is not there to be deleted that way.
+  own?: boolean;
 };
 
 export function ArticleDeleteButton({
   correlationUuid,
   languageCode,
   articleTitle,
+  own = false,
 }: Props) {
   const t = useTranslations();
-  const [, formAction, isPending] = useActionState(deleteArticle, false);
+  const [, formAction, isPending] = useActionState(
+    own ? deleteMyArticleAction : deleteArticle,
+    false,
+  );
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   return (

@@ -88,6 +88,12 @@ export const PERMISSIONS = {
       DELETE: "self.bookmarks.delete",
       INDEX: "self.bookmarks.index",
     },
+    articles: {
+      INDEX: "self.articles.index",
+      SHOW: "self.articles.show",
+      UPDATE: "self.articles.update",
+      DELETE: "self.articles.delete",
+    },
     comments: {
       DELETE: "self.comments.delete",
       INDEX: "self.comments.index",
