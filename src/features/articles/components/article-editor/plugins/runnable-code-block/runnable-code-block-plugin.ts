@@ -17,13 +17,26 @@ import {
   type ModelWriter,
 } from "ckeditor5";
 import {RUNTIMES} from "@/constants";
-import {CodeBlockEditableCommand, CodeBlockRuntimeCommand} from "./commands";
+import {
+  CodeBlockEditableCommand,
+  CodeBlockPortsCommand,
+  CodeBlockRuntimeCommand,
+  CodeBlockTerminalCommand,
+} from "./commands";
 import {
   CodeBlockSettingsView,
   type CodeBlockRuntimeOption,
 } from "./code-block-settings-view";
 import {
   EDITABLE_COMMAND,
+  PORTS_COMMAND,
+  PORTS_DATA_ATTRIBUTE,
+  LOGS_MODEL_ATTRIBUTE,
+  PORTS_MODEL_ATTRIBUTE,
+  TERMINAL_COMMAND,
+  TERMINAL_DATA_ATTRIBUTE,
+  TERMINAL_MODEL_ATTRIBUTE,
+  parsePorts,
   EDITABLE_DATA_ATTRIBUTE,
   EDITABLE_MODEL_ATTRIBUTE,
   RUNTIME_BADGE_ATTRIBUTE,
@@ -35,11 +48,22 @@ import {
   getCodeBlockText,
 } from "./utils";
 
-/** Executes a snippet and resolves with whatever the runtime printed. */
-export type RunCodeCallback = (params: {
+/**
+ * Runs a snippet and draws what it does into the given element.
+ *
+ * The editor hands over a box inside its panel; whoever owns the editor draws
+ * the same thing there that a reader is shown, so an author sees what they are
+ * setting up.
+ */
+export type RunCodeCallback = (surface: {
+  element: HTMLElement;
   runtime: string;
   code: string;
-}) => Promise<string> | string;
+  ports: Array<number>;
+  terminal: boolean;
+  logs: boolean;
+  onRunningChange: (running: boolean) => void;
+}) => void;
 
 export type RunnableCodeBlockConfig = {
   /** Called when the author runs a snippet. Without it nothing can execute. */
@@ -57,9 +81,15 @@ type Labels = {
   runtime: string;
   noRuntime: string;
   editableCode: string;
+  ports: string;
+  portsPlaceholder: string;
+  terminal: string;
+  logs: string;
   run: string;
   running: string;
   programOutput: string;
+  programLogs: string;
+  addresses: string;
   clearOutput: string;
   noOutput: string;
   runFailed: string;
@@ -100,6 +130,8 @@ export class RunnableCodeBlockPlugin extends Plugin {
 
     editor.commands.add(RUNTIME_COMMAND, new CodeBlockRuntimeCommand(editor));
     editor.commands.add(EDITABLE_COMMAND, new CodeBlockEditableCommand(editor));
+    editor.commands.add(PORTS_COMMAND, new CodeBlockPortsCommand(editor));
+    editor.commands.add(TERMINAL_COMMAND, new CodeBlockTerminalCommand(editor));
 
     this._createToolbarDropdown();
     this._enableBalloonInteractions();
@@ -134,9 +166,15 @@ export class RunnableCodeBlockPlugin extends Plugin {
       runtime: label("editor.runtime", "Runtime"),
       noRuntime: label("editor.noRuntime", "No runtime"),
       editableCode: label("editor.editableCode", "Editable code"),
+      ports: label("editor.ports", "Exposed ports"),
+      portsPlaceholder: label("editor.portsPlaceholder", "8080, 3000"),
+      terminal: label("editor.terminal", "Terminal"),
+      logs: label("editor.logs", "Logs"),
       run: label("editor.run", "Run"),
       running: label("editor.running", "Running…"),
       programOutput: label("editor.programOutput", "Program output:"),
+      programLogs: label("editor.tabs.logs", "Logs"),
+      addresses: label("editor.addresses", "Addresses"),
       clearOutput: label("editor.clearOutput", "Clear output"),
       noOutput: label("editor.noOutput", "<no output>"),
       runFailed: label("editor.runFailed", "Running the code failed."),
@@ -150,7 +188,12 @@ export class RunnableCodeBlockPlugin extends Plugin {
 
   private _defineSchema(): void {
     this.editor.model.schema.extend("codeBlock", {
-      allowAttributes: [RUNTIME_MODEL_ATTRIBUTE, EDITABLE_MODEL_ATTRIBUTE],
+      allowAttributes: [
+        RUNTIME_MODEL_ATTRIBUTE,
+        EDITABLE_MODEL_ATTRIBUTE,
+        PORTS_MODEL_ATTRIBUTE,
+        TERMINAL_MODEL_ATTRIBUTE,
+      ],
     });
   }
 
@@ -167,6 +210,18 @@ export class RunnableCodeBlockPlugin extends Plugin {
       model: {name: "codeBlock", key: EDITABLE_MODEL_ATTRIBUTE},
       view: (value) =>
         value ? {key: EDITABLE_DATA_ATTRIBUTE, value: "true"} : null,
+    });
+
+    editor.conversion.for("downcast").attributeToAttribute({
+      model: {name: "codeBlock", key: PORTS_MODEL_ATTRIBUTE},
+      view: (value) =>
+        value ? {key: PORTS_DATA_ATTRIBUTE, value: String(value)} : null,
+    });
+
+    editor.conversion.for("downcast").attributeToAttribute({
+      model: {name: "codeBlock", key: TERMINAL_MODEL_ATTRIBUTE},
+      view: (value) =>
+        value ? {key: TERMINAL_DATA_ATTRIBUTE, value: "true"} : null,
     });
 
     editor.editing.downcastDispatcher.on<DowncastAttributeEvent>(
@@ -228,6 +283,19 @@ export class RunnableCodeBlockPlugin extends Plugin {
 
             if (readAttribute(EDITABLE_DATA_ATTRIBUTE) === "true") {
               writer.setAttribute(EDITABLE_MODEL_ATTRIBUTE, true, codeBlock);
+            }
+
+            const ports = parsePorts(readAttribute(PORTS_DATA_ATTRIBUTE));
+            if (ports.length > 0) {
+              writer.setAttribute(
+                PORTS_MODEL_ATTRIBUTE,
+                ports.join(","),
+                codeBlock,
+              );
+            }
+
+            if (readAttribute(TERMINAL_DATA_ATTRIBUTE) === "true") {
+              writer.setAttribute(TERMINAL_MODEL_ATTRIBUTE, true, codeBlock);
             }
           }
 
@@ -333,6 +401,8 @@ export class RunnableCodeBlockPlugin extends Plugin {
     const codeBlockCommand = editor.commands.get("codeBlock")!;
     const runtimeCommand = editor.commands.get(RUNTIME_COMMAND)!;
     const editableCommand = editor.commands.get(EDITABLE_COMMAND)!;
+    const portsCommand = editor.commands.get(PORTS_COMMAND)!;
+    const terminalCommand = editor.commands.get(TERMINAL_COMMAND)!;
 
     const view = new CodeBlockSettingsView(editor.locale, {
       languages: getLanguageDefinitions(editor),
@@ -350,10 +420,18 @@ export class RunnableCodeBlockPlugin extends Plugin {
       );
     view.bind("runtime").to(runtimeCommand, "value", asRuntime);
     view.bind("isEditable").to(editableCommand, "value", Boolean);
+    view
+      .bind("ports")
+      .to(portsCommand, "value", (value) =>
+        typeof value === "string" ? value : null,
+      );
+    view.bind("hasTerminal").to(terminalCommand, "value", Boolean);
 
     view.languageInput.bind("isEnabled").to(codeBlockCommand, "isEnabled");
     view.runtimeInput.bind("isEnabled").to(runtimeCommand, "isEnabled");
     view.editableSwitch.bind("isEnabled").to(editableCommand, "isEnabled");
+    view.terminalSwitch.bind("isEnabled").to(terminalCommand, "isEnabled");
+    view.portsInput.bind("isEnabled").to(portsCommand, "isEnabled");
 
     this.listenTo(view, "languageChange", (evt, language: string) => {
       editor.execute("codeBlock", {language, forceValue: true});
@@ -370,11 +448,20 @@ export class RunnableCodeBlockPlugin extends Plugin {
       editor.editing.view.focus();
     });
 
+    this.listenTo(view, "terminalChange", (evt, hasTerminal: boolean) => {
+      editor.execute(TERMINAL_COMMAND, {value: hasTerminal});
+      editor.editing.view.focus();
+    });
+
+    // the field keeps what the author is typing; the block keeps the ports
+    // themselves, which is what it is told here.
+    this.listenTo(view, "portsChange", (evt, ports: string) => {
+      editor.execute(PORTS_COMMAND, {value: ports});
+    });
+
     this.listenTo(view, "run", () => {
       void this._runCode();
     });
-
-    this.listenTo(view, "clearOutput", () => this._resetOutput());
 
     view.keystrokes.set("Esc", (data, cancel) => {
       this._hideSettings();
@@ -420,7 +507,6 @@ export class RunnableCodeBlockPlugin extends Plugin {
     if (block !== this._activeBlock) {
       this._activeBlock = block;
       this._isDismissed = false;
-      this._resetOutput();
     }
 
     if (this._isDismissed) {
@@ -440,6 +526,14 @@ export class RunnableCodeBlockPlugin extends Plugin {
     }
 
     const view = this._getSettingsView();
+
+    // the field is filled in from the block as the panel opens, and left alone
+    // afterwards: what the author types is theirs until they leave it.
+    if (view.portsInput.fieldView.element) {
+      view.portsInput.fieldView.element.value = view.ports ?? "";
+    } else {
+      view.portsInput.fieldView.value = view.ports ?? "";
+    }
 
     if (this._balloon.hasView(view)) {
       this._balloon.updatePosition({target});
@@ -485,17 +579,11 @@ export class RunnableCodeBlockPlugin extends Plugin {
     return (domElement as HTMLElement | undefined) ?? null;
   }
 
-  private _resetOutput(): void {
-    if (!this._settingsView) {
-      return;
-    }
-
-    this._settingsView.output = null;
-    this._settingsView.hasError = false;
-  }
-
-  /** Runs the code of the current block, exactly like a reader would. */
-  private async _runCode(): Promise<void> {
+  /**
+   * Asks for the current block to be run, and for what it does to be drawn
+   * into the panel's own box — the same thing a reader is shown.
+   */
+  private _runCode(): void {
     const view = this._settingsView;
     const block = findCodeBlock(this.editor);
     const {onRun} = this._config;
@@ -505,46 +593,29 @@ export class RunnableCodeBlockPlugin extends Plugin {
     }
 
     const runtime = asRuntime(block.getAttribute(RUNTIME_MODEL_ATTRIBUTE));
+    const surface = view.element?.querySelector<HTMLElement>(
+      ".ck-code-block-settings__surface",
+    );
 
-    if (!runtime) {
+    if (!runtime || !surface) {
       return;
     }
 
-    const code = getCodeBlockText(block);
-
-    view.hasError = false;
-
-    if (code.trim().length === 0) {
-      view.output = this._labels.noOutput;
-      return;
-    }
-
-    view.isRunning = true;
-    view.output = null;
-
-    try {
-      const output = await onRun({runtime, code});
-
-      if (this._settingsView !== view) {
-        return;
-      }
-
-      view.output = output?.trim() ? output : this._labels.noOutput;
-    } catch (error) {
-      if (this._settingsView !== view) {
-        return;
-      }
-
-      view.hasError = true;
-      view.output =
-        error instanceof Error && error.message
-          ? error.message
-          : this._labels.runFailed;
-    } finally {
-      if (this._settingsView === view) {
-        view.isRunning = false;
-      }
-    }
+    onRun({
+      element: surface,
+      runtime,
+      code: getCodeBlockText(block),
+      ports: parsePorts(
+        block.getAttribute(PORTS_MODEL_ATTRIBUTE) as string | undefined,
+      ),
+      terminal: block.getAttribute(TERMINAL_MODEL_ATTRIBUTE) === true,
+      logs: block.getAttribute(LOGS_MODEL_ATTRIBUTE) === true,
+      onRunningChange: (running: boolean) => {
+        if (this._settingsView === view) {
+          view.isRunning = running;
+        }
+      },
+    });
   }
 }
 

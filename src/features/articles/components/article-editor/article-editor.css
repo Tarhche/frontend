@@ -422,8 +422,14 @@
   overflow: hidden auto;
 }
 
+/* The ports are a shorter thing to write than a language is to choose. */
+.ck.ck-code-block-settings .ck-code-block-settings__ports {
+  flex: 1 1 100%;
+}
+
 .ck.ck-code-block-settings .ck-code-block-settings__actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
 }
@@ -441,6 +447,51 @@
 .ck.ck-code-block-settings .ck-code-block-settings__run .ck-button__label {
   width: fit-content;
   font-size: 12px;
+}
+
+/* Where a run is drawn: the same surface a reader is shown, so the panel grows
+   to make room for it. */
+.ck.ck-code-block-settings:has(.ck-code-block-settings__surface > *) {
+  max-width: 640px;
+}
+
+.ck.ck-code-block-settings .ck-code-block-settings__surface:empty {
+  display: none;
+}
+
+.ck.ck-code-block-settings .ck-code-block-settings__surface {
+  border-top: 1px solid var(--ck-color-base-border);
+  padding-top: 8px;
+}
+
+/* The two names above the box, and how the run is going, in one row. */
+.ck.ck-code-block-settings .ck-code-block-settings__panel-tab {
+  padding: 2px 6px;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  font-size: 11px;
+}
+
+.ck.ck-code-block-settings .ck-code-block-settings__panel-tab.ck-on {
+  border-bottom-color: var(--ck-color-focus-border);
+  background: none;
+}
+
+.ck.ck-code-block-settings .ck-code-block-settings__state {
+  margin-inline-start: auto;
+  padding-inline-end: 6px;
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+/* Where a running snippet answers, on one line under the names. */
+.ck.ck-code-block-settings .ck-code-block-settings__addresses {
+  font-family: var(--ck-font-face-monospace, monospace);
+  font-size: 11px;
+  color: var(--ck-color-link-default);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ck.ck-code-block-settings .ck-code-block-settings__output {
