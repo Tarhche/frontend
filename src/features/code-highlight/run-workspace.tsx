@@ -8,10 +8,13 @@ import {
   IconRefresh,
   IconTerminal2,
 } from "@tabler/icons-react";
+import {Countdown} from "@/components/countdown";
+import {containerStateLabel} from "@/lib/container-state";
 import {ContainerTerminal} from "@/features/dashboard/runner/components/container-terminal";
 import {useTranslations} from "@/i18n/provider";
 import {CODE_TERMINAL_INPUT_SUBJECT, CODE_TERMINAL_SUBJECT} from "./subjects";
 import classes from "./run-workspace.module.css";
+export {fileNameFor} from "./file-name";
 
 /** What the runner has said about a snippet that is being watched. */
 export type Run = {
@@ -19,56 +22,13 @@ export type Run = {
   endpoints?: Array<{container_port: number; url: string}>;
   container_uuid?: string;
   logs?: string;
+
+  /** When the snippet will be stopped, for as long as it is running. */
+  deadline?: string;
 };
 
 /** Which of the two boxes under the snippet is open, if either. */
 export type OpenPanel = "terminal" | "logs" | null;
-
-const FILE_NAMES: Record<string, string> = {
-  go: "main.go",
-  python: "main.py",
-  py: "main.py",
-  javascript: "index.js",
-  js: "index.js",
-  jsx: "App.js",
-  typescript: "index.ts",
-  ts: "index.ts",
-  tsx: "App.tsx",
-  java: "Main.java",
-  c: "main.c",
-  cpp: "main.cpp",
-  "c++": "main.cpp",
-  csharp: "Program.cs",
-  rust: "main.rs",
-  rs: "main.rs",
-  php: "index.php",
-  ruby: "main.rb",
-  rb: "main.rb",
-  bash: "script.sh",
-  sh: "script.sh",
-  shell: "script.sh",
-  html: "index.html",
-  css: "styles.css",
-  json: "data.json",
-  yaml: "config.yaml",
-  yml: "config.yml",
-  sql: "query.sql",
-};
-
-/**
- * What to call a snippet in the bar above it. A sandbox names the file it is
- * showing; an article has a language and nothing else, so the language is
- * turned into the file it would be written in.
- */
-export function fileNameFor(language?: string): string {
-  const name = (language ?? "").trim().toLowerCase();
-
-  if (!name) {
-    return "snippet.txt";
-  }
-
-  return FILE_NAMES[name] ?? `snippet.${name}`;
-}
 
 /** The turning cube itself: six sides of one, drawn with borders. */
 export function Cube({small}: {small?: boolean} = {}) {
@@ -162,6 +122,10 @@ export function RunPreview({
           </span>
         </span>
 
+        {alive && run.deadline && (
+          <Countdown to={run.deadline} className={classes.countdown} />
+        )}
+
         {addresses.length > 1 && (
           <span className={classes.ports}>
             {addresses.map((one) => (
@@ -192,9 +156,11 @@ export function RunPreview({
         ) : (
           <Waiting
             label={
-              running || run.state
-                ? (run.state ?? t("editor.running"))
-                : t("editor.noOutput")
+              run.state
+                ? containerStateLabel(t, run.state)
+                : running
+                  ? t("editor.running")
+                  : t("editor.noOutput")
             }
           />
         )}
@@ -267,7 +233,9 @@ export function RunPanel({run, open, logs, output, running}: PanelProps) {
         {(running || run.state) && (
           <span className={classes.status}>
             <Cube small />
-            {run.state ?? t("editor.running")}
+            {run.state
+              ? containerStateLabel(t, run.state)
+              : t("editor.running")}
           </span>
         )}
       </div>

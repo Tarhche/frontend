@@ -36,6 +36,7 @@ export type CodeBlockSettingsLabels = {
   logs: string;
   run: string;
   running: string;
+  stop: string;
 };
 
 type Options = {
@@ -387,12 +388,18 @@ export class CodeBlockSettingsView extends View {
     view
       .bind("label")
       .to(this, "isRunning", (isRunning) =>
-        isRunning ? labels.running : labels.run,
+        isRunning ? labels.stop : labels.run,
       );
-    view.bind("isEnabled").to(this, "isRunning", (isRunning) => !isRunning);
+    view
+      .bind("icon")
+      .to(this, "isRunning", (isRunning) =>
+        isRunning ? IconCancel : IconPlay,
+      );
 
+    // one control: it runs the snippet, and while the snippet is running it is
+    // what stops it.
     view.on("execute", () => {
-      this.fire("run");
+      this.fire(this.isRunning ? "stop" : "run");
     });
 
     this._focusables.add(view);

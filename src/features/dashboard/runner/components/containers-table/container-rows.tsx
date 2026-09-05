@@ -33,6 +33,9 @@ export type Container = {
   image: string;
   endpoints: Endpoint[];
   created_at: string;
+
+  /** when a container that may only run for so long will be stopped. */
+  deadline?: string;
   owner?: Partial<Author>;
 };
 
@@ -226,6 +229,7 @@ export function ContainerRows({
               retries={container.retries}
               maxRetries={container.max_retries}
               pending={asked[container.uuid]}
+              deadline={container.deadline}
             />
           </TableTd>
           <TableTd>

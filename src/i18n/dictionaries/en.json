@@ -353,6 +353,8 @@
     "portsPlaceholder": "8080, 3000",
     "terminal": "Terminal",
     "logs": "Logs",
+    "stop": "Stop",
+    "resize": "Resize the code and the browser",
     "terminalNotRunning": "The snippet is not running, so there is nothing to open.",
     "tabs": {
       "output": "Output",
@@ -611,6 +613,16 @@
     "tabs": {
       "allContainers": "All containers",
       "myContainers": "My containers"
+    },
+    "states": {
+      "created": "created",
+      "scheduled": "scheduled",
+      "running": "running",
+      "stopping": "stopping",
+      "stopped": "stopped",
+      "completed": "completed",
+      "failed": "failed",
+      "restarting": "restarting"
     },
     "transitions": {
       "starting": "running...",

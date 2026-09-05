@@ -18,6 +18,7 @@ import {
   type ModelWriter,
 } from "ckeditor5";
 import {RUNTIMES} from "@/constants";
+import {fileNameFor} from "@/features/code-highlight/file-name";
 import {
   CodeBlockEditableCommand,
   CodeBlockLogsCommand,
@@ -31,6 +32,7 @@ import {
 } from "./code-block-settings-view";
 import {
   EDITABLE_COMMAND,
+  FILE_NAME_ATTRIBUTE,
   LOGS_COMMAND,
   LOGS_DATA_ATTRIBUTE,
   PORTS_COMMAND,
@@ -71,6 +73,9 @@ export type RunCodeCallback = (snippet: {
 export type RunnableCodeBlockConfig = {
   /** Called when the author runs a snippet. Without it nothing can execute. */
   onRun?: RunCodeCallback;
+
+  /** Takes away the container the snippet the panel is on is running in. */
+  onStop?: () => void;
   /** Runtimes available in the settings panel. */
   runtimes?: Array<CodeBlockRuntimeOption>;
   /** Translation function used for the plugin UI. Falls back to English. */
@@ -90,6 +95,7 @@ type Labels = {
   logs: string;
   run: string;
   running: string;
+  stop: string;
   programOutput: string;
   programLogs: string;
   addresses: string;
@@ -176,6 +182,7 @@ export class RunnableCodeBlockPlugin extends Plugin {
       logs: label("editor.logs", "Logs"),
       run: label("editor.run", "Run"),
       running: label("editor.running", "Running…"),
+      stop: label("editor.stop", "Stop"),
       programOutput: label("editor.programOutput", "Program output:"),
       programLogs: label("editor.tabs.logs", "Logs"),
       addresses: label("editor.addresses", "Addresses"),
@@ -253,12 +260,47 @@ export class RunnableCodeBlockPlugin extends Plugin {
             String(data.attributeNewValue),
             viewPre,
           );
+
+          // the bar over the block names it the way a reader is shown it.
+          conversionApi.writer.setAttribute(
+            FILE_NAME_ATTRIBUTE,
+            fileNameFor(
+              (data.item as ModelElement).getAttribute("language") as
+                string | undefined,
+            ),
+            viewPre,
+          );
         } else {
           conversionApi.writer.removeAttribute(
             RUNTIME_BADGE_ATTRIBUTE,
             viewPre,
           );
+          conversionApi.writer.removeAttribute(FILE_NAME_ATTRIBUTE, viewPre);
         }
+      },
+      {priority: "low"},
+    );
+
+    // a block whose language changes is renamed with it.
+    editor.editing.downcastDispatcher.on<DowncastAttributeEvent>(
+      "attribute:language:codeBlock",
+      (evt, data, conversionApi) => {
+        const block = data.item as ModelElement;
+        const viewPre = conversionApi.mapper.toViewElement(block)?.parent;
+
+        if (
+          !viewPre ||
+          !viewPre.is("element", "pre") ||
+          !block.getAttribute(RUNTIME_MODEL_ATTRIBUTE)
+        ) {
+          return;
+        }
+
+        conversionApi.writer.setAttribute(
+          FILE_NAME_ATTRIBUTE,
+          fileNameFor(data.attributeNewValue as string | undefined),
+          viewPre,
+        );
       },
       {priority: "low"},
     );
@@ -489,6 +531,10 @@ export class RunnableCodeBlockPlugin extends Plugin {
 
     this.listenTo(view, "run", () => {
       void this._runCode();
+    });
+
+    this.listenTo(view, "stop", () => {
+      this._config.onStop?.();
     });
 
     view.keystrokes.set("Esc", (data, cancel) => {

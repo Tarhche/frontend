@@ -20,6 +20,8 @@ export const LOGS_DATA_ATTRIBUTE = "data-executable-logs";
 
 /** Editing-only attribute rendering the runtime badge on `<pre>`. */
 export const RUNTIME_BADGE_ATTRIBUTE = "data-runtime";
+/** Editing-only attribute naming the block in the bar over it. */
+export const FILE_NAME_ATTRIBUTE = "data-file-name";
 
 export const RUNTIME_COMMAND = "codeBlockRuntime";
 export const EDITABLE_COMMAND = "codeBlockEditable";

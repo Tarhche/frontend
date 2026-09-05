@@ -299,10 +299,55 @@
   background-color: var(--mantine-color-dark-6);
 }
 
+/*
+ * A runnable code block is drawn the way a reader is shown it: a card with a
+ * bar over it, the file it would be written in on one side of the bar and the
+ * runtime it is run with on the other.
+ */
+.ck.ck-editor__editable pre[data-runtime] {
+  position: relative;
+  margin-inline: 0;
+  padding-top: 44px;
+  border: 1px solid var(--mantine-color-gray-3, #dee2e6);
+  border-radius: var(--mantine-radius-md, 8px);
+}
+
+:root[data-mantine-color-scheme="dark"]
+  .ck.ck-editor__editable
+  pre[data-runtime] {
+  border-color: var(--mantine-color-dark-4, #373a40);
+}
+
+.ck.ck-editor__editable pre[data-runtime]::before {
+  content: attr(data-file-name);
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  padding-inline: 12px;
+  border-block-end: 1px solid var(--mantine-color-gray-2, #e9ecef);
+  color: var(--mantine-primary-color-6, #228be6);
+  font-family: var(--mantine-font-family-monospace), monospace;
+  font-size: 12px;
+  direction: ltr;
+}
+
+:root[data-mantine-color-scheme="dark"]
+  .ck.ck-editor__editable
+  pre[data-runtime]::before {
+  border-block-end-color: var(--mantine-color-dark-5, #2c2e33);
+  color: var(--mantine-primary-color-4, #4dabf7);
+}
+
 /* Runnable code blocks show their runtime right next to the language label, by
    extending the label CKEditor already pins to the corner of the block. */
 .ck.ck-editor__editable pre[data-language][data-runtime]::after {
   content: attr(data-language) " \25B6 " attr(data-runtime);
+  top: 9px;
+  right: 10px;
+  border-radius: 999px;
   background: var(--mantine-color-teal-7, #0c8599);
   direction: ltr;
   unicode-bidi: isolate;
@@ -526,7 +571,37 @@
   color: var(--mantine-color-red-7, #c92a2a);
 }
 
-/* What running a snippet shows, under the editor it was written in. */
+/*
+ * Running a snippet puts what it serves beside what it is written in, the way
+ * a reader is shown it: the editor on one side, the browser on the other, and
+ * the line between them is what sets how much of each is shown. The code is
+ * read left to right whatever the article is written in.
+ */
+.editor-workspace {
+  display: grid;
+  align-items: start;
+  direction: ltr;
+}
+
+@media (min-width: 62em) {
+  .editor-workspace_split {
+    grid-template-columns: minmax(0, var(--split, 55%)) auto minmax(0, 1fr);
+  }
+}
+
 .editor-run-surface {
-  margin-top: 12px;
+  min-width: 0;
+}
+
+@media (max-width: 61.99em) {
+  .editor-run-surface {
+    margin-top: 12px;
+  }
+}
+
+@media (min-width: 62em) {
+  .editor-run-surface {
+    position: sticky;
+    top: 12px;
+  }
 }

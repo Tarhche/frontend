@@ -353,6 +353,8 @@
     "portsPlaceholder": "۸۰۸۰، ۳۰۰۰",
     "terminal": "ترمینال",
     "logs": "لاگ‌ها",
+    "stop": "توقف",
+    "resize": "تغییر اندازه کد و مرورگر",
     "terminalNotRunning": "این قطعه کد در حال اجرا نیست، پس چیزی برای باز کردن وجود ندارد.",
     "tabs": {
       "output": "خروجی",
@@ -611,6 +613,16 @@
     "tabs": {
       "allContainers": "همه کانتینرها",
       "myContainers": "کانتینرهای من"
+    },
+    "states": {
+      "created": "ساخته‌شده",
+      "scheduled": "زمان‌بندی‌شده",
+      "running": "در حال اجرا",
+      "stopping": "در حال توقف",
+      "stopped": "متوقف‌شده",
+      "completed": "پایان‌یافته",
+      "failed": "ناموفق",
+      "restarting": "در حال راه‌اندازی مجدد"
     },
     "transitions": {
       "starting": "در حال اجرا...",

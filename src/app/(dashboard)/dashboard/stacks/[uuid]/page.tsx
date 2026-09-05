@@ -84,6 +84,7 @@ async function StackPage({params}: Props) {
                 expected_state?: string;
                 retries?: number;
                 max_retries?: number;
+                deadline?: string;
                 service_name: string;
                 image: string;
                 state: string;
@@ -108,6 +109,7 @@ async function StackPage({params}: Props) {
                       expectedState={service.expected_state}
                       retries={service.retries}
                       maxRetries={service.max_retries}
+                      deadline={service.deadline}
                     />
                   </TableTd>
                   <TableTd>

@@ -15,6 +15,9 @@ type Props = {
   /** Bumped by whoever owns this surface to run the snippet again. */
   runToken: number;
 
+  /** Bumped to take away the container it is running in. */
+  stopToken?: number;
+
   open: OpenPanel;
   onOpen: (panel: OpenPanel) => void;
   onRunningChange?: (running: boolean) => void;
@@ -34,11 +37,12 @@ export function CodeRunSurface({
   terminal,
   logs: showLogs,
   runToken,
+  stopToken = 0,
   open,
   onOpen,
   onRunningChange,
 }: Props) {
-  const {run, running, output, logs, start} = useCodeRun();
+  const {run, running, output, logs, start, stop} = useCodeRun();
 
   useEffect(() => {
     if (runToken > 0) {
@@ -49,11 +53,20 @@ export function CodeRunSurface({
   }, [runToken]);
 
   useEffect(() => {
+    if (stopToken > 0) {
+      void stop();
+    }
+    // the token is what says "stop it": which container that is, is read when
+    // it does.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stopToken]);
+
+  useEffect(() => {
     onRunningChange?.(running);
   }, [running, onRunningChange]);
 
   const live = ports.length > 0 || terminal;
-  const showPreview = live && (running || Boolean(run.state));
+  const showPreview = live && running;
   const showOutput = !live && Boolean(output);
 
   // nothing has been run yet: the panel keeps its own size until there is.

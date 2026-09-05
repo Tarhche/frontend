@@ -15,6 +15,7 @@ import {monokai} from "@uiw/codemirror-theme-monokai";
 import {eclipseInit} from "@uiw/codemirror-theme-eclipse";
 import {
   IconPlayerPlay,
+  IconPlayerStop,
   IconLoader2,
   IconRotate,
   IconCopy,
@@ -28,6 +29,7 @@ import {
   fileNameFor,
   type OpenPanel,
 } from "./run-workspace";
+import {SplitHandle} from "./split-handle";
 import {useCodeRun} from "./use-code-run";
 import classes from "./run-workspace.module.css";
 import {useTranslations} from "@/i18n/provider";
@@ -201,7 +203,7 @@ function CodeHighlight({code, language, executable}: Props) {
 
   const hasChanged = editableCode !== code;
 
-  const {run, running, output, logs, start} = useCodeRun();
+  const {run, running, output, logs, start, stop} = useCodeRun();
 
   const runCode = useCallback(() => {
     if (running || !executable?.value) return;
@@ -214,7 +216,9 @@ function CodeHighlight({code, language, executable}: Props) {
     });
   }, [editableCode, executable, hasTerminal, ports, running, start]);
 
-  const showPreview = isLive && (running || Boolean(run.state));
+  // the browser is there for as long as there is a container behind it: one
+  // that has stopped has nothing left to show.
+  const showPreview = isLive && running;
 
   const actions = (
     <div className={classes.paneActions}>
@@ -263,21 +267,24 @@ function CodeHighlight({code, language, executable}: Props) {
 
       {isRunnable && (
         <Tooltip
-          label={running ? t("editor.running") : t("editor.run")}
+          label={running ? t("editor.stop") : t("editor.run")}
           position="left"
         >
           <ActionIcon
             variant="subtle"
             color="gray"
             size="sm"
-            disabled={running}
-            onClick={runCode}
+            onClick={running ? () => void stop() : runCode}
           >
             {running ? (
-              <IconLoader2
-                size={16}
-                style={{animation: "code-highlight-spin 1s linear infinite"}}
-              />
+              isLive ? (
+                <IconPlayerStop size={16} />
+              ) : (
+                <IconLoader2
+                  size={16}
+                  style={{animation: "code-highlight-spin 1s linear infinite"}}
+                />
+              )
             ) : (
               <IconPlayerPlay size={16} />
             )}
@@ -314,6 +321,8 @@ function CodeHighlight({code, language, executable}: Props) {
               )}
             </div>
           </div>
+
+          {showPreview && <SplitHandle label={t("editor.resize")} />}
 
           {showPreview && (
             <div className={`${classes.pane} ${classes.previewPane}`}>

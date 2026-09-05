@@ -8,6 +8,7 @@
  * half of it is not a browser.
  */
 .surface {
+  direction: ltr;
   border: 1px solid
     light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
   border-radius: var(--mantine-radius-md);
@@ -24,8 +25,9 @@
 }
 
 @media (min-width: 62em) {
+  /* how much of the card each side takes, which is what the handle sets. */
   .split {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, var(--split, 50%)) auto minmax(0, 1fr);
   }
 }
 
@@ -40,11 +42,48 @@
     light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
 }
 
+/*
+ * The line between the two sides is also the grip that moves it: a hairline to
+ * look at, and enough of a column either side of it to catch a pointer.
+ */
+.handle {
+  display: none;
+}
+
 @media (min-width: 62em) {
   .split .previewPane {
     border-block-start: 0;
-    border-inline-start: 1px solid
-      light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  }
+
+  .split .handle {
+    display: block;
+    position: relative;
+    width: 5px;
+    cursor: col-resize;
+    touch-action: none;
+  }
+
+  .handle::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 2px;
+    width: 1px;
+    background-color: light-dark(
+      var(--mantine-color-gray-3),
+      var(--mantine-color-dark-4)
+    );
+  }
+
+  .handle:hover::before,
+  .handle:focus-visible::before {
+    inset-inline-start: 1px;
+    width: 3px;
+    background-color: var(--mantine-primary-color-filled);
+  }
+
+  .handle:focus-visible {
+    outline: none;
   }
 }
 
@@ -155,6 +194,15 @@
   direction: ltr;
 }
 
+/* how long the snippet has left, beside where it is. */
+.countdown {
+  flex: none;
+  font-family: var(--mantine-font-family-monospace), monospace;
+  font-size: var(--mantine-font-size-xs);
+  font-variant-numeric: tabular-nums;
+  color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-1));
+}
+
 .ports {
   display: flex;
   gap: 2px;
@@ -188,7 +236,6 @@
   width: 100%;
   height: 100%;
   border: 0;
-  background-color: var(--mantine-color-white);
 }
 
 /* what is shown instead of a page while there is no page to show. */

@@ -1,7 +1,10 @@
 "use client";
 
-import {Badge} from "@mantine/core";
+import {Badge, Group} from "@mantine/core";
+import {Countdown} from "@/components/countdown";
+import {containerStateLabel} from "@/lib/container-state";
 import {useTranslations} from "@/i18n/provider";
+import classes from "./state-badge.module.css";
 
 type Props = {
   state: string;
@@ -20,6 +23,12 @@ type Props = {
    * to catch up with. It is what is happening to it, so it is what is shown.
    */
   pending?: Transition;
+
+  /**
+   * When a container that may only run for so long will be stopped. What is
+   * left of that is shown beside its state, while it is still running.
+   */
+  deadline?: string;
 };
 
 /** What a container is on its way to, in the words of the thing being done. */
@@ -86,6 +95,7 @@ export function StateBadge({
   retries = 0,
   maxRetries = 0,
   pending,
+  deadline,
 }: Props) {
   const t = useTranslations();
 
@@ -107,11 +117,11 @@ export function StateBadge({
           total: maxRetries,
         });
 
-  let label = state;
+  let label = containerStateLabel(t, state);
   if (transition) {
     label = t(`containers.transitions.${transition}`);
   } else if (retrying) {
-    label = `${state} - ${attempts}`;
+    label = `${containerStateLabel(t, state)} - ${attempts}`;
   }
 
   let color = colors[state] ?? "gray";
@@ -123,9 +133,22 @@ export function StateBadge({
     color = "orange";
   }
 
-  return (
+  const badge = (
     <Badge color={color} variant="light">
       {label}
     </Badge>
+  );
+
+  // a container with a deadline says how long it has left, for as long as it
+  // is still running towards it.
+  if (!deadline || state !== "running" || pending) {
+    return badge;
+  }
+
+  return (
+    <Group gap={6} wrap="nowrap">
+      {badge}
+      <Countdown to={deadline} className={classes.countdown} />
+    </Group>
   );
 }

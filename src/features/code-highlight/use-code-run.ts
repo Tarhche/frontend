@@ -1,10 +1,10 @@
 "use client";
 
-import {useCallback, useState} from "react";
+import {useCallback, useRef, useState} from "react";
 import {decode} from "js-base64";
 import {useWsPublish} from "@/hooks/use-ws-publish";
 import {useWsStream} from "@/hooks/use-ws-stream";
-import {RUN_CODE_SUBJECT} from "./subjects";
+import {CODE_STOP_SUBJECT, RUN_CODE_SUBJECT} from "./subjects";
 import {type Run} from "./run-workspace";
 
 type Snippet = {
@@ -26,16 +26,41 @@ export function useCodeRun() {
   const publish = useWsPublish();
   const openStream = useWsStream();
 
+  // the stream this run is being watched over, so that stopping a snippet
+  // stops listening to it: what a container that is gone has left to say is
+  // not what the page should be showing.
+  const watching = useRef<{close: () => void} | null>(null);
+
   const [running, setRunning] = useState(false);
   const [output, setOutput] = useState("");
   const [logs, setLogs] = useState("");
   const [run, setRun] = useState<Run>({});
+
+  const forget = useCallback(() => {
+    watching.current?.close();
+    watching.current = null;
+  }, []);
 
   const clear = useCallback(() => {
     setOutput("");
     setLogs("");
     setRun({});
   }, []);
+
+  // stopping a snippet is taking its container away: what is running now goes,
+  // and running it again is a new container running the code as it is then.
+  const stop = useCallback(async () => {
+    const container = run.container_uuid;
+
+    forget();
+    setRunning(false);
+
+    if (!container) {
+      return;
+    }
+
+    await publish(CODE_STOP_SUBJECT, {container_uuid: container});
+  }, [forget, publish, run.container_uuid]);
 
   const start = useCallback(
     async ({runtime, code, ports, terminal}: Snippet) => {
@@ -45,6 +70,7 @@ export function useCodeRun() {
         return;
       }
 
+      forget();
       setRunning(true);
       clear();
 
@@ -63,7 +89,7 @@ export function useCodeRun() {
           return;
         }
 
-        await openStream(
+        watching.current = await openStream(
           RUN_CODE_SUBJECT,
           {runner: runtime, code, ports, terminal},
           {
@@ -102,8 +128,8 @@ export function useCodeRun() {
         }
       }
     },
-    [clear, openStream, publish],
+    [clear, forget, openStream, publish],
   );
 
-  return {run, running, output, logs, start, clear};
+  return {run, running, output, logs, start, stop, clear};
 }

@@ -76,6 +76,7 @@ async function ContainerPage({params}: Props) {
           expectedState={container.expected_state}
           retries={container.retries}
           maxRetries={container.max_retries}
+          deadline={container.deadline}
         />
       </Group>
 
