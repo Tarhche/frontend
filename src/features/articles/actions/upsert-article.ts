@@ -2,8 +2,14 @@
 
 import {revalidatePath} from "next/cache";
 import {redirect} from "next/navigation";
-import {createArticle, updateArticle} from "@/dal/private/articles";
+import {
+  createArticle,
+  updateArticle,
+  updateMyArticle,
+} from "@/dal/private/articles";
 import {APP_PATHS} from "@/lib/app-paths";
+import {PERMISSIONS} from "@/lib/app-permissions";
+import {getUserPermissions, hasPermission} from "@/lib/auth";
 import {
   captureFormValues,
   extractValidationErrors,
@@ -35,7 +41,12 @@ export async function upsertArticleAction(
 
   try {
     if (isUpdate) {
-      await updateArticle(values);
+      // somebody trusted with only their own writes to their own; an article
+      // somebody else wrote is not there for them to write over.
+      const permissions = (await getUserPermissions()) ?? [];
+      const own = !hasPermission(permissions, [PERMISSIONS.articles.UPDATE]);
+
+      await (own ? updateMyArticle : updateArticle)(values);
     } else {
       await createArticle(values);
     }

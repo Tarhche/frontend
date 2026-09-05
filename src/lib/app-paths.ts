@@ -28,7 +28,6 @@ export const APP_PATHS = {
       edit: (uuid: string) => `/dashboard/comments/${uuid}`,
     },
     my: {
-      comments: "/dashboard/my/comments",
       bookmarks: "/dashboard/my/bookmarks",
     },
     users: {
@@ -50,6 +49,16 @@ export const APP_PATHS = {
     contactUs: {
       index: "/dashboard/contact-us",
       detail: (uuid: string) => `/dashboard/contact-us/${uuid}`,
+    },
+    containers: {
+      index: "/dashboard/containers",
+      new: "/dashboard/containers/new",
+      detail: (uuid: string) => `/dashboard/containers/${uuid}`,
+    },
+    stacks: {
+      index: "/dashboard/stacks",
+      new: "/dashboard/stacks/new",
+      detail: (uuid: string) => `/dashboard/stacks/${uuid}`,
     },
     files: "/dashboard/files",
     settings: "/dashboard/settings",

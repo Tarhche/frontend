@@ -6,7 +6,14 @@ import {
   CommentsTable,
   CommentsTableSkeleton,
 } from "@/features/comments/components/article-comments";
+import {
+  UserCommentsTable,
+  UserCommentsTableSkeleton,
+} from "@/features/comments/components/user-comments-table";
 import {withPermissions} from "@/components/with-authorization";
+import {PERMISSIONS} from "@/lib/app-permissions";
+import {getUserPermissions, hasPermission} from "@/lib/auth";
+import {ScopeSwitch} from "@/components/scope-switch";
 import {APP_PATHS} from "@/lib/app-paths";
 import {getServerDictionary} from "@/i18n/server";
 
@@ -28,6 +35,12 @@ async function CommentsPage({searchParams}: Props) {
   const {t} = await getServerDictionary();
   const {page} = await searchParams;
 
+  const permissions = (await getUserPermissions()) ?? [];
+  const canSeeAll = hasPermission(permissions, [PERMISSIONS.comments.INDEX]);
+  const canSeeMine = hasPermission(permissions, [
+    PERMISSIONS.self.comments.INDEX,
+  ]);
+
   return (
     <Box>
       <DashboardBreadcrumbs
@@ -39,17 +52,32 @@ async function CommentsPage({searchParams}: Props) {
         ]}
       />
       <Box mt={"md"}>
-        <Suspense
-          key={JSON.stringify({page})}
-          fallback={<CommentsTableSkeleton />}
-        >
-          <CommentsTable page={page ?? 1} />
-        </Suspense>
+        <ScopeSwitch
+          canSeeAll={canSeeAll}
+          canSeeMine={canSeeMine}
+          labels={{
+            all: t("comments.tabs.allComments"),
+            mine: t("comments.tabs.myComments"),
+          }}
+          all={
+            <Suspense key={`all-${page}`} fallback={<CommentsTableSkeleton />}>
+              <CommentsTable page={page ?? 1} />
+            </Suspense>
+          }
+          mine={
+            <Suspense
+              key={`mine-${page}`}
+              fallback={<UserCommentsTableSkeleton />}
+            >
+              <UserCommentsTable page={Number(page) || 1} />
+            </Suspense>
+          }
+        />
       </Box>
     </Box>
   );
 }
 
 export default withPermissions(CommentsPage, {
-  requiredPermissions: ["comments.index"],
+  requiredPermissions: ["comments.index", "self.comments.index"],
 });

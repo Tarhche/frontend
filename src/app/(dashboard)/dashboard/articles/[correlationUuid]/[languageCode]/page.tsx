@@ -5,10 +5,15 @@ import {IconLanguage} from "@tabler/icons-react";
 import {ArticleUpsertForm} from "@/features/articles/components/article-upsert-form";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {withPermissions} from "@/components/with-authorization";
-import {fetchArticleTranslation} from "@/dal/private/articles";
+import {
+  fetchArticleTranslation,
+  fetchMyArticleTranslation,
+} from "@/dal/private/articles";
 import {APP_PATHS} from "@/lib/app-paths";
 import {fetchLanguages, type Language} from "@/dal/public/languages";
 import {getServerDictionary} from "@/i18n/server";
+import {PERMISSIONS} from "@/lib/app-permissions";
+import {getUserPermissions, hasPermission} from "@/lib/auth";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
@@ -42,9 +47,17 @@ async function ArticleDetalPage({params}: Props) {
     // Fail open: the language select renders empty if unavailable.
   }
 
+  // Somebody trusted with everybody's articles asks for this one as anybody's;
+  // somebody trusted with only their own asks for it as theirs, and is told it
+  // does not exist when it is not.
+  const permissions = (await getUserPermissions()) ?? [];
+  const own = !hasPermission(permissions, [PERMISSIONS.articles.SHOW]);
+
   // When the selected language has no translation yet, offer to create one
   // under the same correlation group instead of rendering the not-found page.
-  const article = await fetchArticleTranslation(correlationUuid, languageCode);
+  const article = await (
+    own ? fetchMyArticleTranslation : fetchArticleTranslation
+  )(correlationUuid, languageCode);
   const isMissingTranslation = article === null;
 
   const selectedLanguageName =
@@ -104,6 +117,10 @@ async function ArticleDetalPage({params}: Props) {
 }
 
 export default withPermissions(ArticleDetalPage, {
-  requiredPermissions: ["articles.show", "articles.update"],
-  operator: "AND",
+  requiredPermissions: [
+    "articles.show",
+    "articles.update",
+    "self.articles.show",
+    "self.articles.update",
+  ],
 });
