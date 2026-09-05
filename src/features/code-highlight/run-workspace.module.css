@@ -7,10 +7,20 @@
  * there is room for two of them — an article is a narrow thing to read, and
  * half of it is not a browser.
  */
+.surface {
+  border: 1px solid
+    light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  border-radius: var(--mantine-radius-md);
+  overflow: hidden;
+  background-color: light-dark(
+    var(--mantine-color-white),
+    var(--mantine-color-dark-7)
+  );
+}
+
 .workspace {
   display: grid;
-  gap: var(--mantine-spacing-xs);
-  align-items: start;
+  align-items: stretch;
 }
 
 @media (min-width: 62em) {
@@ -20,36 +30,77 @@
 }
 
 .pane {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
+}
+
+.previewPane {
+  border-block-start: 1px solid
+    light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+}
+
+@media (min-width: 62em) {
+  .split .previewPane {
+    border-block-start: 0;
+    border-inline-start: 1px solid
+      light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  }
+}
+
+/* the bar over each side: what the snippet is called, and the browser's own. */
+.paneBar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 4px 8px;
+  border-block-end: 1px solid
+    light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+}
+
+.fileName {
+  padding-inline: 4px;
+  color: light-dark(
+    var(--mantine-primary-color-6),
+    var(--mantine-primary-color-4)
+  );
+  font-family: var(--mantine-font-family-monospace), monospace;
+  font-size: var(--mantine-font-size-xs);
+  direction: ltr;
+}
+
+.paneActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-inline-start: auto;
+}
+
+/* the code itself, without the box Mantine or the theme would put round it. */
+.code {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+}
+
+.code :global(.mantine-CodeHighlight-root),
+.code :global(.cm-editor) {
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
 }
 
 /* the browser: a bar with where it is, and the page itself under it. */
 .browser {
   display: flex;
   flex-direction: column;
+  flex: 1;
   min-height: 220px;
-  height: 100%;
-  border: 1px solid
-    light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
-  border-radius: var(--mantine-radius-sm);
-  overflow: hidden;
-  background-color: light-dark(
-    var(--mantine-color-white),
-    var(--mantine-color-dark-7)
-  );
 }
 
 .chrome {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px;
-  border-bottom: 1px solid
-    light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
-  background-color: light-dark(
-    var(--mantine-color-gray-0),
-    var(--mantine-color-dark-6)
-  );
+  composes: paneBar;
 }
 
 .icon {
@@ -149,6 +200,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--mantine-spacing-sm);
+  perspective: 200px;
   background-color: light-dark(
     var(--mantine-color-gray-0),
     var(--mantine-color-dark-7)
@@ -170,17 +222,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   padding: 0;
-  border: 1px solid
-    light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  border: 0;
   border-radius: 999px;
   background-color: light-dark(
     var(--mantine-color-gray-1),
-    var(--mantine-color-dark-6)
+    var(--mantine-color-dark-5)
   );
   color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0));
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
   cursor: pointer;
 }
 
@@ -194,34 +246,18 @@
 }
 
 .toolActive {
-  border-color: var(--mantine-primary-color-filled);
-  color: var(--mantine-primary-color-filled);
+  background-color: var(--mantine-primary-color-filled);
+  color: var(--mantine-color-white);
 }
 
 /* and what those buttons open, under the whole thing. */
 .panel {
-  margin-top: var(--mantine-spacing-xs);
-  border: 1px solid
+  border-block-start: 1px solid
     light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
-  border-radius: var(--mantine-radius-sm);
-  overflow: hidden;
-  background-color: light-dark(
-    var(--mantine-color-white),
-    var(--mantine-color-dark-7)
-  );
 }
 
 .panelBar {
-  display: flex;
-  align-items: center;
-  gap: var(--mantine-spacing-xs);
-  padding: 4px var(--mantine-spacing-xs);
-  border-bottom: 1px solid
-    light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
-  background-color: light-dark(
-    var(--mantine-color-gray-0),
-    var(--mantine-color-dark-6)
-  );
+  composes: paneBar;
   font-size: var(--mantine-font-size-xs);
   color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
 }
@@ -231,6 +267,7 @@
   align-items: center;
   gap: 6px;
   margin-inline-start: auto;
+  perspective: 120px;
 }
 
 .text {
@@ -257,10 +294,22 @@
  * nothing has to be fetched to say "a moment".
  */
 .cube {
+  --cube-half: 9px;
+
+  position: relative;
+  display: block;
+  flex: none;
   width: 18px;
   height: 18px;
   transform-style: preserve-3d;
-  animation: cube-turn 2.4s infinite ease-in-out;
+  animation: cube-turn 3s infinite linear;
+}
+
+.cubeSmall {
+  --cube-half: 6px;
+
+  width: 12px;
+  height: 12px;
 }
 
 .face {
@@ -271,26 +320,35 @@
 }
 
 .face:nth-child(1) {
-  transform: translateZ(9px);
+  transform: translateZ(calc(var(--cube-half) * 1));
 }
 
 .face:nth-child(2) {
-  transform: rotateY(90deg) translateZ(9px);
+  transform: rotateY(180deg) translateZ(var(--cube-half));
 }
 
 .face:nth-child(3) {
-  transform: rotateX(90deg) translateZ(9px);
+  transform: rotateY(90deg) translateZ(var(--cube-half));
+}
+
+.face:nth-child(4) {
+  transform: rotateY(-90deg) translateZ(var(--cube-half));
+}
+
+.face:nth-child(5) {
+  transform: rotateX(90deg) translateZ(var(--cube-half));
+}
+
+.face:nth-child(6) {
+  transform: rotateX(-90deg) translateZ(var(--cube-half));
 }
 
 @keyframes cube-turn {
-  0% {
-    transform: rotateX(-20deg) rotateY(0deg);
+  from {
+    transform: rotateX(-24deg) rotateY(0deg);
   }
-  50% {
-    transform: rotateX(-20deg) rotateY(180deg);
-  }
-  100% {
-    transform: rotateX(-20deg) rotateY(360deg);
+  to {
+    transform: rotateX(-24deg) rotateY(360deg);
   }
 }
 

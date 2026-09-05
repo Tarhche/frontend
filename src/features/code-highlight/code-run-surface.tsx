@@ -53,25 +53,28 @@ export function CodeRunSurface({
   }, [running, onRunningChange]);
 
   const live = ports.length > 0 || terminal;
+  const showPreview = live && (running || Boolean(run.state));
+  const showOutput = !live && Boolean(output);
+
+  // nothing has been run yet: the panel keeps its own size until there is.
+  if (!showPreview && !showOutput) {
+    return null;
+  }
 
   return (
-    <>
-      {live
-        ? (running || run.state) && (
-            <RunPreview
-              run={run}
-              running={running}
-              open={open}
-              onOpen={onOpen}
-              showTerminal={terminal}
-              showLogs={showLogs}
-            />
-          )
-        : output && (
-            <div className={classes.panel}>
-              <pre className={classes.text}>{output}</pre>
-            </div>
-          )}
+    <div className={classes.surface}>
+      {showPreview && (
+        <RunPreview
+          run={run}
+          running={running}
+          open={open}
+          onOpen={onOpen}
+          showTerminal={terminal}
+          showLogs={showLogs}
+        />
+      )}
+
+      {showOutput && <pre className={classes.text}>{output}</pre>}
 
       {live && (
         <RunPanel
@@ -82,6 +85,6 @@ export function CodeRunSurface({
           running={running}
         />
       )}
-    </>
+    </div>
   );
 }

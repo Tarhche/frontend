@@ -20,12 +20,14 @@ import {
   IconCopy,
 } from "@tabler/icons-react";
 import {ActionIcon, Box, Tooltip} from "@mantine/core";
-import {
-  CodeHighlight as MantineCodeHighlight,
-  CodeHighlightControl,
-} from "@mantine/code-highlight";
+import {CodeHighlight as MantineCodeHighlight} from "@mantine/code-highlight";
 import {notifications} from "@mantine/notifications";
-import {RunPanel, RunPreview, type OpenPanel} from "./run-workspace";
+import {
+  RunPanel,
+  RunPreview,
+  fileNameFor,
+  type OpenPanel,
+} from "./run-workspace";
 import {useCodeRun} from "./use-code-run";
 import classes from "./run-workspace.module.css";
 import {useTranslations} from "@/i18n/provider";
@@ -212,181 +214,140 @@ function CodeHighlight({code, language, executable}: Props) {
     });
   }, [editableCode, executable, hasTerminal, ports, running, start]);
 
-  return (
-    <Box mb="xl">
-      <div
-        className={`${classes.workspace} ${isLive && (running || run.state) ? classes.split : ""}`}
-      >
-        <div className={classes.pane}>
-          {mounted ? (
-            <Box
-              mt="sm"
-              mb="xs"
-              style={{position: "relative", overflow: "hidden"}}
-            >
-              <div ref={containerRef} style={{height: "auto"}} />
+  const showPreview = isLive && (running || Boolean(run.state));
 
-              {/* Action buttons */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: 8,
-                  right: 8,
-                  zIndex: 10,
-                  display: "flex",
-                  gap: 4,
-                }}
-              >
-                <Tooltip
-                  label={
-                    editableCode
-                      ? editableCode.length > 0
-                        ? t("editor.copied")
-                        : t("editor.copy")
-                      : t("editor.copy")
-                  }
-                  position="left"
-                >
-                  <ActionIcon
-                    variant="subtle"
-                    color="gray"
-                    size="sm"
-                    onClick={() => {
-                      navigator.clipboard.writeText(editableCode);
-                      notifications.show({
-                        title: t("editor.success"),
-                        message: t("editor.codeCopied"),
-                        color: "green",
-                        autoClose: 2000,
-                      });
-                    }}
-                  >
-                    <IconCopy size={16} />
-                  </ActionIcon>
-                </Tooltip>
+  const actions = (
+    <div className={classes.paneActions}>
+      <Tooltip label={t("editor.copy")} position="left">
+        <ActionIcon
+          variant="subtle"
+          color="gray"
+          size="sm"
+          onClick={() => {
+            navigator.clipboard.writeText(editableCode);
+            notifications.show({
+              title: t("editor.success"),
+              message: t("editor.codeCopied"),
+              color: "green",
+              autoClose: 2000,
+            });
+          }}
+        >
+          <IconCopy size={16} />
+        </ActionIcon>
+      </Tooltip>
 
-                {isEditable && hasChanged && (
-                  <Tooltip label={t("editor.resetCode")} position="left">
-                    <ActionIcon
-                      variant="subtle"
-                      color="gray"
-                      size="sm"
-                      onClick={() => {
-                        if (editorRef.current) {
-                          editorRef.current.dispatch({
-                            changes: {
-                              from: 0,
-                              to: editorRef.current.state.doc.length,
-                              insert: code,
-                            },
-                          });
-                        }
-                        setEditableCode(code);
-                      }}
-                    >
-                      <IconRotate size={16} />
-                    </ActionIcon>
-                  </Tooltip>
-                )}
-
-                {isRunnable && (
-                  <Tooltip
-                    label={running ? t("editor.running") : t("editor.run")}
-                    position="left"
-                  >
-                    <ActionIcon
-                      variant="subtle"
-                      color="gray"
-                      size="sm"
-                      disabled={running}
-                      onClick={runCode}
-                    >
-                      {running ? (
-                        <IconLoader2
-                          size={16}
-                          style={{
-                            animation: "code-highlight-spin 1s linear infinite",
-                          }}
-                        />
-                      ) : (
-                        <IconPlayerPlay size={16} />
-                      )}
-                    </ActionIcon>
-                  </Tooltip>
-                )}
-              </div>
-            </Box>
-          ) : (
-            <MantineCodeHighlight
-              mt="sm"
-              mb="xs"
-              code={code}
-              language={language}
-              copyLabel={t("editor.copy")}
-              copiedLabel={t("editor.copied")}
-              controls={
-                !isRunnable
-                  ? []
-                  : [
-                      <CodeHighlightControl
-                        component="button"
-                        key="run"
-                        tooltipLabel={
-                          running ? t("editor.running") : t("editor.run")
-                        }
-                        disabled={running}
-                        onClick={runCode}
-                      >
-                        {running ? (
-                          <IconLoader2
-                            style={{
-                              animation:
-                                "code-highlight-spin 1s linear infinite",
-                            }}
-                          />
-                        ) : (
-                          <IconPlayerPlay />
-                        )}
-                      </CodeHighlightControl>,
-                    ]
+      {isEditable && hasChanged && (
+        <Tooltip label={t("editor.resetCode")} position="left">
+          <ActionIcon
+            variant="subtle"
+            color="gray"
+            size="sm"
+            onClick={() => {
+              if (editorRef.current) {
+                editorRef.current.dispatch({
+                  changes: {
+                    from: 0,
+                    to: editorRef.current.state.doc.length,
+                    insert: code,
+                  },
+                });
               }
-              styles={{code: {fontSize: 14}}}
-            />
+              setEditableCode(code);
+            }}
+          >
+            <IconRotate size={16} />
+          </ActionIcon>
+        </Tooltip>
+      )}
+
+      {isRunnable && (
+        <Tooltip
+          label={running ? t("editor.running") : t("editor.run")}
+          position="left"
+        >
+          <ActionIcon
+            variant="subtle"
+            color="gray"
+            size="sm"
+            disabled={running}
+            onClick={runCode}
+          >
+            {running ? (
+              <IconLoader2
+                size={16}
+                style={{animation: "code-highlight-spin 1s linear infinite"}}
+              />
+            ) : (
+              <IconPlayerPlay size={16} />
+            )}
+          </ActionIcon>
+        </Tooltip>
+      )}
+    </div>
+  );
+
+  return (
+    <Box my="xl">
+      <div className={classes.surface}>
+        <div
+          className={`${classes.workspace} ${showPreview ? classes.split : ""}`}
+        >
+          <div className={classes.pane}>
+            <div className={classes.paneBar}>
+              <span className={classes.fileName}>{fileNameFor(language)}</span>
+              {actions}
+            </div>
+
+            <div className={classes.code}>
+              {mounted ? (
+                <div ref={containerRef} style={{height: "auto"}} />
+              ) : (
+                <MantineCodeHighlight
+                  code={code}
+                  language={language}
+                  copyLabel={t("editor.copy")}
+                  copiedLabel={t("editor.copied")}
+                  withCopyButton={false}
+                  styles={{code: {fontSize: 14}}}
+                />
+              )}
+            </div>
+          </div>
+
+          {showPreview && (
+            <div className={`${classes.pane} ${classes.previewPane}`}>
+              <RunPreview
+                run={run}
+                running={running}
+                open={open}
+                onOpen={setOpen}
+                showTerminal={hasTerminal}
+                showLogs={hasLogs}
+              />
+            </div>
           )}
         </div>
 
-        {isLive && (running || run.state) && (
-          <div className={classes.pane}>
-            <RunPreview
-              run={run}
-              running={running}
-              open={open}
-              onOpen={setOpen}
-              showTerminal={hasTerminal}
-              showLogs={hasLogs}
-            />
-          </div>
+        {isLive ? (
+          <RunPanel
+            run={run}
+            open={open}
+            logs={logs}
+            output={output}
+            running={running}
+          />
+        ) : (
+          output && (
+            <div className={classes.panel}>
+              <div className={classes.panelBar}>
+                <span>{t("editor.programOutput")}</span>
+              </div>
+              <pre className={classes.text}>{output}</pre>
+            </div>
+          )
         )}
       </div>
-
-      {isLive ? (
-        <RunPanel
-          run={run}
-          open={open}
-          logs={logs}
-          output={output}
-          running={running}
-        />
-      ) : (
-        output && (
-          <div className={classes.panel}>
-            <div className={classes.panelBar}>
-              <span>{t("editor.programOutput")}</span>
-            </div>
-            <pre className={classes.text}>{output}</pre>
-          </div>
-        )
-      )}
     </Box>
   );
 }
