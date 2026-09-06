@@ -114,4 +114,24 @@ describe("StateBadge", () => {
     expect(badge({state: "running", expectedState: "running"})).toBe("running");
     expect(badge({state: "stopped", expectedState: "stopped"})).toBe("stopped");
   });
+
+  it("counts down what is left of a container's time", () => {
+    const deadline = new Date(Date.now() + 95_000).toISOString();
+
+    expect(badge({state: "running", deadline})).toMatch(/^running1:3\d$/);
+  });
+
+  it("counts nothing down for a container that is not running any more", () => {
+    const deadline = new Date(Date.now() + 95_000).toISOString();
+
+    expect(badge({state: "stopped", deadline})).toBe("stopped");
+  });
+
+  it("shows what is being done to a container rather than its time", () => {
+    const deadline = new Date(Date.now() + 95_000).toISOString();
+
+    expect(badge({state: "running", deadline, pending: "stopping"})).toBe(
+      "containers.transitions.stopping",
+    );
+  });
 });

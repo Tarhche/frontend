@@ -307,15 +307,23 @@
 .ck.ck-editor__editable pre[data-runtime] {
   position: relative;
   margin-inline: 0;
-  padding-top: 44px;
+  padding: 50px 12px 12px;
   border: 1px solid var(--mantine-color-gray-3, #dee2e6);
   border-radius: var(--mantine-radius-md, 8px);
+  font-family: var(--mantine-font-family-monospace), monospace;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 :root[data-mantine-color-scheme="dark"]
   .ck.ck-editor__editable
   pre[data-runtime] {
   border-color: var(--mantine-color-dark-4, #373a40);
+}
+
+.ck.ck-editor__editable pre[data-runtime] > code {
+  font-family: inherit;
+  font-size: inherit;
 }
 
 .ck.ck-editor__editable pre[data-runtime]::before {
@@ -343,31 +351,34 @@
 
 /* Runnable code blocks show their runtime right next to the language label, by
    extending the label CKEditor already pins to the corner of the block. */
-.ck.ck-editor__editable pre[data-language][data-runtime]::after {
-  content: attr(data-language) " \25B6 " attr(data-runtime);
-  top: 9px;
-  right: 10px;
-  border-radius: 999px;
-  background: var(--mantine-color-teal-7, #0c8599);
+/* The runtime sits at the end of that bar, the way the page puts its controls
+   there: named rather than badged. */
+.ck.ck-editor__editable pre[data-language][data-runtime]::after,
+.ck.ck-editor__editable pre[data-runtime]:not([data-language])::after {
+  content: attr(data-runtime);
+  position: absolute;
+  top: 0;
+  right: 12px;
+  left: auto;
+  display: flex;
+  align-items: center;
+  height: 38px;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--mantine-color-gray-6, #868e96);
+  font-family: var(--mantine-font-family-monospace), monospace;
+  font-size: 12px;
+  line-height: 1.5;
   direction: ltr;
   unicode-bidi: isolate;
+  white-space: nowrap;
 }
 
-/* Same badge for blocks whose language carries no label of its own. */
-.ck.ck-editor__editable pre[data-runtime]:not([data-language])::after {
-  content: "\25B6 " attr(data-runtime);
-  position: absolute;
-  top: -1px;
-  right: 10px;
-  direction: ltr;
-  unicode-bidi: isolate;
-  background: var(--mantine-color-teal-7, #0c8599);
-  color: #fff;
-  font-family: var(--ck-font-face);
-  font-size: 10px;
-  line-height: 16px;
-  padding: var(--ck-spacing-tiny) var(--ck-spacing-medium);
-  white-space: nowrap;
+:root[data-mantine-color-scheme="dark"]
+  .ck.ck-editor__editable
+  pre[data-runtime]::after {
+  color: var(--mantine-color-dark-1, #909296);
 }
 
 /* Code block settings balloon. */
