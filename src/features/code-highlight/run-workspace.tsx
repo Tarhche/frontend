@@ -234,10 +234,10 @@ export function RunPanel({
 
   const alive = run.state === "running";
 
-  // a shell belongs to the container it was opened in: when that ends, so does
-  // the shell, and a box holding a dead one is worth nothing to look at.
+  // a log and a shell belong to the container they were opened on: when that
+  // ends they end with it, the way the browser does.
   useEffect(() => {
-    if (open === "terminal" && !running) {
+    if (open && !running) {
       onOpen(null);
     }
   }, [open, running, onOpen]);
@@ -256,7 +256,8 @@ export function RunPanel({
 
         {(running || run.state) && (
           <span className={classes.status}>
-            <Cube small />
+            {/* the cube is for waiting: once it is running, it has arrived. */}
+            {!alive && <Cube small />}
             {run.state
               ? containerStateLabel(t, run.state)
               : t("editor.running")}

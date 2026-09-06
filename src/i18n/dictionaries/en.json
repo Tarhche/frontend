@@ -597,7 +597,6 @@
       "overview": "Overview",
       "follow": "Follow",
       "noLogs": "Nothing written yet",
-      "terminalHint": "A shell inside the container. Closing this tab ends it.",
       "terminalEnded": "The session ended.",
       "notRunning": "The container is not running.",
       "terminalReconnected": "The connection dropped. This is a new session.",

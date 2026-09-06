@@ -3,7 +3,7 @@
 import {useEffect, useRef, useState} from "react";
 import {toUint8Array, fromUint8Array} from "js-base64";
 import JsCookie from "js-cookie";
-import {Alert, Box, Text} from "@mantine/core";
+import {Alert, Box} from "@mantine/core";
 import {IconInfoCircle} from "@tabler/icons-react";
 import {ACCESS_TOKEN_COOKIE_NAME} from "@/constants";
 import {useTranslations} from "@/i18n/provider";
@@ -190,9 +190,6 @@ export function ContainerTerminal({
 
   return (
     <Box>
-      <Text size="sm" c="dimmed" mb="xs">
-        {t("containers.detail.terminalHint")}
-      </Text>
       <Box
         ref={mount}
         aria-label={t("containers.detail.terminal")}

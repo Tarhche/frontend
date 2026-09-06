@@ -152,10 +152,13 @@
   font-size: var(--mantine-font-size-xs);
 }
 
-/* the code itself, without the box Mantine or the theme would put round it. */
+/* the code itself, without the box Mantine or the theme would put round it.
+   A long snippet is scrolled rather than shown whole: twenty lines is as much
+   of one as a page should give up to it. */
 .code {
   flex: 1;
   min-width: 0;
+  max-height: 26rem;
   overflow: auto;
 }
 
