@@ -14,6 +14,10 @@ import {ContainerTerminal} from "@/features/dashboard/runner/components/containe
 import {useTranslations} from "@/i18n/provider";
 import {CODE_TERMINAL_INPUT_SUBJECT, CODE_TERMINAL_SUBJECT} from "./subjects";
 
+// ten lines of shell, which is as much of a page as a snippet's terminal is
+// worth; what it writes past that it keeps, and scrolls.
+const SHELL_HEIGHT = "8rem";
+
 // what a snippet's terminal is opened on. It is made once: a run is reported
 // several times a second, and a terminal that is handed new subjects on every
 // report is a terminal nobody can type into.
@@ -261,6 +265,7 @@ export function RunPanel({
           running
           authenticated={false}
           subjects={SNIPPET_SUBJECTS}
+          height={SHELL_HEIGHT}
         />
       ) : (
         <pre className={`${classes.text} ${body ? "" : classes.empty}`}>

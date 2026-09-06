@@ -31,6 +31,13 @@ type Props = {
    */
   subjects?: {attach: string; input: string};
   authenticated?: boolean;
+
+  /**
+   * How tall to draw it. A page that gives a snippet a corner of itself asks
+   * for a few lines; the dashboard, which has a page to spare, takes what the
+   * box gives it.
+   */
+  height?: string;
 };
 
 /**
@@ -45,6 +52,7 @@ export function ContainerTerminal({
   running,
   subjects = DASHBOARD_SUBJECTS,
   authenticated = true,
+  height,
 }: Props) {
   const t = useTranslations();
   const openStream = useWsStream();
@@ -194,7 +202,7 @@ export function ContainerTerminal({
         ref={mount}
         aria-label={t("containers.detail.terminal")}
         className={classes.shell}
-        style={{opacity: ended ? 0.7 : 1}}
+        style={{opacity: ended ? 0.7 : 1, height}}
       />
     </Box>
   );
