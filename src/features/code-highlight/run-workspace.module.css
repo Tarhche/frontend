@@ -163,6 +163,10 @@
   min-width: 0;
   max-height: 26rem;
   overflow: auto;
+
+  /* code is written left to right wherever it is read. */
+  direction: ltr;
+  text-align: left;
 }
 
 .code :global(.mantine-CodeHighlight-root),
@@ -340,10 +344,6 @@
 }
 
 /* and what those buttons open, under the whole thing. */
-.panel :global(.xterm) {
-  direction: ltr;
-}
-
 .panel {
   border-block-start: 1px solid
     light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));

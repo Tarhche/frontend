@@ -7,6 +7,8 @@
  * rather than show the box through from behind.
  */
 .shell {
+  direction: ltr;
+  text-align: left;
   height: 60vh;
   padding: var(--mantine-spacing-xs);
   background-color: #000;
