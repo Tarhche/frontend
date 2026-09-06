@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect} from "react";
+import {useEffect, useRef} from "react";
 import {createPortal} from "react-dom";
 import {RunPanel, RunPreview, type OpenPanel} from "./run-workspace";
 import {useCodeRun} from "./use-code-run";
@@ -49,8 +49,14 @@ export function CodeRunSurface({
 }: Props) {
   const {run, running, output, logs, start, stop} = useCodeRun();
 
+  // A token is asked for once, however many times react runs the effect that
+  // watches it — in development it runs every one of them twice, and a snippet
+  // run twice is two containers, both reporting into the one surface.
+  const asked = useRef({run: 0, stop: 0});
+
   useEffect(() => {
-    if (runToken > 0) {
+    if (runToken > 0 && asked.current.run !== runToken) {
+      asked.current.run = runToken;
       void start({runtime, code, ports, terminal});
     }
     // the token is what says "run it": the snippet itself is read when it does.
@@ -58,7 +64,8 @@ export function CodeRunSurface({
   }, [runToken]);
 
   useEffect(() => {
-    if (stopToken > 0) {
+    if (stopToken > 0 && asked.current.stop !== stopToken) {
+      asked.current.stop = stopToken;
       void stop();
     }
     // the token is what says "stop it": which container that is, is read when
