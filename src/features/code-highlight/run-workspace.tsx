@@ -26,7 +26,6 @@ const SNIPPET_SUBJECTS = {
   input: CODE_TERMINAL_INPUT_SUBJECT,
 };
 import classes from "./run-workspace.module.css";
-export {fileNameFor} from "./file-name";
 
 /** What the runner has said about a snippet that is being watched. */
 export type Run = {

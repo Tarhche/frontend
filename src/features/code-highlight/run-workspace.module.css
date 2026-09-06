@@ -90,7 +90,8 @@
   }
 }
 
-/* the bar over each side: what the snippet is called, and the browser's own. */
+/* the bar over each side: what can be done to the snippet, and the browser's
+   own address. */
 .paneBar {
   display: flex;
   align-items: center;
@@ -99,17 +100,6 @@
   padding: 4px 8px;
   border-block-end: 1px solid
     light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
-}
-
-.fileName {
-  padding-inline: 4px;
-  color: light-dark(
-    var(--mantine-primary-color-6),
-    var(--mantine-primary-color-4)
-  );
-  font-family: var(--mantine-font-family-monospace), monospace;
-  font-size: var(--mantine-font-size-xs);
-  direction: ltr;
 }
 
 .paneActions {

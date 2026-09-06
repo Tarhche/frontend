@@ -4,7 +4,6 @@ import {
   watchScheme,
   type MountedCode,
 } from "@/features/code-highlight/codemirror";
-import {fileNameFor} from "@/features/code-highlight/file-name";
 import {attachSplitHandle} from "@/features/code-highlight/split";
 import classes from "@/features/code-highlight/run-workspace.module.css";
 
@@ -68,7 +67,6 @@ export class SnippetView {
 
   private readonly _code: MountedCode;
   private readonly _unwatchScheme: () => void;
-  private readonly _fileName: HTMLElement;
   private readonly _runtime: HTMLElement;
   private readonly _runButton: HTMLButtonElement;
   private readonly _labels: SnippetLabels;
@@ -98,10 +96,6 @@ export class SnippetView {
     const bar = document.createElement("div");
     bar.className = classes.paneBar;
 
-    this._fileName = document.createElement("span");
-    this._fileName.className = classes.fileName;
-    this._fileName.textContent = fileNameFor(options.language);
-
     const actions = document.createElement("div");
     actions.className = classes.paneActions;
 
@@ -122,7 +116,7 @@ export class SnippetView {
     this._runButton.hidden = !options.runnable;
 
     actions.append(this._runtime, copy, this._runButton);
-    bar.append(this._fileName, actions);
+    bar.append(actions);
 
     // the editor around this one is told to keep out of the snippet, so taking
     // hold of the snippet itself — to move it, or to take it out — is what the
@@ -172,7 +166,6 @@ export class SnippetView {
   }
 
   public setLanguage(language: string | undefined): void {
-    this._fileName.textContent = fileNameFor(language);
     this._code.setLanguage(language);
   }
 

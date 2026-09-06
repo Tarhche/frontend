@@ -11,12 +11,7 @@ import {
 import {ActionIcon, Box, Tooltip} from "@mantine/core";
 import {CodeHighlight as MantineCodeHighlight} from "@mantine/code-highlight";
 import {notifications} from "@mantine/notifications";
-import {
-  RunPanel,
-  RunPreview,
-  fileNameFor,
-  type OpenPanel,
-} from "./run-workspace";
+import {RunPanel, RunPreview, type OpenPanel} from "./run-workspace";
 import {
   currentScheme,
   mountCodeMirror,
@@ -220,10 +215,7 @@ function CodeHighlight({code, language, executable}: Props) {
           className={`${classes.workspace} ${showPreview ? classes.split : ""}`}
         >
           <div className={classes.pane}>
-            <div className={classes.paneBar}>
-              <span className={classes.fileName}>{fileNameFor(language)}</span>
-              {actions}
-            </div>
+            <div className={classes.paneBar}>{actions}</div>
 
             <div className={classes.code}>
               {mounted ? (
