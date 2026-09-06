@@ -74,6 +74,9 @@ import {
  * setting up rather than an approximation of it.
  */
 export type RunCodeCallback = (snippet: {
+  /** The two boxes in the snippet's card a reader's surface is drawn into. */
+  hosts: {preview: HTMLElement; panel: HTMLElement};
+
   runtime: string;
   code: string;
   ports: Array<number>;
@@ -105,6 +108,7 @@ type Labels = {
   copy: string;
   run: string;
   stop: string;
+  resize: string;
   insertCodeBlock: string;
   codeBlockSettings: string;
 };
@@ -213,6 +217,7 @@ export class RunnableCodeBlockPlugin extends Plugin {
       copy: label("editor.copy", "Copy"),
       run: label("editor.run", "Run"),
       stop: label("editor.stop", "Stop"),
+      resize: label("editor.resize", "Resize the code and the browser"),
       insertCodeBlock: label("editor.insertCodeBlock", "Insert code block"),
       codeBlockSettings: label(
         "editor.codeBlockSettings",
@@ -769,7 +774,14 @@ export class RunnableCodeBlockPlugin extends Plugin {
       return;
     }
 
+    const view = this._views.get(snippet);
+
+    if (!view) {
+      return;
+    }
+
     onRun({
+      hosts: {preview: view.previewHost, panel: view.panelHost},
       runtime,
       code: snippetCode(snippet),
       ports: parsePorts(

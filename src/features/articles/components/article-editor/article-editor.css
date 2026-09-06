@@ -517,38 +517,3 @@
   .ck-code-block-settings__output-text {
   color: var(--mantine-color-red-7, #c92a2a);
 }
-
-/*
- * Running a snippet puts what it serves beside what it is written in, the way
- * a reader is shown it: the editor on one side, the browser on the other, and
- * the line between them is what sets how much of each is shown. The code is
- * read left to right whatever the article is written in.
- */
-.editor-workspace {
-  display: grid;
-  align-items: start;
-  direction: ltr;
-}
-
-@media (min-width: 62em) {
-  .editor-workspace_split {
-    grid-template-columns: minmax(0, var(--split, 55%)) auto minmax(0, 1fr);
-  }
-}
-
-.editor-run-surface {
-  min-width: 0;
-}
-
-@media (max-width: 61.99em) {
-  .editor-run-surface {
-    margin-top: 12px;
-  }
-}
-
-@media (min-width: 62em) {
-  .editor-run-surface {
-    position: sticky;
-    top: 12px;
-  }
-}

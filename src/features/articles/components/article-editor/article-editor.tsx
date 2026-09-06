@@ -7,7 +7,6 @@ import {Modal} from "@mantine/core";
 import {FilesExplorer} from "@/components/files-explorer";
 import {FILES_PUBLIC_URL} from "@/constants/envs";
 import {CodeRunSurface} from "@/features/code-highlight/code-run-surface";
-import {SplitHandle} from "@/features/code-highlight/split-handle";
 import {type OpenPanel} from "@/features/code-highlight/run-workspace";
 import {useI18n} from "@/i18n/provider";
 import {localeFromLanguageCode} from "@/i18n/config";
@@ -27,6 +26,7 @@ type Props = {
 
 /** What the code block panel hands over when an author runs a snippet. */
 type CodeSurface = {
+  hosts: {preview: HTMLElement; panel: HTMLElement};
   runtime: string;
   code: string;
   ports: Array<number>;
@@ -73,47 +73,36 @@ export function ArticleEditor({initialData, editorRef, languageCode}: Props) {
 
   return (
     <div className="main-container">
-      <div
-        className={
-          surface
-            ? "editor-workspace editor-workspace_split"
-            : "editor-workspace"
-        }
-      >
-        <div className="editor-container editor-container_classic-editor editor-container_include-style editor-container_include-block-toolbar editor-container_include-word-count">
-          <div className="editor-container__editor">
-            {config && (
-              <CKEditor
-                editor={ClassicEditor}
-                config={config}
-                ref={editorRef}
-                id={`${locale}:${contentLocale}`}
-              />
-            )}
-          </div>
-        </div>
-
-        {surface && <SplitHandle label={t("editor.resize")} />}
-
-        {/* what running a snippet does, drawn the way a reader is shown it. */}
-        {surface && (
-          <div className="editor-run-surface">
-            <CodeRunSurface
-              key={surface.token}
-              runtime={surface.runtime}
-              code={surface.code}
-              ports={surface.ports}
-              terminal={surface.terminal}
-              logs={surface.logs}
-              runToken={surface.token}
-              stopToken={surface.stopToken}
-              open={openPanel}
-              onOpen={setOpenPanel}
-              onRunningChange={surface.onRunningChange}
+      <div className="editor-container editor-container_classic-editor editor-container_include-style editor-container_include-block-toolbar editor-container_include-word-count">
+        <div className="editor-container__editor">
+          {config && (
+            <CKEditor
+              editor={ClassicEditor}
+              config={config}
+              ref={editorRef}
+              id={`${locale}:${contentLocale}`}
             />
-          </div>
-        )}
+          )}
+        </div>
       </div>
+
+      {/* what running a snippet does, drawn into the snippet's own card. */}
+      {surface && (
+        <CodeRunSurface
+          key={surface.token}
+          hosts={surface.hosts}
+          runtime={surface.runtime}
+          code={surface.code}
+          ports={surface.ports}
+          terminal={surface.terminal}
+          logs={surface.logs}
+          runToken={surface.token}
+          stopToken={surface.stopToken}
+          open={openPanel}
+          onOpen={setOpenPanel}
+          onRunningChange={surface.onRunningChange}
+        />
+      )}
 
       <Modal
         size="xl"

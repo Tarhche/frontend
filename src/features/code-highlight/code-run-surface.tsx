@@ -1,11 +1,15 @@
 "use client";
 
 import {useEffect} from "react";
+import {createPortal} from "react-dom";
 import {RunPanel, RunPreview, type OpenPanel} from "./run-workspace";
 import {useCodeRun} from "./use-code-run";
 import classes from "./run-workspace.module.css";
 
 type Props = {
+  /** The two boxes of the snippet's own card this is drawn into. */
+  hosts: {preview: HTMLElement; panel: HTMLElement};
+
   runtime: string;
   code: string;
   ports: number[];
@@ -24,13 +28,14 @@ type Props = {
 };
 
 /**
- * What a snippet has to show, wherever it is being shown.
+ * What a snippet an author is writing has to show.
  *
- * The page draws this under the code a reader is reading; the editor draws the
- * same thing in the panel an author is writing it in, so what an author sets up
- * is what a reader gets, seen the same way.
+ * It is drawn into the snippet's own card — the browser beside the code, and a
+ * log or a shell along its floor — which is where a reader is shown the same
+ * thing, so what an author sets up is what a reader gets.
  */
 export function CodeRunSurface({
+  hosts,
   runtime,
   code,
   ports,
@@ -75,30 +80,35 @@ export function CodeRunSurface({
   }
 
   return (
-    <div className={classes.surface}>
-      {showPreview && (
-        <RunPreview
-          run={run}
-          running={running}
-          open={open}
-          onOpen={onOpen}
-          showTerminal={terminal}
-          showLogs={showLogs}
-        />
-      )}
+    <>
+      {showPreview &&
+        createPortal(
+          <RunPreview
+            run={run}
+            running={running}
+            open={open}
+            onOpen={onOpen}
+            showTerminal={terminal}
+            showLogs={showLogs}
+          />,
+          hosts.preview,
+        )}
 
-      {showOutput && <pre className={classes.text}>{output}</pre>}
+      {live &&
+        createPortal(
+          <RunPanel
+            run={run}
+            open={open}
+            onOpen={onOpen}
+            logs={logs}
+            output={output}
+            running={running}
+          />,
+          hosts.panel,
+        )}
 
-      {live && (
-        <RunPanel
-          run={run}
-          open={open}
-          onOpen={onOpen}
-          logs={logs}
-          output={output}
-          running={running}
-        />
-      )}
-    </div>
+      {showOutput &&
+        createPortal(<pre className={classes.text}>{output}</pre>, hosts.panel)}
+    </>
   );
 }

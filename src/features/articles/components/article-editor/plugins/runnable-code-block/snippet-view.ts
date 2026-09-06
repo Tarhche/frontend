@@ -5,6 +5,7 @@ import {
   type MountedCode,
 } from "@/features/code-highlight/codemirror";
 import {fileNameFor} from "@/features/code-highlight/file-name";
+import {attachSplitHandle} from "@/features/code-highlight/split";
 import classes from "@/features/code-highlight/run-workspace.module.css";
 
 /** The icons the bar carries, drawn the way the page draws them. */
@@ -26,6 +27,7 @@ export type SnippetLabels = {
   copy: string;
   run: string;
   stop: string;
+  resize: string;
 };
 
 type Options = {
@@ -56,6 +58,14 @@ type Options = {
 export class SnippetView {
   public readonly element: HTMLElement;
 
+  /**
+   * Where what the snippet serves is drawn, and where a log or a shell opened
+   * on it goes: the card's other side, and its floor. Whoever owns the editor
+   * draws a reader's own surface into them.
+   */
+  public readonly previewHost: HTMLElement;
+  public readonly panelHost: HTMLElement;
+
   private readonly _code: MountedCode;
   private readonly _unwatchScheme: () => void;
   private readonly _fileName: HTMLElement;
@@ -64,6 +74,9 @@ export class SnippetView {
   private readonly _labels: SnippetLabels;
   private readonly _onRun: () => void;
   private readonly _onStop: () => void;
+  private readonly _workspace: HTMLElement;
+  private readonly _handle: HTMLElement;
+  private readonly _detachHandle: () => void;
 
   private _running = false;
 
@@ -73,6 +86,11 @@ export class SnippetView {
     this._onStop = options.onStop;
 
     host.classList.add(classes.surface);
+
+    // the same two sides a reader is shown: the code, and what it serves. The
+    // second is there only while there is something running behind it.
+    this._workspace = document.createElement("div");
+    this._workspace.className = classes.workspace;
 
     const pane = document.createElement("div");
     pane.className = classes.pane;
@@ -115,7 +133,24 @@ export class SnippetView {
     area.className = classes.code;
 
     pane.append(bar, area);
-    host.append(pane);
+
+    this._handle = document.createElement("div");
+    this._handle.className = classes.handle;
+    this._handle.setAttribute("role", "separator");
+    this._handle.setAttribute("aria-orientation", "vertical");
+    this._handle.setAttribute("aria-label", options.labels.resize);
+    this._handle.tabIndex = 0;
+    this._handle.hidden = true;
+    this._detachHandle = attachSplitHandle(this._handle);
+
+    this.previewHost = document.createElement("div");
+    this.previewHost.className = `${classes.pane} ${classes.previewPane}`;
+    this.previewHost.hidden = true;
+
+    this.panelHost = document.createElement("div");
+
+    this._workspace.append(pane, this._handle, this.previewHost);
+    host.append(this._workspace, this.panelHost);
 
     this.element = host;
 
@@ -151,6 +186,11 @@ export class SnippetView {
     this._runButton.title = running ? this._labels.stop : this._labels.run;
     this._runButton.setAttribute("aria-label", this._runButton.title);
     this._runButton.innerHTML = icon(running ? ICONS.stop : ICONS.play);
+
+    // what it serves takes the other half of the card while it is serving it.
+    this._workspace.classList.toggle(classes.split, running);
+    this._handle.hidden = !running;
+    this.previewHost.hidden = !running;
   }
 
   public focus(): void {
@@ -158,6 +198,7 @@ export class SnippetView {
   }
 
   public destroy(): void {
+    this._detachHandle();
     this._unwatchScheme();
     this._code.destroy();
   }
