@@ -8,7 +8,6 @@
  * half of it is not a browser.
  */
 .surface {
-  direction: ltr;
   border: 1px solid
     light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
   border-radius: var(--mantine-radius-md);
@@ -22,6 +21,10 @@
 .workspace {
   display: grid;
   align-items: stretch;
+
+  /* code, and the browser beside it, are read left to right whatever the page
+     around them is written in. */
+  direction: ltr;
 }
 
 @media (min-width: 62em) {
@@ -337,6 +340,10 @@
 }
 
 /* and what those buttons open, under the whole thing. */
+.panel :global(.xterm) {
+  direction: ltr;
+}
+
 .panel {
   border-block-start: 1px solid
     light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
@@ -346,14 +353,6 @@
   composes: paneBar;
   font-size: var(--mantine-font-size-xs);
   color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
-}
-
-.status {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-inline-start: auto;
-  perspective: 120px;
 }
 
 .text {
@@ -389,13 +388,6 @@
   height: 18px;
   transform-style: preserve-3d;
   animation: cube-turn 3s infinite linear;
-}
-
-.cubeSmall {
-  --cube-half: 6px;
-
-  width: 12px;
-  height: 12px;
 }
 
 .face {

@@ -304,11 +304,10 @@
  * a reader is shown — so there is nothing here to style but the room it takes.
  */
 .ck.ck-editor__editable .ck-code-snippet {
-  /* the whole width of what is being written, whichever way it is written:
-     code reads left to right even where the article does not. */
+  /* the whole width of what is being written. The code and the browser beside
+     it read left to right wherever they are; what is written above a log or a
+     shell is the article's own language, and reads the article's way. */
   margin: 1em calc(-1 * var(--ck-spacing-standard, 12px));
-  direction: ltr;
-  text-align: left;
 }
 
 .ck.ck-editor__editable .ck-code-snippet.ck-widget_selected {

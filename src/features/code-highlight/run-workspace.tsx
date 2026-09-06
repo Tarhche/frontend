@@ -39,9 +39,9 @@ export type Run = {
 export type OpenPanel = "terminal" | "logs" | null;
 
 /** The turning cube itself: six sides of one, drawn with borders. */
-export function Cube({small}: {small?: boolean} = {}) {
+export function Cube() {
   return (
-    <span className={`${classes.cube} ${small ? classes.cubeSmall : ""}`}>
+    <span className={classes.cube}>
       <span className={classes.face} />
       <span className={classes.face} />
       <span className={classes.face} />
@@ -253,16 +253,6 @@ export function RunPanel({
     <div className={classes.panel}>
       <div className={classes.panelBar}>
         <span>{title}</span>
-
-        {(running || run.state) && (
-          <span className={classes.status}>
-            {/* the cube is for waiting: once it is running, it has arrived. */}
-            {!alive && <Cube small />}
-            {run.state
-              ? containerStateLabel(t, run.state)
-              : t("editor.running")}
-          </span>
-        )}
       </div>
 
       {open === "terminal" && alive && run.container_uuid ? (
