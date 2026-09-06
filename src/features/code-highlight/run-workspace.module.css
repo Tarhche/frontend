@@ -116,6 +116,42 @@
   margin-inline-start: auto;
 }
 
+/* An action in that bar, where there is no react to draw one: the same size
+   and the same quiet grey the page's are. */
+.paneAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--mantine-radius-sm);
+  background: none;
+  color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-1));
+  cursor: pointer;
+}
+
+.paneAction:hover {
+  background-color: light-dark(
+    var(--mantine-color-gray-1),
+    var(--mantine-color-dark-5)
+  );
+  color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
+}
+
+.paneAction[hidden] {
+  display: none;
+}
+
+/* What a snippet is run with, named beside what can be done to it. */
+.runtimeName {
+  margin-inline-end: 4px;
+  color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-1));
+  font-family: var(--mantine-font-family-monospace), monospace;
+  font-size: var(--mantine-font-size-xs);
+}
+
 /* the code itself, without the box Mantine or the theme would put round it. */
 .code {
   flex: 1;

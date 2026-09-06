@@ -7,55 +7,67 @@ import {
   Plugin,
   SplitButtonView,
   UIModel,
+  Widget,
   addListToDropdown,
   createDropdown,
+  toWidget,
   _getNormalizedAndLocalizedCodeBlockLanguageDefinitions as getLanguageDefinitions,
   type DowncastAttributeEvent,
   type ListDropdownItemDefinition,
   type ModelElement,
+  type ModelWriter,
   type UpcastElementEvent,
   type ViewElement,
-  type ModelWriter,
+  type ViewNode,
 } from "ckeditor5";
 import {RUNTIMES} from "@/constants";
-import {fileNameFor} from "@/features/code-highlight/file-name";
 import {
   CodeBlockEditableCommand,
   CodeBlockLogsCommand,
   CodeBlockPortsCommand,
   CodeBlockRuntimeCommand,
   CodeBlockTerminalCommand,
+  CodeSnippetLanguageCommand,
+  InsertCodeSnippetCommand,
 } from "./commands";
 import {
   CodeBlockSettingsView,
   type CodeBlockRuntimeOption,
 } from "./code-block-settings-view";
+import {SnippetView} from "./snippet-view";
 import {
+  CODE_ATTRIBUTE,
   EDITABLE_COMMAND,
-  FILE_NAME_ATTRIBUTE,
-  LOGS_COMMAND,
-  LOGS_DATA_ATTRIBUTE,
-  PORTS_COMMAND,
-  PORTS_DATA_ATTRIBUTE,
-  LOGS_MODEL_ATTRIBUTE,
-  PORTS_MODEL_ATTRIBUTE,
-  TERMINAL_COMMAND,
-  TERMINAL_DATA_ATTRIBUTE,
-  TERMINAL_MODEL_ATTRIBUTE,
-  parsePorts,
   EDITABLE_DATA_ATTRIBUTE,
   EDITABLE_MODEL_ATTRIBUTE,
-  RUNTIME_BADGE_ATTRIBUTE,
+  INSERT_COMMAND,
+  LANGUAGE_ATTRIBUTE,
+  LANGUAGE_COMMAND,
+  LOGS_COMMAND,
+  LOGS_DATA_ATTRIBUTE,
+  LOGS_MODEL_ATTRIBUTE,
+  PLAIN_LANGUAGE,
+  PORTS_COMMAND,
+  PORTS_DATA_ATTRIBUTE,
+  PORTS_MODEL_ATTRIBUTE,
   RUNTIME_COMMAND,
   RUNTIME_DATA_ATTRIBUTE,
   RUNTIME_MODEL_ATTRIBUTE,
+  SNIPPET,
+  TERMINAL_COMMAND,
+  TERMINAL_DATA_ATTRIBUTE,
+  TERMINAL_MODEL_ATTRIBUTE,
   dropdownItemValue,
-  findCodeBlock,
-  getCodeBlockText,
+  findSnippet,
+  parsePorts,
+  setActiveSnippet,
+  snippetCode,
+  snippetLanguage,
+  snippetRuntime,
 } from "./utils";
 
 /**
- * Runs a snippet the panel is attached to.
+ * Runs a snippet and draws what it does.
  *
  * The panel says what a snippet is; whoever owns the editor draws what running
  * it does, in the surface a reader is shown, so an author sees what they are
@@ -71,16 +83,13 @@ export type RunCodeCallback = (snippet: {
 }) => void;
 
 export type RunnableCodeBlockConfig = {
-  /** Called when the author runs a snippet. Without it nothing can execute. */
+  runtimes?: Array<CodeBlockRuntimeOption>;
   onRun?: RunCodeCallback;
 
-  /** Takes away the container the snippet the panel is on is running in. */
+  /** Takes away the container the snippet being run is running in. */
   onStop?: () => void;
-  /** Runtimes available in the settings panel. */
-  runtimes?: Array<CodeBlockRuntimeOption>;
-  /** Translation function used for the plugin UI. Falls back to English. */
+
   translate?: (key: string) => string;
-  /** Reading direction of the plugin UI. Defaults to the editor UI direction. */
   direction?: "ltr" | "rtl";
 };
 
@@ -93,15 +102,9 @@ type Labels = {
   portsPlaceholder: string;
   terminal: string;
   logs: string;
+  copy: string;
   run: string;
-  running: string;
   stop: string;
-  programOutput: string;
-  programLogs: string;
-  addresses: string;
-  clearOutput: string;
-  noOutput: string;
-  runFailed: string;
   insertCodeBlock: string;
   codeBlockSettings: string;
 };
@@ -109,14 +112,17 @@ type Labels = {
 const SETTINGS_ITEM = "__settings__";
 
 /**
- * A single code block feature: language, runtime, reader-editable flag, and
- * running the snippet in the editor the way a published article does. Stored as
- * `data-executable` and `data-executable-editable` on the `<code>` element,
- * which is where the article body parser reads them.
+ * Code blocks, written the way they are read.
+ *
+ * A snippet is one thing in the model — the code, the language it is in, and
+ * what it takes to run it — and the editor draws it as the same card a reader
+ * is shown, with the same editor inside. What is typed there is written back
+ * to the model, so an article is saved as the `<pre><code>` it always was,
+ * carrying `data-executable` and its companions for the page to read.
  */
 export class RunnableCodeBlockPlugin extends Plugin {
   public static get requires() {
-    return [CodeBlockEditing, ContextualBalloon] as const;
+    return [CodeBlockEditing, Widget, ContextualBalloon] as const;
   }
 
   public static get pluginName() {
@@ -129,14 +135,23 @@ export class RunnableCodeBlockPlugin extends Plugin {
   private _isDismissed = false;
   private _labels!: Labels;
 
+  /** The editors drawn for the snippets in the document, by snippet. */
+  private readonly _views = new Map<ModelElement, SnippetView>();
+
   public init(): void {
     this._labels = this._createLabels();
 
     this._defineSchema();
     this._defineConverters();
+    this._replaceCodeBlocks();
 
     const {editor} = this;
 
+    editor.commands.add(INSERT_COMMAND, new InsertCodeSnippetCommand(editor));
+    editor.commands.add(
+      LANGUAGE_COMMAND,
+      new CodeSnippetLanguageCommand(editor),
+    );
     editor.commands.add(RUNTIME_COMMAND, new CodeBlockRuntimeCommand(editor));
     editor.commands.add(EDITABLE_COMMAND, new CodeBlockEditableCommand(editor));
     editor.commands.add(PORTS_COMMAND, new CodeBlockPortsCommand(editor));
@@ -145,13 +160,28 @@ export class RunnableCodeBlockPlugin extends Plugin {
 
     this._createToolbarDropdown();
     this._enableBalloonInteractions();
+    this._sweepRemovedSnippets();
   }
 
   public override destroy(): void {
     super.destroy();
 
+    for (const view of this._views.values()) {
+      view.destroy();
+    }
+
+    this._views.clear();
     this._settingsView?.destroy();
     this._settingsView = null;
+  }
+
+  /** Says a run has started or ended, so the bar can offer the other one. */
+  public setRunning(running: boolean): void {
+    const snippet = this._activeBlock;
+
+    if (snippet) {
+      this._views.get(snippet)?.setRunning(running);
+    }
   }
 
   private get _config(): RunnableCodeBlockConfig {
@@ -180,15 +210,9 @@ export class RunnableCodeBlockPlugin extends Plugin {
       portsPlaceholder: label("editor.portsPlaceholder", "8080, 3000"),
       terminal: label("editor.terminal", "Terminal"),
       logs: label("editor.logs", "Logs"),
+      copy: label("editor.copy", "Copy"),
       run: label("editor.run", "Run"),
-      running: label("editor.running", "Running…"),
       stop: label("editor.stop", "Stop"),
-      programOutput: label("editor.programOutput", "Program output:"),
-      programLogs: label("editor.tabs.logs", "Logs"),
-      addresses: label("editor.addresses", "Addresses"),
-      clearOutput: label("editor.clearOutput", "Clear output"),
-      noOutput: label("editor.noOutput", "<no output>"),
-      runFailed: label("editor.runFailed", "Running the code failed."),
       insertCodeBlock: label("editor.insertCodeBlock", "Insert code block"),
       codeBlockSettings: label(
         "editor.codeBlockSettings",
@@ -198,8 +222,11 @@ export class RunnableCodeBlockPlugin extends Plugin {
   }
 
   private _defineSchema(): void {
-    this.editor.model.schema.extend("codeBlock", {
+    this.editor.model.schema.register(SNIPPET, {
+      inheritAllFrom: "$blockObject",
       allowAttributes: [
+        CODE_ATTRIBUTE,
+        LANGUAGE_ATTRIBUTE,
         RUNTIME_MODEL_ATTRIBUTE,
         EDITABLE_MODEL_ATTRIBUTE,
         PORTS_MODEL_ATTRIBUTE,
@@ -212,166 +239,265 @@ export class RunnableCodeBlockPlugin extends Plugin {
   private _defineConverters(): void {
     const {editor} = this;
 
-    editor.conversion.for("downcast").attributeToAttribute({
-      model: {name: "codeBlock", key: RUNTIME_MODEL_ATTRIBUTE},
-      view: (value) =>
-        value ? {key: RUNTIME_DATA_ATTRIBUTE, value: String(value)} : null,
-    });
-
-    editor.conversion.for("downcast").attributeToAttribute({
-      model: {name: "codeBlock", key: EDITABLE_MODEL_ATTRIBUTE},
-      view: (value) =>
-        value ? {key: EDITABLE_DATA_ATTRIBUTE, value: "true"} : null,
-    });
-
-    editor.conversion.for("downcast").attributeToAttribute({
-      model: {name: "codeBlock", key: PORTS_MODEL_ATTRIBUTE},
-      view: (value) =>
-        value ? {key: PORTS_DATA_ATTRIBUTE, value: String(value)} : null,
-    });
-
-    editor.conversion.for("downcast").attributeToAttribute({
-      model: {name: "codeBlock", key: TERMINAL_MODEL_ATTRIBUTE},
-      view: (value) =>
-        value ? {key: TERMINAL_DATA_ATTRIBUTE, value: "true"} : null,
-    });
-
-    editor.conversion.for("downcast").attributeToAttribute({
-      model: {name: "codeBlock", key: LOGS_MODEL_ATTRIBUTE},
-      view: (value) =>
-        value ? {key: LOGS_DATA_ATTRIBUTE, value: "true"} : null,
-    });
-
-    editor.editing.downcastDispatcher.on<DowncastAttributeEvent>(
-      `attribute:${RUNTIME_MODEL_ATTRIBUTE}:codeBlock`,
-      (evt, data, conversionApi) => {
-        const viewCode = conversionApi.mapper.toViewElement(
-          data.item as ModelElement,
-        );
-        const viewPre = viewCode?.parent;
-
-        if (!viewPre || !viewPre.is("element", "pre")) {
-          return;
-        }
-
-        if (data.attributeNewValue) {
-          conversionApi.writer.setAttribute(
-            RUNTIME_BADGE_ATTRIBUTE,
-            String(data.attributeNewValue),
-            viewPre,
-          );
-
-          // the bar over the block names it the way a reader is shown it.
-          conversionApi.writer.setAttribute(
-            FILE_NAME_ATTRIBUTE,
-            fileNameFor(
-              (data.item as ModelElement).getAttribute("language") as
-                string | undefined,
-            ),
-            viewPre,
-          );
-        } else {
-          conversionApi.writer.removeAttribute(
-            RUNTIME_BADGE_ATTRIBUTE,
-            viewPre,
-          );
-          conversionApi.writer.removeAttribute(FILE_NAME_ATTRIBUTE, viewPre);
-        }
-      },
-      {priority: "low"},
-    );
-
-    // a block whose language changes is renamed with it.
-    editor.editing.downcastDispatcher.on<DowncastAttributeEvent>(
-      "attribute:language:codeBlock",
-      (evt, data, conversionApi) => {
-        const block = data.item as ModelElement;
-        const viewPre = conversionApi.mapper.toViewElement(block)?.parent;
-
-        if (
-          !viewPre ||
-          !viewPre.is("element", "pre") ||
-          !block.getAttribute(RUNTIME_MODEL_ATTRIBUTE)
-        ) {
-          return;
-        }
-
-        conversionApi.writer.setAttribute(
-          FILE_NAME_ATTRIBUTE,
-          fileNameFor(data.attributeNewValue as string | undefined),
-          viewPre,
-        );
-      },
-      {priority: "low"},
-    );
-
-    // What an article was saved with has to come back: the runtime and what it
-    // offers are read off the element, whichever of the two carries them.
-    // `pre` is the element the code block itself is converted from, so that is
-    // where the model is there to be written to.
+    // What an article holds is what it always held: a `<pre><code>` naming the
+    // language, and what it takes to run it written beside it.
     editor.conversion.for("upcast").add((dispatcher) => {
       dispatcher.on<UpcastElementEvent>(
         "element:pre",
         (evt, data, conversionApi) => {
-          const viewPre = data.viewItem;
-          const viewCode = Array.from(viewPre.getChildren()).find(
+          const {viewItem} = data;
+          const {consumable, writer, safeInsert, updateConversionResult} =
+            conversionApi;
+
+          if (!consumable.test(viewItem, {name: true})) {
+            return;
+          }
+
+          const code = Array.from(viewItem.getChildren()).find(
             (child): child is ViewElement => child.is("element", "code"),
           );
 
-          if (!viewCode || !data.modelRange) {
+          if (!code) {
             return;
           }
 
-          const codeBlock = Array.from(data.modelRange.getItems()).find(
-            (item): item is ModelElement => item.is("element", "codeBlock"),
-          );
+          const snippet = writer.createElement(SNIPPET, {
+            [CODE_ATTRIBUTE]: textOf(code),
+            [LANGUAGE_ATTRIBUTE]: languageOf(code),
+            ...runtimeAttributesOf(code, viewItem),
+          });
 
-          if (!codeBlock) {
+          if (!safeInsert(snippet, data.modelCursor)) {
             return;
           }
 
-          const readAttribute = (key: string) =>
-            (viewCode.getAttribute(key) ?? viewPre.getAttribute(key)) as
-              string | undefined;
+          consumable.consume(viewItem, {name: true});
+          consumable.consume(code, {name: true});
 
-          const runtime = readAttribute(RUNTIME_DATA_ATTRIBUTE);
-          const {writer} = conversionApi;
-          if (runtime) {
-            writer.setAttribute(RUNTIME_MODEL_ATTRIBUTE, runtime, codeBlock);
-
-            if (readAttribute(EDITABLE_DATA_ATTRIBUTE) === "true") {
-              writer.setAttribute(EDITABLE_MODEL_ATTRIBUTE, true, codeBlock);
-            }
-
-            const ports = parsePorts(readAttribute(PORTS_DATA_ATTRIBUTE));
-            if (ports.length > 0) {
-              writer.setAttribute(
-                PORTS_MODEL_ATTRIBUTE,
-                ports.join(","),
-                codeBlock,
-              );
-            }
-
-            if (readAttribute(TERMINAL_DATA_ATTRIBUTE) === "true") {
-              writer.setAttribute(TERMINAL_MODEL_ATTRIBUTE, true, codeBlock);
-            }
-
-            if (readAttribute(LOGS_DATA_ATTRIBUTE) === "true") {
-              writer.setAttribute(LOGS_MODEL_ATTRIBUTE, true, codeBlock);
-            }
-          }
-
-          removePreservedAttributes(writer, codeBlock, "htmlContentAttributes");
-          removePreservedAttributes(writer, codeBlock, "htmlPreAttributes");
+          updateConversionResult(snippet, data);
         },
-        {priority: "lowest"},
+        {priority: "high"},
       );
+    });
+
+    editor.conversion.for("dataDowncast").elementToElement({
+      model: SNIPPET,
+      view: (snippet, {writer}) => {
+        const attributes: Record<string, string> = {
+          class: `language-${snippetLanguage(snippet) ?? PLAIN_LANGUAGE}`,
+        };
+
+        const runtime = snippetRuntime(snippet);
+
+        if (runtime) {
+          attributes[RUNTIME_DATA_ATTRIBUTE] = runtime;
+
+          if (snippet.getAttribute(EDITABLE_MODEL_ATTRIBUTE) === true) {
+            attributes[EDITABLE_DATA_ATTRIBUTE] = "true";
+          }
+
+          const ports = snippet.getAttribute(PORTS_MODEL_ATTRIBUTE);
+
+          if (typeof ports === "string" && ports.length > 0) {
+            attributes[PORTS_DATA_ATTRIBUTE] = ports;
+          }
+
+          if (snippet.getAttribute(TERMINAL_MODEL_ATTRIBUTE) === true) {
+            attributes[TERMINAL_DATA_ATTRIBUTE] = "true";
+          }
+
+          if (snippet.getAttribute(LOGS_MODEL_ATTRIBUTE) === true) {
+            attributes[LOGS_DATA_ATTRIBUTE] = "true";
+          }
+        }
+
+        const code = writer.createContainerElement(
+          "code",
+          attributes,
+          writer.createText(snippetCode(snippet)),
+        );
+
+        return writer.createContainerElement("pre", null, code);
+      },
+    });
+
+    editor.conversion.for("editingDowncast").elementToElement({
+      model: SNIPPET,
+      view: (snippet, {writer}) => {
+        const host = writer.createRawElement(
+          "div",
+          {
+            class: "ck-code-snippet__host",
+
+            // what happens inside a snippet's own editor — typing, clicking,
+            // selecting — is that editor's business, and the editor around it
+            // is told to keep out.
+            "data-cke-ignore-events": "true",
+          },
+          (domElement) => this._mount(snippet, domElement as HTMLElement),
+        );
+
+        const container = writer.createContainerElement(
+          "div",
+          {class: "ck-code-snippet"},
+          host,
+        );
+
+        return toWidget(container, writer, {hasSelectionHandle: false});
+      },
+    });
+
+    // What the model says about a snippet is told to the editor drawn for it,
+    // rather than drawing it again: somebody may be typing in that one.
+    for (const [attribute, apply] of [
+      [
+        CODE_ATTRIBUTE,
+        (view: SnippetView, value: unknown) =>
+          view.setCode(typeof value === "string" ? value : ""),
+      ],
+      [
+        LANGUAGE_ATTRIBUTE,
+        (view: SnippetView, value: unknown) =>
+          view.setLanguage(typeof value === "string" ? value : undefined),
+      ],
+      [
+        RUNTIME_MODEL_ATTRIBUTE,
+        (view: SnippetView, value: unknown) =>
+          view.setRuntime(
+            typeof value === "string" && value ? value : undefined,
+          ),
+      ],
+    ] as const) {
+      editor.editing.downcastDispatcher.on<DowncastAttributeEvent>(
+        `attribute:${attribute}:${SNIPPET}`,
+        (evt, data) => {
+          const view = this._views.get(data.item as ModelElement);
+
+          if (view) {
+            apply(view, data.attributeNewValue);
+          }
+        },
+      );
+    }
+  }
+
+  /**
+   * Anything else that makes a code block — the three backticks, a paste from
+   * somewhere else — makes one of ours instead.
+   */
+  private _replaceCodeBlocks(): void {
+    const {model} = this.editor;
+
+    model.document.registerPostFixer((writer) => {
+      let changed = false;
+
+      for (const entry of model.document.differ.getChanges()) {
+        if (entry.type !== "insert" || entry.name !== "codeBlock") {
+          continue;
+        }
+
+        const block = entry.position.nodeAfter;
+
+        if (!block?.is("element", "codeBlock")) {
+          continue;
+        }
+
+        const snippet = writer.createElement(SNIPPET, {
+          [CODE_ATTRIBUTE]: codeBlockText(block),
+          [LANGUAGE_ATTRIBUTE]:
+            (block.getAttribute(LANGUAGE_ATTRIBUTE) as string) ??
+            PLAIN_LANGUAGE,
+        });
+
+        writer.insert(snippet, writer.createPositionBefore(block));
+        writer.remove(block);
+
+        changed = true;
+      }
+
+      return changed;
+    });
+  }
+
+  /** Draws a snippet, and keeps what is written in it in the model. */
+  private _mount(snippet: ModelElement, host: HTMLElement): void {
+    const {editor} = this;
+
+    this._views.get(snippet)?.destroy();
+
+    const view = new SnippetView(host, {
+      code: snippetCode(snippet),
+      language: snippetLanguage(snippet),
+      runtime: snippetRuntime(snippet),
+      runnable: !!snippetRuntime(snippet),
+      labels: this._labels,
+
+      // what is typed is the snippet now; it is not a step of its own to undo,
+      // since the editor it was typed in has a history of its own.
+      onChange: (code) => {
+        if (snippetCode(snippet) === code) {
+          return;
+        }
+
+        editor.model.enqueueChange({isUndoable: false}, (writer) => {
+          writer.setAttribute(CODE_ATTRIBUTE, code, snippet);
+        });
+      },
+
+      onRun: () => {
+        setActiveSnippet(editor, snippet);
+        this._runCode(snippet);
+      },
+
+      onStop: () => this._config.onStop?.(),
+
+      onSelect: () => {
+        setActiveSnippet(editor, snippet);
+
+        editor.model.change((writer) => writer.setSelection(snippet, "on"));
+        editor.editing.view.focus();
+      },
+
+      onFocus: () => {
+        setActiveSnippet(editor, snippet);
+
+        for (const name of [
+          LANGUAGE_COMMAND,
+          RUNTIME_COMMAND,
+          EDITABLE_COMMAND,
+          PORTS_COMMAND,
+          TERMINAL_COMMAND,
+          LOGS_COMMAND,
+        ]) {
+          editor.commands.get(name)?.refresh();
+        }
+
+        this._updateSettingsVisibility();
+      },
+    });
+
+    view.setRuntime(snippetRuntime(snippet));
+    view.setRunning(false);
+
+    this._views.set(snippet, view);
+  }
+
+  /** Lets go of the editors drawn for snippets that are no longer there. */
+  private _sweepRemovedSnippets(): void {
+    this.listenTo(this.editor.model.document, "change:data", () => {
+      for (const [snippet, view] of this._views) {
+        if (!snippet.root.rootName || snippet.root.rootName === "$graveyard") {
+          view.destroy();
+          this._views.delete(snippet);
+        }
+      }
     });
   }
 
   private _createToolbarDropdown(): void {
     const {editor} = this;
-    const codeBlockCommand = editor.commands.get("codeBlock")!;
+    const insertCommand = editor.commands.get(INSERT_COMMAND)!;
+    const languageCommand = editor.commands.get(LANGUAGE_COMMAND)!;
     const runtimeCommand = editor.commands.get(RUNTIME_COMMAND)!;
     const languages = getLanguageDefinitions(editor);
 
@@ -386,12 +512,10 @@ export class RunnableCodeBlockPlugin extends Plugin {
         isToggleable: true,
       });
 
-      splitButton
-        .bind("isOn")
-        .to(codeBlockCommand, "value", (value) => !!value);
+      splitButton.bind("isOn").to(languageCommand, "value", (value) => !!value);
 
       splitButton.on("execute", () => {
-        editor.execute("codeBlock", {usePreviousLanguageChoice: true});
+        editor.execute(INSERT_COMMAND);
         editor.editing.view.focus();
       });
 
@@ -407,7 +531,7 @@ export class RunnableCodeBlockPlugin extends Plugin {
 
         model
           .bind("isOn")
-          .to(codeBlockCommand, "value", (value) => value === language);
+          .to(languageCommand, "value", (value) => value === language);
 
         items.add({type: "button", model});
       }
@@ -431,7 +555,7 @@ export class RunnableCodeBlockPlugin extends Plugin {
       });
 
       dropdown.class = "ck-code-block-dropdown";
-      dropdown.bind("isEnabled").to(codeBlockCommand);
+      dropdown.bind("isEnabled").to(insertCommand, "isEnabled");
 
       dropdown.on("execute", (evt) => {
         const value = dropdownItemValue(evt.source);
@@ -443,11 +567,13 @@ export class RunnableCodeBlockPlugin extends Plugin {
           return;
         }
 
-        editor.execute("codeBlock", {
-          language: value ?? undefined,
-          forceValue: true,
-        });
-        editor.editing.view.focus();
+        // a snippet being worked on is set to that language; anywhere else, a
+        // new one is put there written in it.
+        if (findSnippet(editor)) {
+          editor.execute(LANGUAGE_COMMAND, {value});
+        } else {
+          editor.execute(INSERT_COMMAND, {language: value ?? undefined});
+        }
       });
 
       return dropdown;
@@ -460,7 +586,7 @@ export class RunnableCodeBlockPlugin extends Plugin {
     }
 
     const {editor} = this;
-    const codeBlockCommand = editor.commands.get("codeBlock")!;
+    const languageCommand = editor.commands.get(LANGUAGE_COMMAND)!;
     const runtimeCommand = editor.commands.get(RUNTIME_COMMAND)!;
     const editableCommand = editor.commands.get(EDITABLE_COMMAND)!;
     const portsCommand = editor.commands.get(PORTS_COMMAND)!;
@@ -474,11 +600,9 @@ export class RunnableCodeBlockPlugin extends Plugin {
       direction: this._config.direction ?? editor.locale.uiLanguageDirection,
     });
 
-    view.canRun = typeof this._config.onRun === "function";
-
     view
       .bind("language")
-      .to(codeBlockCommand, "value", (value) =>
+      .to(languageCommand, "value", (value) =>
         typeof value === "string" ? value : null,
       );
     view.bind("runtime").to(runtimeCommand, "value", asRuntime);
@@ -491,7 +615,7 @@ export class RunnableCodeBlockPlugin extends Plugin {
     view.bind("hasTerminal").to(terminalCommand, "value", Boolean);
     view.bind("hasLogs").to(logsCommand, "value", Boolean);
 
-    view.languageInput.bind("isEnabled").to(codeBlockCommand, "isEnabled");
+    view.languageInput.bind("isEnabled").to(languageCommand, "isEnabled");
     view.runtimeInput.bind("isEnabled").to(runtimeCommand, "isEnabled");
     view.editableSwitch.bind("isEnabled").to(editableCommand, "isEnabled");
     view.terminalSwitch.bind("isEnabled").to(terminalCommand, "isEnabled");
@@ -499,42 +623,29 @@ export class RunnableCodeBlockPlugin extends Plugin {
     view.portsInput.bind("isEnabled").to(portsCommand, "isEnabled");
 
     this.listenTo(view, "languageChange", (evt, language: string) => {
-      editor.execute("codeBlock", {language, forceValue: true});
-      editor.editing.view.focus();
+      editor.execute(LANGUAGE_COMMAND, {value: language});
     });
 
     this.listenTo(view, "runtimeChange", (evt, runtime: string | null) => {
       editor.execute(RUNTIME_COMMAND, {value: runtime});
-      editor.editing.view.focus();
     });
 
     this.listenTo(view, "editableChange", (evt, isEditable: boolean) => {
       editor.execute(EDITABLE_COMMAND, {value: isEditable});
-      editor.editing.view.focus();
     });
 
     this.listenTo(view, "terminalChange", (evt, hasTerminal: boolean) => {
       editor.execute(TERMINAL_COMMAND, {value: hasTerminal});
-      editor.editing.view.focus();
     });
 
-    // the field keeps what the author is typing; the block keeps the ports
-    // themselves, which is what it is told here.
     this.listenTo(view, "logsChange", (evt, hasLogs: boolean) => {
       editor.execute(LOGS_COMMAND, {value: hasLogs});
-      editor.editing.view.focus();
     });
 
+    // the field keeps what the author is typing; the snippet keeps the ports
+    // themselves, which is what it is told here.
     this.listenTo(view, "portsChange", (evt, ports: string) => {
       editor.execute(PORTS_COMMAND, {value: ports});
-    });
-
-    this.listenTo(view, "run", () => {
-      void this._runCode();
-    });
-
-    this.listenTo(view, "stop", () => {
-      this._config.onStop?.();
     });
 
     view.keystrokes.set("Esc", (data, cancel) => {
@@ -566,11 +677,11 @@ export class RunnableCodeBlockPlugin extends Plugin {
     return !!this._settingsView && this._balloon.hasView(this._settingsView);
   }
 
-  /** Keeps the settings panel attached to the code block the selection is in. */
+  /** Keeps the settings panel attached to the snippet being worked on. */
   private _updateSettingsVisibility(): void {
-    const block = findCodeBlock(this.editor);
+    const snippet = findSnippet(this.editor);
 
-    if (!block) {
+    if (!snippet) {
       this._activeBlock = null;
       this._isDismissed = false;
       this._removeSettings();
@@ -578,8 +689,8 @@ export class RunnableCodeBlockPlugin extends Plugin {
       return;
     }
 
-    if (block !== this._activeBlock) {
-      this._activeBlock = block;
+    if (snippet !== this._activeBlock) {
+      this._activeBlock = snippet;
       this._isDismissed = false;
     }
 
@@ -591,7 +702,7 @@ export class RunnableCodeBlockPlugin extends Plugin {
   }
 
   private _showSettings(): void {
-    const target = this._getBlockDomElement();
+    const target = this._getSnippetDomElement();
 
     if (!target) {
       this._removeSettings();
@@ -601,8 +712,8 @@ export class RunnableCodeBlockPlugin extends Plugin {
 
     const view = this._getSettingsView();
 
-    // the field is filled in from the block as the panel opens, and left alone
-    // afterwards: what the author types is theirs until they leave it.
+    // the field is filled in from the snippet as the panel opens, and left
+    // alone afterwards: what the author types is theirs until they leave it.
     if (view.portsInput.fieldView.element) {
       view.portsInput.fieldView.element.value = view.ports ?? "";
     } else {
@@ -621,7 +732,6 @@ export class RunnableCodeBlockPlugin extends Plugin {
   private _hideSettings(): void {
     this._isDismissed = true;
     this._removeSettings();
-    this.editor.editing.view.focus();
   }
 
   private _removeSettings(): void {
@@ -630,18 +740,15 @@ export class RunnableCodeBlockPlugin extends Plugin {
     }
   }
 
-  private _getBlockDomElement(): HTMLElement | null {
+  private _getSnippetDomElement(): HTMLElement | null {
     const {editor} = this;
-    const block = findCodeBlock(editor);
+    const snippet = findSnippet(editor);
 
-    if (!block) {
+    if (!snippet) {
       return null;
     }
 
-    const viewCode = editor.editing.mapper.toViewElement(block);
-    const viewPre = viewCode?.parent;
-    const viewElement =
-      viewPre && viewPre.is("element", "pre") ? viewPre : viewCode;
+    const viewElement = editor.editing.mapper.toViewElement(snippet);
 
     if (!viewElement) {
       return null;
@@ -653,37 +760,25 @@ export class RunnableCodeBlockPlugin extends Plugin {
     return (domElement as HTMLElement | undefined) ?? null;
   }
 
-  /**
-   * Asks for the current block to be run, and for what it does to be drawn
-   * into the panel's own box — the same thing a reader is shown.
-   */
-  private _runCode(): void {
-    const view = this._settingsView;
-    const block = findCodeBlock(this.editor);
+  /** Asks for a snippet to be run, and for what it does to be drawn. */
+  private _runCode(snippet: ModelElement): void {
     const {onRun} = this._config;
+    const runtime = snippetRuntime(snippet);
 
-    if (!view || !block || !onRun) {
-      return;
-    }
-
-    const runtime = asRuntime(block.getAttribute(RUNTIME_MODEL_ATTRIBUTE));
-
-    if (!runtime) {
+    if (!onRun || !runtime) {
       return;
     }
 
     onRun({
       runtime,
-      code: getCodeBlockText(block),
+      code: snippetCode(snippet),
       ports: parsePorts(
-        block.getAttribute(PORTS_MODEL_ATTRIBUTE) as string | undefined,
+        snippet.getAttribute(PORTS_MODEL_ATTRIBUTE) as string | undefined,
       ),
-      terminal: block.getAttribute(TERMINAL_MODEL_ATTRIBUTE) === true,
-      logs: block.getAttribute(LOGS_MODEL_ATTRIBUTE) === true,
+      terminal: snippet.getAttribute(TERMINAL_MODEL_ATTRIBUTE) === true,
+      logs: snippet.getAttribute(LOGS_MODEL_ATTRIBUTE) === true,
       onRunningChange: (running: boolean) => {
-        if (this._settingsView === view) {
-          view.isRunning = running;
-        }
+        this._views.get(snippet)?.setRunning(running);
       },
     });
   }
@@ -693,45 +788,101 @@ function asRuntime(value: unknown): string | null {
   return typeof value === "string" && value ? value : null;
 }
 
-/** Removes the runtime attributes General HTML Support preserved on the model. */
-function removePreservedAttributes(
-  writer: ModelWriter,
-  block: ModelElement,
-  attributeName: string,
-): void {
-  const preserved = block.getAttribute(attributeName) as
-    Record<string, unknown> | undefined;
+/** The text a `<pre><code>` holds, newlines and all. */
+function textOf(element: ViewElement): string {
+  let text = "";
 
-  if (!preserved?.attributes) {
-    return;
+  const walk = (node: ViewNode) => {
+    if (node.is("$text")) {
+      text += node.data;
+
+      return;
+    }
+
+    if (node.is("element", "br")) {
+      text += "\n";
+
+      return;
+    }
+
+    if (node.is("element")) {
+      for (const child of node.getChildren()) {
+        walk(child);
+      }
+    }
+  };
+
+  for (const child of element.getChildren()) {
+    walk(child);
   }
 
-  const attributes = {...(preserved.attributes as Record<string, unknown>)};
-  const runtimeAttributes = [
-    RUNTIME_DATA_ATTRIBUTE,
-    EDITABLE_DATA_ATTRIBUTE,
-    PORTS_DATA_ATTRIBUTE,
-    TERMINAL_DATA_ATTRIBUTE,
-    LOGS_DATA_ATTRIBUTE,
-  ];
-
-  if (!runtimeAttributes.some((key) => key in attributes)) {
-    return;
-  }
-
-  for (const key of runtimeAttributes) {
-    delete attributes[key];
-  }
-
-  const rest: Record<string, unknown> = {...preserved, attributes};
-
-  if (Object.keys(attributes).length === 0) {
-    delete rest.attributes;
-  }
-
-  if (Object.keys(rest).length === 0) {
-    writer.removeAttribute(attributeName, block);
-  } else {
-    writer.setAttribute(attributeName, rest, block);
-  }
+  return text;
 }
+
+/** The language a `<code>` says it is written in. */
+function languageOf(element: ViewElement): string {
+  for (const name of element.getClassNames()) {
+    if (name.startsWith("language-")) {
+      return name.slice("language-".length) || PLAIN_LANGUAGE;
+    }
+  }
+
+  return PLAIN_LANGUAGE;
+}
+
+/** What it takes to run a snippet, as an article wrote it down. */
+function runtimeAttributesOf(
+  code: ViewElement,
+  pre: ViewElement,
+): Record<string, string | boolean> {
+  const read = (key: string) =>
+    (code.getAttribute(key) ?? pre.getAttribute(key)) as string | undefined;
+
+  const runtime = read(RUNTIME_DATA_ATTRIBUTE);
+
+  if (!runtime) {
+    return {};
+  }
+
+  const attributes: Record<string, string | boolean> = {
+    [RUNTIME_MODEL_ATTRIBUTE]: runtime,
+  };
+
+  if (read(EDITABLE_DATA_ATTRIBUTE) === "true") {
+    attributes[EDITABLE_MODEL_ATTRIBUTE] = true;
+  }
+
+  const ports = parsePorts(read(PORTS_DATA_ATTRIBUTE));
+
+  if (ports.length > 0) {
+    attributes[PORTS_MODEL_ATTRIBUTE] = ports.join(",");
+  }
+
+  if (read(TERMINAL_DATA_ATTRIBUTE) === "true") {
+    attributes[TERMINAL_MODEL_ATTRIBUTE] = true;
+  }
+
+  if (read(LOGS_DATA_ATTRIBUTE) === "true") {
+    attributes[LOGS_MODEL_ATTRIBUTE] = true;
+  }
+
+  return attributes;
+}
+
+/** Flattens one of CKEditor's own code blocks back to plain text. */
+function codeBlockText(block: ModelElement): string {
+  let text = "";
+
+  for (const child of block.getChildren()) {
+    if (child.is("$text") || child.is("$textProxy")) {
+      text += child.data;
+    } else if (child.is("element", "softBreak")) {
+      text += "\n";
+    }
+  }
+
+  return text;
+}
+
+// kept so that the writer type is used where a post-fixer needs it.
+export type {ModelWriter};

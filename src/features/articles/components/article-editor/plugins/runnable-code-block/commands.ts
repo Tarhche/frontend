@@ -1,20 +1,24 @@
 import {Command} from "ckeditor5";
 import {
+  CODE_ATTRIBUTE,
   EDITABLE_MODEL_ATTRIBUTE,
+  LANGUAGE_ATTRIBUTE,
+  PLAIN_LANGUAGE,
+  SNIPPET,
   LOGS_MODEL_ATTRIBUTE,
   PORTS_MODEL_ATTRIBUTE,
   RUNTIME_MODEL_ATTRIBUTE,
   TERMINAL_MODEL_ATTRIBUTE,
-  findCodeBlock,
+  findSnippet,
   parsePorts,
 } from "./utils";
 
-/** Sets or clears the runtime the current code block is executed with. */
+/** Sets or clears the runtime the snippet being worked on is executed with. */
 export class CodeBlockRuntimeCommand extends Command {
   declare public value: string | null;
 
   public override refresh(): void {
-    const block = findCodeBlock(this.editor);
+    const block = findSnippet(this.editor);
 
     this.isEnabled = !!block;
     this.value = block
@@ -23,7 +27,7 @@ export class CodeBlockRuntimeCommand extends Command {
   }
 
   public override execute({value}: {value?: string | null} = {}): void {
-    const block = findCodeBlock(this.editor);
+    const block = findSnippet(this.editor);
 
     if (!block) {
       return;
@@ -48,7 +52,7 @@ export class CodeBlockEditableCommand extends Command {
   declare public value: boolean;
 
   public override refresh(): void {
-    const block = findCodeBlock(this.editor);
+    const block = findSnippet(this.editor);
     const hasRuntime = !!block?.getAttribute(RUNTIME_MODEL_ATTRIBUTE);
 
     this.isEnabled = hasRuntime;
@@ -57,7 +61,7 @@ export class CodeBlockEditableCommand extends Command {
   }
 
   public override execute({value}: {value?: boolean} = {}): void {
-    const block = findCodeBlock(this.editor);
+    const block = findSnippet(this.editor);
 
     if (!block || !block.getAttribute(RUNTIME_MODEL_ATTRIBUTE)) {
       return;
@@ -80,7 +84,7 @@ export class CodeBlockPortsCommand extends Command {
   declare public value: string | null;
 
   public override refresh(): void {
-    const block = findCodeBlock(this.editor);
+    const block = findSnippet(this.editor);
     const hasRuntime = !!block?.getAttribute(RUNTIME_MODEL_ATTRIBUTE);
 
     this.isEnabled = hasRuntime;
@@ -90,7 +94,7 @@ export class CodeBlockPortsCommand extends Command {
   }
 
   public override execute({value}: {value?: string | null} = {}): void {
-    const block = findCodeBlock(this.editor);
+    const block = findSnippet(this.editor);
 
     if (!block || !block.getAttribute(RUNTIME_MODEL_ATTRIBUTE)) {
       return;
@@ -115,7 +119,7 @@ export class CodeBlockTerminalCommand extends Command {
   declare public value: boolean;
 
   public override refresh(): void {
-    const block = findCodeBlock(this.editor);
+    const block = findSnippet(this.editor);
     const hasRuntime = !!block?.getAttribute(RUNTIME_MODEL_ATTRIBUTE);
 
     this.isEnabled = hasRuntime;
@@ -124,7 +128,7 @@ export class CodeBlockTerminalCommand extends Command {
   }
 
   public override execute({value}: {value?: boolean} = {}): void {
-    const block = findCodeBlock(this.editor);
+    const block = findSnippet(this.editor);
 
     if (!block || !block.getAttribute(RUNTIME_MODEL_ATTRIBUTE)) {
       return;
@@ -147,7 +151,7 @@ export class CodeBlockLogsCommand extends Command {
   declare public value: boolean;
 
   public override refresh(): void {
-    const block = findCodeBlock(this.editor);
+    const block = findSnippet(this.editor);
     const hasRuntime = !!block?.getAttribute(RUNTIME_MODEL_ATTRIBUTE);
 
     this.isEnabled = hasRuntime;
@@ -156,7 +160,7 @@ export class CodeBlockLogsCommand extends Command {
   }
 
   public override execute({value}: {value?: boolean} = {}): void {
-    const block = findCodeBlock(this.editor);
+    const block = findSnippet(this.editor);
 
     if (!block || !block.getAttribute(RUNTIME_MODEL_ATTRIBUTE)) {
       return;
@@ -170,6 +174,60 @@ export class CodeBlockLogsCommand extends Command {
       } else {
         writer.removeAttribute(LOGS_MODEL_ATTRIBUTE, block);
       }
+    });
+  }
+}
+
+/** Sets the language a snippet is written in. */
+export class CodeSnippetLanguageCommand extends Command {
+  declare public value: string | null;
+
+  public override refresh(): void {
+    const snippet = findSnippet(this.editor);
+
+    this.isEnabled = !!snippet;
+    this.value = snippet
+      ? ((snippet.getAttribute(LANGUAGE_ATTRIBUTE) as string) ?? null)
+      : null;
+  }
+
+  public override execute({value}: {value?: string | null} = {}): void {
+    const snippet = findSnippet(this.editor);
+
+    if (!snippet) {
+      return;
+    }
+
+    this.editor.model.change((writer) => {
+      writer.setAttribute(LANGUAGE_ATTRIBUTE, value || PLAIN_LANGUAGE, snippet);
+    });
+  }
+}
+
+/** Puts a new, empty snippet where the selection is. */
+export class InsertCodeSnippetCommand extends Command {
+  public override refresh(): void {
+    const {model} = this.editor;
+    const position = model.document.selection.getFirstPosition();
+
+    // wherever a snippet may go, counting the places a paragraph would be
+    // split to make room for one.
+    this.isEnabled =
+      !!position && model.schema.findAllowedParent(position, SNIPPET) !== null;
+  }
+
+  public override execute({language}: {language?: string} = {}): void {
+    const {model} = this.editor;
+
+    model.change((writer) => {
+      const snippet = writer.createElement(SNIPPET, {
+        [CODE_ATTRIBUTE]: "",
+        [LANGUAGE_ATTRIBUTE]: language || PLAIN_LANGUAGE,
+      });
+
+      model.insertObject(snippet, undefined, undefined, {
+        setSelection: "on",
+      });
     });
   }
 }

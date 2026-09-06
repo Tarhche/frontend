@@ -1,10 +1,7 @@
 import {
-  ButtonView,
   Collection,
   FocusCycler,
   FocusTracker,
-  IconCancel,
-  IconPlay,
   KeystrokeHandler,
   LabeledFieldView,
   SwitchButtonView,
@@ -34,9 +31,6 @@ export type CodeBlockSettingsLabels = {
   portsPlaceholder: string;
   terminal: string;
   logs: string;
-  run: string;
-  running: string;
-  stop: string;
 };
 
 type Options = {
@@ -65,7 +59,6 @@ export class CodeBlockSettingsView extends View {
   public readonly portsInput: LabeledFieldView<InputTextView>;
   public readonly terminalSwitch: SwitchButtonView;
   public readonly logsSwitch: SwitchButtonView;
-  public readonly runButton: ButtonView;
 
   /** The language of the code block the panel is attached to. */
   declare public language: string | null;
@@ -79,9 +72,6 @@ export class CodeBlockSettingsView extends View {
   declare public hasTerminal: boolean;
   /** Whether readers see what the running snippet writes. */
   declare public hasLogs: boolean;
-  declare public isRunning: boolean;
-  /** Whether the integration is able to execute code at all. */
-  declare public canRun: boolean;
 
   private readonly _focusables = new ViewCollection<FocusableView>();
   private readonly _focusCycler: FocusCycler;
@@ -99,8 +89,6 @@ export class CodeBlockSettingsView extends View {
       ports: null,
       hasTerminal: false,
       hasLogs: false,
-      isRunning: false,
-      canRun: false,
     });
 
     this.languageInput = this._createLanguageInput(languages, labels);
@@ -109,7 +97,6 @@ export class CodeBlockSettingsView extends View {
     this.portsInput = this._createPortsInput(labels);
     this.terminalSwitch = this._createTerminalSwitch(labels);
     this.logsSwitch = this._createLogsSwitch(labels);
-    this.runButton = this._createRunButton(labels);
 
     this._focusCycler = new FocusCycler({
       focusables: this._focusables,
@@ -145,12 +132,7 @@ export class CodeBlockSettingsView extends View {
               bind.if("runtime", "ck-hidden", (value) => !value),
             ],
           },
-          children: [
-            this.editableSwitch,
-            this.terminalSwitch,
-            this.logsSwitch,
-            this.runButton,
-          ],
+          children: [this.editableSwitch, this.terminalSwitch, this.logsSwitch],
         },
       ],
     });
@@ -368,38 +350,6 @@ export class CodeBlockSettingsView extends View {
 
     view.on("execute", () => {
       this.fire("logsChange", !this.hasLogs);
-    });
-
-    this._focusables.add(view);
-
-    return view;
-  }
-
-  private _createRunButton(labels: CodeBlockSettingsLabels): ButtonView {
-    const view = new ButtonView(this.locale);
-
-    view.set({
-      icon: IconPlay,
-      withText: true,
-      class: "ck-code-block-settings__run",
-    });
-
-    view.bind("isVisible").to(this, "canRun");
-    view
-      .bind("label")
-      .to(this, "isRunning", (isRunning) =>
-        isRunning ? labels.stop : labels.run,
-      );
-    view
-      .bind("icon")
-      .to(this, "isRunning", (isRunning) =>
-        isRunning ? IconCancel : IconPlay,
-      );
-
-    // one control: it runs the snippet, and while the snippet is running it is
-    // what stops it.
-    view.on("execute", () => {
-      this.fire(this.isRunning ? "stop" : "run");
     });
 
     this._focusables.add(view);

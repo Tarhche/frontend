@@ -211,6 +211,7 @@ export function RunPreview({
 type PanelProps = {
   run: Run;
   open: OpenPanel;
+  onOpen: (panel: OpenPanel) => void;
   logs: string;
   output: string;
   running: boolean;
@@ -221,10 +222,25 @@ type PanelProps = {
  * inside it. What the snippet printed is shown here as well, since that is
  * what a snippet without a port has to say.
  */
-export function RunPanel({run, open, logs, output, running}: PanelProps) {
+export function RunPanel({
+  run,
+  open,
+  onOpen,
+  logs,
+  output,
+  running,
+}: PanelProps) {
   const t = useTranslations();
 
   const alive = run.state === "running";
+
+  // a shell belongs to the container it was opened in: when that ends, so does
+  // the shell, and a box holding a dead one is worth nothing to look at.
+  useEffect(() => {
+    if (open === "terminal" && !running) {
+      onOpen(null);
+    }
+  }, [open, running, onOpen]);
   const title =
     open === "terminal" ? t("editor.tabs.terminal") : t("editor.tabs.logs");
   const body = open === "logs" ? logs : output;

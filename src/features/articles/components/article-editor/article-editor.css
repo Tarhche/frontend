@@ -300,85 +300,21 @@
 }
 
 /*
- * A runnable code block is drawn the way a reader is shown it: a card with a
- * bar over it, the file it would be written in on one side of the bar and the
- * runtime it is run with on the other.
+ * A snippet is drawn as an editor of its own — the card, the bar and the code
+ * a reader is shown — so there is nothing here to style but the room it takes.
  */
-.ck.ck-editor__editable pre[data-runtime] {
-  position: relative;
-  margin-inline: 0;
-  padding: 50px 12px 12px;
-  border: 1px solid var(--mantine-color-gray-3, #dee2e6);
+.ck.ck-editor__editable .ck-code-snippet {
+  /* the whole width of what is being written, whichever way it is written:
+     code reads left to right even where the article does not. */
+  margin: 1em calc(-1 * var(--ck-spacing-standard, 12px));
+  direction: ltr;
+  text-align: left;
+}
+
+.ck.ck-editor__editable .ck-code-snippet.ck-widget_selected {
+  outline: 2px solid var(--ck-color-focus-border);
+  outline-offset: 2px;
   border-radius: var(--mantine-radius-md, 8px);
-  font-family: var(--mantine-font-family-monospace), monospace;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-:root[data-mantine-color-scheme="dark"]
-  .ck.ck-editor__editable
-  pre[data-runtime] {
-  border-color: var(--mantine-color-dark-4, #373a40);
-}
-
-.ck.ck-editor__editable pre[data-runtime] > code {
-  font-family: inherit;
-  font-size: inherit;
-}
-
-.ck.ck-editor__editable pre[data-runtime]::before {
-  content: attr(data-file-name);
-  position: absolute;
-  inset-block-start: 0;
-  inset-inline: 0;
-  height: 38px;
-  display: flex;
-  align-items: center;
-  padding-inline: 12px;
-  border-block-end: 1px solid var(--mantine-color-gray-2, #e9ecef);
-  color: var(--mantine-primary-color-6, #228be6);
-  font-family: var(--mantine-font-family-monospace), monospace;
-  font-size: 12px;
-  direction: ltr;
-}
-
-:root[data-mantine-color-scheme="dark"]
-  .ck.ck-editor__editable
-  pre[data-runtime]::before {
-  border-block-end-color: var(--mantine-color-dark-5, #2c2e33);
-  color: var(--mantine-primary-color-4, #4dabf7);
-}
-
-/* Runnable code blocks show their runtime right next to the language label, by
-   extending the label CKEditor already pins to the corner of the block. */
-/* The runtime sits at the end of that bar, the way the page puts its controls
-   there: named rather than badged. */
-.ck.ck-editor__editable pre[data-language][data-runtime]::after,
-.ck.ck-editor__editable pre[data-runtime]:not([data-language])::after {
-  content: attr(data-runtime);
-  position: absolute;
-  top: 0;
-  right: 12px;
-  left: auto;
-  display: flex;
-  align-items: center;
-  height: 38px;
-  padding: 0;
-  border-radius: 0;
-  background: none;
-  color: var(--mantine-color-gray-6, #868e96);
-  font-family: var(--mantine-font-family-monospace), monospace;
-  font-size: 12px;
-  line-height: 1.5;
-  direction: ltr;
-  unicode-bidi: isolate;
-  white-space: nowrap;
-}
-
-:root[data-mantine-color-scheme="dark"]
-  .ck.ck-editor__editable
-  pre[data-runtime]::after {
-  color: var(--mantine-color-dark-1, #909296);
 }
 
 /* Code block settings balloon. */

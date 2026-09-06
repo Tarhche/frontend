@@ -93,6 +93,7 @@ export function CodeRunSurface({
         <RunPanel
           run={run}
           open={open}
+          onOpen={onOpen}
           logs={logs}
           output={output}
           running={running}

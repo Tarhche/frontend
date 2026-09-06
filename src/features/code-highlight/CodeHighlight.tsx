@@ -1,18 +1,6 @@
 "use client";
 
 import {useState, useCallback, useEffect, useRef} from "react";
-import {EditorView, keymap, lineNumbers, drawSelection} from "@codemirror/view";
-import {EditorState, Compartment} from "@codemirror/state";
-import {LanguageDescription, indentOnInput} from "@codemirror/language";
-import {
-  defaultKeymap,
-  history,
-  historyKeymap,
-  indentWithTab,
-} from "@codemirror/commands";
-import {languages} from "@codemirror/language-data";
-import {monokai} from "@uiw/codemirror-theme-monokai";
-import {eclipseInit} from "@uiw/codemirror-theme-eclipse";
 import {
   IconPlayerPlay,
   IconPlayerStop,
@@ -29,23 +17,18 @@ import {
   fileNameFor,
   type OpenPanel,
 } from "./run-workspace";
+import {
+  currentScheme,
+  mountCodeMirror,
+  watchScheme,
+  type MountedCode,
+  type Scheme,
+} from "./codemirror";
 import {SplitHandle} from "./split-handle";
 import {useCodeRun} from "./use-code-run";
 import classes from "./run-workspace.module.css";
 import {useTranslations} from "@/i18n/provider";
 import "./code-highlight.css";
-
-const themeCompartment = new Compartment();
-
-const eclipse = eclipseInit({settings: {caret: "#000000"}});
-
-const editorSetup = [
-  lineNumbers(),
-  history(),
-  drawSelection(),
-  indentOnInput(),
-  keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
-];
 
 type Executable = {
   /** The runtime the snippet is executed with, e.g. `go-1.24`. */
@@ -86,15 +69,14 @@ type Props = {
 
 function CodeHighlight({code, language, executable}: Props) {
   const t = useTranslations();
-  const editorRef = useRef<EditorView | null>(null);
+  const editorRef = useRef<MountedCode | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // which of the two boxes under the snippet the reader has open.
   const [open, setOpen] = useState<OpenPanel>(null);
   const [editableCode, setEditableCode] = useState(code);
-  const [colorScheme, setColorScheme] = useState<"light" | "dark">("light");
+  const [colorScheme, setColorScheme] = useState<Scheme>("light");
   const [mounted, setMounted] = useState(false);
-  const languageCompartmentRef = useRef(new Compartment());
 
   const isRunnable = Boolean(executable?.value);
   const ports = portsOf(executable?.ports);
@@ -106,100 +88,45 @@ function CodeHighlight({code, language, executable}: Props) {
   const isLive = isRunnable && (ports.length > 0 || hasTerminal);
   // Editing the snippet only makes sense when there is a runtime to re-run it with,
   // and only when the author enabled it for this block.
-  const isEditable =
-    isRunnable &&
-    (executable?.editable === true || executable?.editable === "true");
+  const isEditable = isRunnable && enabled(executable?.editable);
 
   useEffect(() => {
     setMounted(true);
-    const getScheme = () =>
-      (document.documentElement.getAttribute("data-mantine-color-scheme") ??
-        "light") as "light" | "dark";
-    setColorScheme(getScheme());
-    const observer = new MutationObserver(() => setColorScheme(getScheme()));
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["data-mantine-color-scheme"],
-    });
-    return () => observer.disconnect();
+    setColorScheme(currentScheme());
+
+    return watchScheme(setColorScheme);
   }, []);
 
   useEffect(() => {
     if (!mounted || !containerRef.current) return;
 
-    const updateHeight = (editor: EditorView) => {
-      if (containerRef.current) {
-        containerRef.current.style.height =
-          editor.contentDOM.scrollHeight + "px";
-      }
-    };
-
-    const initialState = EditorState.create({
-      doc: code,
-      extensions: [
-        ...editorSetup,
-        languageCompartmentRef.current.of([]),
-        themeCompartment.of(colorScheme === "dark" ? monokai : eclipse),
-        EditorState.readOnly.of(!isEditable),
-        EditorView.editable.of(isEditable),
-        EditorView.updateListener.of((update) => {
-          if (update.docChanged) {
-            setEditableCode(update.state.doc.toString());
-          }
-          updateHeight(editor);
-        }),
-      ],
+    const editor = mountCodeMirror(containerRef.current, {
+      code,
+      language,
+      editable: isEditable,
+      scheme: colorScheme,
+      onChange: setEditableCode,
     });
 
-    const editor = new EditorView({
-      state: initialState,
-      parent: containerRef.current,
-    });
-
-    updateHeight(editor);
     editorRef.current = editor;
+    setEditableCode(code);
 
     return () => {
       editor.destroy();
+      editorRef.current = null;
     };
-  }, [code, colorScheme, isEditable, mounted]);
+    // the theme and the language are changed on the editor rather than by
+    // building another one.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [code, isEditable, mounted]);
 
   useEffect(() => {
-    // try to find the language description based on the provided language name
-    const description = LanguageDescription.matchLanguageName(
-      languages,
-      language ?? "",
-      true,
-    );
-    if (!description) {
-      if (editorRef.current) {
-        editorRef.current.dispatch({
-          effects: languageCompartmentRef.current.reconfigure([]), // fallback to plain text if language not found
-        });
-      }
-      return;
-    }
-
-    let cancelled = false;
-    description.load().then((support) => {
-      if (cancelled || !editorRef.current) return;
-      editorRef.current.dispatch({
-        effects: languageCompartmentRef.current.reconfigure(support),
-      });
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [language, code, colorScheme]);
-
-  useEffect(() => {
-    if (!editorRef.current) return;
-    editorRef.current.dispatch({
-      effects: themeCompartment.reconfigure(
-        colorScheme === "dark" ? monokai : eclipse,
-      ),
-    });
+    editorRef.current?.setScheme(colorScheme);
   }, [colorScheme]);
+
+  useEffect(() => {
+    editorRef.current?.setLanguage(language);
+  }, [language]);
 
   const hasChanged = editableCode !== code;
 
@@ -248,15 +175,7 @@ function CodeHighlight({code, language, executable}: Props) {
             color="gray"
             size="sm"
             onClick={() => {
-              if (editorRef.current) {
-                editorRef.current.dispatch({
-                  changes: {
-                    from: 0,
-                    to: editorRef.current.state.doc.length,
-                    insert: code,
-                  },
-                });
-              }
+              editorRef.current?.setCode(code);
               setEditableCode(code);
             }}
           >
@@ -342,6 +261,7 @@ function CodeHighlight({code, language, executable}: Props) {
           <RunPanel
             run={run}
             open={open}
+            onOpen={setOpen}
             logs={logs}
             output={output}
             running={running}
