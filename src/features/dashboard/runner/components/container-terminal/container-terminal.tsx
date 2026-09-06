@@ -9,6 +9,13 @@ import {ACCESS_TOKEN_COOKIE_NAME} from "@/constants";
 import {useTranslations} from "@/i18n/provider";
 import {useWsStream} from "@/hooks/use-ws-stream";
 import {ATTACH_SUBJECT, ATTACH_INPUT_SUBJECT} from "./subjects";
+
+// the dashboard's own pair, kept still: the terminal is opened again whenever
+// which subjects it is on changes, so this cannot be made afresh each render.
+const DASHBOARD_SUBJECTS = {
+  attach: ATTACH_SUBJECT,
+  input: ATTACH_INPUT_SUBJECT,
+};
 import classes from "./container-terminal.module.css";
 import "@xterm/xterm/css/xterm.css";
 
@@ -36,7 +43,7 @@ type Props = {
 export function ContainerTerminal({
   containerUuid,
   running,
-  subjects = {attach: ATTACH_SUBJECT, input: ATTACH_INPUT_SUBJECT},
+  subjects = DASHBOARD_SUBJECTS,
   authenticated = true,
 }: Props) {
   const t = useTranslations();

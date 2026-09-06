@@ -13,6 +13,14 @@ import {containerStateLabel} from "@/lib/container-state";
 import {ContainerTerminal} from "@/features/dashboard/runner/components/container-terminal";
 import {useTranslations} from "@/i18n/provider";
 import {CODE_TERMINAL_INPUT_SUBJECT, CODE_TERMINAL_SUBJECT} from "./subjects";
+
+// what a snippet's terminal is opened on. It is made once: a run is reported
+// several times a second, and a terminal that is handed new subjects on every
+// report is a terminal nobody can type into.
+const SNIPPET_SUBJECTS = {
+  attach: CODE_TERMINAL_SUBJECT,
+  input: CODE_TERMINAL_INPUT_SUBJECT,
+};
 import classes from "./run-workspace.module.css";
 export {fileNameFor} from "./file-name";
 
@@ -245,10 +253,7 @@ export function RunPanel({run, open, logs, output, running}: PanelProps) {
           containerUuid={run.container_uuid}
           running
           authenticated={false}
-          subjects={{
-            attach: CODE_TERMINAL_SUBJECT,
-            input: CODE_TERMINAL_INPUT_SUBJECT,
-          }}
+          subjects={SNIPPET_SUBJECTS}
         />
       ) : (
         <pre className={`${classes.text} ${body ? "" : classes.empty}`}>
