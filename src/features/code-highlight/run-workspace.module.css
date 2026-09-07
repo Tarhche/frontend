@@ -7,7 +7,7 @@
  * there is room for two of them — an article is a narrow thing to read, and
  * half of it is not a browser.
  */
-.surface, .text {
+.surface {
   border: 1px solid
     light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
   border-radius: var(--mantine-radius-md);
@@ -356,11 +356,11 @@
  * The card is drawn inside the article editor as well as on the page, and an
  * editor styles the content it holds: every `pre` in it is given a border, a
  * grey behind it, a radius and a padding of its own, all of which would reach
- * in here and make the same snippet look like two. Naming the card as well as
- * the box is what says which of the two the card is drawn by, so each of those
- * is set back to what the page draws.
+ * in here and make the same snippet look like two. The class is named twice so
+ * that this is heard over them wherever the box is drawn, and each of those is
+ * set back to what the page draws.
  */
-.surface .text {
+.text.text {
   margin: 0;
   padding: var(--mantine-spacing-sm);
 
@@ -384,12 +384,8 @@
   word-break: break-word;
 }
 
-.surface .empty {
+.empty.empty {
   color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-2));
-}
-
-.text {
-    margin: 0 !important;
 }
 
 /*

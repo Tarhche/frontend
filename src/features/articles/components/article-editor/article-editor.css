@@ -304,10 +304,10 @@
  * a reader is shown — so there is nothing here to style but the room it takes.
  */
 .ck.ck-editor__editable .ck-code-snippet {
-  /* the whole width of what is being written. The code and the browser beside
-     it read left to right wherever they are; what is written above a log or a
-     shell is the article's own language, and reads the article's way. */
-  margin: 1em calc(-1 * var(--ck-spacing-standard, 12px));
+  /* the whole width of what is being written, which is the width a reader is
+     given it in — pulled no wider, so the card's own border is where a reader
+     sees it rather than off the edge of the page. */
+  margin: 1em 0;
 }
 
 .ck.ck-editor__editable .ck-code-snippet.ck-widget_selected {
