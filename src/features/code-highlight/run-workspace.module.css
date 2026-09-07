@@ -7,7 +7,7 @@
  * there is room for two of them — an article is a narrow thing to read, and
  * half of it is not a browser.
  */
-.surface {
+.surface, .text {
   border: 1px solid
     light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
   border-radius: var(--mantine-radius-md);
@@ -363,7 +363,12 @@
 .surface .text {
   margin: 0;
   padding: var(--mantine-spacing-sm);
-  max-height: 240px;
+
+  /* ten lines of it, and whatever a run writes past that it keeps and scrolls
+     to. A line is 12.5px set at 1.5, so ten of them and the padding round them
+     come to this: a height it is given rather than one worked out as it is
+     drawn. */
+  max-height: 13.25rem;
   min-width: 0;
   overflow: auto;
   border: 0;
@@ -381,6 +386,10 @@
 
 .surface .empty {
   color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-2));
+}
+
+.text {
+    margin: 0 !important;
 }
 
 /*
