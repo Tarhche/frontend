@@ -89,6 +89,16 @@ export class SnippetView {
 
     host.classList.add(classes.surface);
 
+    // What is cut, copied or pasted inside a snippet belongs to the editor it
+    // was done in. The editor around this one is told to keep out of what
+    // happens in here, but it listens for these on the document itself rather
+    // than on what it was told to keep out of — so a line of code cut while
+    // the block was selected cut the whole block away. They are stopped here,
+    // once this editor has had them.
+    for (const type of ["cut", "copy", "paste"] as const) {
+      host.addEventListener(type, (event) => event.stopPropagation());
+    }
+
     // the same two sides a reader is shown: the code, and what it serves. The
     // second is there only while there is something running behind it.
     this._workspace = document.createElement("div");
