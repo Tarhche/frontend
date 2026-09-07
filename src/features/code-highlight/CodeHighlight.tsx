@@ -11,7 +11,13 @@ import {
 import {ActionIcon, Box, Tooltip} from "@mantine/core";
 import {CodeHighlight as MantineCodeHighlight} from "@mantine/code-highlight";
 import {notifications} from "@mantine/notifications";
-import {RunPanel, RunPreview, type OpenPanel} from "./run-workspace";
+import {
+  RunPanel,
+  RunPreview,
+  RunTools,
+  showsBrowser,
+  type OpenPanel,
+} from "./run-workspace";
 import {
   currentScheme,
   mountCodeMirror,
@@ -69,6 +75,10 @@ function CodeHighlight({code, language, executable}: Props) {
 
   // which of the two boxes under the snippet the reader has open.
   const [open, setOpen] = useState<OpenPanel>(null);
+
+  // whether what the snippet serves is being looked at. It is on to begin
+  // with, since somebody who published a port meant it to be seen.
+  const [browser, setBrowser] = useState(true);
   const [editableCode, setEditableCode] = useState(code);
   const [colorScheme, setColorScheme] = useState<Scheme>("light");
   const [mounted, setMounted] = useState(false);
@@ -138,9 +148,7 @@ function CodeHighlight({code, language, executable}: Props) {
     });
   }, [editableCode, executable, hasTerminal, ports, running, start]);
 
-  // the browser is there for as long as there is a container behind it: one
-  // that has stopped has nothing left to show.
-  const showPreview = isLive && running;
+  const showPreview = showsBrowser({running, ports, browser});
 
   const actions = (
     <div className={classes.paneActions}>
@@ -177,6 +185,19 @@ function CodeHighlight({code, language, executable}: Props) {
             <IconRotate size={16} />
           </ActionIcon>
         </Tooltip>
+      )}
+
+      {isLive && running && (
+        <RunTools
+          run={run}
+          hasBrowser={ports.length > 0}
+          showTerminal={hasTerminal}
+          showLogs={hasLogs}
+          browser={browser}
+          onBrowser={setBrowser}
+          open={open}
+          onOpen={setOpen}
+        />
       )}
 
       {isRunnable && (
@@ -237,14 +258,7 @@ function CodeHighlight({code, language, executable}: Props) {
 
           {showPreview && (
             <div className={`${classes.pane} ${classes.previewPane}`}>
-              <RunPreview
-                run={run}
-                running={running}
-                open={open}
-                onOpen={setOpen}
-                showTerminal={hasTerminal}
-                showLogs={hasLogs}
-              />
+              <RunPreview run={run} />
             </div>
           )}
         </div>

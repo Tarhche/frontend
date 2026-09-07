@@ -58,12 +58,14 @@ export class SnippetView {
   public readonly element: HTMLElement;
 
   /**
-   * Where what the snippet serves is drawn, and where a log or a shell opened
-   * on it goes: the card's other side, and its floor. Whoever owns the editor
-   * draws a reader's own surface into them.
+   * Where what the snippet serves is drawn, where a log or a shell opened on it
+   * goes, and where the buttons that open each of them sit: the card's other
+   * side, its floor, and its bar. Whoever owns the editor draws a reader's own
+   * surface into them.
    */
   public readonly previewHost: HTMLElement;
   public readonly panelHost: HTMLElement;
+  public readonly toolsHost: HTMLElement;
 
   private readonly _code: MountedCode;
   private readonly _unwatchScheme: () => void;
@@ -115,7 +117,10 @@ export class SnippetView {
     });
     this._runButton.hidden = !options.runnable;
 
-    actions.append(this._runtime, copy, this._runButton);
+    this.toolsHost = document.createElement("span");
+    this.toolsHost.className = classes.paneTools;
+
+    actions.append(this._runtime, copy, this.toolsHost, this._runButton);
     bar.append(actions);
 
     // the editor around this one is told to keep out of the snippet, so taking
@@ -179,11 +184,19 @@ export class SnippetView {
     this._runButton.title = running ? this._labels.stop : this._labels.run;
     this._runButton.setAttribute("aria-label", this._runButton.title);
     this._runButton.innerHTML = icon(running ? ICONS.stop : ICONS.play);
+  }
 
-    // what it serves takes the other half of the card while it is serving it.
-    this._workspace.classList.toggle(classes.split, running);
-    this._handle.hidden = !running;
-    this.previewHost.hidden = !running;
+  /**
+   * Makes room beside the code for what the snippet serves, or takes it back.
+   *
+   * A snippet that serves nothing never asks for it, and one whose browser has
+   * been put away asks for it no longer: either way the code has the card to
+   * itself.
+   */
+  public setPreview(shown: boolean): void {
+    this._workspace.classList.toggle(classes.split, shown);
+    this._handle.hidden = !shown;
+    this.previewHost.hidden = !shown;
   }
 
   public focus(): void {

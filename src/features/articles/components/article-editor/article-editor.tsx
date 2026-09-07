@@ -26,13 +26,14 @@ type Props = {
 
 /** What the code block panel hands over when an author runs a snippet. */
 type CodeSurface = {
-  hosts: {preview: HTMLElement; panel: HTMLElement};
+  hosts: {preview: HTMLElement; panel: HTMLElement; tools: HTMLElement};
   runtime: string;
   code: string;
   ports: Array<number>;
   terminal: boolean;
   logs: boolean;
   onRunningChange: (running: boolean) => void;
+  onPreviewChange: (shown: boolean) => void;
 };
 
 export function ArticleEditor({initialData, editorRef, languageCode}: Props) {
@@ -42,6 +43,10 @@ export function ArticleEditor({initialData, editorRef, languageCode}: Props) {
     (CodeSurface & {token: number; stopToken: number}) | null
   >(null);
   const [openPanel, setOpenPanel] = useState<OpenPanel>(null);
+
+  // whether what a snippet serves is being looked at. It is on to begin with,
+  // since somebody who published a port meant it to be seen.
+  const [browser, setBrowser] = useState(true);
   const [isFileExplorerOpen, setIsFileExplorerOpen] = useState(false);
   // CKEditor reads its languages once, when the instance is created, so the
   // `id` below re-creates it when either of them changes.
@@ -100,7 +105,10 @@ export function ArticleEditor({initialData, editorRef, languageCode}: Props) {
           stopToken={surface.stopToken}
           open={openPanel}
           onOpen={setOpenPanel}
+          browser={browser}
+          onBrowser={setBrowser}
           onRunningChange={surface.onRunningChange}
+          onPreviewChange={surface.onPreviewChange}
         />
       )}
 

@@ -2,13 +2,19 @@
 
 import {useEffect, useRef} from "react";
 import {createPortal} from "react-dom";
-import {RunPanel, RunPreview, type OpenPanel} from "./run-workspace";
+import {
+  RunPanel,
+  RunPreview,
+  RunTools,
+  showsBrowser,
+  type OpenPanel,
+} from "./run-workspace";
 import {useCodeRun} from "./use-code-run";
 import classes from "./run-workspace.module.css";
 
 type Props = {
-  /** The two boxes of the snippet's own card this is drawn into. */
-  hosts: {preview: HTMLElement; panel: HTMLElement};
+  /** The boxes of the snippet's own card this is drawn into. */
+  hosts: {preview: HTMLElement; panel: HTMLElement; tools: HTMLElement};
 
   runtime: string;
   code: string;
@@ -24,7 +30,15 @@ type Props = {
 
   open: OpenPanel;
   onOpen: (panel: OpenPanel) => void;
+
+  /** Whether what the snippet serves is being looked at. */
+  browser: boolean;
+  onBrowser: (shown: boolean) => void;
+
   onRunningChange?: (running: boolean) => void;
+
+  /** Says whether the card has a browser beside the code to make room for. */
+  onPreviewChange?: (shown: boolean) => void;
 };
 
 /**
@@ -45,7 +59,10 @@ export function CodeRunSurface({
   stopToken = 0,
   open,
   onOpen,
+  browser,
+  onBrowser,
   onRunningChange,
+  onPreviewChange,
 }: Props) {
   const {run, running, output, logs, start, stop} = useCodeRun();
 
@@ -78,28 +95,33 @@ export function CodeRunSurface({
   }, [running, onRunningChange]);
 
   const live = ports.length > 0 || terminal;
-  const showPreview = live && running;
+
+  const showPreview = showsBrowser({running, ports, browser});
   const showOutput = !live && Boolean(output);
 
-  // nothing has been run yet: the panel keeps its own size until there is.
-  if (!showPreview && !showOutput) {
-    return null;
-  }
+  useEffect(() => {
+    onPreviewChange?.(showPreview);
+  }, [showPreview, onPreviewChange]);
 
   return (
     <>
-      {showPreview &&
+      {live &&
+        running &&
         createPortal(
-          <RunPreview
+          <RunTools
             run={run}
-            running={running}
-            open={open}
-            onOpen={onOpen}
+            hasBrowser={ports.length > 0}
             showTerminal={terminal}
             showLogs={showLogs}
+            browser={browser}
+            onBrowser={onBrowser}
+            open={open}
+            onOpen={onOpen}
           />,
-          hosts.preview,
+          hosts.tools,
         )}
+
+      {showPreview && createPortal(<RunPreview run={run} />, hosts.preview)}
 
       {live &&
         createPortal(

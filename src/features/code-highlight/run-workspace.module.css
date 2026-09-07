@@ -109,6 +109,14 @@
   margin-inline-start: auto;
 }
 
+/* where the buttons for what a running snippet can be looked at through are
+   drawn, which is in that same bar rather than on any one of them. */
+.paneTools {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
 /* An action in that bar, where there is no react to draw one: the same size
    and the same quiet grey the page's are. */
 .paneAction {
@@ -135,6 +143,19 @@
 
 .paneAction[hidden] {
   display: none;
+}
+
+.paneAction:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* one of those buttons showing what it opens, so that what is being looked at
+   is visible from the bar rather than only from the thing itself. */
+.paneActionActive,
+.paneActionActive:hover {
+  background-color: var(--mantine-primary-color-filled);
+  color: var(--mantine-color-white);
 }
 
 /* What a snippet is run with, named beside what can be done to it. */
@@ -293,46 +314,6 @@
 }
 
 /* the buttons in the corner, over the page. */
-.tools {
-  position: absolute;
-  inset-inline-end: 10px;
-  inset-block-end: 10px;
-  display: flex;
-  gap: 6px;
-}
-
-.tool {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background-color: light-dark(
-    var(--mantine-color-gray-1),
-    var(--mantine-color-dark-5)
-  );
-  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0));
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
-  cursor: pointer;
-}
-
-.tool:hover:not(:disabled) {
-  color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
-}
-
-.tool:disabled {
-  opacity: 0.45;
-  cursor: default;
-}
-
-.toolActive {
-  background-color: var(--mantine-primary-color-filled);
-  color: var(--mantine-color-white);
-}
-
 /* and what those buttons open, under the whole thing. */
 .panel {
   border-block-start: 1px solid

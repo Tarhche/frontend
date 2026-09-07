@@ -358,6 +358,7 @@
     "terminalNotRunning": "The snippet is not running, so there is nothing to open.",
     "tabs": {
       "output": "Output",
+      "browser": "Browser",
       "logs": "Logs",
       "terminal": "Terminal"
     },

@@ -75,7 +75,7 @@ import {
  */
 export type RunCodeCallback = (snippet: {
   /** The two boxes in the snippet's card a reader's surface is drawn into. */
-  hosts: {preview: HTMLElement; panel: HTMLElement};
+  hosts: {preview: HTMLElement; panel: HTMLElement; tools: HTMLElement};
 
   runtime: string;
   code: string;
@@ -83,6 +83,9 @@ export type RunCodeCallback = (snippet: {
   terminal: boolean;
   logs: boolean;
   onRunningChange: (running: boolean) => void;
+
+  /** Says whether there is a browser beside the code to make room for. */
+  onPreviewChange: (shown: boolean) => void;
 }) => void;
 
 export type RunnableCodeBlockConfig = {
@@ -781,7 +784,11 @@ export class RunnableCodeBlockPlugin extends Plugin {
     }
 
     onRun({
-      hosts: {preview: view.previewHost, panel: view.panelHost},
+      hosts: {
+        preview: view.previewHost,
+        panel: view.panelHost,
+        tools: view.toolsHost,
+      },
       runtime,
       code: snippetCode(snippet),
       ports: parsePorts(
@@ -791,6 +798,9 @@ export class RunnableCodeBlockPlugin extends Plugin {
       logs: snippet.getAttribute(LOGS_MODEL_ATTRIBUTE) === true,
       onRunningChange: (running: boolean) => {
         this._views.get(snippet)?.setRunning(running);
+      },
+      onPreviewChange: (shown: boolean) => {
+        this._views.get(snippet)?.setPreview(shown);
       },
     });
   }

@@ -7,6 +7,7 @@ import {
   IconFileText,
   IconRefresh,
   IconTerminal2,
+  IconWorld,
 } from "@tabler/icons-react";
 import {Countdown} from "@/components/countdown";
 import {containerStateLabel} from "@/lib/container-state";
@@ -41,6 +42,23 @@ export type Run = {
 /** Which of the two boxes under the snippet is open, if either. */
 export type OpenPanel = "terminal" | "logs" | null;
 
+/**
+ * Whether there is a browser to draw beside the code.
+ *
+ * A browser is for what a snippet serves, so one that serves nothing has none;
+ * one that has stopped serving has nothing left to show; and one whose browser
+ * has been put away is not asking for it. The page a reader is shown and the
+ * card an author writes in both ask here, so that neither can answer it
+ * differently from the other.
+ */
+export function showsBrowser(options: {
+  running: boolean;
+  ports: number[];
+  browser: boolean;
+}): boolean {
+  return options.running && options.ports.length > 0 && options.browser;
+}
+
 /** The turning cube itself: six sides of one, drawn with borders. */
 export function Cube() {
   return (
@@ -67,11 +85,6 @@ export function Waiting({label}: {label: string}) {
 
 type PreviewProps = {
   run: Run;
-  running: boolean;
-  open: OpenPanel;
-  onOpen: (panel: OpenPanel) => void;
-  showTerminal: boolean;
-  showLogs: boolean;
 };
 
 /**
@@ -82,14 +95,7 @@ type PreviewProps = {
  * a cube and what the runner last said, so a reader watching a container start
  * is watching something.
  */
-export function RunPreview({
-  run,
-  running,
-  open,
-  onOpen,
-  showTerminal,
-  showLogs,
-}: PreviewProps) {
+export function RunPreview({run}: PreviewProps) {
   const t = useTranslations();
 
   const alive = run.state === "running";
@@ -99,14 +105,6 @@ export function RunPreview({
 
   const address =
     addresses.find((one) => one.container_port === port) ?? addresses[0];
-
-  // a container that has gone takes its terminal with it: what was being looked
-  // at goes back to nothing rather than to a shell on nothing.
-  useEffect(() => {
-    if (open === "terminal" && !alive) {
-      onOpen(null);
-    }
-  }, [open, alive, onOpen]);
 
   return (
     <div className={classes.browser}>
@@ -169,45 +167,100 @@ export function RunPreview({
             label={
               run.state
                 ? containerStateLabel(t, run.state)
-                : running
-                  ? t("editor.running")
-                  : t("editor.noOutput")
+                : t("editor.running")
             }
           />
         )}
-
-        <div className={classes.tools}>
-          {showLogs && (
-            <button
-              type="button"
-              className={`${classes.tool} ${
-                open === "logs" ? classes.toolActive : ""
-              }`}
-              aria-label={t("editor.tabs.logs")}
-              aria-pressed={open === "logs"}
-              onClick={() => onOpen(open === "logs" ? null : "logs")}
-            >
-              <IconFileText size={16} />
-            </button>
-          )}
-
-          {showTerminal && (
-            <button
-              type="button"
-              className={`${classes.tool} ${
-                open === "terminal" ? classes.toolActive : ""
-              }`}
-              disabled={!alive || !run.container_uuid}
-              aria-label={t("editor.tabs.terminal")}
-              aria-pressed={open === "terminal"}
-              onClick={() => onOpen(open === "terminal" ? null : "terminal")}
-            >
-              <IconTerminal2 size={16} />
-            </button>
-          )}
-        </div>
       </div>
     </div>
+  );
+}
+
+type ToolsProps = {
+  run: Run;
+
+  /** Whether the snippet serves anything a browser could show. */
+  hasBrowser: boolean;
+  showTerminal: boolean;
+  showLogs: boolean;
+
+  /** Whether the browser is being shown, and how to say otherwise. */
+  browser: boolean;
+  onBrowser: (shown: boolean) => void;
+
+  open: OpenPanel;
+  onOpen: (panel: OpenPanel) => void;
+};
+
+/**
+ * What a running snippet can be looked at through.
+ *
+ * The three of them sit in the snippet's own bar rather than on any one of
+ * them, because each can be put away — a browser that carried the button for
+ * turning itself back on could not be.
+ */
+export function RunTools({
+  run,
+  hasBrowser,
+  showTerminal,
+  showLogs,
+  browser,
+  onBrowser,
+  open,
+  onOpen,
+}: ToolsProps) {
+  const t = useTranslations();
+
+  const alive = run.state === "running";
+
+  return (
+    <>
+      {hasBrowser && (
+        <button
+          type="button"
+          className={`${classes.paneAction} ${
+            browser ? classes.paneActionActive : ""
+          }`}
+          title={t("editor.tabs.browser")}
+          aria-label={t("editor.tabs.browser")}
+          aria-pressed={browser}
+          onClick={() => onBrowser(!browser)}
+        >
+          <IconWorld size={16} />
+        </button>
+      )}
+
+      {showLogs && (
+        <button
+          type="button"
+          className={`${classes.paneAction} ${
+            open === "logs" ? classes.paneActionActive : ""
+          }`}
+          title={t("editor.tabs.logs")}
+          aria-label={t("editor.tabs.logs")}
+          aria-pressed={open === "logs"}
+          onClick={() => onOpen(open === "logs" ? null : "logs")}
+        >
+          <IconFileText size={16} />
+        </button>
+      )}
+
+      {showTerminal && (
+        <button
+          type="button"
+          className={`${classes.paneAction} ${
+            open === "terminal" ? classes.paneActionActive : ""
+          }`}
+          disabled={!alive || !run.container_uuid}
+          title={t("editor.tabs.terminal")}
+          aria-label={t("editor.tabs.terminal")}
+          aria-pressed={open === "terminal"}
+          onClick={() => onOpen(open === "terminal" ? null : "terminal")}
+        >
+          <IconTerminal2 size={16} />
+        </button>
+      )}
+    </>
   );
 }
 
@@ -238,12 +291,13 @@ export function RunPanel({
   const alive = run.state === "running";
 
   // a log and a shell belong to the container they were opened on: when that
-  // ends they end with it, the way the browser does.
+  // ends they end with it, the way the browser does, and a shell needs one
+  // that is still answering rather than merely one that has not been stopped.
   useEffect(() => {
-    if (open && !running) {
+    if (open && (!running || (open === "terminal" && !alive))) {
       onOpen(null);
     }
-  }, [open, running, onOpen]);
+  }, [open, running, alive, onOpen]);
   const title =
     open === "terminal" ? t("editor.tabs.terminal") : t("editor.tabs.logs");
   const body = open === "logs" ? logs : output;
