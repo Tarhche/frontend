@@ -187,7 +187,7 @@ export class RunnableCodeBlockPlugin extends Plugin {
     const snippet = this._activeBlock;
 
     if (snippet) {
-      this._views.get(snippet)?.setRunning(running);
+      this._views.get(snippet)?.setRunning(running, isLive(snippet));
     }
   }
 
@@ -485,7 +485,7 @@ export class RunnableCodeBlockPlugin extends Plugin {
     });
 
     view.setRuntime(snippetRuntime(snippet));
-    view.setRunning(false);
+    view.setRunning(false, isLive(snippet));
 
     this._views.set(snippet, view);
   }
@@ -797,13 +797,28 @@ export class RunnableCodeBlockPlugin extends Plugin {
       terminal: snippet.getAttribute(TERMINAL_MODEL_ATTRIBUTE) === true,
       logs: snippet.getAttribute(LOGS_MODEL_ATTRIBUTE) === true,
       onRunningChange: (running: boolean) => {
-        this._views.get(snippet)?.setRunning(running);
+        this._views.get(snippet)?.setRunning(running, isLive(snippet));
       },
       onPreviewChange: (shown: boolean) => {
         this._views.get(snippet)?.setPreview(shown);
       },
     });
   }
+}
+
+/**
+ * Whether a snippet is one to be reached rather than one to be waited for: it
+ * serves a port, or it offers a way in. One that does neither prints what it
+ * has to say and ends.
+ */
+function isLive(snippet: ModelElement): boolean {
+  const ports = parsePorts(
+    snippet.getAttribute(PORTS_MODEL_ATTRIBUTE) as string | undefined,
+  );
+
+  return (
+    ports.length > 0 || snippet.getAttribute(TERMINAL_MODEL_ATTRIBUTE) === true
+  );
 }
 
 function asRuntime(value: unknown): string | null {

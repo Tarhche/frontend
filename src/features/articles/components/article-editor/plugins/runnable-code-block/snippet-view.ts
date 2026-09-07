@@ -12,13 +12,15 @@ const ICONS = {
   copy: '<path d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"/><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"/>',
   play: '<path d="M7 4v16l13 -8z"/>',
   stop: '<path d="M5 5m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z"/>',
+  loader: '<path d="M12 3a9 9 0 1 0 9 9"/>',
 };
 
-function icon(paths: string): string {
+function icon(paths: string, className = ""): string {
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"` +
     ` fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"` +
-    ` stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/>${paths}</svg>`
+    ` stroke-linejoin="round" class="${className}">` +
+    `<path stroke="none" d="M0 0h24v24H0z" fill="none"/>${paths}</svg>`
   );
 }
 
@@ -179,11 +181,27 @@ export class SnippetView {
     this._runButton.hidden = !runtime;
   }
 
-  public setRunning(running: boolean): void {
+  /**
+   * Says a run has started or ended, and what kind of run it is.
+   *
+   * A snippet that serves something is stopped, so the button offers that. One
+   * that only prints is waited for, so it turns instead — the same as the
+   * button a reader is shown.
+   */
+  public setRunning(running: boolean, live: boolean): void {
     this._running = running;
     this._runButton.title = running ? this._labels.stop : this._labels.run;
     this._runButton.setAttribute("aria-label", this._runButton.title);
-    this._runButton.innerHTML = icon(running ? ICONS.stop : ICONS.play);
+
+    if (!running) {
+      this._runButton.innerHTML = icon(ICONS.play);
+
+      return;
+    }
+
+    this._runButton.innerHTML = live
+      ? icon(ICONS.stop)
+      : icon(ICONS.loader, classes.spinning);
   }
 
   /**

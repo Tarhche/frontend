@@ -109,6 +109,22 @@
   margin-inline-start: auto;
 }
 
+/* a snippet with nothing to look at is only working, and the button that
+   started it says so by turning until it is done. */
+@keyframes turning {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinning {
+  animation: turning 1s linear infinite;
+}
+
 /* where the buttons for what a running snippet can be looked at through are
    drawn, which is in that same bar rather than on any one of them. */
 .paneTools {

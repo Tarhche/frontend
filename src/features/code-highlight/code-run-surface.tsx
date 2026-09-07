@@ -3,6 +3,7 @@
 import {useEffect, useRef} from "react";
 import {createPortal} from "react-dom";
 import {
+  RunOutput,
   RunPanel,
   RunPreview,
   RunTools,
@@ -136,8 +137,7 @@ export function CodeRunSurface({
           hosts.panel,
         )}
 
-      {showOutput &&
-        createPortal(<pre className={classes.text}>{output}</pre>, hosts.panel)}
+      {showOutput && createPortal(<RunOutput output={output} />, hosts.panel)}
     </>
   );
 }

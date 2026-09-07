@@ -176,6 +176,26 @@ export function RunPreview({run}: PreviewProps) {
   );
 }
 
+/**
+ * What a snippet that serves nothing has to say: what it printed while it ran.
+ *
+ * It is drawn under the same bar a log or a shell is drawn under, so a result
+ * is named wherever it is read — on the page, and in the card an author writes
+ * it in.
+ */
+export function RunOutput({output}: {output: string}) {
+  const t = useTranslations();
+
+  return (
+    <div className={classes.panel}>
+      <div className={classes.panelBar}>
+        <span>{t("editor.programOutput")}</span>
+      </div>
+      <pre className={classes.text}>{output}</pre>
+    </div>
+  );
+}
+
 type ToolsProps = {
   run: Run;
 

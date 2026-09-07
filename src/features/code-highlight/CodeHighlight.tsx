@@ -12,6 +12,7 @@ import {ActionIcon, Box, Tooltip} from "@mantine/core";
 import {CodeHighlight as MantineCodeHighlight} from "@mantine/code-highlight";
 import {notifications} from "@mantine/notifications";
 import {
+  RunOutput,
   RunPanel,
   RunPreview,
   RunTools,
@@ -215,10 +216,7 @@ function CodeHighlight({code, language, executable}: Props) {
               isLive ? (
                 <IconPlayerStop size={16} />
               ) : (
-                <IconLoader2
-                  size={16}
-                  style={{animation: "code-highlight-spin 1s linear infinite"}}
-                />
+                <IconLoader2 size={16} className={classes.spinning} />
               )
             ) : (
               <IconPlayerPlay size={16} />
@@ -273,14 +271,7 @@ function CodeHighlight({code, language, executable}: Props) {
             running={running}
           />
         ) : (
-          output && (
-            <div className={classes.panel}>
-              <div className={classes.panelBar}>
-                <span>{t("editor.programOutput")}</span>
-              </div>
-              <pre className={classes.text}>{output}</pre>
-            </div>
-          )
+          output && <RunOutput output={output} />
         )}
       </div>
     </Box>

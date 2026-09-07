@@ -3,13 +3,17 @@ import {CodeRunSurface} from "./code-run-surface";
 import {type Run} from "./run-workspace";
 
 // what the runner is saying about the snippet while a test looks at it.
-let reported: {run: Run; running: boolean} = {run: {}, running: false};
+let reported: {run: Run; running: boolean; output: string} = {
+  run: {},
+  running: false,
+  output: "",
+};
 
 jest.mock("./use-code-run", () => ({
   useCodeRun: () => ({
     run: reported.run,
     running: reported.running,
-    output: "",
+    output: reported.output,
     logs: "",
     start: jest.fn(),
     stop: jest.fn(),
@@ -69,6 +73,7 @@ beforeEach(() => {
   reported = {
     run: {state: "running", container_uuid: "a-container"},
     running: true,
+    output: "",
   };
 });
 
@@ -115,6 +120,21 @@ describe("the run surface", () => {
     expect(toolLabels(hosts.tools)).toContain("editor.tabs.browser");
   });
 
+  it("names what a snippet that serves nothing printed", () => {
+    // the page draws that result under a bar saying what it is, and the card
+    // an author writes in draws the same one.
+    reported = {
+      run: {state: "completed"},
+      running: false,
+      output: "hello world",
+    };
+
+    const {hosts} = card({ports: [], terminal: false, browser: true});
+
+    expect(hosts.panel.textContent).toContain("editor.programOutput");
+    expect(hosts.panel.textContent).toContain("hello world");
+  });
+
   it("takes the browser away with the container behind it", () => {
     const {hosts, rerender} = card({
       ports: [8080],
@@ -125,7 +145,7 @@ describe("the run surface", () => {
     expect(hasBrowser(hosts.preview)).toBe(true);
 
     act(() => {
-      reported = {run: {state: "completed"}, running: false};
+      reported = {run: {state: "completed"}, running: false, output: ""};
     });
 
     rerender(
