@@ -3,12 +3,10 @@
 import {useCallback, useEffect, useRef, useState} from "react";
 import {useRouter} from "next/navigation";
 import {decode} from "js-base64";
-import JsCookie from "js-cookie";
 import {TableTbody, TableTd, TableTr} from "@mantine/core";
 import Link from "@/components/link";
-import {ACCESS_TOKEN_COOKIE_NAME} from "@/constants";
 import {useI18n} from "@/i18n/provider";
-import {useWsStream} from "@/hooks/use-ws-stream";
+import {useRefresh, useWatch} from "../../hooks/use-watch";
 import {APP_PATHS} from "@/lib/app-paths";
 import {formatDate} from "@/lib/date-and-time";
 import {type Author} from "@/features/authors/types";
@@ -60,7 +58,6 @@ type Props = {
  */
 export function StackRows({stacks: listed, may}: Props) {
   const {t, locale} = useI18n();
-  const openStream = useWsStream();
   const router = useRouter();
 
   const [stacks, setStacks] = useState(listed);
@@ -102,27 +99,10 @@ export function StackRows({stacks: listed, may}: Props) {
     shown.current = stacks;
   }, [stacks]);
 
-  // a change to a stack this page is not showing is one that came or went,
-  // which moves the rest: that is the page's own business, and it is asked for
-  // once however many such changes arrive at a time.
-  const pendingRefresh = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const refresh = useCallback(() => {
-    if (pendingRefresh.current !== undefined) return;
+  const refresh = useRefresh(useCallback(() => router.refresh(), [router]));
 
-    pendingRefresh.current = setTimeout(() => {
-      pendingRefresh.current = undefined;
-      router.refresh();
-    }, 300);
-  }, [router]);
-
-  useEffect(() => {
-    const token = JsCookie.get(ACCESS_TOKEN_COOKIE_NAME);
-    if (!token) return;
-
-    let closed = false;
-    let close: (() => void) | undefined;
-
-    const apply = (payload: string | null) => {
+  const apply = useCallback(
+    (payload: string | null) => {
       if (!payload) return;
 
       let change: Change;
@@ -152,40 +132,15 @@ export function StackRows({stacks: listed, may}: Props) {
       setStacks((current) =>
         current.map((s) => (s.uuid === change.uuid ? change.stack : s)),
       );
-    };
-
-    openStream(
-      WATCH_STACKS_SUBJECT,
-      {access_token: token},
-      {
-        onChunk: apply,
-        // whatever changed while there was no connection was missed, so the
-        // page is asked for as it is now.
-        onReopen: refresh,
-      },
-    ).then((stream) => {
-      // the page may have been left while the socket was opening.
-      if (closed) {
-        stream.close();
-
-        return;
-      }
-
-      close = () => stream.close();
-    });
-
-    return () => {
-      closed = true;
-      close?.();
-    };
-  }, [openStream, refresh]);
-
-  useEffect(
-    () => () => {
-      clearTimeout(pendingRefresh.current);
     },
-    [],
+    [refresh],
   );
+
+  useWatch({
+    subject: WATCH_STACKS_SUBJECT,
+    onChange: apply,
+    onResume: refresh,
+  });
 
   return (
     <TableTbody>
