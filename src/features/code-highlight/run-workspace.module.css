@@ -16,6 +16,14 @@
     var(--mantine-color-white),
     var(--mantine-color-dark-7)
   );
+
+  /* the card is drawn inside the article editor as well as on the page, and
+     what an editor lends the content it holds — its own colour, its own
+     spacing of lines — is not what the card is written in. It says what it is
+     written in, so it reads the same in both. */
+  color: var(--mantine-color-text);
+  line-height: var(--mantine-line-height);
+  word-break: normal;
 }
 
 .workspace {
@@ -342,11 +350,26 @@
   color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
 }
 
-.text {
+/*
+ * What a run has written, which is a box of text and nothing else.
+ *
+ * The card is drawn inside the article editor as well as on the page, and an
+ * editor styles the content it holds: every `pre` in it is given a border, a
+ * grey behind it, a radius and a padding of its own, all of which would reach
+ * in here and make the same snippet look like two. Naming the card as well as
+ * the box is what says which of the two the card is drawn by, so each of those
+ * is set back to what the page draws.
+ */
+.surface .text {
   margin: 0;
   padding: var(--mantine-spacing-sm);
   max-height: 240px;
+  min-width: 0;
   overflow: auto;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
   direction: ltr;
   text-align: start;
   font-family: var(--mantine-font-family-monospace), monospace;
@@ -356,7 +379,7 @@
   word-break: break-word;
 }
 
-.empty {
+.surface .empty {
   color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-2));
 }
 
