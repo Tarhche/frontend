@@ -1,0 +1,350 @@
+"use client";
+
+import {useEffect, useState} from "react";
+import {
+  IconArrowLeft,
+  IconArrowRight,
+  IconFileText,
+  IconRefresh,
+  IconTerminal2,
+  IconWorld,
+} from "@tabler/icons-react";
+import {Countdown} from "@/components/countdown";
+import {containerStateLabel} from "@/lib/container-state";
+import {ContainerTerminal} from "@/features/dashboard/runner/components/container-terminal";
+import {useTranslations} from "@/i18n/provider";
+import {CODE_TERMINAL_INPUT_SUBJECT, CODE_TERMINAL_SUBJECT} from "./subjects";
+
+// ten lines of shell, which is as much of a page as a snippet's terminal is
+// worth; what it writes past that it keeps, and scrolls.
+const SHELL_HEIGHT = "8rem";
+
+// what a snippet's terminal is opened on. It is made once: a run is reported
+// several times a second, and a terminal that is handed new subjects on every
+// report is a terminal nobody can type into.
+const SNIPPET_SUBJECTS = {
+  attach: CODE_TERMINAL_SUBJECT,
+  input: CODE_TERMINAL_INPUT_SUBJECT,
+};
+import classes from "./run-workspace.module.css";
+
+/** What the runner has said about a snippet that is being watched. */
+export type Run = {
+  state?: string;
+  endpoints?: Array<{container_port: number; url: string}>;
+  container_uuid?: string;
+  logs?: string;
+
+  /** When the snippet will be stopped, for as long as it is running. */
+  deadline?: string;
+};
+
+/** Which of the two boxes under the snippet is open, if either. */
+export type OpenPanel = "terminal" | "logs" | null;
+
+/**
+ * Whether there is a browser to draw beside the code.
+ *
+ * A browser is for what a snippet serves, so one that serves nothing has none;
+ * one that has stopped serving has nothing left to show; and one whose browser
+ * has been put away is not asking for it. The page a reader is shown and the
+ * card an author writes in both ask here, so that neither can answer it
+ * differently from the other.
+ */
+export function showsBrowser(options: {
+  running: boolean;
+  ports: number[];
+  browser: boolean;
+}): boolean {
+  return options.running && options.ports.length > 0 && options.browser;
+}
+
+/** The turning cube itself: six sides of one, drawn with borders. */
+export function Cube() {
+  return (
+    <span className={classes.cube}>
+      <span className={classes.face} />
+      <span className={classes.face} />
+      <span className={classes.face} />
+      <span className={classes.face} />
+      <span className={classes.face} />
+      <span className={classes.face} />
+    </span>
+  );
+}
+
+/** A cube that turns while there is nothing to show yet. */
+export function Waiting({label}: {label: string}) {
+  return (
+    <div className={classes.waiting}>
+      <Cube />
+      <span>{label}</span>
+    </div>
+  );
+}
+
+type PreviewProps = {
+  run: Run;
+};
+
+/**
+ * What a snippet serves, in a browser of its own.
+ *
+ * The bar says where it is and, when it serves more than one port, which of
+ * them is being looked at. Until there is something to look at the frame holds
+ * a cube and what the runner last said, so a reader watching a container start
+ * is watching something.
+ */
+export function RunPreview({run}: PreviewProps) {
+  const t = useTranslations();
+
+  const alive = run.state === "running";
+  const addresses = alive ? (run.endpoints ?? []) : [];
+  const [port, setPort] = useState<number | null>(null);
+  const [reloads, setReloads] = useState(0);
+
+  const address =
+    addresses.find((one) => one.container_port === port) ?? addresses[0];
+
+  return (
+    <div className={classes.browser}>
+      <div className={classes.chrome}>
+        <button type="button" className={classes.icon} disabled aria-hidden>
+          <IconArrowLeft size={14} />
+        </button>
+        <button type="button" className={classes.icon} disabled aria-hidden>
+          <IconArrowRight size={14} />
+        </button>
+        <button
+          type="button"
+          className={classes.icon}
+          disabled={!address}
+          aria-label={t("editor.reload")}
+          onClick={() => setReloads((count) => count + 1)}
+        >
+          <IconRefresh size={14} />
+        </button>
+
+        <span className={classes.address}>
+          <span className={classes.addressText}>
+            {address ? address.url.replace(/^https?:\/\//, "") : "/"}
+          </span>
+        </span>
+
+        {alive && run.deadline && (
+          <Countdown to={run.deadline} className={classes.countdown} />
+        )}
+
+        {addresses.length > 1 && (
+          <span className={classes.ports}>
+            {addresses.map((one) => (
+              <button
+                type="button"
+                key={one.container_port}
+                className={`${classes.port} ${
+                  one === address ? classes.portActive : ""
+                }`}
+                onClick={() => setPort(one.container_port)}
+              >
+                {one.container_port}
+              </button>
+            ))}
+          </span>
+        )}
+      </div>
+
+      <div className={classes.viewport}>
+        {address ? (
+          <iframe
+            key={`${address.url}:${reloads}`}
+            className={classes.frame}
+            src={address.url}
+            title={address.url}
+            sandbox="allow-scripts allow-forms allow-same-origin"
+          />
+        ) : (
+          <Waiting
+            label={
+              run.state
+                ? containerStateLabel(t, run.state)
+                : t("editor.running")
+            }
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * What a snippet that serves nothing has to say: what it printed while it ran.
+ *
+ * It is drawn under the same bar a log or a shell is drawn under, so a result
+ * is named wherever it is read — on the page, and in the card an author writes
+ * it in.
+ */
+export function RunOutput({output}: {output: string}) {
+  const t = useTranslations();
+
+  return (
+    <div className={classes.panel}>
+      <div className={classes.panelBar}>
+        <span>{t("editor.programOutput")}</span>
+      </div>
+      <pre className={classes.text}>{output}</pre>
+    </div>
+  );
+}
+
+type ToolsProps = {
+  run: Run;
+
+  /** Whether the snippet serves anything a browser could show. */
+  hasBrowser: boolean;
+  showTerminal: boolean;
+  showLogs: boolean;
+
+  /** Whether the browser is being shown, and how to say otherwise. */
+  browser: boolean;
+  onBrowser: (shown: boolean) => void;
+
+  open: OpenPanel;
+  onOpen: (panel: OpenPanel) => void;
+};
+
+/**
+ * What a running snippet can be looked at through.
+ *
+ * The three of them sit in the snippet's own bar rather than on any one of
+ * them, because each can be put away — a browser that carried the button for
+ * turning itself back on could not be.
+ */
+export function RunTools({
+  run,
+  hasBrowser,
+  showTerminal,
+  showLogs,
+  browser,
+  onBrowser,
+  open,
+  onOpen,
+}: ToolsProps) {
+  const t = useTranslations();
+
+  const alive = run.state === "running";
+
+  return (
+    <>
+      {hasBrowser && (
+        <button
+          type="button"
+          className={`${classes.paneAction} ${
+            browser ? classes.paneActionActive : ""
+          }`}
+          title={t("editor.tabs.browser")}
+          aria-label={t("editor.tabs.browser")}
+          aria-pressed={browser}
+          onClick={() => onBrowser(!browser)}
+        >
+          <IconWorld size={16} />
+        </button>
+      )}
+
+      {showLogs && (
+        <button
+          type="button"
+          className={`${classes.paneAction} ${
+            open === "logs" ? classes.paneActionActive : ""
+          }`}
+          title={t("editor.tabs.logs")}
+          aria-label={t("editor.tabs.logs")}
+          aria-pressed={open === "logs"}
+          onClick={() => onOpen(open === "logs" ? null : "logs")}
+        >
+          <IconFileText size={16} />
+        </button>
+      )}
+
+      {showTerminal && (
+        <button
+          type="button"
+          className={`${classes.paneAction} ${
+            open === "terminal" ? classes.paneActionActive : ""
+          }`}
+          disabled={!alive || !run.container_uuid}
+          title={t("editor.tabs.terminal")}
+          aria-label={t("editor.tabs.terminal")}
+          aria-pressed={open === "terminal"}
+          onClick={() => onOpen(open === "terminal" ? null : "terminal")}
+        >
+          <IconTerminal2 size={16} />
+        </button>
+      )}
+    </>
+  );
+}
+
+type PanelProps = {
+  run: Run;
+  open: OpenPanel;
+  onOpen: (panel: OpenPanel) => void;
+  logs: string;
+  output: string;
+  running: boolean;
+};
+
+/**
+ * The box the two buttons open: what the container is writing, or a shell
+ * inside it. What the snippet printed is shown here as well, since that is
+ * what a snippet without a port has to say.
+ */
+export function RunPanel({
+  run,
+  open,
+  onOpen,
+  logs,
+  output,
+  running,
+}: PanelProps) {
+  const t = useTranslations();
+
+  const alive = run.state === "running";
+
+  // a log and a shell belong to the container they were opened on: when that
+  // ends they end with it, the way the browser does, and a shell needs one
+  // that is still answering rather than merely one that has not been stopped.
+  useEffect(() => {
+    if (open && (!running || (open === "terminal" && !alive))) {
+      onOpen(null);
+    }
+  }, [open, running, alive, onOpen]);
+  const title =
+    open === "terminal" ? t("editor.tabs.terminal") : t("editor.tabs.logs");
+  const body = open === "logs" ? logs : output;
+
+  if (!open) {
+    return null;
+  }
+
+  return (
+    <div className={classes.panel}>
+      <div className={classes.panelBar}>
+        <span>{title}</span>
+      </div>
+
+      {open === "terminal" && alive && run.container_uuid ? (
+        <ContainerTerminal
+          containerUuid={run.container_uuid}
+          running
+          authenticated={false}
+          subjects={SNIPPET_SUBJECTS}
+          height={SHELL_HEIGHT}
+        />
+      ) : (
+        <pre className={`${classes.text} ${body ? "" : classes.empty}`}>
+          {body || t("editor.noOutput")}
+        </pre>
+      )}
+    </div>
+  );
+}

@@ -1,0 +1,452 @@
+/*
+ * A snippet you can run, laid out the way a sandbox lays one out: the code on
+ * one side and what it serves on the other, with a shell and a log behind two
+ * buttons in the corner.
+ *
+ * Everything here is a box, a button and a frame. The column splits only when
+ * there is room for two of them — an article is a narrow thing to read, and
+ * half of it is not a browser.
+ */
+.surface {
+  border: 1px solid
+    light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  border-radius: var(--mantine-radius-md);
+  overflow: hidden;
+  background-color: light-dark(
+    var(--mantine-color-white),
+    var(--mantine-color-dark-7)
+  );
+
+  /* the card is drawn inside the article editor as well as on the page, and
+     what an editor lends the content it holds — its own colour, its own
+     spacing of lines — is not what the card is written in. It says what it is
+     written in, so it reads the same in both. */
+  color: var(--mantine-color-text);
+  line-height: var(--mantine-line-height);
+  word-break: normal;
+}
+
+.workspace {
+  display: grid;
+  align-items: stretch;
+
+  /* code, and the browser beside it, are read left to right whatever the page
+     around them is written in. */
+  direction: ltr;
+}
+
+@media (min-width: 62em) {
+  /* how much of the card each side takes, which is what the handle sets. */
+  .split {
+    grid-template-columns: minmax(0, var(--split, 50%)) auto minmax(0, 1fr);
+  }
+}
+
+.pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.previewPane {
+  border-block-start: 1px solid
+    light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+}
+
+/*
+ * The line between the two sides is also the grip that moves it: a hairline to
+ * look at, and enough of a column either side of it to catch a pointer.
+ */
+.handle {
+  display: none;
+}
+
+@media (min-width: 62em) {
+  .split .previewPane {
+    border-block-start: 0;
+  }
+
+  .split .handle {
+    display: block;
+    position: relative;
+    width: 5px;
+    cursor: col-resize;
+    touch-action: none;
+  }
+
+  .handle::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 2px;
+    width: 1px;
+    background-color: light-dark(
+      var(--mantine-color-gray-3),
+      var(--mantine-color-dark-4)
+    );
+  }
+
+  .handle:hover::before,
+  .handle:focus-visible::before {
+    inset-inline-start: 1px;
+    width: 3px;
+    background-color: var(--mantine-primary-color-filled);
+  }
+
+  .handle:focus-visible {
+    outline: none;
+  }
+}
+
+/* the bar over each side: what can be done to the snippet, and the browser's
+   own address. */
+.paneBar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 4px 8px;
+  border-block-end: 1px solid
+    light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+}
+
+.paneActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-inline-start: auto;
+}
+
+/* a snippet with nothing to look at is only working, and the button that
+   started it says so by turning until it is done. */
+@keyframes turning {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinning {
+  animation: turning 1s linear infinite;
+}
+
+/* where the buttons for what a running snippet can be looked at through are
+   drawn, which is in that same bar rather than on any one of them. */
+.paneTools {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* An action in that bar, where there is no react to draw one: the same size
+   and the same quiet grey the page's are. */
+.paneAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--mantine-radius-sm);
+  background: none;
+  color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-1));
+  cursor: pointer;
+}
+
+.paneAction:hover {
+  background-color: light-dark(
+    var(--mantine-color-gray-1),
+    var(--mantine-color-dark-5)
+  );
+  color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
+}
+
+.paneAction[hidden] {
+  display: none;
+}
+
+.paneAction:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* one of those buttons showing what it opens, so that what is being looked at
+   is visible from the bar rather than only from the thing itself. */
+.paneActionActive,
+.paneActionActive:hover {
+  background-color: var(--mantine-primary-color-filled);
+  color: var(--mantine-color-white);
+}
+
+/* What a snippet is run with, named beside what can be done to it. */
+.runtimeName {
+  margin-inline-end: 4px;
+  color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-1));
+  font-family: var(--mantine-font-family-monospace), monospace;
+  font-size: var(--mantine-font-size-xs);
+}
+
+/* the code itself, without the box Mantine or the theme would put round it.
+   A long snippet is scrolled rather than shown whole: twenty lines is as much
+   of one as a page should give up to it. */
+.code {
+  flex: 1;
+  min-width: 0;
+  max-height: 26rem;
+  overflow: auto;
+
+  /* code is written left to right wherever it is read. */
+  direction: ltr;
+  text-align: left;
+}
+
+.code :global(.mantine-CodeHighlight-root),
+.code :global(.cm-editor) {
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+/* the browser: a bar with where it is, and the page itself under it. */
+.browser {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 220px;
+}
+
+.chrome {
+  composes: paneBar;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--mantine-radius-sm);
+  background: none;
+  color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-1));
+  cursor: pointer;
+}
+
+.icon:hover:not(:disabled) {
+  background-color: light-dark(
+    var(--mantine-color-gray-2),
+    var(--mantine-color-dark-5)
+  );
+  color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
+}
+
+.icon:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* where the page is, and the other ports it is served on. */
+.address {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background-color: light-dark(
+    var(--mantine-color-gray-1),
+    var(--mantine-color-dark-5)
+  );
+  font-size: var(--mantine-font-size-xs);
+  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0));
+  overflow: hidden;
+}
+
+.addressText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: ltr;
+}
+
+/* how long the snippet has left, beside where it is. */
+.countdown {
+  flex: none;
+  font-family: var(--mantine-font-family-monospace), monospace;
+  font-size: var(--mantine-font-size-xs);
+  font-variant-numeric: tabular-nums;
+  color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-1));
+}
+
+.ports {
+  display: flex;
+  gap: 2px;
+}
+
+.port {
+  padding: 2px 8px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
+  font-size: var(--mantine-font-size-xs);
+  cursor: pointer;
+}
+
+.portActive {
+  background-color: light-dark(
+    var(--mantine-color-gray-2),
+    var(--mantine-color-dark-5)
+  );
+  color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
+}
+
+.viewport {
+  position: relative;
+  flex: 1;
+  min-height: 180px;
+}
+
+.frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* what is shown instead of a page while there is no page to show. */
+.waiting {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mantine-spacing-sm);
+  perspective: 200px;
+  background-color: light-dark(
+    var(--mantine-color-gray-0),
+    var(--mantine-color-dark-7)
+  );
+  color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-1));
+  font-size: var(--mantine-font-size-xs);
+}
+
+/* the buttons in the corner, over the page. */
+/* and what those buttons open, under the whole thing. */
+.panel {
+  border-block-start: 1px solid
+    light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+}
+
+.panelBar {
+  composes: paneBar;
+  font-size: var(--mantine-font-size-xs);
+  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
+}
+
+/*
+ * What a run has written, which is a box of text and nothing else.
+ *
+ * The card is drawn inside the article editor as well as on the page, and an
+ * editor styles the content it holds: every `pre` in it is given a border, a
+ * grey behind it, a radius and a padding of its own, all of which would reach
+ * in here and make the same snippet look like two. The class is named twice so
+ * that this is heard over them wherever the box is drawn, and each of those is
+ * set back to what the page draws.
+ */
+.text.text {
+  margin: 0;
+  padding: var(--mantine-spacing-sm);
+
+  /* ten lines of it, and whatever a run writes past that it keeps and scrolls
+     to. A line is 12.5px set at 1.5, so ten of them and the padding round them
+     come to this: a height it is given rather than one worked out as it is
+     drawn. */
+  max-height: 13.25rem;
+  min-width: 0;
+  overflow: auto;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  direction: ltr;
+  text-align: start;
+  font-family: var(--mantine-font-family-monospace), monospace;
+  font-size: 12.5px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.empty.empty {
+  color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-2));
+}
+
+/*
+ * The cube that turns while there is nothing to show yet: three faces of one,
+ * drawn with borders and spun. It is the whole of the waiting animation, so
+ * nothing has to be fetched to say "a moment".
+ */
+.cube {
+  --cube-half: 9px;
+
+  position: relative;
+  display: block;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  transform-style: preserve-3d;
+  animation: cube-turn 3s infinite linear;
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid var(--mantine-primary-color-filled);
+  opacity: 0.85;
+}
+
+.face:nth-child(1) {
+  transform: translateZ(calc(var(--cube-half) * 1));
+}
+
+.face:nth-child(2) {
+  transform: rotateY(180deg) translateZ(var(--cube-half));
+}
+
+.face:nth-child(3) {
+  transform: rotateY(90deg) translateZ(var(--cube-half));
+}
+
+.face:nth-child(4) {
+  transform: rotateY(-90deg) translateZ(var(--cube-half));
+}
+
+.face:nth-child(5) {
+  transform: rotateX(90deg) translateZ(var(--cube-half));
+}
+
+.face:nth-child(6) {
+  transform: rotateX(-90deg) translateZ(var(--cube-half));
+}
+
+@keyframes cube-turn {
+  from {
+    transform: rotateX(-24deg) rotateY(0deg);
+  }
+  to {
+    transform: rotateX(-24deg) rotateY(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cube {
+    animation-duration: 0s;
+  }
+}
