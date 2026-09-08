@@ -1,6 +1,6 @@
 "use client";
 
-import {useState, useTransition, useActionState} from "react";
+import {useEffect, useState, useTransition, useActionState} from "react";
 import {
   ActionIcon,
   ActionIconGroup,
@@ -21,8 +21,20 @@ import {useTranslations} from "@/i18n/provider";
 import {
   commandStack,
   deleteStack,
+  deleteMyStackAction,
+  commandMyStackAction,
   type StackCommand,
 } from "../../actions/stack-commands";
+import {type Transition} from "../state-badge";
+
+// what asking for each of these is, in the words of what it does to a stack:
+// what the runner calls the state its services pass through on the way is its
+// own business.
+const underway: Record<StackCommand, Transition> = {
+  stop: "stopping",
+  kill: "killing",
+  restart: "restarting",
+};
 
 type Props = {
   uuid: string;
@@ -30,6 +42,15 @@ type Props = {
   state: string;
   canManage: boolean;
   canDelete: boolean;
+
+  // whether this is asked for as one's own: a stack somebody else owns is not
+  // there to be commanded that way.
+  own?: boolean;
+
+  // told what is on its way to this stack, so that whatever else shows it can
+  // say that is what is happening to it. The runner takes a moment to agree,
+  // and until it does this is the only thing that knows.
+  onCommand?: (underway: Transition | undefined) => void;
 };
 
 /**
@@ -37,17 +58,43 @@ type Props = {
  * service in it. There is no edit: a stack is immutable, like the containers
  * in it.
  */
-export function StackActions({uuid, name, state, canManage, canDelete}: Props) {
+export function StackActions({
+  uuid,
+  name,
+  state,
+  canManage,
+  canDelete,
+  own = false,
+  onCommand,
+}: Props) {
   const t = useTranslations();
   const [pending, startTransition] = useTransition();
-  const [, deleteAction, isDeleting] = useActionState(deleteStack, false);
+  const [, deleteAction, isDeleting] = useActionState(
+    own ? deleteMyStackAction : deleteStack,
+    false,
+  );
   const [confirming, setConfirming] = useState<"delete" | null>(null);
 
   const running = state === "running" || state === "restarting";
 
+  // what was asked for last, kept until the answer comes back.
+  const [asked, setAsked] = useState<Transition | undefined>(undefined);
+
+  useEffect(() => {
+    if (isDeleting) {
+      onCommand?.("deleting");
+
+      return;
+    }
+
+    onCommand?.(pending ? asked : undefined);
+  }, [asked, pending, isDeleting, onCommand]);
+
   const run = (command: StackCommand) => {
+    setAsked(underway[command]);
+
     startTransition(async () => {
-      await commandStack(command, uuid);
+      await (own ? commandMyStackAction : commandStack)(command, uuid);
     });
   };
 

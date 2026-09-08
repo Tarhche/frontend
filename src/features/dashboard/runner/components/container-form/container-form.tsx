@@ -11,6 +11,7 @@ import {
   RadioGroup,
   Select,
   Stack,
+  Switch,
   TextInput,
   Textarea,
 } from "@mantine/core";
@@ -122,6 +123,11 @@ export function ContainerForm() {
                 />
               </Stack>
             </RadioGroup>
+            <Switch
+              name="read_only"
+              label={t("containers.form.readOnly")}
+              description={t("containers.form.readOnlyHelp")}
+            />
           </Stack>
         </Paper>
 

@@ -28,6 +28,7 @@ export async function runContainer(
     environment: lines(formData.get("environment")),
     ports: lines(formData.get("ports")),
     network_mode: formData.get("network_mode")?.toString() || "isolated",
+    read_only: formData.get("read_only") === "on",
     restart: formData.get("restart")?.toString() || "unless-stopped",
     deploy: {
       resources: {
