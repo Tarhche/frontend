@@ -9,7 +9,8 @@ const config: Config = {
   coverageProvider: "v8",
   testEnvironment: "jest-environment-jsdom",
   moduleNameMapper: {
-    "@/(.*)$": "<rootDir>/$1",
+    // the same "@/" the app is written against, which is src/.
+    "@/(.*)$": "<rootDir>/src/$1",
   },
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   preset: "ts-jest",
