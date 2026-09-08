@@ -3,17 +3,41 @@
 import {useEffect, useRef, useState} from "react";
 import {toUint8Array, fromUint8Array} from "js-base64";
 import JsCookie from "js-cookie";
-import {Alert, Box, Text} from "@mantine/core";
+import {Alert, Box} from "@mantine/core";
 import {IconInfoCircle} from "@tabler/icons-react";
 import {ACCESS_TOKEN_COOKIE_NAME} from "@/constants";
 import {useTranslations} from "@/i18n/provider";
 import {useWsStream} from "@/hooks/use-ws-stream";
 import {ATTACH_SUBJECT, ATTACH_INPUT_SUBJECT} from "./subjects";
+
+// the dashboard's own pair, kept still: the terminal is opened again whenever
+// which subjects it is on changes, so this cannot be made afresh each render.
+const DASHBOARD_SUBJECTS = {
+  attach: ATTACH_SUBJECT,
+  input: ATTACH_INPUT_SUBJECT,
+};
+import classes from "./container-terminal.module.css";
 import "@xterm/xterm/css/xterm.css";
 
 type Props = {
   containerUuid: string;
   running: boolean;
+
+  /**
+   * Which terminal this is. The dashboard's is opened on somebody's own
+   * container and carries who they are; the one a snippet offers is opened on
+   * the container that snippet is running in, and carries nothing — knowing
+   * that container is what stands for permission there.
+   */
+  subjects?: {attach: string; input: string};
+  authenticated?: boolean;
+
+  /**
+   * How tall to draw it. A page that gives a snippet a corner of itself asks
+   * for a few lines; the dashboard, which has a page to spare, takes what the
+   * box gives it.
+   */
+  height?: string;
 };
 
 /**
@@ -23,7 +47,13 @@ type Props = {
  * what is typed goes back on a second subject naming that same stream, so the
  * whole session travels over the one websocket the page already has.
  */
-export function ContainerTerminal({containerUuid, running}: Props) {
+export function ContainerTerminal({
+  containerUuid,
+  running,
+  subjects = DASHBOARD_SUBJECTS,
+  authenticated = true,
+  height,
+}: Props) {
   const t = useTranslations();
   const openStream = useWsStream();
 
@@ -33,8 +63,11 @@ export function ContainerTerminal({containerUuid, running}: Props) {
   useEffect(() => {
     if (!running || mount.current === null) return;
 
-    const token = JsCookie.get(ACCESS_TOKEN_COOKIE_NAME);
-    if (!token) return;
+    const token = authenticated
+      ? JsCookie.get(ACCESS_TOKEN_COOKIE_NAME)
+      : undefined;
+
+    if (authenticated && !token) return;
 
     let disposed = false;
     let cleanup: (() => void) | undefined;
@@ -57,9 +90,15 @@ export function ContainerTerminal({containerUuid, running}: Props) {
         terminal.open(mount.current);
         fit.fit();
 
-        const stream = await openStream(
-          ATTACH_SUBJECT,
-          {container_uuid: containerUuid, access_token: token},
+        // the handlers below are handed to the stream that carries them, so
+        // the handle they reach for is filled in as soon as there is one.
+        let stream: Awaited<ReturnType<typeof openStream>> | undefined;
+
+        stream = await openStream(
+          subjects.attach,
+          token
+            ? {container_uuid: containerUuid, access_token: token}
+            : {container_uuid: containerUuid},
           {
             onChunk: (payload) => {
               if (payload) terminal.write(toUint8Array(payload));
@@ -68,6 +107,26 @@ export function ContainerTerminal({containerUuid, running}: Props) {
               setEnded(true);
               terminal.write(
                 `\r\n\x1b[90m${t("containers.detail.terminalEnded")}\x1b[0m\r\n`,
+              );
+            },
+            // the connection dropped and the terminal was opened again: what
+            // is behind it now is a new shell, so say so rather than leaving
+            // somebody typing into what looks like the old one.
+            onReopen: () => {
+              setEnded(false);
+              terminal.write(
+                `\r\n\x1b[90m${t("containers.detail.terminalReconnected")}\x1b[0m\r\n`,
+              );
+              stream?.send(subjects.input, {
+                type: "resize",
+                rows: terminal.rows,
+                cols: terminal.cols,
+              });
+            },
+            onError: () => {
+              setEnded(true);
+              terminal.write(
+                `\r\n\x1b[90m${t("containers.detail.terminalLost")}\x1b[0m\r\n`,
               );
             },
           },
@@ -81,27 +140,41 @@ export function ContainerTerminal({containerUuid, running}: Props) {
 
         const encoder = new TextEncoder();
         const typed = terminal.onData((data) => {
-          stream.send(ATTACH_INPUT_SUBJECT, {
+          stream.send(subjects.input, {
             data: fromUint8Array(encoder.encode(data)),
           });
         });
 
         // the command draws to the size of the window it is shown in, so it is
         // told whenever that changes.
+        let drawnTo = {rows: 0, cols: 0};
+
         const resize = () => {
           fit.fit();
-          stream.send(ATTACH_INPUT_SUBJECT, {
+
+          if (
+            terminal.rows === drawnTo.rows &&
+            terminal.cols === drawnTo.cols
+          ) {
+            return;
+          }
+
+          drawnTo = {rows: terminal.rows, cols: terminal.cols};
+          stream.send(subjects.input, {
             type: "resize",
             rows: terminal.rows,
             cols: terminal.cols,
           });
         };
 
-        resize();
-        window.addEventListener("resize", resize);
+        // the terminal is drawn in a tab, and a tab that is not showing has no
+        // size to fit to. Watching the box is what catches it being shown, as
+        // well as the window being resized.
+        const box = new ResizeObserver(() => resize());
+        box.observe(mount.current);
 
         cleanup = () => {
-          window.removeEventListener("resize", resize);
+          box.disconnect();
           typed.dispose();
           stream.close();
           terminal.dispose();
@@ -113,7 +186,7 @@ export function ContainerTerminal({containerUuid, running}: Props) {
       disposed = true;
       cleanup?.();
     };
-  }, [containerUuid, running, openStream, t]);
+  }, [containerUuid, running, openStream, subjects, authenticated, t]);
 
   if (!running) {
     return (
@@ -125,19 +198,11 @@ export function ContainerTerminal({containerUuid, running}: Props) {
 
   return (
     <Box>
-      <Text size="sm" c="dimmed" mb="xs">
-        {t("containers.detail.terminalHint")}
-      </Text>
       <Box
         ref={mount}
         aria-label={t("containers.detail.terminal")}
-        style={{
-          height: "60vh",
-          backgroundColor: "#000",
-          padding: "var(--mantine-spacing-xs)",
-          borderRadius: "var(--mantine-radius-sm)",
-          opacity: ended ? 0.7 : 1,
-        }}
+        className={classes.shell}
+        style={{opacity: ended ? 0.7 : 1, height}}
       />
     </Box>
   );
