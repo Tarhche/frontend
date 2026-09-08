@@ -47,6 +47,8 @@
     "@uiw/codemirror-theme-eclipse": "^4.25.10",
     "@uiw/codemirror-theme-monokai": "^4.25.10",
     "@uiw/codemirror-themes": "^4.25.10",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
     "axios": "^1.18.1",
     "boring-avatars": "^2.0.4",
     "ckeditor5": "^48.2.0",
