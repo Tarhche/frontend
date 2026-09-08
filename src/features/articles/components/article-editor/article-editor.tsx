@@ -4,10 +4,10 @@ import {useState, useMemo, type RefObject} from "react";
 import {ClassicEditor, EditorConfig} from "ckeditor5";
 import {CKEditor} from "@ckeditor/ckeditor5-react";
 import {Modal} from "@mantine/core";
-import {decode} from "js-base64";
 import {FilesExplorer} from "@/components/files-explorer";
 import {FILES_PUBLIC_URL} from "@/constants/envs";
-import {useWsPublish} from "@/hooks/use-ws-publish";
+import {CodeRunSurface} from "@/features/code-highlight/code-run-surface";
+import {type OpenPanel} from "@/features/code-highlight/run-workspace";
 import {useI18n} from "@/i18n/provider";
 import {localeFromLanguageCode} from "@/i18n/config";
 import {getEditorConfig} from "./editor-config";
@@ -24,9 +24,29 @@ type Props = {
   languageCode: string;
 };
 
+/** What the code block panel hands over when an author runs a snippet. */
+type CodeSurface = {
+  hosts: {preview: HTMLElement; panel: HTMLElement; tools: HTMLElement};
+  runtime: string;
+  code: string;
+  ports: Array<number>;
+  terminal: boolean;
+  logs: boolean;
+  onRunningChange: (running: boolean) => void;
+  onPreviewChange: (shown: boolean) => void;
+};
+
 export function ArticleEditor({initialData, editorRef, languageCode}: Props) {
   const {t, locale, direction} = useI18n();
-  const publish = useWsPublish();
+  // the snippet an author is running, and where its surface is drawn.
+  const [surface, setSurface] = useState<
+    (CodeSurface & {token: number; stopToken: number}) | null
+  >(null);
+  const [openPanel, setOpenPanel] = useState<OpenPanel>(null);
+
+  // whether what a snippet serves is being looked at. It is on to begin with,
+  // since somebody who published a port meant it to be seen.
+  const [browser, setBrowser] = useState(true);
   const [isFileExplorerOpen, setIsFileExplorerOpen] = useState(false);
   // CKEditor reads its languages once, when the instance is created, so the
   // `id` below re-creates it when either of them changes.
@@ -39,22 +59,22 @@ export function ArticleEditor({initialData, editorRef, languageCode}: Props) {
         onOpen: setIsFileExplorerOpen.bind(null, true),
       },
       runnableCodeBlock: {
-        // Runs snippets through the same channel the published article uses.
-        onRun: async ({runtime, code}: {runtime: string; code: string}) => {
-          const response = await publish<
-            {runner: string; code: string},
-            {logs: string | undefined} | undefined
-          >("runCode", {runner: runtime, code});
-
-          return response?.logs ? decode(response.logs) : "";
-        },
+        // Running a snippet in the editor shows exactly what a reader is
+        // shown: the panel says what the snippet is, and the surface under the
+        // editor draws what running it does.
+        onRun: (snippet: CodeSurface) =>
+          setSurface({...snippet, token: Date.now(), stopToken: 0}),
+        onStop: () =>
+          setSurface((current) =>
+            current ? {...current, stopToken: Date.now()} : current,
+          ),
         translate: t,
         // The panel is translated by the app, so it follows the app direction.
         direction,
       },
       initialData: initialData || "",
     };
-  }, [contentLocale, direction, initialData, locale, publish, t]);
+  }, [contentLocale, direction, initialData, locale, t]);
 
   return (
     <div className="main-container">
@@ -70,6 +90,28 @@ export function ArticleEditor({initialData, editorRef, languageCode}: Props) {
           )}
         </div>
       </div>
+
+      {/* what running a snippet does, drawn into the snippet's own card. */}
+      {surface && (
+        <CodeRunSurface
+          key={surface.token}
+          hosts={surface.hosts}
+          runtime={surface.runtime}
+          code={surface.code}
+          ports={surface.ports}
+          terminal={surface.terminal}
+          logs={surface.logs}
+          runToken={surface.token}
+          stopToken={surface.stopToken}
+          open={openPanel}
+          onOpen={setOpenPanel}
+          browser={browser}
+          onBrowser={setBrowser}
+          onRunningChange={surface.onRunningChange}
+          onPreviewChange={surface.onPreviewChange}
+        />
+      )}
+
       <Modal
         size="xl"
         opened={isFileExplorerOpen}

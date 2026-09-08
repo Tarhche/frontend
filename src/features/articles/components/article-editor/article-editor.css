@@ -299,30 +299,21 @@
   background-color: var(--mantine-color-dark-6);
 }
 
-/* Runnable code blocks show their runtime right next to the language label, by
-   extending the label CKEditor already pins to the corner of the block. */
-.ck.ck-editor__editable pre[data-language][data-runtime]::after {
-  content: attr(data-language) " \25B6 " attr(data-runtime);
-  background: var(--mantine-color-teal-7, #0c8599);
-  direction: ltr;
-  unicode-bidi: isolate;
+/*
+ * A snippet is drawn as an editor of its own — the card, the bar and the code
+ * a reader is shown — so there is nothing here to style but the room it takes.
+ */
+.ck.ck-editor__editable .ck-code-snippet {
+  /* the whole width of what is being written, which is the width a reader is
+     given it in — pulled no wider, so the card's own border is where a reader
+     sees it rather than off the edge of the page. */
+  margin: 1em 0;
 }
 
-/* Same badge for blocks whose language carries no label of its own. */
-.ck.ck-editor__editable pre[data-runtime]:not([data-language])::after {
-  content: "\25B6 " attr(data-runtime);
-  position: absolute;
-  top: -1px;
-  right: 10px;
-  direction: ltr;
-  unicode-bidi: isolate;
-  background: var(--mantine-color-teal-7, #0c8599);
-  color: #fff;
-  font-family: var(--ck-font-face);
-  font-size: 10px;
-  line-height: 16px;
-  padding: var(--ck-spacing-tiny) var(--ck-spacing-medium);
-  white-space: nowrap;
+.ck.ck-editor__editable .ck-code-snippet.ck-widget_selected {
+  outline: 2px solid var(--ck-color-focus-border);
+  outline-offset: 2px;
+  border-radius: var(--mantine-radius-md, 8px);
 }
 
 /* Code block settings balloon. */
@@ -422,8 +413,14 @@
   overflow: hidden auto;
 }
 
+/* The ports are a shorter thing to write than a language is to choose. */
+.ck.ck-code-block-settings .ck-code-block-settings__ports {
+  flex: 1 1 100%;
+}
+
 .ck.ck-code-block-settings .ck-code-block-settings__actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
 }
@@ -441,6 +438,36 @@
 .ck.ck-code-block-settings .ck-code-block-settings__run .ck-button__label {
   width: fit-content;
   font-size: 12px;
+}
+
+/* The two names above the box, and how the run is going, in one row. */
+.ck.ck-code-block-settings .ck-code-block-settings__panel-tab {
+  padding: 2px 6px;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  font-size: 11px;
+}
+
+.ck.ck-code-block-settings .ck-code-block-settings__panel-tab.ck-on {
+  border-bottom-color: var(--ck-color-focus-border);
+  background: none;
+}
+
+.ck.ck-code-block-settings .ck-code-block-settings__state {
+  margin-inline-start: auto;
+  padding-inline-end: 6px;
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+/* Where a running snippet answers, on one line under the names. */
+.ck.ck-code-block-settings .ck-code-block-settings__addresses {
+  font-family: var(--ck-font-face-monospace, monospace);
+  font-size: 11px;
+  color: var(--ck-color-link-default);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ck.ck-code-block-settings .ck-code-block-settings__output {

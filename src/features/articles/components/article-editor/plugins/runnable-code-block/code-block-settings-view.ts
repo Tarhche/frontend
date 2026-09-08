@@ -1,10 +1,7 @@
 import {
-  ButtonView,
   Collection,
   FocusCycler,
   FocusTracker,
-  IconCancel,
-  IconPlay,
   KeystrokeHandler,
   LabeledFieldView,
   SwitchButtonView,
@@ -13,7 +10,9 @@ import {
   ViewCollection,
   addListToDropdown,
   createLabeledDropdown,
+  createLabeledInputText,
   type DropdownView,
+  type InputTextView,
   type FocusableView,
   type ListDropdownItemDefinition,
   type Locale,
@@ -28,10 +27,10 @@ export type CodeBlockSettingsLabels = {
   runtime: string;
   noRuntime: string;
   editableCode: string;
-  run: string;
-  running: string;
-  programOutput: string;
-  clearOutput: string;
+  ports: string;
+  portsPlaceholder: string;
+  terminal: string;
+  logs: string;
 };
 
 type Options = {
@@ -45,8 +44,10 @@ type Options = {
 /**
  * The settings panel of a code block: language, runtime, reader-editable flag
  * and running it in place. State is observable; intent is announced through the
- * `languageChange`, `runtimeChange`, `editableChange`, `run` and `clearOutput`
- * events, which the plugin wires to commands.
+ * `languageChange`, `runtimeChange`, `editableChange`, `portsChange`,
+ * `terminalChange`, `logsChange` and `run` events, which the plugin wires to
+ * commands. What running one has to show is drawn under the editor by whoever
+ * owns the panel, in the surface a reader is shown.
  */
 export class CodeBlockSettingsView extends View {
   public readonly focusTracker = new FocusTracker();
@@ -55,8 +56,9 @@ export class CodeBlockSettingsView extends View {
   public readonly languageInput: LabeledFieldView<DropdownView>;
   public readonly runtimeInput: LabeledFieldView<DropdownView>;
   public readonly editableSwitch: SwitchButtonView;
-  public readonly runButton: ButtonView;
-  public readonly clearOutputButton: ButtonView;
+  public readonly portsInput: LabeledFieldView<InputTextView>;
+  public readonly terminalSwitch: SwitchButtonView;
+  public readonly logsSwitch: SwitchButtonView;
 
   /** The language of the code block the panel is attached to. */
   declare public language: string | null;
@@ -64,12 +66,12 @@ export class CodeBlockSettingsView extends View {
   declare public runtime: string | null;
   /** Whether readers may edit the code before running it. */
   declare public isEditable: boolean;
-  /** Output of the last run, `null` when the code has not been run yet. */
-  declare public output: string | null;
-  declare public isRunning: boolean;
-  declare public hasError: boolean;
-  /** Whether the integration is able to execute code at all. */
-  declare public canRun: boolean;
+  /** The ports the snippet serves on, as the author wrote them. */
+  declare public ports: string | null;
+  /** Whether readers may open a terminal in the running snippet. */
+  declare public hasTerminal: boolean;
+  /** Whether readers see what the running snippet writes. */
+  declare public hasLogs: boolean;
 
   private readonly _focusables = new ViewCollection<FocusableView>();
   private readonly _focusCycler: FocusCycler;
@@ -84,17 +86,17 @@ export class CodeBlockSettingsView extends View {
       language: null,
       runtime: null,
       isEditable: false,
-      output: null,
-      isRunning: false,
-      hasError: false,
-      canRun: false,
+      ports: null,
+      hasTerminal: false,
+      hasLogs: false,
     });
 
     this.languageInput = this._createLanguageInput(languages, labels);
     this.runtimeInput = this._createRuntimeInput(runtimes, labels);
     this.editableSwitch = this._createEditableSwitch(labels);
-    this.runButton = this._createRunButton(labels);
-    this.clearOutputButton = this._createClearOutputButton(labels);
+    this.portsInput = this._createPortsInput(labels);
+    this.terminalSwitch = this._createTerminalSwitch(labels);
+    this.logsSwitch = this._createLogsSwitch(labels);
 
     this._focusCycler = new FocusCycler({
       focusables: this._focusables,
@@ -119,7 +121,7 @@ export class CodeBlockSettingsView extends View {
         {
           tag: "div",
           attributes: {class: ["ck", "ck-code-block-settings__fields"]},
-          children: [this.languageInput, this.runtimeInput],
+          children: [this.languageInput, this.runtimeInput, this.portsInput],
         },
         {
           tag: "div",
@@ -130,39 +132,7 @@ export class CodeBlockSettingsView extends View {
               bind.if("runtime", "ck-hidden", (value) => !value),
             ],
           },
-          children: [this.editableSwitch, this.runButton],
-        },
-        {
-          tag: "div",
-          attributes: {
-            class: [
-              "ck",
-              "ck-code-block-settings__output",
-              bind.if("output", "ck-hidden", (value) => !value),
-              bind.if("hasError", "ck-code-block-settings__output_error"),
-            ],
-          },
-          children: [
-            {
-              tag: "div",
-              attributes: {class: ["ck", "ck-code-block-settings__output-bar"]},
-              children: [
-                {
-                  tag: "span",
-                  children: [{text: labels.programOutput}],
-                },
-                this.clearOutputButton,
-              ],
-            },
-            {
-              tag: "pre",
-              attributes: {
-                class: ["ck", "ck-code-block-settings__output-text"],
-                dir: "ltr",
-              },
-              children: [{text: bind.to("output", (value) => value ?? "")}],
-            },
-          ],
+          children: [this.editableSwitch, this.terminalSwitch, this.logsSwitch],
         },
       ],
     });
@@ -316,25 +286,28 @@ export class CodeBlockSettingsView extends View {
     return view;
   }
 
-  private _createRunButton(labels: CodeBlockSettingsLabels): ButtonView {
-    const view = new ButtonView(this.locale);
+  /**
+   * Where the author says which ports the snippet serves on. What is typed is
+   * kept as it is typed until it is committed, so that a half-written list is
+   * not read as a port.
+   */
+  private _createPortsInput(
+    labels: CodeBlockSettingsLabels,
+  ): LabeledFieldView<InputTextView> {
+    const view = new LabeledFieldView<InputTextView>(
+      this.locale,
+      createLabeledInputText,
+    );
 
-    view.set({
-      icon: IconPlay,
-      withText: true,
-      class: "ck-code-block-settings__run",
-    });
+    view.label = labels.ports;
+    view.class = "ck-code-block-settings__ports";
+    view.fieldView.placeholder = labels.portsPlaceholder;
 
-    view.bind("isVisible").to(this, "canRun");
-    view
-      .bind("label")
-      .to(this, "isRunning", (isRunning) =>
-        isRunning ? labels.running : labels.run,
-      );
-    view.bind("isEnabled").to(this, "isRunning", (isRunning) => !isRunning);
-
-    view.on("execute", () => {
-      this.fire("run");
+    // what is typed is announced as it is typed; the field itself is filled in
+    // when the panel opens, so a list is not rewritten under the author's
+    // cursor as they write it.
+    view.fieldView.on("input", () => {
+      this.fire("portsChange", view.fieldView.element?.value ?? "");
     });
 
     this._focusables.add(view);
@@ -342,20 +315,41 @@ export class CodeBlockSettingsView extends View {
     return view;
   }
 
-  private _createClearOutputButton(
+  private _createTerminalSwitch(
     labels: CodeBlockSettingsLabels,
-  ): ButtonView {
-    const view = new ButtonView(this.locale);
+  ): SwitchButtonView {
+    const view = new SwitchButtonView(this.locale);
 
     view.set({
-      icon: IconCancel,
-      label: labels.clearOutput,
-      tooltip: true,
-      class: "ck-code-block-settings__clear",
+      label: labels.terminal,
+      withText: true,
+      class: "ck-code-block-settings__switch",
     });
 
+    view.bind("isOn").to(this, "hasTerminal");
+
     view.on("execute", () => {
-      this.fire("clearOutput");
+      this.fire("terminalChange", !this.hasTerminal);
+    });
+
+    this._focusables.add(view);
+
+    return view;
+  }
+
+  private _createLogsSwitch(labels: CodeBlockSettingsLabels): SwitchButtonView {
+    const view = new SwitchButtonView(this.locale);
+
+    view.set({
+      label: labels.logs,
+      withText: true,
+      class: "ck-code-block-settings__switch",
+    });
+
+    view.bind("isOn").to(this, "hasLogs");
+
+    view.on("execute", () => {
+      this.fire("logsChange", !this.hasLogs);
     });
 
     this._focusables.add(view);
