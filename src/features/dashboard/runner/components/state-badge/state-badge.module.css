@@ -1,0 +1,7 @@
+/* What is left of a container's time, beside what it is doing. */
+.countdown {
+  font-family: var(--mantine-font-family-monospace), monospace;
+  font-size: var(--mantine-font-size-xs);
+  font-variant-numeric: tabular-nums;
+  color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-1));
+}

@@ -58,6 +58,24 @@ export const PERMISSIONS = {
   permissions: {
     INDEX: "permissions.index",
   },
+  runner: {
+    containers: {
+      CREATE: "runner.containers.create",
+      DELETE: "runner.containers.delete",
+      INDEX: "runner.containers.index",
+      SHOW: "runner.containers.show",
+      LOGS: "runner.containers.logs",
+      MANAGE: "runner.containers.manage",
+      ATTACH: "runner.containers.attach",
+    },
+    stacks: {
+      CREATE: "runner.stacks.create",
+      DELETE: "runner.stacks.delete",
+      INDEX: "runner.stacks.index",
+      SHOW: "runner.stacks.show",
+      MANAGE: "runner.stacks.manage",
+    },
+  },
   roles: {
     CREATE: "roles.create",
     DELETE: "roles.delete",
@@ -85,6 +103,22 @@ export const PERMISSIONS = {
     files: {
       DELETE: "self.files.delete",
       INDEX: "self.files.index",
+    },
+    runner: {
+      containers: {
+        INDEX: "self.runner.containers.index",
+        SHOW: "self.runner.containers.show",
+        LOGS: "self.runner.containers.logs",
+        MANAGE: "self.runner.containers.manage",
+        ATTACH: "self.runner.containers.attach",
+        DELETE: "self.runner.containers.delete",
+      },
+      stacks: {
+        INDEX: "self.runner.stacks.index",
+        SHOW: "self.runner.stacks.show",
+        MANAGE: "self.runner.stacks.manage",
+        DELETE: "self.runner.stacks.delete",
+      },
     },
   },
   users: {
