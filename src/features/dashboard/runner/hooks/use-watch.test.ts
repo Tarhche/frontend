@@ -25,7 +25,7 @@ const watch = () => {
   const onResume = jest.fn();
 
   const rendered = renderHook(() =>
-    useWatch({subject: "runnerContainersWatch", onChange, onResume}),
+    useWatch({subject: "runnerTasksWatch", onChange, onResume}),
   );
 
   return {onChange, onResume, ...rendered};

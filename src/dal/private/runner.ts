@@ -1,12 +1,12 @@
 import {AxiosRequestConfig} from "axios";
 import {privateDalDriver} from "./private-dal-driver";
 
-export async function fetchContainers(config?: AxiosRequestConfig) {
+export async function fetchTasks(config?: AxiosRequestConfig) {
   const response = await privateDalDriver.get("dashboard/runner/tasks", config);
   return response.data;
 }
 
-export async function fetchMyContainers(config?: AxiosRequestConfig) {
+export async function fetchMyTasks(config?: AxiosRequestConfig) {
   const response = await privateDalDriver.get(
     "dashboard/my/runner/tasks",
     config,
@@ -14,10 +14,7 @@ export async function fetchMyContainers(config?: AxiosRequestConfig) {
   return response.data;
 }
 
-export async function fetchContainer(
-  uuid: string,
-  config?: AxiosRequestConfig,
-) {
+export async function fetchTask(uuid: string, config?: AxiosRequestConfig) {
   const response = await privateDalDriver.get(
     `dashboard/runner/tasks/${uuid}`,
     config,
@@ -25,10 +22,7 @@ export async function fetchContainer(
   return response.data;
 }
 
-export async function fetchMyContainer(
-  uuid: string,
-  config?: AxiosRequestConfig,
-) {
+export async function fetchMyTask(uuid: string, config?: AxiosRequestConfig) {
   const response = await privateDalDriver.get(
     `dashboard/my/runner/tasks/${uuid}`,
     config,
@@ -36,10 +30,7 @@ export async function fetchMyContainer(
   return response.data;
 }
 
-export async function fetchContainerLogs(
-  uuid: string,
-  config?: AxiosRequestConfig,
-) {
+export async function fetchTaskLogs(uuid: string, config?: AxiosRequestConfig) {
   const response = await privateDalDriver.get(
     `dashboard/runner/tasks/${uuid}/logs`,
     config,
@@ -47,7 +38,7 @@ export async function fetchContainerLogs(
   return response.data;
 }
 
-export async function fetchMyContainerLogs(
+export async function fetchMyTaskLogs(
   uuid: string,
   config?: AxiosRequestConfig,
 ) {
@@ -58,23 +49,23 @@ export async function fetchMyContainerLogs(
   return response.data;
 }
 
-export async function commandContainer(uuid: string, command: string) {
+export async function commandTask(uuid: string, command: string) {
   return await privateDalDriver.post(
     `dashboard/runner/tasks/${uuid}/${command}`,
   );
 }
 
-export async function commandMyContainer(uuid: string, command: string) {
+export async function commandMyTask(uuid: string, command: string) {
   return await privateDalDriver.post(
     `dashboard/my/runner/tasks/${uuid}/${command}`,
   );
 }
 
-export async function deleteContainer(uuid: string) {
+export async function deleteTask(uuid: string) {
   return await privateDalDriver.delete(`dashboard/runner/tasks/${uuid}`);
 }
 
-export async function deleteMyContainer(uuid: string) {
+export async function deleteMyTask(uuid: string) {
   return await privateDalDriver.delete(`dashboard/my/runner/tasks/${uuid}`);
 }
 

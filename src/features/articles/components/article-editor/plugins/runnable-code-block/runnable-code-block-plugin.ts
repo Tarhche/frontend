@@ -92,7 +92,7 @@ export type RunnableCodeBlockConfig = {
   runtimes?: Array<CodeBlockRuntimeOption>;
   onRun?: RunCodeCallback;
 
-  /** Takes away the container the snippet being run is running in. */
+  /** Takes away the task the snippet being run is running in. */
   onStop?: () => void;
 
   translate?: (key: string) => string;

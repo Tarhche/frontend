@@ -383,7 +383,7 @@
       "profile": "Profile",
       "logout": "Logout",
       "contactUs": "Contact us",
-      "containers": "Containers",
+      "tasks": "Tasks",
       "stacks": "Stacks"
     }
   },
@@ -546,11 +546,11 @@
       }
     }
   },
-  "containers": {
-    "title": "Containers",
+  "tasks": {
+    "title": "Tasks",
     "table": {
-      "newContainer": "Run a container",
-      "empty": "No containers running",
+      "newTask": "Run a task",
+      "empty": "No tasks running",
       "name": "Name",
       "image": "Image",
       "state": "State",
@@ -561,7 +561,7 @@
       "kill": "Kill",
       "restart": "Restart",
       "delete": "Delete",
-      "deleteConfirm": "Delete \"{name}\"? Its ports, its logs and the container itself all go.",
+      "deleteConfirm": "Delete \"{name}\"? Its ports, its logs and the task itself all go.",
       "killConfirm": "Kill \"{name}\"? It is stopped at once, with no chance to shut down cleanly.",
       "readOnlyOn": "Read-only",
       "readOnlyOff": "Writable",
@@ -579,7 +579,7 @@
       "environment": "Environment",
       "environmentHelp": "One KEY=value per line.",
       "ports": "Exposed ports",
-      "portsHelp": "One container port per line. The runner picks the host side and serves it on the container's own name.",
+      "portsHelp": "One task port per line. The runner picks the host side and serves it on the task's own name.",
       "network": "Network access",
       "networkNone": "None — no network at all",
       "networkIsolated": "Isolated — its own stack and its ports, but no internet",
@@ -588,9 +588,9 @@
       "cpus": "CPUs",
       "memory": "Memory",
       "run": "Run",
-      "immutable": "A container cannot be changed once it is running. To change it, run a new one and delete this.",
+      "immutable": "A task cannot be changed once it is running. To change it, run a new one and delete this.",
       "readOnly": "Read-only filesystem",
-      "readOnlyHelp": "The container cannot write to its own filesystem. Compose's read_only."
+      "readOnlyHelp": "The task cannot write to its own filesystem. Compose's read_only."
     },
     "detail": {
       "logs": "Logs",
@@ -599,7 +599,7 @@
       "follow": "Follow",
       "noLogs": "Nothing written yet",
       "terminalEnded": "The session ended.",
-      "notRunning": "The container is not running.",
+      "notRunning": "The task is not running.",
       "terminalReconnected": "The connection dropped. This is a new session.",
       "terminalLost": "The connection was lost. Reload the page to start a new session.",
       "leaveTerminalConfirm": "Leaving this tab ends the terminal session, and the command running in it stops. Leave anyway?",
@@ -607,12 +607,12 @@
       "stayInTerminal": "Stay here"
     },
     "breadcrumb": {
-      "create": "Run a container",
-      "detail": "Container"
+      "create": "Run a task",
+      "detail": "Task"
     },
     "tabs": {
-      "allContainers": "All containers",
-      "myContainers": "My containers"
+      "allTasks": "All tasks",
+      "myTasks": "My tasks"
     },
     "states": {
       "created": "created",

@@ -9,14 +9,14 @@ import {PERMISSIONS} from "@/lib/app-permissions";
 import {getUserPermissions, hasPermission} from "@/lib/auth";
 import {ScopeSwitch} from "@/components/scope-switch";
 import {
-  ContainersTable,
-  ContainersTableSkeleton,
-} from "@/features/dashboard/runner/components/containers-table";
+  TasksTable,
+  TasksTableSkeleton,
+} from "@/features/dashboard/runner/components/tasks-table";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
   return {
-    title: t("containers.title"),
+    title: t("tasks.title"),
   };
 }
 
@@ -26,7 +26,7 @@ type Props = {
   }>;
 };
 
-async function ContainersPage({searchParams}: Props) {
+async function TasksPage({searchParams}: Props) {
   const {t} = await getServerDictionary();
   const {page} = await searchParams;
 
@@ -43,8 +43,8 @@ async function ContainersPage({searchParams}: Props) {
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: t("containers.title"),
-            href: APP_PATHS.dashboard.containers.index,
+            label: t("tasks.title"),
+            href: APP_PATHS.dashboard.tasks.index,
           },
         ]}
       />
@@ -53,23 +53,17 @@ async function ContainersPage({searchParams}: Props) {
           canSeeAll={canSeeAll}
           canSeeMine={canSeeMine}
           labels={{
-            all: t("containers.tabs.allContainers"),
-            mine: t("containers.tabs.myContainers"),
+            all: t("tasks.tabs.allTasks"),
+            mine: t("tasks.tabs.myTasks"),
           }}
           all={
-            <Suspense
-              key={`all-${page}`}
-              fallback={<ContainersTableSkeleton />}
-            >
-              <ContainersTable page={page ?? 1} />
+            <Suspense key={`all-${page}`} fallback={<TasksTableSkeleton />}>
+              <TasksTable page={page ?? 1} />
             </Suspense>
           }
           mine={
-            <Suspense
-              key={`mine-${page}`}
-              fallback={<ContainersTableSkeleton />}
-            >
-              <ContainersTable page={page ?? 1} scope="mine" />
+            <Suspense key={`mine-${page}`} fallback={<TasksTableSkeleton />}>
+              <TasksTable page={page ?? 1} scope="mine" />
             </Suspense>
           }
         />
@@ -78,6 +72,6 @@ async function ContainersPage({searchParams}: Props) {
   );
 }
 
-export default withPermissions(ContainersPage, {
+export default withPermissions(TasksPage, {
   requiredPermissions: ["runner.tasks.index", "self.runner.tasks.index"],
 });

@@ -4,16 +4,16 @@ import {withPermissions} from "@/components/with-authorization";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {getServerDictionary} from "@/i18n/server";
 import {APP_PATHS} from "@/lib/app-paths";
-import {ContainerForm} from "@/features/dashboard/runner/components/container-form";
+import {TaskForm} from "@/features/dashboard/runner/components/task-form";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
   return {
-    title: t("containers.breadcrumb.create"),
+    title: t("tasks.breadcrumb.create"),
   };
 }
 
-async function NewContainerPage() {
+async function NewTaskPage() {
   const {t} = await getServerDictionary();
 
   return (
@@ -21,22 +21,22 @@ async function NewContainerPage() {
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: t("containers.title"),
-            href: APP_PATHS.dashboard.containers.index,
+            label: t("tasks.title"),
+            href: APP_PATHS.dashboard.tasks.index,
           },
           {
-            label: t("containers.breadcrumb.create"),
-            href: APP_PATHS.dashboard.containers.new,
+            label: t("tasks.breadcrumb.create"),
+            href: APP_PATHS.dashboard.tasks.new,
           },
         ]}
       />
       <Box py="md">
-        <ContainerForm />
+        <TaskForm />
       </Box>
     </Box>
   );
 }
 
-export default withPermissions(NewContainerPage, {
+export default withPermissions(NewTaskPage, {
   requiredPermissions: ["runner.tasks.create"],
 });

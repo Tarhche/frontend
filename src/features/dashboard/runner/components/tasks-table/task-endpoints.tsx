@@ -15,11 +15,11 @@ type Props = {
 };
 
 /**
- * The addresses a container's ports are served on. Each one is a name of its
- * own, so a link goes straight to the container rather than to whichever node
- * happens to be holding it.
+ * The addresses a task's ports are served on. Each one is a name of its own,
+ * so a link goes straight to the task rather than to whichever node happens to
+ * be holding it.
  */
-export function ContainerEndpoints({endpoints, empty}: Props) {
+export function TaskEndpoints({endpoints, empty}: Props) {
   if (endpoints.length === 0) {
     return (
       <Text size="sm" c="dimmed">

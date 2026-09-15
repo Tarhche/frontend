@@ -50,10 +50,10 @@ export const APP_PATHS = {
       index: "/dashboard/contact-us",
       detail: (uuid: string) => `/dashboard/contact-us/${uuid}`,
     },
-    containers: {
-      index: "/dashboard/containers",
-      new: "/dashboard/containers/new",
-      detail: (uuid: string) => `/dashboard/containers/${uuid}`,
+    tasks: {
+      index: "/dashboard/tasks",
+      new: "/dashboard/tasks/new",
+      detail: (uuid: string) => `/dashboard/tasks/${uuid}`,
     },
     stacks: {
       index: "/dashboard/stacks",

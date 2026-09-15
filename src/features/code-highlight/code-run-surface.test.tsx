@@ -25,10 +25,10 @@ jest.mock("@/i18n/provider", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-// a shell is a container of its own; what this is about is whether the pieces
+// a shell is a task of its own; what this is about is whether the pieces
 // of the card are drawn at all.
-jest.mock("@/features/dashboard/runner/components/container-terminal", () => ({
-  ContainerTerminal: () => null,
+jest.mock("@/features/dashboard/runner/components/task-terminal", () => ({
+  TaskTerminal: () => null,
 }));
 
 function card(props: {ports: number[]; terminal: boolean; browser: boolean}) {
@@ -71,7 +71,7 @@ const toolLabels = (host: HTMLElement) =>
 
 beforeEach(() => {
   reported = {
-    run: {state: "running", task_uuid: "a-container"},
+    run: {state: "running", task_uuid: "a-task"},
     running: true,
     output: "",
   };
@@ -135,7 +135,7 @@ describe("the run surface", () => {
     expect(hosts.panel.textContent).toContain("hello world");
   });
 
-  it("takes the browser away with the container behind it", () => {
+  it("takes the browser away with the task behind it", () => {
     const {hosts, rerender} = card({
       ports: [8080],
       terminal: false,

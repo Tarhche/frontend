@@ -6,19 +6,19 @@ import {APP_PATHS} from "@/lib/app-paths";
 import {privateDalDriver} from "@/dal/private/private-dal-driver";
 import {extractValidationErrors} from "@/lib/api/validation-errors";
 
-export type RunContainerState = {
+export type RunTaskState = {
   errors?: Record<string, string>;
 };
 
 /**
- * Runs one container from what the form describes, in the shape a docker
- * compose service has. There is no update: to change a container, run another
- * and delete this one.
+ * Runs one task from what the form describes, in the shape a docker compose
+ * service has. There is no update: to change a task, run another and delete
+ * this one.
  */
-export async function runContainer(
-  prevState: RunContainerState,
+export async function runTask(
+  prevState: RunTaskState,
   formData: FormData,
-): Promise<RunContainerState> {
+): Promise<RunTaskState> {
   const body = {
     name: formData.get("name")?.toString() ?? "",
     image: formData.get("image")?.toString() ?? "",
@@ -41,7 +41,7 @@ export async function runContainer(
   };
 
   try {
-    await privateDalDriver.post("/dashboard/runner/containers", body);
+    await privateDalDriver.post("/dashboard/runner/tasks", body);
   } catch (error) {
     unstable_rethrow(error);
 
@@ -53,8 +53,8 @@ export async function runContainer(
     throw error;
   }
 
-  revalidatePath(APP_PATHS.dashboard.containers.index);
-  redirect(APP_PATHS.dashboard.containers.index);
+  revalidatePath(APP_PATHS.dashboard.tasks.index);
+  redirect(APP_PATHS.dashboard.tasks.index);
 }
 
 /**

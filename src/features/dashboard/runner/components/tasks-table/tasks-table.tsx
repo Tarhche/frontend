@@ -13,32 +13,32 @@ import {PermissionGuard} from "@/components/permission-guard";
 import {getServerDictionary} from "@/i18n/server";
 import {getUserPermissions, hasPermission} from "@/lib/auth";
 import {APP_PATHS} from "@/lib/app-paths";
-import {fetchContainers, fetchMyContainers} from "@/dal/private/runner";
-import {ContainerRows, type Container} from "./container-rows";
-import {ContainersPagination} from "./containers-table-pagination";
+import {fetchTasks, fetchMyTasks} from "@/dal/private/runner";
+import {TaskRows, type Task} from "./task-rows";
+import {TasksPagination} from "./tasks-table-pagination";
 
 type Props = {
   page: number | string;
 
-  /** whose containers to show: everybody's, or the person asking. */
+  /** whose tasks to show: everybody's, or the person asking. */
   scope?: "all" | "mine";
 };
 
-export async function ContainersTable({page, scope = "all"}: Props) {
+export async function TasksTable({page, scope = "all"}: Props) {
   // in somebody's own listing every row is theirs, so saying so on each one
   // says nothing.
   const showOwner = scope !== "mine";
 
   const {t} = await getServerDictionary();
-  const response = await (
-    scope === "mine" ? fetchMyContainers : fetchContainers
-  )({params: {page}});
+  const response = await (scope === "mine" ? fetchMyTasks : fetchTasks)({
+    params: {page},
+  });
 
-  const containers: Container[] = response.items ?? [];
+  const tasks: Task[] = response.items ?? [];
   const {total_pages, current_page} = response.pagination;
 
   // the row actions are rendered by a client component, so what the person may
-  // do is worked out here and handed to it. Every container in one's own listing is
+  // do is worked out here and handed to it. Every task in one's own listing is
   // one's own, so the permission over one's own decides there, and the one over
   // everybody's decides in everybody's listing.
   const permissions = (await getUserPermissions()) ?? [];
@@ -62,9 +62,9 @@ export async function ContainersTable({page, scope = "all"}: Props) {
             variant="light"
             component={Link}
             leftSection={<IconFilePlus />}
-            href={APP_PATHS.dashboard.containers.new}
+            href={APP_PATHS.dashboard.tasks.new}
           >
-            {t("containers.table.newContainer")}
+            {t("tasks.table.newTask")}
           </Button>
         </Group>
       </PermissionGuard>
@@ -72,25 +72,21 @@ export async function ContainersTable({page, scope = "all"}: Props) {
         <Table verticalSpacing="sm" striped withRowBorders>
           <TableThead>
             <TableTr>
-              <TableTh>{t("containers.table.name")}</TableTh>
-              <TableTh>{t("containers.table.image")}</TableTh>
-              <TableTh>{t("containers.table.state")}</TableTh>
-              <TableTh>{t("containers.table.endpoints")}</TableTh>
-              {showOwner && <TableTh>{t("containers.table.owner")}</TableTh>}
-              <TableTh>{t("containers.table.createdAt")}</TableTh>
+              <TableTh>{t("tasks.table.name")}</TableTh>
+              <TableTh>{t("tasks.table.image")}</TableTh>
+              <TableTh>{t("tasks.table.state")}</TableTh>
+              <TableTh>{t("tasks.table.endpoints")}</TableTh>
+              {showOwner && <TableTh>{t("tasks.table.owner")}</TableTh>}
+              <TableTh>{t("tasks.table.createdAt")}</TableTh>
               <TableTh>{t("common.actions")}</TableTh>
             </TableTr>
           </TableThead>
-          <ContainerRows
-            containers={containers}
-            may={may}
-            showOwner={showOwner}
-          />
+          <TaskRows tasks={tasks} may={may} showOwner={showOwner} />
         </Table>
       </TableScrollContainer>
-      {containers.length >= 1 && (
+      {tasks.length >= 1 && (
         <Group mt="md" mb="xl" justify="flex-end">
-          <ContainersPagination total={total_pages} current={current_page} />
+          <TasksPagination total={total_pages} current={current_page} />
         </Group>
       )}
     </>

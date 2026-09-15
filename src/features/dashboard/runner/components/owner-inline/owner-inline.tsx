@@ -12,11 +12,11 @@ type Props = {
 };
 
 /**
- * Who a container or a stack belongs to.
+ * Who a task or a stack belongs to.
  *
  * Not all of them belong to somebody: the code runner on the public pages
- * starts a container for whoever is reading, signed in or not, and those are
- * shown as the guest they were asked for by rather than as a blank.
+ * starts a task for whoever is reading, signed in or not, and those are shown
+ * as the guest they were asked for by rather than as a blank.
  */
 export function OwnerInline({owner, size = 28}: Props) {
   const t = useTranslations();

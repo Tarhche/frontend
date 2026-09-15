@@ -7,11 +7,11 @@ import {IconInfoCircle} from "@tabler/icons-react";
 import {ACCESS_TOKEN_COOKIE_NAME} from "@/constants";
 import {useTranslations} from "@/i18n/provider";
 import {attachURL, BEARER_PROTOCOL} from "./attach";
-import classes from "./container-terminal.module.css";
+import classes from "./task-terminal.module.css";
 import "@xterm/xterm/css/xterm.css";
 
 type Props = {
-  containerUuid: string;
+  taskUuid: string;
   running: boolean;
 
   /**
@@ -41,8 +41,8 @@ type Props = {
  * writes arrives as binary, what is typed goes back the same way, and a
  * terminal that has been resized says so as text.
  */
-export function ContainerTerminal({
-  containerUuid,
+export function TaskTerminal({
+  taskUuid,
   running,
   authenticated = true,
   height,
@@ -61,7 +61,7 @@ export function ContainerTerminal({
 
     if (authenticated && !token) return;
 
-    const url = attachURL(containerUuid);
+    const url = attachURL(taskUuid);
     if (!url) return;
 
     let disposed = false;
@@ -109,14 +109,14 @@ export function ContainerTerminal({
         socket.onclose = () => {
           setEnded(true);
           terminal.write(
-            `\r\n\x1b[90m${t("containers.detail.terminalEnded")}\x1b[0m\r\n`,
+            `\r\n\x1b[90m${t("tasks.detail.terminalEnded")}\x1b[0m\r\n`,
           );
         };
 
         socket.onerror = () => {
           setEnded(true);
           terminal.write(
-            `\r\n\x1b[90m${t("containers.detail.terminalLost")}\x1b[0m\r\n`,
+            `\r\n\x1b[90m${t("tasks.detail.terminalLost")}\x1b[0m\r\n`,
           );
         };
 
@@ -179,12 +179,12 @@ export function ContainerTerminal({
       disposed = true;
       cleanup?.();
     };
-  }, [containerUuid, running, authenticated, t]);
+  }, [taskUuid, running, authenticated, t]);
 
   if (!running) {
     return (
       <Alert variant="light" color="gray" icon={<IconInfoCircle />}>
-        {t("containers.detail.notRunning")}
+        {t("tasks.detail.notRunning")}
       </Alert>
     );
   }
@@ -193,7 +193,7 @@ export function ContainerTerminal({
     <Box>
       <Box
         ref={mount}
-        aria-label={t("containers.detail.terminal")}
+        aria-label={t("tasks.detail.terminal")}
         className={classes.shell}
         style={{opacity: ended ? 0.7 : 1, height}}
       />

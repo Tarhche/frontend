@@ -22,7 +22,7 @@ import {PERMISSIONS} from "@/lib/app-permissions";
 import {getUserPermissions, hasPermission} from "@/lib/auth";
 import {OwnerInline} from "@/features/dashboard/runner/components/owner-inline";
 import {StateBadge} from "@/features/dashboard/runner/components/state-badge";
-import {ContainerEndpoints} from "@/features/dashboard/runner/components/containers-table/container-endpoints";
+import {TaskEndpoints} from "@/features/dashboard/runner/components/tasks-table/task-endpoints";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
@@ -72,9 +72,9 @@ async function StackPage({params}: Props) {
           <TableThead>
             <TableTr>
               <TableTh>{t("stacks.detail.service")}</TableTh>
-              <TableTh>{t("containers.table.image")}</TableTh>
-              <TableTh>{t("containers.table.state")}</TableTh>
-              <TableTh>{t("containers.table.endpoints")}</TableTh>
+              <TableTh>{t("tasks.table.image")}</TableTh>
+              <TableTh>{t("tasks.table.state")}</TableTh>
+              <TableTh>{t("tasks.table.endpoints")}</TableTh>
             </TableTr>
           </TableThead>
           <TableTbody>
@@ -96,9 +96,7 @@ async function StackPage({params}: Props) {
               }) => (
                 <TableTr key={service.uuid}>
                   <TableTd>
-                    <Link
-                      href={APP_PATHS.dashboard.containers.detail(service.uuid)}
-                    >
+                    <Link href={APP_PATHS.dashboard.tasks.detail(service.uuid)}>
                       {service.service_name}
                     </Link>
                   </TableTd>
@@ -113,9 +111,9 @@ async function StackPage({params}: Props) {
                     />
                   </TableTd>
                   <TableTd>
-                    <ContainerEndpoints
+                    <TaskEndpoints
                       endpoints={service.endpoints ?? []}
-                      empty={t("containers.table.noEndpoints")}
+                      empty={t("tasks.table.noEndpoints")}
                     />
                   </TableTd>
                 </TableTr>

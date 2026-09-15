@@ -1,6 +1,6 @@
 import {Skeleton, Stack} from "@mantine/core";
 
-export function ContainersTableSkeleton() {
+export function TasksTableSkeleton() {
   return (
     <Stack>
       {Array.from({length: 5}).map((_, index) => (

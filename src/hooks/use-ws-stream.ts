@@ -6,10 +6,10 @@ import {getWebSocketBus, type StreamHandlers} from "@/lib/ws/websocket-bus";
 /**
  * Returns a stable `openStream` function.
  *
- * Call it to ask something whose answer arrives in pieces — a container's log
- * as it is written, a terminal's output — over the WebSocket the page already
- * has. The handle it returns carries input back to that same stream, and
- * closing it ends the stream at both ends.
+ * Call it to ask something whose answer arrives in pieces — a task's log as it
+ * is written, a terminal's output — over the WebSocket the page already has.
+ * The handle it returns carries input back to that same stream, and closing it
+ * ends the stream at both ends.
  *
  * @example
  * const openStream = useWsStream();

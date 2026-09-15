@@ -1,4 +1,4 @@
-/* What is left of a container's time, beside what it is doing. */
+/* What is left of a task's time, beside what it is doing. */
 .countdown {
   font-family: var(--mantine-font-family-monospace), monospace;
   font-size: var(--mantine-font-size-xs);

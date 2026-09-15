@@ -19,16 +19,16 @@ type Snippet = {
  *
  * One that only prints something is asked once and answered once. One that
  * serves a port, or that offers a way in, is followed instead: what it is
- * doing and where it can be reached arrive over and over until the container
- * ends, and the last of them carries what it printed.
+ * doing and where it can be reached arrive over and over until the task ends,
+ * and the last of them carries what it printed.
  */
 export function useCodeRun() {
   const publish = useWsPublish();
   const openStream = useWsStream();
 
   // the stream this run is being watched over, so that stopping a snippet
-  // stops listening to it: what a container that is gone has left to say is
-  // not what the page should be showing.
+  // stops listening to it: what a task that is gone has left to say is not
+  // what the page should be showing.
   const watching = useRef<{close: () => void} | null>(null);
 
   const [running, setRunning] = useState(false);
@@ -47,19 +47,19 @@ export function useCodeRun() {
     setRun({});
   }, []);
 
-  // stopping a snippet is taking its container away: what is running now goes,
-  // and running it again is a new container running the code as it is then.
+  // stopping a snippet is taking its task away: what is running now goes, and
+  // running it again is a new task running the code as it is then.
   const stop = useCallback(async () => {
-    const container = run.task_uuid;
+    const task = run.task_uuid;
 
     forget();
     setRunning(false);
 
-    if (!container) {
+    if (!task) {
       return;
     }
 
-    await publish(CODE_STOP_SUBJECT, {task_uuid: container});
+    await publish(CODE_STOP_SUBJECT, {task_uuid: task});
   }, [forget, publish, run.task_uuid]);
 
   const start = useCallback(

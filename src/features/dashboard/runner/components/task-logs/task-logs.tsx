@@ -16,7 +16,7 @@ type Line = {
 };
 
 type Props = {
-  containerUuid: string;
+  taskUuid: string;
 
   /**
    * Whether this is one of the reader's own tasks, which is what says where
@@ -26,19 +26,19 @@ type Props = {
   own?: boolean;
 
   /**
-   * What the container had already written when the page was rendered. The
-   * stream picks up from the last of these, so nothing is shown twice and
-   * nothing is missed in between.
+   * What the task had already written when the page was rendered. The stream
+   * picks up from the last of these, so nothing is shown twice and nothing is
+   * missed in between.
    */
   history: Line[];
 };
 
 /**
- * A container's output, from its first line onward. The lines are kept against
- * the container until it is deleted, so a stopped container still has all of
- * its history here.
+ * A task's output, from its first line onward. The lines are kept against the
+ * task until it is deleted, so a stopped task still has all of its history
+ * here.
  */
-export function ContainerLogs({containerUuid, history, own = false}: Props) {
+export function TaskLogs({taskUuid, history, own = false}: Props) {
   const t = useTranslations();
   const openStream = useWsStream();
 
@@ -78,7 +78,7 @@ export function ContainerLogs({containerUuid, history, own = false}: Props) {
     // read when the stream is opened, and again if it has to be opened on a
     // new connection: either way it picks up from the last line shown.
     const request = () => ({
-      task_uuid: containerUuid,
+      task_uuid: taskUuid,
       access_token: token,
       after: caughtUpTo.current,
     });
@@ -99,7 +99,7 @@ export function ContainerLogs({containerUuid, history, own = false}: Props) {
       closed = true;
       close?.();
     };
-  }, [containerUuid, following, openStream, append, own]);
+  }, [taskUuid, following, openStream, append, own]);
 
   useEffect(() => {
     if (following) {
@@ -111,7 +111,7 @@ export function ContainerLogs({containerUuid, history, own = false}: Props) {
     <Box>
       <Group justify="flex-end" mb="xs">
         <Switch
-          label={t("containers.detail.follow")}
+          label={t("tasks.detail.follow")}
           checked={following}
           onChange={(event) => setFollowing(event.currentTarget.checked)}
         />
@@ -121,7 +121,7 @@ export function ContainerLogs({containerUuid, history, own = false}: Props) {
         style={{maxHeight: "60vh", overflowY: "auto", whiteSpace: "pre-wrap"}}
       >
         {lines.length === 0 ? (
-          <Text c="dimmed">{t("containers.detail.noLogs")}</Text>
+          <Text c="dimmed">{t("tasks.detail.noLogs")}</Text>
         ) : (
           lines.map((line, index) => (
             <div

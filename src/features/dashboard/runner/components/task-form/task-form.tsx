@@ -17,24 +17,18 @@ import {
 } from "@mantine/core";
 import {IconInfoCircle} from "@tabler/icons-react";
 import {useTranslations} from "@/i18n/provider";
-import {
-  runContainer,
-  type RunContainerState,
-} from "../../actions/run-container";
+import {runTask, type RunTaskState} from "../../actions/run-task";
 
-const initialState: RunContainerState = {};
+const initialState: RunTaskState = {};
 
 /**
- * The specification of one container, in the shape a docker compose service
- * has. There is no edit form, and there never will be: a container is
- * immutable, so changing one means running another and deleting this.
+ * The specification of one task, in the shape a docker compose service has.
+ * There is no edit form, and there never will be: a task is immutable, so
+ * changing one means running another and deleting this.
  */
-export function ContainerForm() {
+export function TaskForm() {
   const t = useTranslations();
-  const [state, formAction, isPending] = useActionState(
-    runContainer,
-    initialState,
-  );
+  const [state, formAction, isPending] = useActionState(runTask, initialState);
 
   const error = (field: string) => state.errors?.[field];
 
@@ -45,48 +39,48 @@ export function ContainerForm() {
           variant="light"
           color="blue"
           icon={<IconInfoCircle />}
-          title={t("containers.form.immutable")}
+          title={t("tasks.form.immutable")}
         />
 
         <Paper withBorder p="md">
           <Stack>
             <TextInput
               name="name"
-              label={t("containers.form.name")}
-              description={t("containers.form.nameHelp")}
+              label={t("tasks.form.name")}
+              description={t("tasks.form.nameHelp")}
               error={error("name")}
               required
             />
             <TextInput
               name="image"
-              label={t("containers.form.image")}
+              label={t("tasks.form.image")}
               placeholder="nginx:1.27-alpine"
               error={error("image")}
               required
             />
             <Textarea
               name="command"
-              label={t("containers.form.command")}
+              label={t("tasks.form.command")}
               autosize
               minRows={1}
               error={error("command")}
             />
             <Textarea
               name="entrypoint"
-              label={t("containers.form.entrypoint")}
+              label={t("tasks.form.entrypoint")}
               autosize
               minRows={1}
               error={error("entrypoint")}
             />
             <TextInput
               name="working_dir"
-              label={t("containers.form.workingDir")}
+              label={t("tasks.form.workingDir")}
               error={error("working_dir")}
             />
             <Textarea
               name="environment"
-              label={t("containers.form.environment")}
-              description={t("containers.form.environmentHelp")}
+              label={t("tasks.form.environment")}
+              description={t("tasks.form.environmentHelp")}
               autosize
               minRows={3}
               error={error("environment")}
@@ -98,8 +92,8 @@ export function ContainerForm() {
           <Stack>
             <Textarea
               name="ports"
-              label={t("containers.form.ports")}
-              description={t("containers.form.portsHelp")}
+              label={t("tasks.form.ports")}
+              description={t("tasks.form.portsHelp")}
               autosize
               minRows={2}
               placeholder="80"
@@ -107,26 +101,23 @@ export function ContainerForm() {
             />
             <RadioGroup
               name="network_mode"
-              label={t("containers.form.network")}
+              label={t("tasks.form.network")}
               defaultValue="isolated"
               error={error("network_mode")}
             >
               <Stack gap="xs" mt="xs">
-                <Radio value="none" label={t("containers.form.networkNone")} />
+                <Radio value="none" label={t("tasks.form.networkNone")} />
                 <Radio
                   value="isolated"
-                  label={t("containers.form.networkIsolated")}
+                  label={t("tasks.form.networkIsolated")}
                 />
-                <Radio
-                  value="public"
-                  label={t("containers.form.networkPublic")}
-                />
+                <Radio value="public" label={t("tasks.form.networkPublic")} />
               </Stack>
             </RadioGroup>
             <Switch
               name="read_only"
-              label={t("containers.form.readOnly")}
-              description={t("containers.form.readOnlyHelp")}
+              label={t("tasks.form.readOnly")}
+              description={t("tasks.form.readOnlyHelp")}
             />
           </Stack>
         </Paper>
@@ -135,7 +126,7 @@ export function ContainerForm() {
           <Group grow align="flex-start">
             <NumberInput
               name="cpus"
-              label={t("containers.form.cpus")}
+              label={t("tasks.form.cpus")}
               defaultValue={0.5}
               min={0.1}
               step={0.1}
@@ -144,12 +135,12 @@ export function ContainerForm() {
             />
             <TextInput
               name="memory"
-              label={t("containers.form.memory")}
+              label={t("tasks.form.memory")}
               defaultValue="256M"
             />
             <Select
               name="restart"
-              label={t("containers.form.restart")}
+              label={t("tasks.form.restart")}
               defaultValue="unless-stopped"
               data={["no", "always", "on-failure", "unless-stopped"]}
               error={error("restart")}
@@ -159,7 +150,7 @@ export function ContainerForm() {
 
         <Group justify="flex-end">
           <Button type="submit" loading={isPending}>
-            {t("containers.form.run")}
+            {t("tasks.form.run")}
           </Button>
         </Group>
       </Stack>

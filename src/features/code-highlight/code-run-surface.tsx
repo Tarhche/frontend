@@ -26,7 +26,7 @@ type Props = {
   /** Bumped by whoever owns this surface to run the snippet again. */
   runToken: number;
 
-  /** Bumped to take away the container it is running in. */
+  /** Bumped to take away the task it is running in. */
   stopToken?: number;
 
   open: OpenPanel;
@@ -69,7 +69,7 @@ export function CodeRunSurface({
 
   // A token is asked for once, however many times react runs the effect that
   // watches it — in development it runs every one of them twice, and a snippet
-  // run twice is two containers, both reporting into the one surface.
+  // run twice is two tasks, both reporting into the one surface.
   const asked = useRef({run: 0, stop: 0});
 
   useEffect(() => {
@@ -86,8 +86,8 @@ export function CodeRunSurface({
       asked.current.stop = stopToken;
       void stop();
     }
-    // the token is what says "stop it": which container that is, is read when
-    // it does.
+    // the token is what says "stop it": which task that is, is read when it
+    // does.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stopToken]);
 

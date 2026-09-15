@@ -2,7 +2,7 @@
 
 import {Badge, Group} from "@mantine/core";
 import {Countdown} from "@/components/countdown";
-import {containerStateLabel} from "@/lib/container-state";
+import {taskStateLabel} from "@/lib/task-state";
 import {useTranslations} from "@/i18n/provider";
 import classes from "./state-badge.module.css";
 
@@ -10,8 +10,8 @@ type Props = {
   state: string;
 
   /**
-   * What became of a container that failed. The runner asks a failed container
-   * for again, up to as many times as it is worth, so one that is still wanted
+   * What became of a task that failed. The runner asks a failed task for
+   * again, up to as many times as it is worth, so one that is still wanted
    * running has not finished failing — it is between attempts.
    */
   expectedState?: string;
@@ -19,27 +19,23 @@ type Props = {
   maxRetries?: number;
 
   /**
-   * What somebody has just asked of this container, which the runner has yet
-   * to catch up with. It is what is happening to it, so it is what is shown.
+   * What somebody has just asked of this task, which the runner has yet to
+   * catch up with. It is what is happening to it, so it is what is shown.
    */
   pending?: Transition;
 
   /**
-   * When a container that may only run for so long will be stopped. What is
-   * left of that is shown beside its state, while it is still running.
+   * When a task that may only run for so long will be stopped. What is left of
+   * that is shown beside its state, while it is still running.
    */
   deadline?: string;
 };
 
-/** What a container is on its way to, in the words of the thing being done. */
+/** What a task is on its way to, in the words of the thing being done. */
 export type Transition =
-  | "starting"
-  | "stopping"
-  | "killing"
-  | "restarting"
-  | "deleting";
+  "starting" | "stopping" | "killing" | "restarting" | "deleting";
 
-// what each state says about a container, at a glance.
+// what each state says about a task, at a glance.
 const colors: Record<string, string> = {
   created: "gray",
   scheduled: "blue",
@@ -51,8 +47,8 @@ const colors: Record<string, string> = {
   failed: "red",
 };
 
-// what a container in one of these states is in the middle of doing, whatever
-// it happens to be called inside the runner.
+// what a task in one of these states is in the middle of doing, whatever it
+// happens to be called inside the runner.
 const underway: Record<string, Transition> = {
   stopping: "stopping",
   restarting: "restarting",
@@ -115,17 +111,17 @@ export function StateBadge({
 
   const attempts =
     maxRetries < 0
-      ? t("containers.table.retrying")
-      : t("containers.table.retryingCount", {
+      ? t("tasks.table.retrying")
+      : t("tasks.table.retryingCount", {
           current: retries,
           total: maxRetries,
         });
 
-  let label = containerStateLabel(t, state);
+  let label = taskStateLabel(t, state);
   if (transition) {
-    label = t(`containers.transitions.${transition}`);
+    label = t(`tasks.transitions.${transition}`);
   } else if (retrying) {
-    label = `${containerStateLabel(t, state)} - ${attempts}`;
+    label = `${taskStateLabel(t, state)} - ${attempts}`;
   }
 
   let color = colors[state] ?? "gray";
@@ -143,8 +139,8 @@ export function StateBadge({
     </Badge>
   );
 
-  // a container with a deadline says how long it has left, for as long as it
-  // is still running towards it.
+  // a task with a deadline says how long it has left, for as long as it is
+  // still running towards it.
   if (!deadline || state !== "running" || pending) {
     return badge;
   }

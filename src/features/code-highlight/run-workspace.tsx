@@ -10,8 +10,8 @@ import {
   IconWorld,
 } from "@tabler/icons-react";
 import {Countdown} from "@/components/countdown";
-import {containerStateLabel} from "@/lib/container-state";
-import {ContainerTerminal} from "@/features/dashboard/runner/components/container-terminal";
+import {taskStateLabel} from "@/lib/task-state";
+import {TaskTerminal} from "@/features/dashboard/runner/components/task-terminal";
 import {useTranslations} from "@/i18n/provider";
 
 // ten lines of shell, which is as much of a page as a snippet's terminal is
@@ -84,8 +84,8 @@ type PreviewProps = {
  *
  * The bar says where it is and, when it serves more than one port, which of
  * them is being looked at. Until there is something to look at the frame holds
- * a cube and what the runner last said, so a reader watching a container start
- * is watching something.
+ * a cube and what the runner last said, so a reader watching a task start is
+ * watching something.
  */
 export function RunPreview({run}: PreviewProps) {
   const t = useTranslations();
@@ -157,9 +157,7 @@ export function RunPreview({run}: PreviewProps) {
         ) : (
           <Waiting
             label={
-              run.state
-                ? containerStateLabel(t, run.state)
-                : t("editor.running")
+              run.state ? taskStateLabel(t, run.state) : t("editor.running")
             }
           />
         )}
@@ -286,9 +284,9 @@ type PanelProps = {
 };
 
 /**
- * The box the two buttons open: what the container is writing, or a shell
- * inside it. What the snippet printed is shown here as well, since that is
- * what a snippet without a port has to say.
+ * The box the two buttons open: what the task is writing, or a shell inside it.
+ * What the snippet printed is shown here as well, since that is what a snippet
+ * without a port has to say.
  */
 export function RunPanel({
   run,
@@ -302,9 +300,9 @@ export function RunPanel({
 
   const alive = run.state === "running";
 
-  // a log and a shell belong to the container they were opened on: when that
-  // ends they end with it, the way the browser does, and a shell needs one
-  // that is still answering rather than merely one that has not been stopped.
+  // a log and a shell belong to the task they were opened on: when that ends
+  // they end with it, the way the browser does, and a shell needs one that is
+  // still answering rather than merely one that has not been stopped.
   useEffect(() => {
     if (open && (!running || (open === "terminal" && !alive))) {
       onOpen(null);
@@ -325,8 +323,8 @@ export function RunPanel({
       </div>
 
       {open === "terminal" && alive && run.task_uuid ? (
-        <ContainerTerminal
-          containerUuid={run.task_uuid}
+        <TaskTerminal
+          taskUuid={run.task_uuid}
           running
           authenticated={false}
           height={SHELL_HEIGHT}

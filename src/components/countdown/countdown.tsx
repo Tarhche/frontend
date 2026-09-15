@@ -23,11 +23,11 @@ type Props = {
 };
 
 /**
- * What is left of a container's time, ticking down.
+ * What is left of a task's time, ticking down.
  *
- * A container that may only run for so long says when it will be stopped;
- * this is that, read as a clock, so nobody has to work out what a timestamp
- * means. It stops at zero, since the runner is what actually stops it.
+ * A task that may only run for so long says when it will be stopped; this is
+ * that, read as a clock, so nobody has to work out what a timestamp means. It
+ * stops at zero, since the runner is what actually stops it.
  */
 export function Countdown({to, className}: Props) {
   const deadline = new Date(to).getTime();

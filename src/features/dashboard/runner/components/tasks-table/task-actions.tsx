@@ -25,12 +25,12 @@ import {
 } from "@tabler/icons-react";
 import {useTranslations} from "@/i18n/provider";
 import {
-  commandContainer,
-  deleteContainer,
-  deleteMyContainerAction,
-  commandMyContainerAction,
-  type ContainerCommand,
-} from "../../actions/container-commands";
+  commandTask,
+  deleteTask,
+  deleteMyTaskAction,
+  commandMyTaskAction,
+  type TaskCommand,
+} from "../../actions/task-commands";
 import {type Transition} from "../state-badge";
 
 type Props = {
@@ -40,30 +40,30 @@ type Props = {
   canManage: boolean;
   canDelete: boolean;
 
-  // whether this is asked for as one's own: a container somebody else owns is not
+  // whether this is asked for as one's own: a task somebody else owns is not
   // there to be commanded that way.
   own?: boolean;
 
-  // told what is on its way to this container, so that whatever else shows it
-  // can say that is what is happening to it. The runner takes a moment to
-  // agree, and until it does this is the only thing that knows.
+  // told what is on its way to this task, so that whatever else shows it can
+  // say that is what is happening to it. The runner takes a moment to agree,
+  // and until it does this is the only thing that knows.
   onCommand?: (underway: Transition | undefined) => void;
 };
 
-// what asking for each of these is, in the words of what it does to a
-// container: what the runner calls the state it passes through on the way is
-// its own business.
-const underway: Record<ContainerCommand, Transition> = {
+// what asking for each of these is, in the words of what it does to a task:
+// what the runner calls the state it passes through on the way is its own
+// business.
+const underway: Record<TaskCommand, Transition> = {
   stop: "stopping",
   kill: "killing",
   restart: "restarting",
 };
 
 /**
- * What can be asked of a container once it is running. There is no edit: a
- * container is immutable, so changing one means running another.
+ * What can be asked of a task once it is running. There is no edit: a task is
+ * immutable, so changing one means running another.
  */
-export function ContainerActions({
+export function TaskActions({
   uuid,
   name,
   state,
@@ -75,7 +75,7 @@ export function ContainerActions({
   const t = useTranslations();
   const [pending, startTransition] = useTransition();
   const [, deleteAction, isDeleting] = useActionState(
-    own ? deleteMyContainerAction : deleteContainer,
+    own ? deleteMyTaskAction : deleteTask,
     false,
   );
   const [confirming, setConfirming] = useState<"kill" | "delete" | null>(null);
@@ -95,11 +95,11 @@ export function ContainerActions({
     onCommand?.(pending ? asked : undefined);
   }, [asked, pending, isDeleting, onCommand]);
 
-  const run = (command: ContainerCommand) => {
+  const run = (command: TaskCommand) => {
     setAsked(underway[command]);
 
     startTransition(async () => {
-      await (own ? commandMyContainerAction : commandContainer)(command, uuid);
+      await (own ? commandMyTaskAction : commandTask)(command, uuid);
     });
   };
 
@@ -108,37 +108,37 @@ export function ContainerActions({
       <ActionIconGroup>
         {canManage && (
           <>
-            <Tooltip label={t("containers.table.stop")} withArrow>
+            <Tooltip label={t("tasks.table.stop")} withArrow>
               <ActionIcon
                 variant="light"
                 size="lg"
                 color="yellow"
                 disabled={!running || pending}
-                aria-label={t("containers.table.stop")}
+                aria-label={t("tasks.table.stop")}
                 onClick={() => run("stop")}
               >
                 <IconPlayerStop style={{width: rem(20)}} stroke={1.5} />
               </ActionIcon>
             </Tooltip>
-            <Tooltip label={t("containers.table.restart")} withArrow>
+            <Tooltip label={t("tasks.table.restart")} withArrow>
               <ActionIcon
                 variant="light"
                 size="lg"
                 color="blue"
                 disabled={pending}
-                aria-label={t("containers.table.restart")}
+                aria-label={t("tasks.table.restart")}
                 onClick={() => run("restart")}
               >
                 <IconRefresh style={{width: rem(20)}} stroke={1.5} />
               </ActionIcon>
             </Tooltip>
-            <Tooltip label={t("containers.table.kill")} withArrow>
+            <Tooltip label={t("tasks.table.kill")} withArrow>
               <ActionIcon
                 variant="light"
                 size="lg"
                 color="orange"
                 disabled={!running || pending}
-                aria-label={t("containers.table.kill")}
+                aria-label={t("tasks.table.kill")}
                 onClick={() => setConfirming("kill")}
               >
                 <IconSkull style={{width: rem(20)}} stroke={1.5} />
@@ -147,12 +147,12 @@ export function ContainerActions({
           </>
         )}
         {canDelete && (
-          <Tooltip label={t("containers.table.delete")} withArrow>
+          <Tooltip label={t("tasks.table.delete")} withArrow>
             <ActionIcon
               variant="light"
               size="lg"
               color="red"
-              aria-label={t("containers.table.delete")}
+              aria-label={t("tasks.table.delete")}
               onClick={() => setConfirming("delete")}
             >
               <IconTrash style={{width: rem(20)}} stroke={1.5} />
@@ -163,7 +163,7 @@ export function ContainerActions({
 
       <Confirmation
         opened={confirming === "delete"}
-        message={t("containers.table.deleteConfirm", {name})}
+        message={t("tasks.table.deleteConfirm", {name})}
         onCancel={() => setConfirming(null)}
       >
         <form action={deleteAction}>
@@ -176,7 +176,7 @@ export function ContainerActions({
 
       <Confirmation
         opened={confirming === "kill"}
-        message={t("containers.table.killConfirm", {name})}
+        message={t("tasks.table.killConfirm", {name})}
         onCancel={() => setConfirming(null)}
       >
         <Button
@@ -187,7 +187,7 @@ export function ContainerActions({
             run("kill");
           }}
         >
-          {t("containers.table.kill")}
+          {t("tasks.table.kill")}
         </Button>
       </Confirmation>
     </>

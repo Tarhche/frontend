@@ -9,7 +9,7 @@ type Props = {
   total: number;
 };
 
-export function ContainersPagination({total, current}: Props) {
+export function TasksPagination({total, current}: Props) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams);

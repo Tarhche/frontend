@@ -83,9 +83,9 @@ const SIDE_BAR_DATA: SidebarSchema[] = [
     requiredPermissions: ["contactus.index"],
   },
   {
-    labelKey: "dashboard.sidebar.containers",
+    labelKey: "dashboard.sidebar.tasks",
     icon: IconBox,
-    href: dashboard.containers.index,
+    href: dashboard.tasks.index,
     requiredPermissions: ["runner.tasks.index", "self.runner.tasks.index"],
   },
   {

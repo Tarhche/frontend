@@ -55,8 +55,7 @@ type Props = {
 
 /**
  * What can be asked of a stack once it is running. Each command reaches every
- * service in it. There is no edit: a stack is immutable, like the containers
- * in it.
+ * service in it. There is no edit: a stack is immutable, like the tasks in it.
  */
 export function StackActions({
   uuid,
@@ -103,37 +102,37 @@ export function StackActions({
       <ActionIconGroup>
         {canManage && (
           <>
-            <Tooltip label={t("containers.table.stop")} withArrow>
+            <Tooltip label={t("tasks.table.stop")} withArrow>
               <ActionIcon
                 variant="light"
                 size="lg"
                 color="yellow"
                 disabled={!running || pending}
-                aria-label={t("containers.table.stop")}
+                aria-label={t("tasks.table.stop")}
                 onClick={() => run("stop")}
               >
                 <IconPlayerStop style={{width: rem(20)}} stroke={1.5} />
               </ActionIcon>
             </Tooltip>
-            <Tooltip label={t("containers.table.restart")} withArrow>
+            <Tooltip label={t("tasks.table.restart")} withArrow>
               <ActionIcon
                 variant="light"
                 size="lg"
                 color="blue"
                 disabled={pending}
-                aria-label={t("containers.table.restart")}
+                aria-label={t("tasks.table.restart")}
                 onClick={() => run("restart")}
               >
                 <IconRefresh style={{width: rem(20)}} stroke={1.5} />
               </ActionIcon>
             </Tooltip>
-            <Tooltip label={t("containers.table.kill")} withArrow>
+            <Tooltip label={t("tasks.table.kill")} withArrow>
               <ActionIcon
                 variant="light"
                 size="lg"
                 color="orange"
                 disabled={!running || pending}
-                aria-label={t("containers.table.kill")}
+                aria-label={t("tasks.table.kill")}
                 onClick={() => run("kill")}
               >
                 <IconSkull style={{width: rem(20)}} stroke={1.5} />
@@ -142,12 +141,12 @@ export function StackActions({
           </>
         )}
         {canDelete && (
-          <Tooltip label={t("containers.table.delete")} withArrow>
+          <Tooltip label={t("tasks.table.delete")} withArrow>
             <ActionIcon
               variant="light"
               size="lg"
               color="red"
-              aria-label={t("containers.table.delete")}
+              aria-label={t("tasks.table.delete")}
               onClick={() => setConfirming("delete")}
             >
               <IconTrash style={{width: rem(20)}} stroke={1.5} />

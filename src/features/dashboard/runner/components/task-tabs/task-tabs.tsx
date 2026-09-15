@@ -20,20 +20,20 @@ type Props = {
   terminal: ReactNode;
 
   /**
-   * Whether there is a terminal behind the terminal tab. A container that is
-   * not running has no session to lose, so there is nothing to ask about.
+   * Whether there is a terminal behind the terminal tab. A task that is not
+   * running has no session to lose, so there is nothing to ask about.
    */
   hasTerminal: boolean;
 };
 
 /**
- * What a container can be looked at through.
+ * What a task can be looked at through.
  *
  * A tab that is not showing is kept but not running — its terminal is closed
- * and its shell inside the container ends with it — so leaving the terminal
- * tab is asked about first rather than quietly throwing a session away.
+ * and its shell inside the task ends with it — so leaving the terminal tab is
+ * asked about first rather than quietly throwing a session away.
  */
-export function ContainerTabs({overview, logs, terminal, hasTerminal}: Props) {
+export function TaskTabs({overview, logs, terminal, hasTerminal}: Props) {
   const t = useTranslations();
 
   const [tab, setTab] = useState<string | null>("overview");
@@ -56,13 +56,13 @@ export function ContainerTabs({overview, logs, terminal, hasTerminal}: Props) {
       <Tabs value={tab} onChange={change}>
         <TabsList>
           <TabsTab value="overview" leftSection={<IconInfoCircle size={16} />}>
-            {t("containers.detail.overview")}
+            {t("tasks.detail.overview")}
           </TabsTab>
           <TabsTab value="logs" leftSection={<IconFileText size={16} />}>
-            {t("containers.detail.logs")}
+            {t("tasks.detail.logs")}
           </TabsTab>
           <TabsTab value="terminal" leftSection={<IconTerminal2 size={16} />}>
-            {t("containers.detail.terminal")}
+            {t("tasks.detail.terminal")}
           </TabsTab>
         </TabsList>
 
@@ -86,10 +86,10 @@ export function ContainerTabs({overview, logs, terminal, hasTerminal}: Props) {
         centered
         onClose={() => setLeavingFor(null)}
       >
-        <Text>{t("containers.detail.leaveTerminalConfirm")}</Text>
+        <Text>{t("tasks.detail.leaveTerminalConfirm")}</Text>
         <Group justify="flex-end" mt="md">
           <Button color="gray" onClick={() => setLeavingFor(null)}>
-            {t("containers.detail.stayInTerminal")}
+            {t("tasks.detail.stayInTerminal")}
           </Button>
           <Button
             color="red"
@@ -98,7 +98,7 @@ export function ContainerTabs({overview, logs, terminal, hasTerminal}: Props) {
               setLeavingFor(null);
             }}
           >
-            {t("containers.detail.leaveTerminal")}
+            {t("tasks.detail.leaveTerminal")}
           </Button>
         </Group>
       </Modal>

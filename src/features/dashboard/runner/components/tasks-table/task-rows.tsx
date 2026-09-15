@@ -12,19 +12,19 @@ import {formatDate} from "@/lib/date-and-time";
 import {type Author} from "@/features/authors/types";
 import {OwnerInline} from "../owner-inline";
 import {StateBadge, type Transition} from "../state-badge";
-import {ContainerActions} from "./container-actions";
-import {ContainerEndpoints, type Endpoint} from "./container-endpoints";
+import {TaskActions} from "./task-actions";
+import {TaskEndpoints, type Endpoint} from "./task-endpoints";
 import {watchTasksSubject} from "./subjects";
 
-export type Container = {
+export type Task = {
   uuid: string;
   name: string;
   slug: string;
   state: string;
 
   // what it was asked to be, and what the runner has tried so far to make it
-  // that: a container that failed is still on its way back until the attempts
-  // it is worth run out.
+  // that: a task that failed is still on its way back until the attempts it is
+  // worth run out.
   expected_state?: string;
   retries?: number;
   max_retries?: number;
@@ -32,7 +32,7 @@ export type Container = {
   endpoints: Endpoint[];
   created_at: string;
 
-  /** when a container that may only run for so long will be stopped. */
+  /** when a task that may only run for so long will be stopped. */
   deadline?: string;
   owner?: Partial<Author>;
 };
@@ -46,7 +46,7 @@ export type Container = {
  * onto the row rather than put in its place.
  */
 type Change =
-  | {kind: "changed"; uuid: string; task: Partial<Container>}
+  | {kind: "changed"; uuid: string; task: Partial<Task>}
   | {kind: "deleted"; uuid: string};
 
 export type Permissions = {
@@ -58,7 +58,7 @@ export type Permissions = {
 };
 
 type Props = {
-  containers: Container[];
+  tasks: Task[];
   may: Permissions;
 
   /** who is looking, so that "their own" means anything. */
@@ -68,26 +68,22 @@ type Props = {
 };
 
 /**
- * The rows of the containers table, kept as they are.
+ * The rows of the tasks table, kept as they are.
  *
- * The page renders the containers as they were; from then on the runner says
- * what becomes of each one over the websocket the page already has, so a
- * container that starts, stops or is removed shows that here without anybody
- * asking for the page again.
+ * The page renders the tasks as they were; from then on the runner says what
+ * becomes of each one over the websocket the page already has, so a task that
+ * starts, stops or is removed shows that here without anybody asking for the
+ * page again.
  */
-export function ContainerRows({
-  containers: listed,
-  may,
-  showOwner = true,
-}: Props) {
+export function TaskRows({tasks: listed, may, showOwner = true}: Props) {
   const {t, locale} = useI18n();
   const router = useRouter();
 
-  const [containers, setContainers] = useState(listed);
+  const [tasks, setTasks] = useState(listed);
 
-  // what somebody has just asked of a container. The runner takes a moment to
-  // agree — and a delete takes longer, since the container is stopped before it
-  // is taken away — so until it does, this is what the row says is happening.
+  // what somebody has just asked of a task. The runner takes a moment to
+  // agree — and a delete takes longer, since the task is stopped before it is
+  // taken away — so until it does, this is what the row says is happening.
   const [asked, setAsked] = useState<Record<string, Transition>>({});
   const markAsked = useCallback(
     (uuid: string, underway: Transition | undefined) => {
@@ -109,18 +105,18 @@ export function ContainerRows({
     [],
   );
 
-  // the page is what says which containers belong on it, so a fresh render of
-  // it replaces what the watch has been keeping.
+  // the page is what says which tasks belong on it, so a fresh render of it
+  // replaces what the watch has been keeping.
   useEffect(() => {
-    setContainers(listed);
+    setTasks(listed);
   }, [listed]);
 
   // what is on the page right now, for deciding whether a change belongs to it
   // without making the watch depend on the rows it is updating.
-  const shown = useRef(containers);
+  const shown = useRef(tasks);
   useEffect(() => {
-    shown.current = containers;
-  }, [containers]);
+    shown.current = tasks;
+  }, [tasks]);
 
   const refresh = useRefresh(useCallback(() => router.refresh(), [router]));
 
@@ -137,7 +133,7 @@ export function ContainerRows({
         return;
       }
 
-      const isShown = shown.current.some((c) => c.uuid === change.uuid);
+      const isShown = shown.current.some((one) => one.uuid === change.uuid);
 
       if (!isShown) {
         if (change.kind === "changed") refresh();
@@ -146,17 +142,17 @@ export function ContainerRows({
       }
 
       if (change.kind === "deleted") {
-        setContainers((current) =>
-          current.filter((c) => c.uuid !== change.uuid),
+        setTasks((current) =>
+          current.filter((one) => one.uuid !== change.uuid),
         );
         refresh();
 
         return;
       }
 
-      setContainers((current) =>
-        current.map((c) =>
-          c.uuid === change.uuid ? {...c, ...change.task} : c,
+      setTasks((current) =>
+        current.map((one) =>
+          one.uuid === change.uuid ? {...one, ...change.task} : one,
         ),
       );
     },
@@ -171,49 +167,49 @@ export function ContainerRows({
 
   return (
     <TableTbody>
-      {containers.length === 0 && (
+      {tasks.length === 0 && (
         <TableTr>
           <TableTd colSpan={showOwner ? 7 : 6} ta="center">
-            {t("containers.table.empty")}
+            {t("tasks.table.empty")}
           </TableTd>
         </TableTr>
       )}
-      {containers.map((container) => (
-        <TableTr key={container.uuid}>
+      {tasks.map((task) => (
+        <TableTr key={task.uuid}>
           <TableTd>
-            <Link href={APP_PATHS.dashboard.containers.detail(container.uuid)}>
-              {container.name}
+            <Link href={APP_PATHS.dashboard.tasks.detail(task.uuid)}>
+              {task.name}
             </Link>
           </TableTd>
-          <TableTd>{container.image}</TableTd>
+          <TableTd>{task.image}</TableTd>
           <TableTd>
             <StateBadge
-              state={container.state}
-              expectedState={container.expected_state}
-              retries={container.retries}
-              maxRetries={container.max_retries}
-              pending={asked[container.uuid]}
-              deadline={container.deadline}
+              state={task.state}
+              expectedState={task.expected_state}
+              retries={task.retries}
+              maxRetries={task.max_retries}
+              pending={asked[task.uuid]}
+              deadline={task.deadline}
             />
           </TableTd>
           <TableTd>
-            <ContainerEndpoints
-              endpoints={container.endpoints ?? []}
-              empty={t("containers.table.noEndpoints")}
+            <TaskEndpoints
+              endpoints={task.endpoints ?? []}
+              empty={t("tasks.table.noEndpoints")}
             />
           </TableTd>
           {showOwner && (
             <TableTd>
-              <OwnerInline owner={container.owner} size={28} />
+              <OwnerInline owner={task.owner} size={28} />
             </TableTd>
           )}
-          <TableTd>{formatDate(container.created_at, locale)}</TableTd>
+          <TableTd>{formatDate(task.created_at, locale)}</TableTd>
           <TableTd>
-            <ContainerActions
-              uuid={container.uuid}
-              name={container.name}
-              state={container.state}
-              onCommand={(underway) => markAsked(container.uuid, underway)}
+            <TaskActions
+              uuid={task.uuid}
+              name={task.name}
+              state={task.state}
+              onCommand={(underway) => markAsked(task.uuid, underway)}
               canManage={may.manage}
               canDelete={may.delete}
               own={may.own}
