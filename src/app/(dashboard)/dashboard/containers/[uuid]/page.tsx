@@ -40,7 +40,7 @@ async function ContainerPage({params}: Props) {
   // anybody's; somebody trusted with only their own asks for it as theirs, and
   // is told it does not exist when it is not.
   const permissions = (await getUserPermissions()) ?? [];
-  const own = !hasPermission(permissions, [PERMISSIONS.runner.containers.SHOW]);
+  const own = !hasPermission(permissions, [PERMISSIONS.runner.tasks.SHOW]);
 
   const container = await (own ? fetchMyContainer : fetchContainer)(uuid);
   if (!container) {
@@ -118,12 +118,16 @@ async function ContainerPage({params}: Props) {
           </Paper>
         }
         logs={
-          <PermissionGuard allowedPermissions={["runner.containers.logs"]}>
-            <ContainerLogs containerUuid={uuid} history={logs.items ?? []} />
+          <PermissionGuard allowedPermissions={["runner.tasks.logs"]}>
+            <ContainerLogs
+              containerUuid={uuid}
+              history={logs.items ?? []}
+              own={own}
+            />
           </PermissionGuard>
         }
         terminal={
-          <PermissionGuard allowedPermissions={["runner.containers.attach"]}>
+          <PermissionGuard allowedPermissions={["runner.tasks.attach"]}>
             <ContainerTerminal
               containerUuid={uuid}
               running={container.state === "running"}
@@ -147,8 +151,5 @@ function Field({label, children}: {label: string; children: React.ReactNode}) {
 }
 
 export default withPermissions(ContainerPage, {
-  requiredPermissions: [
-    "runner.containers.show",
-    "self.runner.containers.show",
-  ],
+  requiredPermissions: ["runner.tasks.show", "self.runner.tasks.show"],
 });

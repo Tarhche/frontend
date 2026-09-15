@@ -14,7 +14,7 @@ import {OwnerInline} from "../owner-inline";
 import {StateBadge, type Transition} from "../state-badge";
 import {ContainerActions} from "./container-actions";
 import {ContainerEndpoints, type Endpoint} from "./container-endpoints";
-import {WATCH_CONTAINERS_SUBJECT} from "./subjects";
+import {watchTasksSubject} from "./subjects";
 
 export type Container = {
   uuid: string;
@@ -37,9 +37,16 @@ export type Container = {
   owner?: Partial<Author>;
 };
 
-/** What became of one container: what it is now, or that it is gone. */
+/**
+ * What became of one task: what changed about it, or that it is gone.
+ *
+ * A change carries as much of the task as the runner reports about it -- its
+ * state, where it is reachable, how long it has left -- rather than the whole
+ * of one: the rest is what the listing already said, so what arrives is merged
+ * onto the row rather than put in its place.
+ */
 type Change =
-  | {kind: "changed"; uuid: string; container: Container}
+  | {kind: "changed"; uuid: string; task: Partial<Container>}
   | {kind: "deleted"; uuid: string};
 
 export type Permissions = {
@@ -148,14 +155,16 @@ export function ContainerRows({
       }
 
       setContainers((current) =>
-        current.map((c) => (c.uuid === change.uuid ? change.container : c)),
+        current.map((c) =>
+          c.uuid === change.uuid ? {...c, ...change.task} : c,
+        ),
       );
     },
     [refresh],
   );
 
   useWatch({
-    subject: WATCH_CONTAINERS_SUBJECT,
+    subject: watchTasksSubject(may.own),
     onChange: apply,
     onResume: refresh,
   });

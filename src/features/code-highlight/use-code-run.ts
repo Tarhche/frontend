@@ -50,7 +50,7 @@ export function useCodeRun() {
   // stopping a snippet is taking its container away: what is running now goes,
   // and running it again is a new container running the code as it is then.
   const stop = useCallback(async () => {
-    const container = run.container_uuid;
+    const container = run.task_uuid;
 
     forget();
     setRunning(false);
@@ -59,8 +59,8 @@ export function useCodeRun() {
       return;
     }
 
-    await publish(CODE_STOP_SUBJECT, {container_uuid: container});
-  }, [forget, publish, run.container_uuid]);
+    await publish(CODE_STOP_SUBJECT, {task_uuid: container});
+  }, [forget, publish, run.task_uuid]);
 
   const start = useCallback(
     async ({runtime, code, ports, terminal}: Snippet) => {

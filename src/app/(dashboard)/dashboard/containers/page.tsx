@@ -32,10 +32,10 @@ async function ContainersPage({searchParams}: Props) {
 
   const permissions = (await getUserPermissions()) ?? [];
   const canSeeAll = hasPermission(permissions, [
-    PERMISSIONS.runner.containers.INDEX,
+    PERMISSIONS.runner.tasks.INDEX,
   ]);
   const canSeeMine = hasPermission(permissions, [
-    PERMISSIONS.self.runner.containers.INDEX,
+    PERMISSIONS.self.runner.tasks.INDEX,
   ]);
 
   return (
@@ -79,8 +79,5 @@ async function ContainersPage({searchParams}: Props) {
 }
 
 export default withPermissions(ContainersPage, {
-  requiredPermissions: [
-    "runner.containers.index",
-    "self.runner.containers.index",
-  ],
+  requiredPermissions: ["runner.tasks.index", "self.runner.tasks.index"],
 });

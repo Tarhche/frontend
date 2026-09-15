@@ -1,21 +1,12 @@
 "use client";
 
 import {useEffect, useRef, useState} from "react";
-import {toUint8Array, fromUint8Array} from "js-base64";
 import JsCookie from "js-cookie";
 import {Alert, Box} from "@mantine/core";
 import {IconInfoCircle} from "@tabler/icons-react";
 import {ACCESS_TOKEN_COOKIE_NAME} from "@/constants";
 import {useTranslations} from "@/i18n/provider";
-import {useWsStream} from "@/hooks/use-ws-stream";
-import {ATTACH_SUBJECT, ATTACH_INPUT_SUBJECT} from "./subjects";
-
-// the dashboard's own pair, kept still: the terminal is opened again whenever
-// which subjects it is on changes, so this cannot be made afresh each render.
-const DASHBOARD_SUBJECTS = {
-  attach: ATTACH_SUBJECT,
-  input: ATTACH_INPUT_SUBJECT,
-};
+import {attachURL, BEARER_PROTOCOL} from "./attach";
 import classes from "./container-terminal.module.css";
 import "@xterm/xterm/css/xterm.css";
 
@@ -24,12 +15,12 @@ type Props = {
   running: boolean;
 
   /**
-   * Which terminal this is. The dashboard's is opened on somebody's own
-   * container and carries who they are; the one a snippet offers is opened on
-   * the container that snippet is running in, and carries nothing — knowing
-   * that container is what stands for permission there.
+   * Whether this terminal carries who is asking. The dashboard's is opened on
+   * somebody's own task and carries their token; the one a snippet offers is
+   * opened on the task that snippet is running in and carries nothing --
+   * knowing that task is what stands for permission there, and the node
+   * holding it is what decides.
    */
-  subjects?: {attach: string; input: string};
   authenticated?: boolean;
 
   /**
@@ -41,21 +32,22 @@ type Props = {
 };
 
 /**
- * A shell inside a running container.
+ * A shell inside a running task.
  *
- * One request opens it and its reply is the command's output, chunk by chunk;
- * what is typed goes back on a second subject naming that same stream, so the
- * whole session travels over the one websocket the page already has.
+ * It is opened straight on the runner's ingress rather than over the websocket
+ * the dashboard already holds: the ingress works out which node is holding the
+ * task and carries the connection there, so a shell's bytes never pass through
+ * what serves the blog. The connection is the session -- what the command
+ * writes arrives as binary, what is typed goes back the same way, and a
+ * terminal that has been resized says so as text.
  */
 export function ContainerTerminal({
   containerUuid,
   running,
-  subjects = DASHBOARD_SUBJECTS,
   authenticated = true,
   height,
 }: Props) {
   const t = useTranslations();
-  const openStream = useWsStream();
 
   const mount = useRef<HTMLDivElement>(null);
   const [ended, setEnded] = useState(false);
@@ -68,6 +60,9 @@ export function ContainerTerminal({
       : undefined;
 
     if (authenticated && !token) return;
+
+    const url = attachURL(containerUuid);
+    if (!url) return;
 
     let disposed = false;
     let cleanup: (() => void) | undefined;
@@ -90,59 +85,46 @@ export function ContainerTerminal({
         terminal.open(mount.current);
         fit.fit();
 
-        // the handlers below are handed to the stream that carries them, so
-        // the handle they reach for is filled in as soon as there is one.
-        let stream: Awaited<ReturnType<typeof openStream>> | undefined;
-
-        stream = await openStream(
-          subjects.attach,
-          token
-            ? {container_uuid: containerUuid, access_token: token}
-            : {container_uuid: containerUuid},
-          {
-            onChunk: (payload) => {
-              if (payload) terminal.write(toUint8Array(payload));
-            },
-            onEnd: () => {
-              setEnded(true);
-              terminal.write(
-                `\r\n\x1b[90m${t("containers.detail.terminalEnded")}\x1b[0m\r\n`,
-              );
-            },
-            // the connection dropped and the terminal was opened again: what
-            // is behind it now is a new shell, so say so rather than leaving
-            // somebody typing into what looks like the old one.
-            onReopen: () => {
-              setEnded(false);
-              terminal.write(
-                `\r\n\x1b[90m${t("containers.detail.terminalReconnected")}\x1b[0m\r\n`,
-              );
-              stream?.send(subjects.input, {
-                type: "resize",
-                rows: terminal.rows,
-                cols: terminal.cols,
-              });
-            },
-            onError: () => {
-              setEnded(true);
-              terminal.write(
-                `\r\n\x1b[90m${t("containers.detail.terminalLost")}\x1b[0m\r\n`,
-              );
-            },
-          },
+        // a browser cannot put a header on a websocket, so the token is
+        // offered as a subprotocol; a terminal that carries nobody offers
+        // none, which is what an anonymous caller looks like.
+        const socket = new WebSocket(
+          url,
+          token ? [BEARER_PROTOCOL, token] : undefined,
         );
+        socket.binaryType = "arraybuffer";
 
         if (disposed) {
-          stream.close();
+          socket.close();
           terminal.dispose();
           return;
         }
 
+        socket.onmessage = (event) => {
+          if (typeof event.data === "string") return;
+
+          terminal.write(new Uint8Array(event.data as ArrayBuffer));
+        };
+
+        socket.onclose = () => {
+          setEnded(true);
+          terminal.write(
+            `\r\n\x1b[90m${t("containers.detail.terminalEnded")}\x1b[0m\r\n`,
+          );
+        };
+
+        socket.onerror = () => {
+          setEnded(true);
+          terminal.write(
+            `\r\n\x1b[90m${t("containers.detail.terminalLost")}\x1b[0m\r\n`,
+          );
+        };
+
         const encoder = new TextEncoder();
         const typed = terminal.onData((data) => {
-          stream.send(subjects.input, {
-            data: fromUint8Array(encoder.encode(data)),
-          });
+          if (socket.readyState === WebSocket.OPEN) {
+            socket.send(encoder.encode(data));
+          }
         });
 
         // the command draws to the size of the window it is shown in, so it is
@@ -160,11 +142,21 @@ export function ContainerTerminal({
           }
 
           drawnTo = {rows: terminal.rows, cols: terminal.cols};
-          stream.send(subjects.input, {
-            type: "resize",
-            rows: terminal.rows,
-            cols: terminal.cols,
-          });
+
+          if (socket.readyState === WebSocket.OPEN) {
+            socket.send(
+              JSON.stringify({
+                type: "resize",
+                rows: terminal.rows,
+                cols: terminal.cols,
+              }),
+            );
+          }
+        };
+
+        socket.onopen = () => {
+          setEnded(false);
+          resize();
         };
 
         // the terminal is drawn in a tab, and a tab that is not showing has no
@@ -176,7 +168,8 @@ export function ContainerTerminal({
         cleanup = () => {
           box.disconnect();
           typed.dispose();
-          stream.close();
+          socket.onclose = null;
+          socket.close();
           terminal.dispose();
         };
       },
@@ -186,7 +179,7 @@ export function ContainerTerminal({
       disposed = true;
       cleanup?.();
     };
-  }, [containerUuid, running, openStream, subjects, authenticated, t]);
+  }, [containerUuid, running, authenticated, t]);
 
   if (!running) {
     return (

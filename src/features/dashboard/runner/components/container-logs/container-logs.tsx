@@ -7,7 +7,7 @@ import {Box, Code, Group, Switch, Text} from "@mantine/core";
 import {ACCESS_TOKEN_COOKIE_NAME} from "@/constants";
 import {useTranslations} from "@/i18n/provider";
 import {useWsStream} from "@/hooks/use-ws-stream";
-import {FOLLOW_LOGS_SUBJECT} from "./subjects";
+import {followLogsSubject} from "./subjects";
 
 type Line = {
   stream: string;
@@ -17,6 +17,13 @@ type Line = {
 
 type Props = {
   containerUuid: string;
+
+  /**
+   * Whether this is one of the reader's own tasks, which is what says where
+   * its log may be asked for: a person trusted with only their own follows it
+   * on the subject served under that permission.
+   */
+  own?: boolean;
 
   /**
    * What the container had already written when the page was rendered. The
@@ -31,7 +38,7 @@ type Props = {
  * the container until it is deleted, so a stopped container still has all of
  * its history here.
  */
-export function ContainerLogs({containerUuid, history}: Props) {
+export function ContainerLogs({containerUuid, history, own = false}: Props) {
   const t = useTranslations();
   const openStream = useWsStream();
 
@@ -71,12 +78,12 @@ export function ContainerLogs({containerUuid, history}: Props) {
     // read when the stream is opened, and again if it has to be opened on a
     // new connection: either way it picks up from the last line shown.
     const request = () => ({
-      container_uuid: containerUuid,
+      task_uuid: containerUuid,
       access_token: token,
       after: caughtUpTo.current,
     });
 
-    openStream(FOLLOW_LOGS_SUBJECT, request, {onChunk: append}).then(
+    openStream(followLogsSubject(own), request, {onChunk: append}).then(
       (stream) => {
         // the switch may have been turned off while the socket was opening.
         if (closed) {
@@ -92,7 +99,7 @@ export function ContainerLogs({containerUuid, history}: Props) {
       closed = true;
       close?.();
     };
-  }, [containerUuid, following, openStream, append]);
+  }, [containerUuid, following, openStream, append, own]);
 
   useEffect(() => {
     if (following) {

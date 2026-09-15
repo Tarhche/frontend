@@ -71,7 +71,7 @@ const toolLabels = (host: HTMLElement) =>
 
 beforeEach(() => {
   reported = {
-    run: {state: "running", container_uuid: "a-container"},
+    run: {state: "running", task_uuid: "a-container"},
     running: true,
     output: "",
   };

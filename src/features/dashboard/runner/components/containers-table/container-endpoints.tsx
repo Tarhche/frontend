@@ -1,7 +1,7 @@
 import {Anchor, Stack, Text} from "@mantine/core";
 
 export type Endpoint = {
-  container_port: number;
+  task_port: number;
   host: string;
   url: string;
 
@@ -31,7 +31,7 @@ export function ContainerEndpoints({endpoints, empty}: Props) {
   return (
     <Stack gap={2}>
       {endpoints.map((endpoint) => (
-        <div key={endpoint.container_port}>
+        <div key={endpoint.task_port}>
           <Anchor
             href={endpoint.url}
             target="_blank"

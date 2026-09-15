@@ -47,16 +47,16 @@ export async function ContainersTable({page, scope = "all"}: Props) {
   const may = {
     own,
     manage: hasPermission(permissions, [
-      own ? "self.runner.containers.manage" : "runner.containers.manage",
+      own ? "self.runner.tasks.manage" : "runner.tasks.manage",
     ]),
     delete: hasPermission(permissions, [
-      own ? "self.runner.containers.delete" : "runner.containers.delete",
+      own ? "self.runner.tasks.delete" : "runner.tasks.delete",
     ]),
   };
 
   return (
     <>
-      <PermissionGuard allowedPermissions={["runner.containers.create"]}>
+      <PermissionGuard allowedPermissions={["runner.tasks.create"]}>
         <Group justify="flex-end">
           <Button
             variant="light"

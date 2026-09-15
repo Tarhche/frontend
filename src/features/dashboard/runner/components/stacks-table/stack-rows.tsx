@@ -13,7 +13,7 @@ import {type Author} from "@/features/authors/types";
 import {OwnerInline} from "../owner-inline";
 import {StateBadge, type Transition} from "../state-badge";
 import {StackActions} from "./stack-actions";
-import {WATCH_STACKS_SUBJECT} from "./subjects";
+import {watchStacksSubject} from "./subjects";
 
 export type Stack = {
   uuid: string;
@@ -137,7 +137,7 @@ export function StackRows({stacks: listed, may}: Props) {
   );
 
   useWatch({
-    subject: WATCH_STACKS_SUBJECT,
+    subject: watchStacksSubject(may.own),
     onChange: apply,
     onResume: refresh,
   });

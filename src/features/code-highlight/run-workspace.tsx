@@ -13,26 +13,18 @@ import {Countdown} from "@/components/countdown";
 import {containerStateLabel} from "@/lib/container-state";
 import {ContainerTerminal} from "@/features/dashboard/runner/components/container-terminal";
 import {useTranslations} from "@/i18n/provider";
-import {CODE_TERMINAL_INPUT_SUBJECT, CODE_TERMINAL_SUBJECT} from "./subjects";
 
 // ten lines of shell, which is as much of a page as a snippet's terminal is
 // worth; what it writes past that it keeps, and scrolls.
 const SHELL_HEIGHT = "8rem";
 
-// what a snippet's terminal is opened on. It is made once: a run is reported
-// several times a second, and a terminal that is handed new subjects on every
-// report is a terminal nobody can type into.
-const SNIPPET_SUBJECTS = {
-  attach: CODE_TERMINAL_SUBJECT,
-  input: CODE_TERMINAL_INPUT_SUBJECT,
-};
 import classes from "./run-workspace.module.css";
 
 /** What the runner has said about a snippet that is being watched. */
 export type Run = {
   state?: string;
-  endpoints?: Array<{container_port: number; url: string}>;
-  container_uuid?: string;
+  endpoints?: Array<{task_port: number; url: string}>;
+  task_uuid?: string;
   logs?: string;
 
   /** When the snippet will be stopped, for as long as it is running. */
@@ -104,7 +96,7 @@ export function RunPreview({run}: PreviewProps) {
   const [reloads, setReloads] = useState(0);
 
   const address =
-    addresses.find((one) => one.container_port === port) ?? addresses[0];
+    addresses.find((one) => one.task_port === port) ?? addresses[0];
 
   return (
     <div className={classes.browser}>
@@ -140,13 +132,13 @@ export function RunPreview({run}: PreviewProps) {
             {addresses.map((one) => (
               <button
                 type="button"
-                key={one.container_port}
+                key={one.task_port}
                 className={`${classes.port} ${
                   one === address ? classes.portActive : ""
                 }`}
-                onClick={() => setPort(one.container_port)}
+                onClick={() => setPort(one.task_port)}
               >
-                {one.container_port}
+                {one.task_port}
               </button>
             ))}
           </span>
@@ -271,7 +263,7 @@ export function RunTools({
           className={`${classes.paneAction} ${
             open === "terminal" ? classes.paneActionActive : ""
           }`}
-          disabled={!alive || !run.container_uuid}
+          disabled={!alive || !run.task_uuid}
           title={t("editor.tabs.terminal")}
           aria-label={t("editor.tabs.terminal")}
           aria-pressed={open === "terminal"}
@@ -332,12 +324,11 @@ export function RunPanel({
         <span>{title}</span>
       </div>
 
-      {open === "terminal" && alive && run.container_uuid ? (
+      {open === "terminal" && alive && run.task_uuid ? (
         <ContainerTerminal
-          containerUuid={run.container_uuid}
+          containerUuid={run.task_uuid}
           running
           authenticated={false}
-          subjects={SNIPPET_SUBJECTS}
           height={SHELL_HEIGHT}
         />
       ) : (

@@ -74,7 +74,7 @@ describe("WebSocketBus streaming", () => {
 
     const stream = await bus.openStream(
       "runnerContainerLogs",
-      {container_uuid: "c-1"},
+      {task_uuid: "c-1"},
       {onChunk: (payload) => chunks.push(payload)},
     );
 
@@ -196,7 +196,7 @@ describe("WebSocketBus streaming", () => {
 
     const stream = await bus.openStream(
       "runnerContainerAttach",
-      {container_uuid: "c-1"},
+      {task_uuid: "c-1"},
       {onChunk, onReopen, onError},
     );
 

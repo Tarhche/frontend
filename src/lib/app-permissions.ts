@@ -59,14 +59,14 @@ export const PERMISSIONS = {
     INDEX: "permissions.index",
   },
   runner: {
-    containers: {
-      CREATE: "runner.containers.create",
-      DELETE: "runner.containers.delete",
-      INDEX: "runner.containers.index",
-      SHOW: "runner.containers.show",
-      LOGS: "runner.containers.logs",
-      MANAGE: "runner.containers.manage",
-      ATTACH: "runner.containers.attach",
+    tasks: {
+      CREATE: "runner.tasks.create",
+      DELETE: "runner.tasks.delete",
+      INDEX: "runner.tasks.index",
+      SHOW: "runner.tasks.show",
+      LOGS: "runner.tasks.logs",
+      MANAGE: "runner.tasks.manage",
+      ATTACH: "runner.tasks.attach",
     },
     stacks: {
       CREATE: "runner.stacks.create",
@@ -105,13 +105,13 @@ export const PERMISSIONS = {
       INDEX: "self.files.index",
     },
     runner: {
-      containers: {
-        INDEX: "self.runner.containers.index",
-        SHOW: "self.runner.containers.show",
-        LOGS: "self.runner.containers.logs",
-        MANAGE: "self.runner.containers.manage",
-        ATTACH: "self.runner.containers.attach",
-        DELETE: "self.runner.containers.delete",
+      tasks: {
+        INDEX: "self.runner.tasks.index",
+        SHOW: "self.runner.tasks.show",
+        LOGS: "self.runner.tasks.logs",
+        MANAGE: "self.runner.tasks.manage",
+        ATTACH: "self.runner.tasks.attach",
+        DELETE: "self.runner.tasks.delete",
       },
       stacks: {
         INDEX: "self.runner.stacks.index",

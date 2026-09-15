@@ -38,5 +38,5 @@ async function NewContainerPage() {
 }
 
 export default withPermissions(NewContainerPage, {
-  requiredPermissions: ["runner.containers.create"],
+  requiredPermissions: ["runner.tasks.create"],
 });

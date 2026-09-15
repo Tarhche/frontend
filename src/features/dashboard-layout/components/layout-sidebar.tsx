@@ -86,10 +86,7 @@ const SIDE_BAR_DATA: SidebarSchema[] = [
     labelKey: "dashboard.sidebar.containers",
     icon: IconBox,
     href: dashboard.containers.index,
-    requiredPermissions: [
-      "runner.containers.index",
-      "self.runner.containers.index",
-    ],
+    requiredPermissions: ["runner.tasks.index", "self.runner.tasks.index"],
   },
   {
     labelKey: "dashboard.sidebar.stacks",

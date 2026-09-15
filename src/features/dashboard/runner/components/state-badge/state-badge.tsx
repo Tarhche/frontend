@@ -33,7 +33,11 @@ type Props = {
 
 /** What a container is on its way to, in the words of the thing being done. */
 export type Transition =
-  "starting" | "stopping" | "killing" | "restarting" | "deleting";
+  | "starting"
+  | "stopping"
+  | "killing"
+  | "restarting"
+  | "deleting";
 
 // what each state says about a container, at a glance.
 const colors: Record<string, string> = {

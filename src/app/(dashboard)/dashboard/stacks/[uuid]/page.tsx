@@ -89,7 +89,7 @@ async function StackPage({params}: Props) {
                 image: string;
                 state: string;
                 endpoints: {
-                  container_port: number;
+                  task_port: number;
                   host: string;
                   url: string;
                 }[];

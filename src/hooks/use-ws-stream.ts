@@ -13,7 +13,7 @@ import {getWebSocketBus, type StreamHandlers} from "@/lib/ws/websocket-bus";
  *
  * @example
  * const openStream = useWsStream();
- * const stream = await openStream("runnerContainerLogs", {container_uuid, access_token}, {
+ * const stream = await openStream("runnerTaskLogs", {task_uuid, access_token}, {
  *   onChunk: (payload) => append(payload),
  * });
  */
