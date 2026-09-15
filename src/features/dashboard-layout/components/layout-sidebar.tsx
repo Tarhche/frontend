@@ -18,6 +18,8 @@ import {
   IconLanguage,
   IconMail,
   IconPictureInPicture,
+  IconBox,
+  IconStack2,
 } from "@tabler/icons-react";
 import {hasPermission} from "@/lib/auth/shared";
 import {APP_PATHS} from "@/lib/app-paths";
@@ -79,6 +81,18 @@ const SIDE_BAR_DATA: SidebarSchema[] = [
     icon: IconMail,
     href: dashboard.contactUs.index,
     requiredPermissions: ["contactus.index"],
+  },
+  {
+    labelKey: "dashboard.sidebar.tasks",
+    icon: IconBox,
+    href: dashboard.tasks.index,
+    requiredPermissions: ["runner.tasks.index", "self.runner.tasks.index"],
+  },
+  {
+    labelKey: "dashboard.sidebar.stacks",
+    icon: IconStack2,
+    href: dashboard.stacks.index,
+    requiredPermissions: ["runner.stacks.index", "self.runner.stacks.index"],
   },
   {
     labelKey: "dashboard.sidebar.users",
