@@ -1,7 +1,6 @@
 import {cookies} from "next/headers";
 import {ScrollArea} from "@mantine/core";
 import {LayoutShell, LayoutMain, LayoutNavbar} from "./layout-shell";
-import {DashboardLayoutLogoutButton} from "./logout-button";
 import {LayoutSidebar} from "./layout-sidebar";
 import {
   AccountSwitcher,
@@ -56,7 +55,6 @@ export async function DashboardLayout({children}: Props) {
             activeId={activeId}
             addAccountHref={`${APP_PATHS.auth.login}?callbackUrl=${APP_PATHS.dashboard.index}`}
           />
-          <DashboardLayoutLogoutButton />
         </div>
       </LayoutNavbar>
       <LayoutMain h={0}>

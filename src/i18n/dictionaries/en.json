@@ -390,7 +390,6 @@
   "accounts": {
     "signedInAccounts": "Signed-in accounts",
     "addAccount": "Sign in to another account",
-    "signOutOf": "Sign out of {name}",
     "viewingAs": "Viewing as",
     "openedBy": "Opened by {name}",
     "impersonation": {

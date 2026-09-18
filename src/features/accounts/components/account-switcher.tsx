@@ -190,9 +190,7 @@ export function AccountSwitcher({accounts, activeId, addAccountHref}: Props) {
             }
             onClick={() => run(() => signOutAccount(active.id))}
           >
-            {t("accounts.signOutOf", {
-              name: accountLabel(active, t("common.guestUser")),
-            })}
+            {t("dashboard.sidebar.logout")}
           </Menu.Item>
         ) : null}
       </Menu.Dropdown>
