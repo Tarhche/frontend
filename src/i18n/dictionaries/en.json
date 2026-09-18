@@ -395,7 +395,7 @@
     "openedBy": "Opened by {name}",
     "impersonation": {
       "title": "You are seeing the dashboard as {name}",
-      "text": "Everything you do here is done as them, and is recorded as yours.",
+      "text": "Anything you do here is done as them, and is recorded against their account.",
       "leave": "Back to {name}"
     },
     "expired": {
