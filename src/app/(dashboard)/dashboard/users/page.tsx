@@ -1,7 +1,6 @@
 import {Metadata} from "next";
 import {Suspense} from "react";
-import {Alert, Box, Stack} from "@mantine/core";
-import {IconAlertTriangle} from "@tabler/icons-react";
+import {Box, Stack} from "@mantine/core";
 import {withPermissions} from "@/components/with-authorization";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {UsersTable, UsersTableSkeleton} from "@/features/users/components";
@@ -17,9 +16,6 @@ export async function generateMetadata(): Promise<Metadata> {
 type Props = {
   searchParams: Promise<{
     page?: string;
-    // set by the route that opens the dashboard as another user, when the
-    // backend would not open one
-    impersonation?: string;
   }>;
 };
 
@@ -37,11 +33,6 @@ async function MyBookmarksPage({searchParams}: Props) {
           },
         ]}
       />
-      {params.impersonation === "failed" ? (
-        <Alert color="red" variant="light" icon={<IconAlertTriangle />}>
-          {t("users.table.impersonationFailed")}
-        </Alert>
-      ) : null}
       <Box>
         <Suspense
           key={JSON.stringify(params)}

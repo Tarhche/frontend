@@ -414,7 +414,9 @@
       "deleteUser": "حذف کردن کاربر",
       "confirmDelete": "از حذف \"{title}\" مطمئن هستید؟",
       "impersonate": "دیدن داشبورد در نقش {title}",
-      "impersonationFailed": "باز کردن داشبورد در نقش این کاربر ممکن نشد."
+      "impersonationFailed": "باز کردن داشبورد در نقش این کاربر ممکن نشد.",
+      "impersonationOpened": "هم‌اکنون در نقش {title} وارد شده‌اید",
+      "impersonationShared": "داشبورد ایشان در سربرگ تازه باز شد. این سربرگ هم همان نشست را دارد — از منوی حساب‌ها می‌توانید برگردید."
     },
     "form": {
       "name": "نام",

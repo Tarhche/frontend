@@ -35,7 +35,6 @@ export const APP_PATHS = {
       new: "/dashboard/users/new",
       edit: (uuid: string) => `/dashboard/users/${uuid}`,
       editPassword: (uuid: string) => `/dashboard/users/${uuid}/edit-password`,
-      impersonate: (uuid: string) => `/dashboard/users/${uuid}/impersonate`,
     },
     roles: {
       index: "/dashboard/roles",
