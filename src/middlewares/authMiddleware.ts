@@ -8,6 +8,7 @@ import {
 } from "@/constants";
 import {refreshCoordinator} from "@/lib/auth/refresh/RefreshCoordinator";
 import {resolveClientIp} from "@/lib/client-ip";
+import {browserFacingUrl} from "@/lib/request-url";
 
 // 1. The middleware will ensure that for protected routes, if the access token is missing or expired,
 // it will attempt to refresh it using the refresh token.
@@ -42,7 +43,12 @@ export default async function authMiddleware(req: NextRequest) {
   const hasValidAccessToken =
     !!newAccessToken || (!!accessToken && !isTokenExpired(accessToken));
   if (isProtectedRoute && !hasValidAccessToken) {
-    return NextResponse.redirect(new URL("/auth/login", req.url));
+    const login = browserFacingUrl(req);
+    login.pathname = "/auth/login";
+    // so signing in carries on to wherever they were headed
+    login.search = `?callbackUrl=${encodeURIComponent(req.nextUrl.pathname + req.nextUrl.search)}`;
+
+    return NextResponse.redirect(login);
   }
 
   const requestHeaders = new Headers(req.headers);
