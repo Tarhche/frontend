@@ -26,7 +26,9 @@ export async function isUserTokenValid(type: "access-token" | "refresh-token") {
 export async function isUserLoggedIn() {
   return (
     (await isUserTokenValid("access-token")) ||
-    isUserTokenValid("refresh-token")
+    // a promise is truthy whatever it resolves to, so a missing await here made
+    // everybody logged in
+    (await isUserTokenValid("refresh-token"))
   );
 }
 

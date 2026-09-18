@@ -10,6 +10,11 @@ import type {NextRequest} from "next/server";
  * the ones it is handed there are refused), which looks exactly like being
  * signed out: the dashboard bounces to the login page, on 0.0.0.0, forever.
  *
+ * A middleware redirect is the one place that has to name a host: it cannot
+ * call `redirect()` from next/navigation, and a relative Location -- legal HTTP
+ * -- is refused by Next itself, which parses the header and throws
+ * ERR_INVALID_URL. Everything else redirects from the page tree instead.
+ *
  * Behind Traefik the forwarded headers are what the browser asked for; without
  * them, the Host header is. Callers get a clone, to give a pathname to.
  */
