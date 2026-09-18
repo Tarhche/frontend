@@ -105,17 +105,25 @@ export async function forgetAllAccounts(): Promise<void> {
  *
  * The label is read with that session's own token rather than taken from the
  * page, so an account is never listed under a name somebody else supplied.
+ *
+ * An access token lasts three minutes and its cookie a quarter of an hour, so a
+ * session that has been sitting still may have nothing but its refresh token
+ * left. That token says who the session is for and who is behind it just as
+ * well; only the name has to wait until the account is used again.
  */
 export async function rememberSession(tokens: {
-  access_token: string;
+  access_token?: string;
   refresh_token: string;
 }): Promise<void> {
-  const claims = sessionClaims(tokens.access_token);
+  const claims =
+    sessionClaims(tokens.access_token) ?? sessionClaims(tokens.refresh_token);
   if (!claims) {
     return;
   }
 
-  const profile = await fetchProfileWithToken(tokens.access_token);
+  const profile = tokens.access_token
+    ? await fetchProfileWithToken(tokens.access_token)
+    : null;
 
   await rememberAccount({
     id: sessionId(claims),
@@ -135,14 +143,13 @@ export async function rememberSession(tokens: {
  */
 export async function rememberActiveSession(): Promise<void> {
   const store = await cookies();
-  const accessToken = store.get(ACCESS_TOKEN_COOKIE_NAME)?.value;
   const refreshToken = store.get(REFRESH_TOKEN_COOKIE_NAME)?.value;
-  if (!accessToken || !refreshToken) {
+  if (!refreshToken) {
     return;
   }
 
   await rememberSession({
-    access_token: accessToken,
+    access_token: store.get(ACCESS_TOKEN_COOKIE_NAME)?.value,
     refresh_token: refreshToken,
   });
 }
