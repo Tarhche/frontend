@@ -16,10 +16,21 @@ export function DashboardLayoutLogoutButton() {
   return (
     <form
       action={async () => {
-        await logout();
+        const {signedIn} = await logout();
+
+        // whatever the dashboard holds was fetched as whoever just left
+        queryClient.clear();
         queryClient.setQueryData(["init-user"], {
-          status: "unauthenticated",
+          status: signedIn ? "authenticated" : "unauthenticated",
         });
+
+        // signing out of one account of several leaves the browser signed in as
+        // the next one, and there is a dashboard to stay in
+        if (signedIn) {
+          router.refresh();
+          return;
+        }
+
         router.push("/");
       }}
     >

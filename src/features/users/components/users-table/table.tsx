@@ -19,6 +19,7 @@ import {UserAvatar} from "@/components/user-avatar";
 import {Pagination} from "@/components/pagination";
 import {PermissionGuard} from "@/components/permission-guard";
 import {DeleteButton} from "./delete-button";
+import {ImpersonateButton} from "./impersonate-button";
 import {IconPencil, IconUserPlus} from "@tabler/icons-react";
 import {fetchUsers} from "@/dal/private/users";
 import {APP_PATHS} from "@/lib/app-paths";
@@ -108,6 +109,14 @@ export async function UsersTable({page}: Props) {
                             <IconPencil style={{width: rem(20)}} stroke={1.5} />
                           </ActionIcon>
                         </Tooltip>
+                      </PermissionGuard>
+                      <PermissionGuard
+                        allowedPermissions={["users.impersonate"]}
+                      >
+                        <ImpersonateButton
+                          userID={user.uuid}
+                          username={user.name}
+                        />
                       </PermissionGuard>
                       <PermissionGuard allowedPermissions={["users.delete"]}>
                         <DeleteButton userID={user.uuid} username={user.name} />
