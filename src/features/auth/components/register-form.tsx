@@ -17,10 +17,17 @@ import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert
 import {nonFieldErrors} from "@/lib/api/validation-errors";
 import {useTranslations} from "@/i18n/provider";
 import {registerUser} from "../actions/register-user";
+import {ProviderButtons} from "./provider-buttons";
 
 const REGISTER_FIELDS = ["identity"] as const;
 
-export function RegisterForm() {
+type Props = {
+  // signing up with a provider is the same door as signing in with one: an
+  // account this estate has never seen is opened on the spot
+  providers?: string[];
+};
+
+export function RegisterForm({providers = []}: Props) {
   const t = useTranslations();
   const [state, dispatch, isPending] = useActionState(registerUser, {
     success: undefined,
@@ -91,6 +98,7 @@ export function RegisterForm() {
             </Button>
           )}
         </form>
+        <ProviderButtons providers={providers} />
       </Paper>
     </Box>
   );

@@ -244,6 +244,15 @@
       "identityLabel": "Email or username",
       "operationFailed": "Operation failed"
     },
+    "providers": {
+      "or": "or",
+      "continueWith": "Continue with {provider}",
+      "signingIn": "Signing you in…",
+      "callbackFailed": "That sign-in could not be completed. Please try again.",
+      "unavailable": "That way of signing in is not available right now.",
+      "backToLogin": "Back to the login page",
+      "metadataTitle": "Signing in"
+    },
     "login": {
       "metadataTitle": "Login",
       "title": "Login to your account",

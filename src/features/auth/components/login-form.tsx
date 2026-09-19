@@ -25,14 +25,17 @@ import {nonFieldErrors} from "@/lib/api/validation-errors";
 import {APP_PATHS} from "@/lib/app-paths";
 import {useTranslations} from "@/i18n/provider";
 import {login} from "../actions/login";
+import {ProviderButtons} from "./provider-buttons";
 
 type Props = {
   callbackUrl?: string;
+  // what may be signed in with besides a password, as the backend reports it
+  providers?: string[];
 };
 
 const LOGIN_FIELDS = ["identity", "password"] as const;
 
-export function LoginForm({callbackUrl}: Props) {
+export function LoginForm({callbackUrl, providers = []}: Props) {
   const t = useTranslations();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -140,6 +143,7 @@ export function LoginForm({callbackUrl}: Props) {
             {state?.success === false ? t("common.tryAgain") : t("nav.login")}
           </Button>
         </Box>
+        <ProviderButtons providers={providers} />
         <Divider my={"md"} />
         <Stack mt={"sm"} gap={"xs"}>
           <Anchor size={"15px"} component={Link} href={"/auth/forgot-password"}>

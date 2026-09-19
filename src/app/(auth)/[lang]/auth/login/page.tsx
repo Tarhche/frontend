@@ -1,5 +1,6 @@
 import {type Metadata} from "next";
 import {LoginForm} from "@/features/auth/components/login-form";
+import {loginProviders} from "@/features/auth/providers";
 import {getDictionary} from "@/i18n/dictionary";
 
 export async function generateMetadata(props: {
@@ -21,7 +22,10 @@ type Props = {
 async function LoginPage(props: Props) {
   const searchParams = await props.searchParams;
   const callbackUrl = searchParams.callbackUrl;
-  return <LoginForm callbackUrl={callbackUrl} />;
+
+  return (
+    <LoginForm callbackUrl={callbackUrl} providers={await loginProviders()} />
+  );
 }
 
 export default LoginPage;

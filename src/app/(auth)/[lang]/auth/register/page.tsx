@@ -1,5 +1,6 @@
 import {type Metadata} from "next";
 import {RegisterForm} from "@/features/auth/components/register-form";
+import {loginProviders} from "@/features/auth/providers";
 import {getDictionary} from "@/i18n/dictionary";
 
 export async function generateMetadata(props: {
@@ -12,8 +13,8 @@ export async function generateMetadata(props: {
   };
 }
 
-function RegisterPage() {
-  return <RegisterForm />;
+async function RegisterPage() {
+  return <RegisterForm providers={await loginProviders()} />;
 }
 
 export default RegisterPage;
