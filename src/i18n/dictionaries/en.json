@@ -10,6 +10,8 @@
     "delete": "Delete",
     "edit": "Edit",
     "editInDashboard": "Edit in dashboard",
+    "copy": "Copy",
+    "copied": "Copied",
     "confirmAction": "Confirm action",
     "areYouSure": "Are you sure?",
     "actions": "Actions",
@@ -243,6 +245,28 @@
       "home": "Home page",
       "identityLabel": "Email or username",
       "operationFailed": "Operation failed"
+    },
+    "authorize": {
+      "metadataTitle": "Connect an application",
+      "title": "{application} wants to act for you",
+      "unknownApplication": "An application",
+      "whatItAsksFor": "If you allow it, this application will hold a session of yours:",
+      "actsAsYou": "It acts as you. Anything it does here is done in your name.",
+      "yourPermissions": "It can do what you can do, and nothing more. What you may not do, it may not do either.",
+      "untilRevoked": "It keeps that session, renewing it, until it is signed out or your account is blocked.",
+      "answeredAt": "It will be answered at {address}.",
+      "warningTitle": "Only allow an application you asked for",
+      "warning": "If you did not just set this up yourself, refuse it. Nobody here will ever send you this page.",
+      "signedInAs": "You are signed in as {account}.",
+      "approve": "Allow",
+      "deny": "Refuse",
+      "redirecting": "Taking you back to the application",
+      "failedTitle": "That could not be recorded",
+      "failed": "Please try again. If it keeps failing, start again from the application.",
+      "missingTitle": "Nothing to allow",
+      "missing": "This page is opened by an application that is asking for a session. There is no request in this link.",
+      "expiredTitle": "This request is no longer valid",
+      "expired": "It may have expired, or already been answered. Start again from the application."
     },
     "login": {
       "metadataTitle": "Login",
@@ -563,6 +587,12 @@
         "mustMatch": "Passwords must be identical",
         "doNotMatch": "Passwords do not match"
       }
+    },
+    "mcp": {
+      "title": "Connect an agent",
+      "description": "An MCP client — Claude, or anything else that speaks the Model Context Protocol — can work here as you, through this address.",
+      "signIn": "The first time it connects it will send you here to sign in and allow it.",
+      "permissions": "It can do what you can do, and nothing more."
     }
   },
   "tasks": {

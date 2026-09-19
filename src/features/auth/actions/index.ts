@@ -1,3 +1,4 @@
+export {answerAuthorization} from "./answer-authorization";
 export {forgotPassword} from "./forgot-password";
 export {login} from "./login";
 export {registerUser} from "./register-user";

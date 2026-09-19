@@ -1,10 +1,11 @@
 import {Metadata} from "next";
 import {Stack, Paper} from "@mantine/core";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
-import {ProfileUpdateForm} from "@/features/profile/components";
+import {McpConnection, ProfileUpdateForm} from "@/features/profile/components";
 import {fetchUserProfile} from "@/dal/private/profile";
 import {fetchLanguages, type Language} from "@/dal/public/languages";
 import {getServerDictionary} from "@/i18n/server";
+import {PUBLIC_BACKEND_URL} from "@/constants";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
@@ -47,6 +48,9 @@ async function UserProfilePage() {
           }}
           languages={languages}
         />
+      </Paper>
+      <Paper p="lg" withBorder>
+        <McpConnection endpoint={`${PUBLIC_BACKEND_URL}/mcp`} />
       </Paper>
     </Stack>
   );

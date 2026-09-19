@@ -10,6 +10,10 @@ export const APP_PATHS = {
     verify: "/auth/verify",
     resetPassword: "/auth/reset-password",
     frogotPassword: "/auth/forgot-password",
+
+    // where an application's request for a session is put to the person it is
+    // asking. The backend's authorization endpoint sends the browser here.
+    authorize: "/auth/authorize",
   },
   hashtags: {
     index: "/hashtags",
