@@ -387,6 +387,21 @@
       "stacks": "Stacks"
     }
   },
+  "accounts": {
+    "signedInAccounts": "Signed-in accounts",
+    "addAccount": "Sign in to another account",
+    "viewingAs": "Viewing as",
+    "openedBy": "Opened by {name}",
+    "impersonation": {
+      "title": "You are seeing the dashboard as {name}",
+      "text": "Anything you do here is done as them, and is recorded against their account.",
+      "leave": "Back to {name}"
+    },
+    "expired": {
+      "title": "That account is signed out",
+      "message": "Its session had run out, so it was removed from the list. Sign in to it again to use it."
+    }
+  },
   "users": {
     "table": {
       "avatar": "Avatar",
@@ -397,7 +412,11 @@
       "empty": "No users exist",
       "editUser": "Edit user",
       "deleteUser": "Delete user",
-      "confirmDelete": "Are you sure you want to delete \"{title}\"?"
+      "confirmDelete": "Are you sure you want to delete \"{title}\"?",
+      "impersonate": "Open the dashboard as {title}",
+      "impersonationFailed": "The dashboard could not be opened as that user.",
+      "impersonationOpened": "Now signed in as {title}",
+      "impersonationShared": "A new tab has the dashboard as them. This one shares the session — switch back from the account menu."
     },
     "form": {
       "name": "Name",

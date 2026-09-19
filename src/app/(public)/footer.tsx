@@ -14,7 +14,13 @@ const linkStyle = {
   gap: "0.3rem",
 };
 
-export default function Footer() {
+type Props = {
+  // where this site answers, as the browser asked for it. Empty when nothing
+  // said, and the link is then the site's own root, which needs no host.
+  siteUrl: string;
+};
+
+export default function Footer({siteUrl}: Props) {
   const t = useTranslations();
 
   return (
@@ -56,7 +62,7 @@ export default function Footer() {
           </Anchor>
         </Group>
 
-        <Anchor href="https://tarhche.com" c="gray.7" style={linkStyle}>
+        <Anchor href={siteUrl || "/"} c="gray.7" style={linkStyle}>
           <Text span size="sm">
             {t("footer.tagline")}
           </Text>

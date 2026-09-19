@@ -124,6 +124,7 @@ export const PERMISSIONS = {
   users: {
     CREATE: "users.create",
     DELETE: "users.delete",
+    IMPERSONATE: "users.impersonate",
     INDEX: "users.index",
     SHOW: "users.show",
     UPDATE: "users.update",

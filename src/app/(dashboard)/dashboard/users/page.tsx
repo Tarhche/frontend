@@ -21,7 +21,8 @@ type Props = {
 
 async function MyBookmarksPage({searchParams}: Props) {
   const {t} = await getServerDictionary();
-  const page = Number((await searchParams).page) || 1;
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
 
   return (
     <Stack>
@@ -34,7 +35,7 @@ async function MyBookmarksPage({searchParams}: Props) {
       />
       <Box>
         <Suspense
-          key={JSON.stringify(await searchParams)}
+          key={JSON.stringify(params)}
           fallback={<UsersTableSkeleton />}
         >
           <UsersTable page={page} />

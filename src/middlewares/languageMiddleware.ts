@@ -3,6 +3,7 @@ import {ACCESS_TOKEN_COOKIE_NAME, LANGUAGE_COOKIE_NAME} from "@/constants";
 import {getLanguageConfig} from "@/lib/language/config";
 import {resolvePreferredLanguageCode} from "@/lib/language/resolve";
 import {resolveClientIp} from "@/lib/client-ip";
+import {browserFacingUrl} from "@/lib/request-url";
 
 // Public content lives under a `/{language}` prefix. These path roots are never
 // language-prefixed (API, Next internals, dashboard). Auth pages ARE prefixed
@@ -59,7 +60,7 @@ export default async function languageMiddleware(
     return;
   }
 
-  const url = req.nextUrl.clone();
+  const url = browserFacingUrl(req);
   url.pathname = `/${preferred}${pathname === "/" ? "" : pathname}`;
 
   return NextResponse.redirect(url, 308);

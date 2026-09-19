@@ -9,12 +9,15 @@ import {
 import {refreshCoordinator} from "@/lib/auth/refresh/RefreshCoordinator";
 import {resolveClientIp} from "@/lib/client-ip";
 
-// 1. The middleware will ensure that for protected routes, if the access token is missing or expired,
-// it will attempt to refresh it using the refresh token.
-// 2. If refreshing fails or if there is no valid access token,
-// it will redirect the user to the login page. For successful refreshes,
-// it will update the cookies in the request header so that downstream handlers receive the new tokens.
-const protectedRoutes = ["/dashboard"];
+// Refreshes an access token that is missing or about to run out, and hands the
+// new pair to the browser and to the request alike, so whatever renders next
+// reads the fresh one.
+//
+// Refreshing is all it does. It is the only thing that has to happen here,
+// because only a middleware can put a cookie in front of a page it has not
+// rendered yet; who may see what is decided in the page tree, where redirect()
+// works and no url has to be built by hand. The dashboard's own layout turns
+// away anybody this could not sign in.
 
 export default async function authMiddleware(req: NextRequest) {
   const accessToken = req.cookies.get(ACCESS_TOKEN_COOKIE_NAME)?.value;
@@ -34,15 +37,6 @@ export default async function authMiddleware(req: NextRequest) {
     } catch {
       // refresh failed; let the downstream handler decide what to do
     }
-  }
-
-  const isProtectedRoute = protectedRoutes.some((route) =>
-    req.nextUrl.pathname.startsWith(route),
-  );
-  const hasValidAccessToken =
-    !!newAccessToken || (!!accessToken && !isTokenExpired(accessToken));
-  if (isProtectedRoute && !hasValidAccessToken) {
-    return NextResponse.redirect(new URL("/auth/login", req.url));
   }
 
   const requestHeaders = new Headers(req.headers);

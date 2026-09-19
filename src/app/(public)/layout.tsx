@@ -1,6 +1,7 @@
 import {AppMainShell} from "@/components/app-main-shell";
 import {LanguageProvider} from "@/components/language/language-context";
 import {fetchLanguages, type Language} from "@/dal/public/languages";
+import {getRootUrl} from "@/lib/http";
 import Footer from "./footer";
 
 export default async function RootLayout({
@@ -26,7 +27,7 @@ export default async function RootLayout({
       defaultLanguageCode={defaultLanguageCode}
     >
       <AppMainShell>
-        {children} <Footer />
+        {children} <Footer siteUrl={await getRootUrl()} />
       </AppMainShell>
     </LanguageProvider>
   );

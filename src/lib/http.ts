@@ -5,11 +5,16 @@ import {
   ACCESS_TOKEN_COOKIE_NAME,
   REFRESH_TOKEN_COOKIE_NAME,
 } from "@/constants/strings";
+import {browserFacingOrigin} from "@/lib/request-url";
 
+// Where this site answers, as the browser asked for it: the forwarded headers
+// behind Traefik, the Host header otherwise. Empty when nothing says, which
+// leaves whoever asked with a relative url — right by definition.
 export async function getRootUrl() {
-  const host = (await headers()).get("host");
-  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-  return `${protocol}://${host}`;
+  return browserFacingOrigin(
+    await headers(),
+    process.env.NODE_ENV === "production",
+  );
 }
 
 export async function getCredentialsFromCookies() {

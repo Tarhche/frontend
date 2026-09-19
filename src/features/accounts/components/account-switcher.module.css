@@ -1,0 +1,18 @@
+.account {
+  display: block;
+  width: 100%;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-sm);
+  color: light-dark(var(--mantine-color-black), var(--mantine-color-dark-0));
+
+  @mixin hover {
+    background-color: light-dark(
+      var(--mantine-color-gray-1),
+      var(--mantine-color-dark-6)
+    );
+  }
+}
+
+.chevron {
+  color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-2));
+}

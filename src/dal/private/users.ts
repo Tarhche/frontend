@@ -26,6 +26,13 @@ export async function deleteUser(id: string) {
   return await privateDalDriver.delete(`dashboard/users/${id}`);
 }
 
+export async function impersonateUser(userId: string) {
+  const response = await privateDalDriver.post(
+    `dashboard/users/${userId}/impersonate`,
+  );
+  return response.data;
+}
+
 export async function updatePassword(data: Record<string, string>) {
   return await privateDalDriver.put(`dashboard/users/password`, data);
 }
