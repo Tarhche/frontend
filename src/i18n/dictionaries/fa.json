@@ -244,6 +244,15 @@
       "identityLabel": "ایمیل یا نام کاربری",
       "operationFailed": "عملیات ناموفق"
     },
+    "providers": {
+      "or": "یا",
+      "continueWith": "ادامه با {provider}",
+      "signingIn": "در حال ورود…",
+      "callbackFailed": "ورود کامل نشد. لطفاً دوباره تلاش کنید.",
+      "unavailable": "این روش ورود در حال حاضر در دسترس نیست.",
+      "backToLogin": "بازگشت به صفحهٔ ورود",
+      "metadataTitle": "در حال ورود"
+    },
     "login": {
       "metadataTitle": "ورود",
       "title": "ورود به پنل کاربری",
