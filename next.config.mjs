@@ -4,7 +4,7 @@ const nextConfig = {
   // Nothing here is meant to be shown inside somebody else's page, and one of
   // these pages is where an application is approved to act as you: a consent
   // screen in an invisible frame is a button somebody else decides you pressed.
-  // The runner's previews are pages this app frames, which this does not touch.
+  // The workload's previews are pages this app frames, which this does not touch.
   async headers() {
     return [
       {

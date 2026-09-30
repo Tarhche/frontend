@@ -53,7 +53,7 @@ type Props = {
  * The rows of the stacks table, kept as they are.
  *
  * A stack's state is read off its services, so it changes whenever one of them
- * does: the runner says so over the websocket the page already has, and the row
+ * does: the workload says so over the websocket the page already has, and the row
  * follows without anybody asking for the page again.
  */
 export function StackRows({stacks: listed, may}: Props) {
@@ -62,7 +62,7 @@ export function StackRows({stacks: listed, may}: Props) {
 
   const [stacks, setStacks] = useState(listed);
 
-  // what somebody has just asked of a stack. The runner takes a moment to
+  // what somebody has just asked of a stack. The workload takes a moment to
   // agree — and a delete takes longer, since every service in it is stopped before it
   // is taken away — so until it does, this is what the row says is happening.
   const [asked, setAsked] = useState<Record<string, Transition>>({});

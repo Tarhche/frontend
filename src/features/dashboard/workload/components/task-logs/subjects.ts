@@ -3,8 +3,8 @@
  * They are served under different permissions, so which one a reader may open
  * is which of these they ask on.
  */
-export const FOLLOW_LOGS_SUBJECT = "runnerTaskLogs";
-export const FOLLOW_MY_LOGS_SUBJECT = "runnerUserTaskLogs";
+export const FOLLOW_LOGS_SUBJECT = "workloadTaskLogs";
+export const FOLLOW_MY_LOGS_SUBJECT = "workloadUserTaskLogs";
 
 /** The subject a log of the given scope is followed on. */
 export function followLogsSubject(own: boolean): string {

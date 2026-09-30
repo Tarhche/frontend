@@ -13,7 +13,7 @@ import {PermissionGuard} from "@/components/permission-guard";
 import {getServerDictionary} from "@/i18n/server";
 import {getUserPermissions, hasPermission} from "@/lib/auth";
 import {APP_PATHS} from "@/lib/app-paths";
-import {fetchTasks, fetchMyTasks} from "@/dal/private/runner";
+import {fetchTasks, fetchMyTasks} from "@/dal/private/workload";
 import {TaskRows, type Task} from "./task-rows";
 import {TasksPagination} from "./tasks-table-pagination";
 
@@ -47,16 +47,16 @@ export async function TasksTable({page, scope = "all"}: Props) {
   const may = {
     own,
     manage: hasPermission(permissions, [
-      own ? "self.runner.tasks.manage" : "runner.tasks.manage",
+      own ? "self.workload.tasks.manage" : "workload.tasks.manage",
     ]),
     delete: hasPermission(permissions, [
-      own ? "self.runner.tasks.delete" : "runner.tasks.delete",
+      own ? "self.workload.tasks.delete" : "workload.tasks.delete",
     ]),
   };
 
   return (
     <>
-      <PermissionGuard allowedPermissions={["runner.tasks.create"]}>
+      <PermissionGuard allowedPermissions={["workload.tasks.create"]}>
         <Group justify="flex-end">
           <Button
             variant="light"

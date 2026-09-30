@@ -25,7 +25,7 @@ const watch = () => {
   const onResume = jest.fn();
 
   const rendered = renderHook(() =>
-    useWatch({subject: "runnerTasksWatch", onChange, onResume}),
+    useWatch({subject: "workloadTasksWatch", onChange, onResume}),
   );
 
   return {onChange, onResume, ...rendered};
@@ -57,7 +57,7 @@ describe("useWatch", () => {
 
     await waitFor(() => expect(opened).toHaveLength(1));
 
-    // the runner was restarted: the watch ends with nothing to say about it.
+    // the workload was restarted: the watch ends with nothing to say about it.
     act(() => opened[0].onEnd?.(null));
     expect(onResume).not.toHaveBeenCalled();
 

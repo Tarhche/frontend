@@ -1,9 +1,9 @@
 /**
  * What a task's state is called in the reader's own language.
  *
- * The runner names its states in English, since that is what they are inside
+ * The workload names its states in English, since that is what they are inside
  * it. What is shown of them is translated, and a state nobody has named yet
- * falls back to what the runner called it rather than to nothing.
+ * falls back to what the workload called it rather than to nothing.
  */
 export function taskStateLabel(
   t: (key: string) => string,

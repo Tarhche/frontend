@@ -73,7 +73,7 @@ describe("WebSocketBus streaming", () => {
     const chunks: (string | null)[] = [];
 
     const stream = await bus.openStream(
-      "runnerTaskLogs",
+      "workloadTaskLogs",
       {task_uuid: "c-1"},
       {onChunk: (payload) => chunks.push(payload)},
     );
@@ -82,7 +82,7 @@ describe("WebSocketBus streaming", () => {
 
     expect(socket.messages[0]).toMatchObject({
       id: "req-1",
-      subject: "runnerTaskLogs",
+      subject: "workloadTaskLogs",
     });
 
     socket.deliver({
@@ -195,7 +195,7 @@ describe("WebSocketBus streaming", () => {
     const onError = jest.fn();
 
     const stream = await bus.openStream(
-      "runnerTaskAttach",
+      "workloadTaskAttach",
       {task_uuid: "c-1"},
       {onChunk, onReopen, onError},
     );
@@ -211,7 +211,7 @@ describe("WebSocketBus streaming", () => {
 
     const reopened = FakeSocket.instances[1];
     expect(reopened.messages[0]).toMatchObject({
-      subject: "runnerTaskAttach",
+      subject: "workloadTaskAttach",
     });
 
     // the stream answers to the id it was opened again under, and the handle
@@ -233,7 +233,7 @@ describe("WebSocketBus streaming", () => {
 
     let after = "09:00";
 
-    await bus.openStream("runnerTaskLogs", () => ({after}), {
+    await bus.openStream("workloadTaskLogs", () => ({after}), {
       onChunk: jest.fn(),
     });
 

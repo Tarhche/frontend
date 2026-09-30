@@ -27,7 +27,7 @@ type Props = {
  *
  * A task that may only run for so long says when it will be stopped; this is
  * that, read as a clock, so nobody has to work out what a timestamp means. It
- * stops at zero, since the runner is what actually stops it.
+ * stops at zero, since the workload is what actually stops it.
  */
 export function Countdown({to, className}: Props) {
   const deadline = new Date(to).getTime();

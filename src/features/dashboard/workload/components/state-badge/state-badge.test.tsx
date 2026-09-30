@@ -28,7 +28,7 @@ function badge(props: React.ComponentProps<typeof StateBadge>) {
 }
 
 describe("StateBadge", () => {
-  it("says what a task is on its way to rather than where the runner keeps it", () => {
+  it("says what a task is on its way to rather than where the workload keeps it", () => {
     expect(badge({state: "scheduled", expectedState: "running"})).toBe(
       "tasks.transitions.starting",
     );
@@ -46,7 +46,7 @@ describe("StateBadge", () => {
     );
   });
 
-  it("says what somebody has just asked for, before the runner agrees", () => {
+  it("says what somebody has just asked for, before the workload agrees", () => {
     expect(
       badge({state: "running", expectedState: "running", pending: "stopping"}),
     ).toBe("tasks.transitions.stopping");
@@ -90,7 +90,7 @@ describe("StateBadge", () => {
     ).toBe("failed - tasks.table.retrying");
   });
 
-  it("says a task the runner has given up on has failed, and no more", () => {
+  it("says a task the workload has given up on has failed, and no more", () => {
     expect(
       badge({
         state: "failed",
@@ -101,7 +101,7 @@ describe("StateBadge", () => {
     ).toBe("failed");
   });
 
-  it("says where one is going before the runner has moved it", () => {
+  it("says where one is going before the workload has moved it", () => {
     expect(badge({state: "running", expectedState: "stopped"})).toBe(
       "tasks.transitions.stopping",
     );

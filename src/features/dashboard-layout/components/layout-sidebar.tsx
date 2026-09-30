@@ -86,13 +86,16 @@ const SIDE_BAR_DATA: SidebarSchema[] = [
     labelKey: "dashboard.sidebar.tasks",
     icon: IconBox,
     href: dashboard.tasks.index,
-    requiredPermissions: ["runner.tasks.index", "self.runner.tasks.index"],
+    requiredPermissions: ["workload.tasks.index", "self.workload.tasks.index"],
   },
   {
     labelKey: "dashboard.sidebar.stacks",
     icon: IconStack2,
     href: dashboard.stacks.index,
-    requiredPermissions: ["runner.stacks.index", "self.runner.stacks.index"],
+    requiredPermissions: [
+      "workload.stacks.index",
+      "self.workload.stacks.index",
+    ],
   },
   {
     labelKey: "dashboard.sidebar.users",

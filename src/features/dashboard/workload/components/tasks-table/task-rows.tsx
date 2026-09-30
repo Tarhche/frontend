@@ -22,7 +22,7 @@ export type Task = {
   slug: string;
   state: string;
 
-  // what it was asked to be, and what the runner has tried so far to make it
+  // what it was asked to be, and what the workload has tried so far to make it
   // that: a task that failed is still on its way back until the attempts it is
   // worth run out.
   expected_state?: string;
@@ -40,7 +40,7 @@ export type Task = {
 /**
  * What became of one task: what changed about it, or that it is gone.
  *
- * A change carries as much of the task as the runner reports about it -- its
+ * A change carries as much of the task as the workload reports about it -- its
  * state, where it is reachable, how long it has left -- rather than the whole
  * of one: the rest is what the listing already said, so what arrives is merged
  * onto the row rather than put in its place.
@@ -70,7 +70,7 @@ type Props = {
 /**
  * The rows of the tasks table, kept as they are.
  *
- * The page renders the tasks as they were; from then on the runner says what
+ * The page renders the tasks as they were; from then on the workload says what
  * becomes of each one over the websocket the page already has, so a task that
  * starts, stops or is removed shows that here without anybody asking for the
  * page again.
@@ -81,7 +81,7 @@ export function TaskRows({tasks: listed, may, showOwner = true}: Props) {
 
   const [tasks, setTasks] = useState(listed);
 
-  // what somebody has just asked of a task. The runner takes a moment to
+  // what somebody has just asked of a task. The workload takes a moment to
   // agree — and a delete takes longer, since the task is stopped before it is
   // taken away — so until it does, this is what the row says is happening.
   const [asked, setAsked] = useState<Record<string, Transition>>({});

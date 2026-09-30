@@ -11,7 +11,7 @@ import {ScopeSwitch} from "@/components/scope-switch";
 import {
   StacksTable,
   StacksTableSkeleton,
-} from "@/features/dashboard/runner/components/stacks-table";
+} from "@/features/dashboard/workload/components/stacks-table";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
@@ -32,10 +32,10 @@ async function StacksPage({searchParams}: Props) {
 
   const permissions = (await getUserPermissions()) ?? [];
   const canSeeAll = hasPermission(permissions, [
-    PERMISSIONS.runner.stacks.INDEX,
+    PERMISSIONS.workload.stacks.INDEX,
   ]);
   const canSeeMine = hasPermission(permissions, [
-    PERMISSIONS.self.runner.stacks.INDEX,
+    PERMISSIONS.self.workload.stacks.INDEX,
   ]);
 
   return (
@@ -73,5 +73,5 @@ async function StacksPage({searchParams}: Props) {
 }
 
 export default withPermissions(StacksPage, {
-  requiredPermissions: ["runner.stacks.index", "self.runner.stacks.index"],
+  requiredPermissions: ["workload.stacks.index", "self.workload.stacks.index"],
 });

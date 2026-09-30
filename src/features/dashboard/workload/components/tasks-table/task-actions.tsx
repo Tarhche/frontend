@@ -45,13 +45,13 @@ type Props = {
   own?: boolean;
 
   // told what is on its way to this task, so that whatever else shows it can
-  // say that is what is happening to it. The runner takes a moment to agree,
+  // say that is what is happening to it. The workload takes a moment to agree,
   // and until it does this is the only thing that knows.
   onCommand?: (underway: Transition | undefined) => void;
 };
 
 // what asking for each of these is, in the words of what it does to a task:
-// what the runner calls the state it passes through on the way is its own
+// what the workload calls the state it passes through on the way is its own
 // business.
 const underway: Record<TaskCommand, Transition> = {
   stop: "stopping",

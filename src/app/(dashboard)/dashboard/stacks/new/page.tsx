@@ -4,7 +4,7 @@ import {withPermissions} from "@/components/with-authorization";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {getServerDictionary} from "@/i18n/server";
 import {APP_PATHS} from "@/lib/app-paths";
-import {StackForm} from "@/features/dashboard/runner/components/stack-form";
+import {StackForm} from "@/features/dashboard/workload/components/stack-form";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
@@ -38,5 +38,5 @@ async function NewStackPage() {
 }
 
 export default withPermissions(NewStackPage, {
-  requiredPermissions: ["runner.stacks.create"],
+  requiredPermissions: ["workload.stacks.create"],
 });

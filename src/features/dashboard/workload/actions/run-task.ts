@@ -41,7 +41,7 @@ export async function runTask(
   };
 
   try {
-    await privateDalDriver.post("/dashboard/runner/tasks", body);
+    await privateDalDriver.post("/dashboard/workload/tasks", body);
   } catch (error) {
     unstable_rethrow(error);
 
