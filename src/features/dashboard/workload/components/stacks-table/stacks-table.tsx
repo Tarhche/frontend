@@ -13,7 +13,7 @@ import {PermissionGuard} from "@/components/permission-guard";
 import {getServerDictionary} from "@/i18n/server";
 import {getUserPermissions, hasPermission} from "@/lib/auth";
 import {APP_PATHS} from "@/lib/app-paths";
-import {fetchStacks, fetchMyStacks} from "@/dal/private/runner";
+import {fetchStacks, fetchMyStacks} from "@/dal/private/workload";
 import {StackRows, type Stack} from "./stack-rows";
 import {StacksPagination} from "./stacks-table-pagination";
 
@@ -43,16 +43,16 @@ export async function StacksTable({page, scope = "all"}: Props) {
   const may = {
     own,
     manage: hasPermission(permissions, [
-      own ? "self.runner.stacks.manage" : "runner.stacks.manage",
+      own ? "self.workload.stacks.manage" : "workload.stacks.manage",
     ]),
     delete: hasPermission(permissions, [
-      own ? "self.runner.stacks.delete" : "runner.stacks.delete",
+      own ? "self.workload.stacks.delete" : "workload.stacks.delete",
     ]),
   };
 
   return (
     <>
-      <PermissionGuard allowedPermissions={["runner.stacks.create"]}>
+      <PermissionGuard allowedPermissions={["workload.stacks.create"]}>
         <Group justify="flex-end">
           <Button
             variant="light"

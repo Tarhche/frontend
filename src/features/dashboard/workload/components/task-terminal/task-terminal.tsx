@@ -34,7 +34,7 @@ type Props = {
 /**
  * A shell inside a running task.
  *
- * It is opened straight on the runner's ingress rather than over the websocket
+ * It is opened straight on the workload's ingress rather than over the websocket
  * the dashboard already holds: the ingress works out which node is holding the
  * task and carries the connection there, so a shell's bytes never pass through
  * what serves the blog. The connection is the session -- what the command

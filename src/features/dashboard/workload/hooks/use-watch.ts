@@ -7,7 +7,7 @@ import {ACCESS_TOKEN_COOKIE_NAME} from "@/constants";
 import {useWsStream} from "@/hooks/use-ws-stream";
 
 // how long to wait before opening a watch again, growing with each attempt so
-// that a runner which is down is not asked over and over.
+// that a workload which is down is not asked over and over.
 const WAIT_MS = [1_000, 2_000, 5_000, 10_000];
 
 /**
@@ -46,7 +46,7 @@ type Options = {
 /**
  * Keeps a watch open for as long as the page showing it is.
  *
- * A watch is a stream, and a stream ends: the runner is restarted, a replica
+ * A watch is a stream, and a stream ends: the workload is restarted, a replica
  * is replaced, a connection goes. What is being watched carries on regardless,
  * so a page that let the watch end would sit there showing what it last heard,
  * with nothing to say that it had stopped listening. This opens it again, and

@@ -8,7 +8,7 @@ import {
   commandMyStack,
   deleteStack as remove,
   deleteMyStack,
-} from "@/dal/private/runner";
+} from "@/dal/private/workload";
 
 /** The commands a stack takes, each reaching every service in it. */
 export type StackCommand = "stop" | "kill" | "restart";

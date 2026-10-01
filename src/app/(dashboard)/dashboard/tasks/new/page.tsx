@@ -4,7 +4,7 @@ import {withPermissions} from "@/components/with-authorization";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {getServerDictionary} from "@/i18n/server";
 import {APP_PATHS} from "@/lib/app-paths";
-import {TaskForm} from "@/features/dashboard/runner/components/task-form";
+import {TaskForm} from "@/features/dashboard/workload/components/task-form";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
@@ -38,5 +38,5 @@ async function NewTaskPage() {
 }
 
 export default withPermissions(NewTaskPage, {
-  requiredPermissions: ["runner.tasks.create"],
+  requiredPermissions: ["workload.tasks.create"],
 });

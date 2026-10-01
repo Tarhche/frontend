@@ -8,7 +8,7 @@ import {
   commandMyTask,
   deleteTask as remove,
   deleteMyTask,
-} from "@/dal/private/runner";
+} from "@/dal/private/workload";
 
 /**
  * The commands a task takes. A task is immutable, so this is the whole of what

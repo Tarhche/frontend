@@ -17,12 +17,12 @@ import {withPermissions} from "@/components/with-authorization";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {getServerDictionary} from "@/i18n/server";
 import {APP_PATHS} from "@/lib/app-paths";
-import {fetchMyStack, fetchStack} from "@/dal/private/runner";
+import {fetchMyStack, fetchStack} from "@/dal/private/workload";
 import {PERMISSIONS} from "@/lib/app-permissions";
 import {getUserPermissions, hasPermission} from "@/lib/auth";
-import {OwnerInline} from "@/features/dashboard/runner/components/owner-inline";
-import {StateBadge} from "@/features/dashboard/runner/components/state-badge";
-import {TaskEndpoints} from "@/features/dashboard/runner/components/tasks-table/task-endpoints";
+import {OwnerInline} from "@/features/dashboard/workload/components/owner-inline";
+import {StateBadge} from "@/features/dashboard/workload/components/state-badge";
+import {TaskEndpoints} from "@/features/dashboard/workload/components/tasks-table/task-endpoints";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
@@ -43,7 +43,7 @@ async function StackPage({params}: Props) {
   // somebody trusted with only their own asks for it as theirs, and is told it
   // does not exist when it is not.
   const permissions = (await getUserPermissions()) ?? [];
-  const own = !hasPermission(permissions, [PERMISSIONS.runner.stacks.SHOW]);
+  const own = !hasPermission(permissions, [PERMISSIONS.workload.stacks.SHOW]);
 
   const stack = await (own ? fetchMyStack : fetchStack)(uuid);
   if (!stack) {
@@ -127,5 +127,5 @@ async function StackPage({params}: Props) {
 }
 
 export default withPermissions(StackPage, {
-  requiredPermissions: ["runner.stacks.show", "self.runner.stacks.show"],
+  requiredPermissions: ["workload.stacks.show", "self.workload.stacks.show"],
 });

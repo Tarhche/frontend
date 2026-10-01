@@ -628,7 +628,7 @@
       "environment": "Environment",
       "environmentHelp": "One KEY=value per line.",
       "ports": "Exposed ports",
-      "portsHelp": "One task port per line. The runner picks the host side and serves it on the task's own name.",
+      "portsHelp": "One task port per line. The workload picks the host side and serves it on the task's own name.",
       "network": "Network access",
       "networkNone": "None — no network at all",
       "networkIsolated": "Isolated — its own stack and its ports, but no internet",

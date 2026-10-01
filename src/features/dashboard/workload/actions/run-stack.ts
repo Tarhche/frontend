@@ -33,7 +33,7 @@ export async function runStack(
   }
 
   try {
-    await privateDalDriver.post("/dashboard/runner/stacks", {
+    await privateDalDriver.post("/dashboard/workload/stacks", {
       name,
       services: parsed,
     });

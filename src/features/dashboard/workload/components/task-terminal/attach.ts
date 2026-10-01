@@ -1,4 +1,4 @@
-import {PUBLIC_RUNNER_INGRESS_URL} from "@/constants";
+import {PUBLIC_WORKLOAD_INGRESS_URL} from "@/constants";
 
 /**
  * The subprotocol a token is offered alongside.
@@ -13,13 +13,13 @@ export const BEARER_PROTOCOL = "bearer";
 /**
  * Where a terminal on a task is opened.
  *
- * It is the runner's ingress rather than the blog: the ingress is what knows
+ * It is the workload's ingress rather than the blog: the ingress is what knows
  * which node is holding the task, and the node is what decides who may be let
  * in. Nothing is returned when no ingress is configured, which is what a
- * deployment without the runner looks like.
+ * deployment without the workload looks like.
  */
 export function attachURL(taskUuid: string): string | undefined {
-  const base = PUBLIC_RUNNER_INGRESS_URL;
+  const base = PUBLIC_WORKLOAD_INGRESS_URL;
   if (!base) return undefined;
 
   const scheme = base.startsWith("https:") ? "wss" : "ws";

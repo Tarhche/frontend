@@ -2,7 +2,7 @@ import {render, act} from "@testing-library/react";
 import {CodeRunSurface} from "./code-run-surface";
 import {type Run} from "./run-workspace";
 
-// what the runner is saying about the snippet while a test looks at it.
+// what the workload is saying about the snippet while a test looks at it.
 let reported: {run: Run; running: boolean; output: string} = {
   run: {},
   running: false,
@@ -27,7 +27,7 @@ jest.mock("@/i18n/provider", () => ({
 
 // a shell is a task of its own; what this is about is whether the pieces
 // of the card are drawn at all.
-jest.mock("@/features/dashboard/runner/components/task-terminal", () => ({
+jest.mock("@/features/dashboard/workload/components/task-terminal", () => ({
   TaskTerminal: () => null,
 }));
 

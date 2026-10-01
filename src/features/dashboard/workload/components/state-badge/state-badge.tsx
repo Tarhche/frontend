@@ -10,7 +10,7 @@ type Props = {
   state: string;
 
   /**
-   * What became of a task that failed. The runner asks a failed task for
+   * What became of a task that failed. The workload asks a failed task for
    * again, up to as many times as it is worth, so one that is still wanted
    * running has not finished failing — it is between attempts.
    */
@@ -19,7 +19,7 @@ type Props = {
   maxRetries?: number;
 
   /**
-   * What somebody has just asked of this task, which the runner has yet to
+   * What somebody has just asked of this task, which the workload has yet to
    * catch up with. It is what is happening to it, so it is what is shown.
    */
   pending?: Transition;
@@ -48,7 +48,7 @@ const colors: Record<string, string> = {
 };
 
 // what a task in one of these states is in the middle of doing, whatever it
-// happens to be called inside the runner.
+// happens to be called inside the workload.
 const underway: Record<string, Transition> = {
   stopping: "stopping",
   restarting: "restarting",
@@ -81,7 +81,7 @@ function transitionOf(
   }
 
   // and so is one that is somewhere else than it was asked to be, whether the
-  // runner has got round to moving it yet or not.
+  // workload has got round to moving it yet or not.
   if (expectedState && expectedState !== state) {
     return towards[expectedState];
   }
@@ -99,7 +99,7 @@ export function StateBadge({
 }: Props) {
   const t = useTranslations();
 
-  // it failed, and the runner has not given up on it: what it shows then is
+  // it failed, and the workload has not given up on it: what it shows then is
   // which attempt it is on, and red is kept for the ones nothing more is going
   // to happen to. That it is on its way back is the retrying, not a transition
   // of its own.

@@ -11,7 +11,7 @@ import {ScopeSwitch} from "@/components/scope-switch";
 import {
   TasksTable,
   TasksTableSkeleton,
-} from "@/features/dashboard/runner/components/tasks-table";
+} from "@/features/dashboard/workload/components/tasks-table";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
@@ -32,10 +32,10 @@ async function TasksPage({searchParams}: Props) {
 
   const permissions = (await getUserPermissions()) ?? [];
   const canSeeAll = hasPermission(permissions, [
-    PERMISSIONS.runner.tasks.INDEX,
+    PERMISSIONS.workload.tasks.INDEX,
   ]);
   const canSeeMine = hasPermission(permissions, [
-    PERMISSIONS.self.runner.tasks.INDEX,
+    PERMISSIONS.self.workload.tasks.INDEX,
   ]);
 
   return (
@@ -73,5 +73,5 @@ async function TasksPage({searchParams}: Props) {
 }
 
 export default withPermissions(TasksPage, {
-  requiredPermissions: ["runner.tasks.index", "self.runner.tasks.index"],
+  requiredPermissions: ["workload.tasks.index", "self.workload.tasks.index"],
 });

@@ -11,7 +11,7 @@ import {
 } from "@tabler/icons-react";
 import {Countdown} from "@/components/countdown";
 import {taskStateLabel} from "@/lib/task-state";
-import {TaskTerminal} from "@/features/dashboard/runner/components/task-terminal";
+import {TaskTerminal} from "@/features/dashboard/workload/components/task-terminal";
 import {useTranslations} from "@/i18n/provider";
 
 // ten lines of shell, which is as much of a page as a snippet's terminal is
@@ -20,7 +20,7 @@ const SHELL_HEIGHT = "8rem";
 
 import classes from "./run-workspace.module.css";
 
-/** What the runner has said about a snippet that is being watched. */
+/** What the workload has said about a snippet that is being watched. */
 export type Run = {
   state?: string;
   endpoints?: Array<{task_port: number; url: string}>;
@@ -84,7 +84,7 @@ type PreviewProps = {
  *
  * The bar says where it is and, when it serves more than one port, which of
  * them is being looked at. Until there is something to look at the frame holds
- * a cube and what the runner last said, so a reader watching a task start is
+ * a cube and what the workload last said, so a reader watching a task start is
  * watching something.
  */
 export function RunPreview({run}: PreviewProps) {

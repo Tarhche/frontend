@@ -11,15 +11,15 @@ import {
   fetchTaskLogs,
   fetchMyTask,
   fetchMyTaskLogs,
-} from "@/dal/private/runner";
+} from "@/dal/private/workload";
 import {PERMISSIONS} from "@/lib/app-permissions";
 import {getUserPermissions, hasPermission} from "@/lib/auth";
-import {OwnerInline} from "@/features/dashboard/runner/components/owner-inline";
-import {StateBadge} from "@/features/dashboard/runner/components/state-badge";
-import {TaskEndpoints} from "@/features/dashboard/runner/components/tasks-table/task-endpoints";
-import {TaskLogs} from "@/features/dashboard/runner/components/task-logs";
-import {TaskTerminal} from "@/features/dashboard/runner/components/task-terminal";
-import {TaskTabs} from "@/features/dashboard/runner/components/task-tabs";
+import {OwnerInline} from "@/features/dashboard/workload/components/owner-inline";
+import {StateBadge} from "@/features/dashboard/workload/components/state-badge";
+import {TaskEndpoints} from "@/features/dashboard/workload/components/tasks-table/task-endpoints";
+import {TaskLogs} from "@/features/dashboard/workload/components/task-logs";
+import {TaskTerminal} from "@/features/dashboard/workload/components/task-terminal";
+import {TaskTabs} from "@/features/dashboard/workload/components/task-tabs";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
@@ -40,7 +40,7 @@ async function TaskPage({params}: Props) {
   // somebody trusted with only their own asks for it as theirs, and is told it
   // does not exist when it is not.
   const permissions = (await getUserPermissions()) ?? [];
-  const own = !hasPermission(permissions, [PERMISSIONS.runner.tasks.SHOW]);
+  const own = !hasPermission(permissions, [PERMISSIONS.workload.tasks.SHOW]);
 
   const task = await (own ? fetchMyTask : fetchTask)(uuid);
   if (!task) {
@@ -118,12 +118,12 @@ async function TaskPage({params}: Props) {
           </Paper>
         }
         logs={
-          <PermissionGuard allowedPermissions={["runner.tasks.logs"]}>
+          <PermissionGuard allowedPermissions={["workload.tasks.logs"]}>
             <TaskLogs taskUuid={uuid} history={logs.items ?? []} own={own} />
           </PermissionGuard>
         }
         terminal={
-          <PermissionGuard allowedPermissions={["runner.tasks.attach"]}>
+          <PermissionGuard allowedPermissions={["workload.tasks.attach"]}>
             <TaskTerminal taskUuid={uuid} running={task.state === "running"} />
           </PermissionGuard>
         }
@@ -144,5 +144,5 @@ function Field({label, children}: {label: string; children: React.ReactNode}) {
 }
 
 export default withPermissions(TaskPage, {
-  requiredPermissions: ["runner.tasks.show", "self.runner.tasks.show"],
+  requiredPermissions: ["workload.tasks.show", "self.workload.tasks.show"],
 });

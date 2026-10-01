@@ -101,7 +101,7 @@ export class CodeBlockPortsCommand extends Command {
     }
 
     // what is written down is the ports themselves, in one shape, so that a
-    // reader's page and the runner are told the same thing.
+    // reader's page and the workload are told the same thing.
     const ports = parsePorts(value).join(",");
 
     this.editor.model.change((writer) => {
