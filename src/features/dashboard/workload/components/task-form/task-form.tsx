@@ -35,12 +35,12 @@ import {RuntimeSelector} from "../runtime-selector";
 
 const initialState: RunTaskState = {};
 
-// the fields an error is drawn beside. Whatever else the workload refuses is
+// the fields an error is drawn beside, and the runtime too when there is a
+// choice of one to draw it beside. Whatever else the workload refuses is
 // listed above the button rather than not shown at all.
 const FIELDS = [
   "name",
   "image",
-  "runtime",
   "command",
   "entrypoint",
   "working_dir",
@@ -107,9 +107,10 @@ export function TaskForm({runtimes}: Props) {
     return message ? validationMessage(t, message) : undefined;
   };
 
-  const refused = nonFieldErrors(state.errors, FIELDS).map((message) =>
-    validationMessage(t, message),
-  );
+  const refused = nonFieldErrors(
+    state.errors,
+    runtimes ? [...FIELDS, "runtime"] : FIELDS,
+  ).map((message) => validationMessage(t, message));
 
   return (
     <form action={formAction}>

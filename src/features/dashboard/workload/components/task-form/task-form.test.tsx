@@ -272,4 +272,14 @@ describe("TaskForm", () => {
       screen.getByText("only a job can be given a time limit"),
     ).toBeInTheDocument();
   });
+
+  it("says what the workload refused about its default class when there was no choice of one", async () => {
+    run.mockResolvedValue({errors: {runtime: "invalid_value"}});
+
+    const user = userEvent.setup();
+    form(null);
+    await submit(user);
+
+    expect(await screen.findByText("invalid_value")).toBeInTheDocument();
+  });
 });

@@ -20,10 +20,11 @@ const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
 
 const initialState: RunStackState = {};
 
-// the fields an error is drawn beside. A stack is one payload, so whatever
-// else the workload refuses is about some service in it, and is listed with
-// the service it is about.
-const FIELDS = ["name", "services", "runtime"] as const;
+// the fields an error is drawn beside, and the runtime too when there is a
+// choice of one to draw it beside. A stack is one payload, so whatever else
+// the workload refuses is about some service in it, and is listed with the
+// service it is about.
+const FIELDS = ["name", "services"] as const;
 
 const example = `{
   "web": {
@@ -105,9 +106,10 @@ export function StackForm({runtimes}: Props) {
       ? t("stacks.form.invalidJson")
       : error("services"));
 
-  const refused = nonFieldErrorEntries(state.errors, FIELDS).map(
-    ({field, message}) => `${field}: ${validationMessage(t, message)}`,
-  );
+  const refused = nonFieldErrorEntries(
+    state.errors,
+    runtimes ? [...FIELDS, "runtime"] : FIELDS,
+  ).map(({field, message}) => `${field}: ${validationMessage(t, message)}`);
 
   return (
     <form action={formAction}>
