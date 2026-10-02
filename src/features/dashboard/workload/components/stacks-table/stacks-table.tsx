@@ -64,12 +64,13 @@ export async function StacksTable({page, scope = "all"}: Props) {
           </Button>
         </Group>
       </PermissionGuard>
-      <TableScrollContainer minWidth={600}>
+      <TableScrollContainer minWidth={700}>
         <Table verticalSpacing="sm" striped withRowBorders>
           <TableThead>
             <TableTr>
               <TableTh>{t("stacks.table.name")}</TableTh>
               <TableTh>{t("stacks.table.state")}</TableTh>
+              <TableTh>{t("stacks.table.runtime")}</TableTh>
               <TableTh>{t("stacks.table.services")}</TableTh>
               <TableTh>{t("stacks.table.owner")}</TableTh>
               <TableTh>{t("stacks.table.createdAt")}</TableTh>

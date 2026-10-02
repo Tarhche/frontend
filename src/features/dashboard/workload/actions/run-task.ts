@@ -14,6 +14,9 @@ export type RunTaskState = {
  * Runs one task from what the form describes, in the shape a docker compose
  * service has. There is no update: to change a task, run another and delete
  * this one.
+ *
+ * The runtime is sent only when the form offered one to choose: with none,
+ * the workload runs the task as its default.
  */
 export async function runTask(
   prevState: RunTaskState,
@@ -22,6 +25,7 @@ export async function runTask(
   const body = {
     name: formData.get("name")?.toString() ?? "",
     image: formData.get("image")?.toString() ?? "",
+    runtime: formData.get("runtime")?.toString() || undefined,
     command: lines(formData.get("command")),
     entrypoint: lines(formData.get("entrypoint")),
     working_dir: formData.get("working_dir")?.toString() || undefined,

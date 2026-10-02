@@ -68,13 +68,14 @@ export async function TasksTable({page, scope = "all"}: Props) {
           </Button>
         </Group>
       </PermissionGuard>
-      <TableScrollContainer minWidth={700}>
+      <TableScrollContainer minWidth={800}>
         <Table verticalSpacing="sm" striped withRowBorders>
           <TableThead>
             <TableTr>
               <TableTh>{t("tasks.table.name")}</TableTh>
               <TableTh>{t("tasks.table.image")}</TableTh>
               <TableTh>{t("tasks.table.state")}</TableTh>
+              <TableTh>{t("tasks.table.runtime")}</TableTh>
               <TableTh>{t("tasks.table.endpoints")}</TableTh>
               {showOwner && <TableTh>{t("tasks.table.owner")}</TableTh>}
               <TableTh>{t("tasks.table.createdAt")}</TableTh>

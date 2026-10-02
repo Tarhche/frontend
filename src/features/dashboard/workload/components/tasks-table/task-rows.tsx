@@ -11,6 +11,7 @@ import {APP_PATHS} from "@/lib/app-paths";
 import {formatDate} from "@/lib/date-and-time";
 import {type Author} from "@/features/authors/types";
 import {OwnerInline} from "../owner-inline";
+import {RuntimeBadge} from "../runtime-badge";
 import {StateBadge, type Transition} from "../state-badge";
 import {TaskActions} from "./task-actions";
 import {TaskEndpoints, type Endpoint} from "./task-endpoints";
@@ -29,6 +30,11 @@ export type Task = {
   retries?: number;
   max_retries?: number;
   image: string;
+
+  // what it is run as, and where. One from before there were classes names
+  // none, and one that has not been placed yet has no node.
+  runtime?: string;
+  node?: string;
   endpoints: Endpoint[];
   created_at: string;
 
@@ -46,7 +52,7 @@ export type Task = {
  * onto the row rather than put in its place.
  */
 type Change =
-  | {kind: "changed"; uuid: string; task: Partial<Task>}
+  | {kind: "changed"; uuid: string; task: Partial<Task> & {node_name?: string}}
   | {kind: "deleted"; uuid: string};
 
 export type Permissions = {
@@ -150,9 +156,14 @@ export function TaskRows({tasks: listed, may, showOwner = true}: Props) {
         return;
       }
 
+      // a watch says which node a task is on as node_name, which the listing
+      // calls node.
+      const {node_name, ...task} = change.task;
+      const moved = node_name ? {node: node_name} : {};
+
       setTasks((current) =>
         current.map((one) =>
-          one.uuid === change.uuid ? {...one, ...change.task} : one,
+          one.uuid === change.uuid ? {...one, ...task, ...moved} : one,
         ),
       );
     },
@@ -169,7 +180,7 @@ export function TaskRows({tasks: listed, may, showOwner = true}: Props) {
     <TableTbody>
       {tasks.length === 0 && (
         <TableTr>
-          <TableTd colSpan={showOwner ? 7 : 6} ta="center">
+          <TableTd colSpan={showOwner ? 8 : 7} ta="center">
             {t("tasks.table.empty")}
           </TableTd>
         </TableTr>
@@ -191,6 +202,9 @@ export function TaskRows({tasks: listed, may, showOwner = true}: Props) {
               pending={asked[task.uuid]}
               deadline={task.deadline}
             />
+          </TableTd>
+          <TableTd>
+            <RuntimeBadge runtime={task.runtime} node={task.node} />
           </TableTd>
           <TableTd>
             <TaskEndpoints

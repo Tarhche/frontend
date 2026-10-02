@@ -57,6 +57,25 @@ export function nonFieldErrorEntries(
     .map(([field, message]) => ({field, message}));
 }
 
+// a code, as the backend writes one: lower case words joined by underscores.
+const VALIDATION_CODE = /^[a-z][a-z0-9_]*$/;
+
+// The backend translates the codes it has words for before it answers. A code
+// that arrives as itself is looked up here, under errors.validation, so it
+// reads as a sentence rather than as an identifier; a message that is already
+// words is shown as it came.
+export function validationMessage(
+  t: (key: string) => string,
+  message: string,
+): string {
+  if (!VALIDATION_CODE.test(message)) return message;
+
+  const key = `errors.validation.${message}`;
+  const translated = t(key);
+
+  return translated && translated !== key ? translated : message;
+}
+
 // React 19 auto-resets <form action> on submit, so on failure we echo
 // submitted values back and seed them as defaultValue to preserve input.
 export function captureFormValues(

@@ -1,0 +1,6 @@
+/* The node a task is on, beside what it is run as. */
+.node {
+  font-family: var(--mantine-font-family-monospace), monospace;
+  font-size: var(--mantine-font-size-xs);
+  color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-1));
+}

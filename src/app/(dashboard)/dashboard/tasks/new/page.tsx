@@ -4,6 +4,9 @@ import {withPermissions} from "@/components/with-authorization";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {getServerDictionary} from "@/i18n/server";
 import {APP_PATHS} from "@/lib/app-paths";
+import {PERMISSIONS} from "@/lib/app-permissions";
+import {getUserPermissions, hasPermission} from "@/lib/auth";
+import {loadRuntimes} from "@/features/dashboard/workload/load-runtimes";
 import {TaskForm} from "@/features/dashboard/workload/components/task-form";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -15,6 +18,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 async function NewTaskPage() {
   const {t} = await getServerDictionary();
+
+  // Somebody trusted with everybody's tasks asks what a task can be run as on
+  // anybody's behalf; somebody trusted with only their own asks as themselves.
+  const permissions = (await getUserPermissions()) ?? [];
+  const own = !hasPermission(permissions, [PERMISSIONS.workload.tasks.INDEX]);
+  const runtimes = await loadRuntimes(own);
 
   return (
     <Box>
@@ -31,7 +40,7 @@ async function NewTaskPage() {
         ]}
       />
       <Box py="md">
-        <TaskForm />
+        <TaskForm runtimes={runtimes} />
       </Box>
     </Box>
   );

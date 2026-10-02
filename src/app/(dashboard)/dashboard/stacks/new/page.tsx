@@ -4,6 +4,9 @@ import {withPermissions} from "@/components/with-authorization";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {getServerDictionary} from "@/i18n/server";
 import {APP_PATHS} from "@/lib/app-paths";
+import {PERMISSIONS} from "@/lib/app-permissions";
+import {getUserPermissions, hasPermission} from "@/lib/auth";
+import {loadRuntimes} from "@/features/dashboard/workload/load-runtimes";
 import {StackForm} from "@/features/dashboard/workload/components/stack-form";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -15,6 +18,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
 async function NewStackPage() {
   const {t} = await getServerDictionary();
+
+  // Somebody trusted with everybody's stacks asks what a stack can be run as
+  // on anybody's behalf; somebody trusted with only their own asks as
+  // themselves.
+  const permissions = (await getUserPermissions()) ?? [];
+  const own = !hasPermission(permissions, [PERMISSIONS.workload.stacks.INDEX]);
+  const runtimes = await loadRuntimes(own);
 
   return (
     <Box>
@@ -31,7 +41,7 @@ async function NewStackPage() {
         ]}
       />
       <Box py="md">
-        <StackForm />
+        <StackForm runtimes={runtimes} />
       </Box>
     </Box>
   );

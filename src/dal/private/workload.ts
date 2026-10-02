@@ -123,3 +123,19 @@ export async function deleteStack(uuid: string) {
 export async function deleteMyStack(uuid: string) {
   return await privateDalDriver.delete(`dashboard/my/workload/stacks/${uuid}`);
 }
+
+export async function fetchRuntimes(config?: AxiosRequestConfig) {
+  const response = await privateDalDriver.get(
+    "dashboard/workload/runtimes",
+    config,
+  );
+  return response.data;
+}
+
+export async function fetchMyRuntimes(config?: AxiosRequestConfig) {
+  const response = await privateDalDriver.get(
+    "dashboard/my/workload/runtimes",
+    config,
+  );
+  return response.data;
+}
