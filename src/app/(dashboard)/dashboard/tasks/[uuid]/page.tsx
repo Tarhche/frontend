@@ -14,7 +14,9 @@ import {
 } from "@/dal/private/workload";
 import {PERMISSIONS} from "@/lib/app-permissions";
 import {getUserPermissions, hasPermission} from "@/lib/auth";
+import {taskReasonLabel} from "@/lib/task-state";
 import {OwnerInline} from "@/features/dashboard/workload/components/owner-inline";
+import {RuntimeBadge} from "@/features/dashboard/workload/components/runtime-badge";
 import {StateBadge} from "@/features/dashboard/workload/components/state-badge";
 import {TaskEndpoints} from "@/features/dashboard/workload/components/tasks-table/task-endpoints";
 import {TaskLogs} from "@/features/dashboard/workload/components/task-logs";
@@ -85,11 +87,28 @@ async function TaskPage({params}: Props) {
         overview={
           <Paper withBorder p="md">
             <Stack gap="sm">
+              {task.reason && (
+                <Field label={t("tasks.detail.lastFailure")}>
+                  <Text size="sm">{taskReasonLabel(t, task.reason)}</Text>
+                </Field>
+              )}
               <Field label={t("tasks.table.image")}>
                 <Code>{task.image}</Code>
               </Field>
               <Field label={t("tasks.table.owner")}>
                 <OwnerInline owner={task.owner} size={28} />
+              </Field>
+              <Field label={t("tasks.runtime.label")}>
+                <RuntimeBadge runtime={task.runtime} />
+              </Field>
+              <Field label={t("tasks.runtime.node")}>
+                {task.node ? (
+                  <Code>{task.node}</Code>
+                ) : (
+                  <Text size="sm" c="dimmed">
+                    {t("tasks.runtime.notPlaced")}
+                  </Text>
+                )}
               </Field>
               <Field label={t("tasks.form.readOnly")}>
                 <Code>

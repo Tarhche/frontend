@@ -11,6 +11,7 @@ import {APP_PATHS} from "@/lib/app-paths";
 import {formatDate} from "@/lib/date-and-time";
 import {type Author} from "@/features/authors/types";
 import {OwnerInline} from "../owner-inline";
+import {RuntimeBadge} from "../runtime-badge";
 import {StateBadge, type Transition} from "../state-badge";
 import {StackActions} from "./stack-actions";
 import {watchStacksSubject} from "./subjects";
@@ -24,6 +25,9 @@ export type Stack = {
   // what it was asked to be, which is what it is on its way to while a command
   // is still reaching its services.
   expected_state?: string;
+
+  /** the one class every service in it is run as. */
+  runtime?: string;
   services: unknown[];
   created_at: string;
   owner?: Partial<Author>;
@@ -146,7 +150,7 @@ export function StackRows({stacks: listed, may}: Props) {
     <TableTbody>
       {stacks.length === 0 && (
         <TableTr>
-          <TableTd colSpan={6} ta="center">
+          <TableTd colSpan={7} ta="center">
             {t("stacks.table.empty")}
           </TableTd>
         </TableTr>
@@ -164,6 +168,9 @@ export function StackRows({stacks: listed, may}: Props) {
               expectedState={stack.expected_state}
               pending={asked[stack.uuid]}
             />
+          </TableTd>
+          <TableTd>
+            <RuntimeBadge runtime={stack.runtime} />
           </TableTd>
           <TableTd>{stack.services?.length ?? 0}</TableTd>
           <TableTd>

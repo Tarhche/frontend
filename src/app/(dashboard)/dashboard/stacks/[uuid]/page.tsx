@@ -3,6 +3,7 @@ import {notFound} from "next/navigation";
 import Link from "@/components/link";
 import {
   Box,
+  Code,
   Group,
   Table,
   TableScrollContainer,
@@ -11,6 +12,7 @@ import {
   TableTh,
   TableThead,
   TableTr,
+  Text,
   Title,
 } from "@mantine/core";
 import {withPermissions} from "@/components/with-authorization";
@@ -21,6 +23,7 @@ import {fetchMyStack, fetchStack} from "@/dal/private/workload";
 import {PERMISSIONS} from "@/lib/app-permissions";
 import {getUserPermissions, hasPermission} from "@/lib/auth";
 import {OwnerInline} from "@/features/dashboard/workload/components/owner-inline";
+import {RuntimeBadge} from "@/features/dashboard/workload/components/runtime-badge";
 import {StateBadge} from "@/features/dashboard/workload/components/state-badge";
 import {TaskEndpoints} from "@/features/dashboard/workload/components/tasks-table/task-endpoints";
 
@@ -64,16 +67,23 @@ async function StackPage({params}: Props) {
           <Title order={2}>{stack.name}</Title>
           <OwnerInline owner={stack.owner} size={28} />
         </Group>
-        <StateBadge state={stack.state} expectedState={stack.expected_state} />
+        <Group gap="xs">
+          <RuntimeBadge runtime={stack.runtime} />
+          <StateBadge
+            state={stack.state}
+            expectedState={stack.expected_state}
+          />
+        </Group>
       </Group>
 
-      <TableScrollContainer minWidth={600}>
+      <TableScrollContainer minWidth={700}>
         <Table verticalSpacing="sm" striped withRowBorders>
           <TableThead>
             <TableTr>
               <TableTh>{t("stacks.detail.service")}</TableTh>
               <TableTh>{t("tasks.table.image")}</TableTh>
               <TableTh>{t("tasks.table.state")}</TableTh>
+              <TableTh>{t("tasks.runtime.node")}</TableTh>
               <TableTh>{t("tasks.table.endpoints")}</TableTh>
             </TableTr>
           </TableThead>
@@ -88,6 +98,7 @@ async function StackPage({params}: Props) {
                 service_name: string;
                 image: string;
                 state: string;
+                node?: string;
                 endpoints: {
                   task_port: number;
                   host: string;
@@ -109,6 +120,15 @@ async function StackPage({params}: Props) {
                       maxRetries={service.max_retries}
                       deadline={service.deadline}
                     />
+                  </TableTd>
+                  <TableTd>
+                    {service.node ? (
+                      <Code>{service.node}</Code>
+                    ) : (
+                      <Text size="sm" c="dimmed">
+                        {t("tasks.runtime.notPlaced")}
+                      </Text>
+                    )}
                   </TableTd>
                   <TableTd>
                     <TaskEndpoints

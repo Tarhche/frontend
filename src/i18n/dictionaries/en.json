@@ -44,6 +44,13 @@
       "conflict": "This resource already exists.",
       "serverError": "The server ran into a problem. Please try again later.",
       "generic": "Something went wrong. Please try again."
+    },
+    "validation": {
+      "invalid_value": "the provided value is invalid",
+      "memory_below_minimum": "a task needs at least 6 MiB of memory",
+      "mixed_runtimes_in_stack": "every service in a stack has to run with the same runtime",
+      "not_supported": "this field is not supported yet",
+      "ttl_requires_a_job": "only a job can be given a time limit"
     }
   },
   "nav": {
@@ -603,6 +610,7 @@
       "name": "Name",
       "image": "Image",
       "state": "State",
+      "runtime": "Runtime",
       "endpoints": "Addresses",
       "createdAt": "Created at",
       "noEndpoints": "No exposed ports",
@@ -645,6 +653,7 @@
       "logs": "Logs",
       "terminal": "Terminal",
       "overview": "Overview",
+      "lastFailure": "Last failure",
       "follow": "Follow",
       "noLogs": "Nothing written yet",
       "terminalEnded": "The session ended.",
@@ -679,6 +688,31 @@
       "killing": "killing...",
       "restarting": "restarting...",
       "deleting": "deleting..."
+    },
+    "runtime": {
+      "label": "Runtime",
+      "default": "default",
+      "node": "Node",
+      "notPlaced": "Not on a node yet",
+      "unavailable": "No node can run it right now.",
+      "noStackNetworks": "It cannot run a stack yet: its services would have no network to share.",
+      "unsupported": "Not with the chosen runtime.",
+      "cpusAtMost": "At most {max} with the chosen runtime.",
+      "memoryAtLeast": "At least {min} with the chosen runtime.",
+      "memoryAtMost": "At most {max} with the chosen runtime.",
+      "memoryBetween": "Between {min} and {max} with the chosen runtime.",
+      "classes": {
+        "sysbox": "Container (sysbox)",
+        "firecracker": "MicroVM (firecracker)"
+      },
+      "hints": {
+        "sysbox": "Shares the host kernel inside a sysbox system container.",
+        "firecracker": "Its own kernel; stronger isolation."
+      }
+    },
+    "reasons": {
+      "no_node_offers_runtime": "No node offers the runtime it asked for.",
+      "runtime_not_offered": "The node it was given to does not offer its runtime."
     }
   },
   "stacks": {
@@ -688,6 +722,7 @@
       "empty": "No stacks running",
       "name": "Name",
       "state": "State",
+      "runtime": "Runtime",
       "services": "Services",
       "createdAt": "Created at",
       "deleteConfirm": "Delete \"{name}\"? Its services, their logs and the network they shared all go.",
