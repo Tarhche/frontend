@@ -1,0 +1,283 @@
+"use client";
+
+import {useState} from "react";
+import Link from "@/components/link";
+import {
+  Alert,
+  Button,
+  Group,
+  Select,
+  Stack,
+  Table,
+  TableScrollContainer,
+  TableTbody,
+  TableTd,
+  TableTh,
+  TableThead,
+  TableTr,
+  Text,
+} from "@mantine/core";
+import {IconFilter, IconPlus} from "@tabler/icons-react";
+import {useI18n} from "@/i18n/provider";
+import {APP_PATHS} from "@/lib/app-paths";
+import {problemMessage, problemOf} from "../../errors";
+import {shortId} from "../../format";
+import {useContainers} from "../../hooks/use-containers";
+import {useDockerVms} from "../../hooks/use-docker-vms";
+import {type DockerMay} from "../../permissions";
+import {type Container, type Scope, type VmSource} from "../../types";
+import {vmReadiness} from "../../vm-state";
+import {
+  ContainerStateBadge,
+  type ContainerTransition,
+} from "../container-state-badge";
+import {ProblemAlert} from "../problem-alert";
+import {TableSkeleton} from "../table-skeleton";
+import {ContainerActions, containerName} from "./container-actions";
+import {ContainerPorts} from "./container-ports";
+
+type RowProps = {
+  scope: Scope;
+  container: Container;
+  vmUuid: string;
+  vmName: string;
+  may: DockerMay;
+
+  /** where the stack it belongs to is shown, when it belongs to one. */
+  stackHref?: string;
+};
+
+function ContainerRow({
+  scope,
+  container,
+  vmUuid,
+  vmName,
+  may,
+  stackHref,
+}: RowProps) {
+  const {t} = useI18n();
+
+  // what somebody has just asked of it, shown until docker says otherwise.
+  const [pending, setPending] = useState<ContainerTransition | undefined>();
+
+  return (
+    <TableTr>
+      <TableTd>
+        <Link
+          href={APP_PATHS.dashboard.containers.detail(vmUuid, container.id)}
+        >
+          {containerName(container)}
+        </Link>
+        <Text size="xs" c="dimmed" ff="monospace">
+          {shortId(container.id)}
+        </Text>
+      </TableTd>
+      <TableTd>
+        <Text size="sm" ff="monospace" dir="ltr">
+          {container.image}
+        </Text>
+      </TableTd>
+      <TableTd>
+        <ContainerStateBadge
+          state={container.state}
+          status={container.status}
+          pending={pending}
+        />
+      </TableTd>
+      <TableTd>
+        <Text size="sm">{container.status}</Text>
+      </TableTd>
+      <TableTd>
+        <ContainerPorts ports={container.ports} />
+      </TableTd>
+      <TableTd>
+        <Text size="sm">{vmName}</Text>
+      </TableTd>
+      <TableTd>
+        {container.stack ? (
+          <>
+            {stackHref ? (
+              <Link href={stackHref}>{container.stack}</Link>
+            ) : (
+              <Text size="sm">{container.stack}</Text>
+            )}
+            {container.service && (
+              <Text size="xs" c="dimmed">
+                {t("containers.table.service", {service: container.service})}
+              </Text>
+            )}
+          </>
+        ) : (
+          <Text size="sm" c="dimmed">
+            —
+          </Text>
+        )}
+      </TableTd>
+      <TableTd>
+        <ContainerActions
+          scope={scope}
+          vmUuid={vmUuid}
+          container={container}
+          may={may}
+          onPending={setPending}
+        />
+      </TableTd>
+    </TableTr>
+  );
+}
+
+type Props = {
+  scope: Scope;
+  may: DockerMay;
+  canCreate: boolean;
+
+  /** where the Docker VMs to filter by are listed, if they may be. */
+  vmSource: VmSource | null;
+};
+
+/**
+ * The containers across every running Docker VM in a scope, wherever each one
+ * is. Nothing says when one changes, so the listing is asked for again every
+ * few seconds while it is on the screen.
+ *
+ * A VM that is not running has no dockerd to ask, so its containers are not in
+ * the listing; which VMs those are is said above it, so that a container that
+ * seems to be missing is not taken for gone.
+ */
+export function ContainersTable({scope, may, canCreate, vmSource}: Props) {
+  const {t} = useI18n();
+  const [vm, setVm] = useState<string | null>(null);
+
+  const containers = useContainers(scope, vm ?? undefined);
+  const vms = useDockerVms(vmSource);
+
+  const vmNames = new Map(
+    (vms.data ?? []).map((each) => [each.uuid, each.name]),
+  );
+  const notRunning = (vms.data ?? []).filter(
+    (each) =>
+      vmReadiness(each.state) !== "running" &&
+      (vm === null || each.uuid === vm),
+  );
+
+  const items = containers.data ?? [];
+
+  return (
+    <Stack gap="md">
+      <Group justify="space-between" align="flex-end">
+        {vms.data && vms.data.length > 0 ? (
+          <Select
+            label={t("containers.table.vmFilter")}
+            placeholder={t("containers.table.allVms")}
+            data={vms.data.map((each) => ({
+              value: each.uuid,
+              label: each.name,
+            }))}
+            value={vm}
+            onChange={setVm}
+            clearable
+            searchable={vms.data.length > 7}
+            leftSection={<IconFilter size={16} />}
+            w={280}
+          />
+        ) : (
+          <span />
+        )}
+        {canCreate && (
+          <Button
+            variant="light"
+            component={Link}
+            href={APP_PATHS.dashboard.containers.new}
+            leftSection={<IconPlus />}
+          >
+            {t("containers.table.newContainer")}
+          </Button>
+        )}
+      </Group>
+
+      {notRunning.length > 0 && (
+        <Text size="sm" c="dimmed">
+          {t("containers.table.vmsNotRunning", {
+            names: notRunning.map((each) => each.name).join(", "),
+          })}
+        </Text>
+      )}
+
+      {containers.isError && containers.data && (
+        <Alert color="yellow" variant="light" role="status">
+          <Group justify="space-between">
+            <Text size="sm">
+              {t("containers.table.refreshFailed", {
+                reason: problemMessage(problemOf(containers.error), t),
+              })}
+            </Text>
+            <Button
+              size="xs"
+              variant="light"
+              color="yellow"
+              onClick={() => void containers.refetch()}
+              loading={containers.isFetching}
+            >
+              {t("common.retry")}
+            </Button>
+          </Group>
+        </Alert>
+      )}
+
+      {containers.isPending ? (
+        <TableSkeleton />
+      ) : containers.isError && !containers.data ? (
+        <ProblemAlert
+          problem={problemOf(containers.error)}
+          title={t("containers.table.listFailed")}
+          onRetry={() => void containers.refetch()}
+          retrying={containers.isFetching}
+        />
+      ) : (
+        <TableScrollContainer minWidth={960}>
+          <Table verticalSpacing="sm" striped withRowBorders>
+            <TableThead>
+              <TableTr>
+                <TableTh>{t("containers.table.name")}</TableTh>
+                <TableTh>{t("containers.table.image")}</TableTh>
+                <TableTh>{t("containers.table.state")}</TableTh>
+                <TableTh>{t("containers.table.status")}</TableTh>
+                <TableTh>{t("containers.table.ports")}</TableTh>
+                <TableTh>{t("containers.table.vm")}</TableTh>
+                <TableTh>{t("containers.table.stack")}</TableTh>
+                <TableTh>{t("common.actions")}</TableTh>
+              </TableTr>
+            </TableThead>
+            <TableTbody>
+              {items.length === 0 && (
+                <TableTr>
+                  <TableTd colSpan={8} ta="center">
+                    {t("containers.table.empty")}
+                  </TableTd>
+                </TableTr>
+              )}
+              {items.map((container) => {
+                const vmUuid = container.vm_uuid ?? vm ?? "";
+
+                return (
+                  <ContainerRow
+                    key={`${vmUuid}/${container.id}`}
+                    scope={scope}
+                    container={container}
+                    vmUuid={vmUuid}
+                    vmName={
+                      container.vm_name ??
+                      vmNames.get(vmUuid) ??
+                      shortId(vmUuid)
+                    }
+                    may={may}
+                  />
+                );
+              })}
+            </TableTbody>
+          </Table>
+        </TableScrollContainer>
+      )}
+    </Stack>
+  );
+}

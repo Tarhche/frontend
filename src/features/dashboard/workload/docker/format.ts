@@ -64,8 +64,33 @@ export function formatDateTime(at: string | undefined, locale?: string | null) {
   });
 }
 
-/** A published port the way docker writes one: host → container / protocol. */
+/** The time of day something happened, to the second. */
+export function formatTime(at: string | undefined, locale?: string | null) {
+  if (!at) {
+    return "";
+  }
+
+  const date = new Date(at);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return date.toLocaleTimeString(numberLocale(locale), {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+}
+
+/**
+ * A published port the way docker writes one: host → container / protocol. A
+ * port that is exposed but not published has no host side to write.
+ */
 export function formatPortBinding(port: PortBinding): string {
+  if (!port.host_port) {
+    return `${port.container_port}/${port.protocol}`;
+  }
+
   return `${port.host_port}→${port.container_port}/${port.protocol}`;
 }
 
