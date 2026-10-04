@@ -26,6 +26,10 @@ import {
 } from "@tabler/icons-react";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
+import {
+  stackLinkKey,
+  useStackLinks,
+} from "@/features/dashboard/workload/stacks/hooks/use-stacks";
 import {problemMessage, problemOf} from "../../errors";
 import {shortId} from "../../format";
 import {useContainer} from "../../hooks/use-containers";
@@ -53,8 +57,8 @@ type Props = {
   /** where the VM it is in is listed, for its name and its size. */
   vmSource: VmSource | null;
 
-  /** where its stack is shown, when that is known. */
-  stackHref?: string;
+  /** whether the stacks in this scope may be listed, to link to its own. */
+  stacksVisible?: boolean;
 };
 
 /**
@@ -68,13 +72,17 @@ export function ContainerDetail({
   id,
   may,
   vmSource,
-  stackHref,
+  stacksVisible = false,
 }: Props) {
   const {t} = useI18n();
   const router = useRouter();
   const query = useContainer(scope, vmUuid, id);
   const vms = useDockerVms(vmSource);
   const [pending, setPending] = useState<ContainerTransition | undefined>();
+  const links = useStackLinks(
+    scope,
+    stacksVisible && Boolean(query.data?.stack),
+  );
 
   if (query.isPending) {
     return (
@@ -122,6 +130,9 @@ export function ContainerDetail({
   const container = query.data;
   const vm = vms.data?.find((each) => each.uuid === vmUuid);
   const vmName = vm?.name ?? container.vm_name ?? shortId(vmUuid);
+  const stackUuid = container.stack
+    ? links.data?.[stackLinkKey(vmUuid, container.stack)]
+    : undefined;
 
   return (
     <Stack>
@@ -181,7 +192,11 @@ export function ContainerDetail({
           <ContainerOverview
             container={container}
             vmName={vmName}
-            stackHref={stackHref}
+            stackHref={
+              stackUuid
+                ? APP_PATHS.dashboard.stacks.detail(stackUuid)
+                : undefined
+            }
           />
         </TabsPanel>
 

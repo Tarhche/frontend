@@ -10,6 +10,7 @@ import {ScopeSwitch} from "@/components/scope-switch";
 import {ContainersTable} from "@/features/dashboard/workload/docker/components/containers-table";
 import {dockerMay} from "@/features/dashboard/workload/docker/permissions";
 import {dockerVmSource} from "@/features/dashboard/workload/docker/server";
+import {stacksVisible} from "@/features/dashboard/workload/stacks/permissions";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
@@ -63,6 +64,7 @@ async function ContainersPage() {
               may={dockerMay(permissions, "all")}
               canCreate={canCreate}
               vmSource={allVms}
+              stacksVisible={stacksVisible(permissions, "all")}
             />
           }
           mine={
@@ -71,6 +73,7 @@ async function ContainersPage() {
               may={dockerMay(permissions, "mine")}
               canCreate={canCreate}
               vmSource={myVms}
+              stacksVisible={stacksVisible(permissions, "mine")}
             />
           }
         />

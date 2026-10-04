@@ -12,6 +12,7 @@ import {
   dockerMay,
 } from "@/features/dashboard/workload/docker/permissions";
 import {dockerVmSource} from "@/features/dashboard/workload/docker/server";
+import {stacksVisible} from "@/features/dashboard/workload/stacks/permissions";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
@@ -55,6 +56,7 @@ async function ContainerPage({params}: Props) {
           id={id}
           may={dockerMay(permissions, scope)}
           vmSource={await dockerVmSource(scope, permissions)}
+          stacksVisible={stacksVisible(permissions, scope)}
         />
       </Box>
     </Box>

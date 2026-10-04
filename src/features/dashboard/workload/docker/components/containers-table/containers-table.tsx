@@ -20,6 +20,10 @@ import {
 import {IconFilter, IconPlus} from "@tabler/icons-react";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
+import {
+  stackLinkKey,
+  useStackLinks,
+} from "@/features/dashboard/workload/stacks/hooks/use-stacks";
 import {problemMessage, problemOf} from "../../errors";
 import {shortId} from "../../format";
 import {useContainers} from "../../hooks/use-containers";
@@ -133,6 +137,9 @@ type Props = {
 
   /** where the Docker VMs to filter by are listed, if they may be. */
   vmSource: VmSource | null;
+
+  /** whether the stacks in this scope may be listed, to link to them. */
+  stacksVisible?: boolean;
 };
 
 /**
@@ -144,7 +151,13 @@ type Props = {
  * the listing; which VMs those are is said above it, so that a container that
  * seems to be missing is not taken for gone.
  */
-export function ContainersTable({scope, may, canCreate, vmSource}: Props) {
+export function ContainersTable({
+  scope,
+  may,
+  canCreate,
+  vmSource,
+  stacksVisible = false,
+}: Props) {
   const {t} = useI18n();
   const [vm, setVm] = useState<string | null>(null);
 
@@ -161,6 +174,20 @@ export function ContainersTable({scope, may, canCreate, vmSource}: Props) {
   );
 
   const items = containers.data ?? [];
+
+  // a container says which compose project it came from; which stack that is
+  // takes the stacks, read only when there is a container to link.
+  const links = useStackLinks(
+    scope,
+    stacksVisible && items.some((container) => Boolean(container.stack)),
+  );
+  const stackHref = (vmUuid: string, container: Container) => {
+    const uuid = container.stack
+      ? links.data?.[stackLinkKey(vmUuid, container.stack)]
+      : undefined;
+
+    return uuid ? APP_PATHS.dashboard.stacks.detail(uuid) : undefined;
+  };
 
   return (
     <Stack gap="md">
@@ -271,6 +298,7 @@ export function ContainersTable({scope, may, canCreate, vmSource}: Props) {
                       shortId(vmUuid)
                     }
                     may={may}
+                    stackHref={stackHref(vmUuid, container)}
                   />
                 );
               })}

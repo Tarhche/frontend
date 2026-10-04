@@ -683,37 +683,91 @@
   },
   "stacks": {
     "title": "Stacks",
-    "table": {
-      "newStack": "Run a stack",
-      "empty": "No stacks running",
-      "name": "Name",
-      "state": "State",
-      "services": "Services",
-      "createdAt": "Created at",
-      "deleteConfirm": "Delete \"{name}\"? Its services, their logs and the network they shared all go.",
-      "owner": "Owner"
-    },
-    "form": {
-      "name": "Name",
-      "services": "Services",
-      "servicesHelp": "The services block of a docker compose file. They share a private network and reach each other by service name.",
-      "invalidJson": "This is not valid JSON",
-      "emptyJson": "JSON is empty",
-      "prettifyError": "Enter valid JSON before formatting",
-      "prettify": "Format JSON",
-      "run": "Run"
-    },
-    "detail": {
-      "services": "Services",
-      "service": "Service"
-    },
-    "breadcrumb": {
-      "create": "Run a stack",
-      "detail": "Stack"
-    },
     "tabs": {
       "allStacks": "All stacks",
       "myStacks": "My stacks"
+    },
+    "breadcrumb": {
+      "create": "New stack",
+      "detail": "Stack"
+    },
+    "states": {
+      "deploying": "deploying...",
+      "running": "running",
+      "starting": "starting...",
+      "stopping": "stopping...",
+      "stopped": "stopped",
+      "restarting": "restarting...",
+      "removing": "removing...",
+      "failed": "failed"
+    },
+    "transitions": {
+      "starting": "starting...",
+      "stopping": "stopping...",
+      "restarting": "restarting...",
+      "removing": "removing..."
+    },
+    "table": {
+      "newStack": "New stack",
+      "empty": "No stacks",
+      "listFailed": "The stacks could not be listed",
+      "name": "Name",
+      "vm": "VM",
+      "state": "State",
+      "containers": "Containers",
+      "containersHelp": "Counted from the containers its VM has now; — when that VM is not running.",
+      "createdAt": "Created"
+    },
+    "actions": {
+      "start": "Start",
+      "stop": "Stop",
+      "restart": "Restart",
+      "delete": "Delete",
+      "failed": "Starting \"{name}\" failed",
+      "stopConfirm": "Stop \"{name}\"? Every container in it is stopped.",
+      "restartConfirm": "Restart \"{name}\"? Every container in it is restarted.",
+      "deleteConfirm": "Delete \"{name}\"? Its containers and networks are taken down and it is forgotten.",
+      "removeVolumes": "Also remove volumes",
+      "removeVolumesHelp": "What its containers kept in its volumes goes too. Leave this off to keep it."
+    },
+    "form": {
+      "where": "Where it is deployed",
+      "stack": "Stack",
+      "name": "Name",
+      "nameHelp": "The compose project inside the VM is named after it.",
+      "compose": "Compose file",
+      "composeHelp": "A docker compose file, in YAML, up to {max}. Its own name: is ignored. A stack cannot be edited once deployed: deploy a new one instead.",
+      "deploy": "Deploy",
+      "created": "Stack {name} is deploying",
+      "createdInVm": "It is being deployed into {vm}.",
+      "createdInNewVm": "A Docker VM, {vm}, was created for it.",
+      "failed": "The stack could not be deployed",
+      "composeOutput": "What compose said",
+      "errors": {
+        "required": "This is required.",
+        "tooLarge": "A compose file can be up to {max}."
+      }
+    },
+    "detail": {
+      "inVm": "in {vm}",
+      "project": "compose project {slug}",
+      "createdAt": "created {date}",
+      "reason": "Why",
+      "output": "Last compose output",
+      "compose": "Compose file",
+      "show": "Show",
+      "hide": "Hide",
+      "containers": "Containers",
+      "container": "Container",
+      "service": "Service",
+      "noContainers": "It has no containers",
+      "vmNotRunningTitle": "Its VM is not running",
+      "vmNotRunning": "The stack's containers can be listed once its VM is running.",
+      "goneTitle": "Stack not found",
+      "gone": "It may have been deleted.",
+      "backToList": "Back to stacks",
+      "failed": "The stack could not be read",
+      "refreshFailed": "It could not be refreshed: {reason}"
     }
   },
   "docker": {

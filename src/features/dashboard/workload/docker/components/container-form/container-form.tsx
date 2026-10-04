@@ -33,7 +33,12 @@ import {
   useNetworks,
   useVolumes,
 } from "../../hooks/use-docker-objects";
-import {type RestartPolicy, type Scope, type VmSource} from "../../types";
+import {
+  type ContainerCreateRequest,
+  type RestartPolicy,
+  type Scope,
+  type VmSource,
+} from "../../types";
 import {vmReadiness} from "../../vm-state";
 import {
   choiceIssue,
@@ -139,7 +144,7 @@ export function ContainerForm({vmSource, listScope}: Props) {
   const vmIssue = choiceIssue(choice, vmState.vms);
 
   const create = useMutation({
-    mutationFn: createContainer,
+    mutationFn: (request: ContainerCreateRequest) => createContainer(request),
     onSuccess: (created) => {
       void queryClient.invalidateQueries({queryKey: dockerKeys.root});
       notifications.show({
