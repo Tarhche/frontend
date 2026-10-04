@@ -671,14 +671,18 @@
       "stopped": "متوقف‌شده",
       "completed": "پایان‌یافته",
       "failed": "ناموفق",
-      "restarting": "در حال راه‌اندازی مجدد"
+      "restarting": "در حال راه‌اندازی مجدد",
+      "starting": "در حال روشن شدن",
+      "restoring": "در حال بازگردانی",
+      "deleting": "در حال حذف"
     },
     "transitions": {
       "starting": "در حال اجرا...",
       "stopping": "در حال توقف...",
       "killing": "در حال کشتن...",
       "restarting": "در حال راه‌اندازی مجدد...",
-      "deleting": "در حال حذف..."
+      "deleting": "در حال حذف...",
+      "restoring": "در حال بازگردانی..."
     }
   },
   "stacks": {

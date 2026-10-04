@@ -671,14 +671,18 @@
       "stopped": "stopped",
       "completed": "completed",
       "failed": "failed",
-      "restarting": "restarting"
+      "restarting": "restarting",
+      "starting": "starting",
+      "restoring": "restoring",
+      "deleting": "deleting"
     },
     "transitions": {
       "starting": "running...",
       "stopping": "stopping...",
       "killing": "killing...",
       "restarting": "restarting...",
-      "deleting": "deleting..."
+      "deleting": "deleting...",
+      "restoring": "restoring..."
     }
   },
   "stacks": {
