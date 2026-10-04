@@ -36,13 +36,14 @@ beforeEach(() => {
 
 describe("RuntimeBadge", () => {
   it("says what a task is run as, by the name it is asked for by", () => {
-    expect(badge({runtime: "firecracker"})).toBe("firecracker");
+    expect(badge({runtime: "other"})).toBe("other");
     expect(badge({runtime: "sysbox"})).toBe("sysbox");
   });
 
-  it("says a task from before there were classes is run as a container", () => {
-    expect(badge({})).toBe("sysbox");
-    expect(badge({runtime: ""})).toBe("sysbox");
+  it("says no class for a task the workload named none for", () => {
+    expect(badge({})).toBe("");
+    expect(badge({runtime: ""})).toBe("");
+    expect(badge({node: "node-2"})).toBe("node-2");
   });
 
   it("says a class nobody has named yet as the workload calls it", () => {
@@ -50,27 +51,39 @@ describe("RuntimeBadge", () => {
   });
 
   it("says which node a task is on, beside what it is run as", () => {
-    expect(badge({runtime: "firecracker", node: "node-2"})).toBe(
-      "firecrackernode-2",
-    );
+    expect(badge({runtime: "other", node: "node-2"})).toBe("othernode-2");
   });
 
   it("says nothing of a node a task has not been given yet", () => {
     expect(badge({runtime: "sysbox", node: ""})).toBe("sysbox");
   });
 
-  it("says what the class is in the reader's language, when asked", () => {
-    mockWords = {"tasks.runtime.classes.firecracker": "MicroVM (firecracker)"};
-
+  it("draws every class alike, whatever it is called", () => {
     render(
       <MantineProvider>
-        <RuntimeBadge runtime="firecracker" node="node-2" />
+        <RuntimeBadge runtime="sysbox" />
+        <RuntimeBadge runtime="other" />
       </MantineProvider>,
     );
 
-    expect(screen.getByTitle("MicroVM (firecracker)")).toHaveTextContent(
-      "firecracker",
+    // mantine puts a badge's colour in its style.
+    const look = (runtime: string) =>
+      screen.getByTitle(runtime).getAttribute("style");
+
+    expect(look("sysbox")).toBeTruthy();
+    expect(look("other")).toBe(look("sysbox"));
+  });
+
+  it("says what the class is in the reader's language, when asked", () => {
+    mockWords = {"tasks.runtime.classes.other": "Another runtime"};
+
+    render(
+      <MantineProvider>
+        <RuntimeBadge runtime="other" node="node-2" />
+      </MantineProvider>,
     );
+
+    expect(screen.getByTitle("Another runtime")).toHaveTextContent("other");
     expect(screen.getByText("node-2")).toHaveAttribute(
       "title",
       "tasks.runtime.node",

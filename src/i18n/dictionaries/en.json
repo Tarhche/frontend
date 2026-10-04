@@ -702,12 +702,11 @@
       "memoryAtMost": "At most {max} with the chosen runtime.",
       "memoryBetween": "Between {min} and {max} with the chosen runtime.",
       "classes": {
-        "sysbox": "Container (sysbox)",
-        "firecracker": "MicroVM (firecracker)"
+        "sysbox": "Container (sysbox)"
       },
       "hints": {
-        "sysbox": "Shares the host kernel inside a sysbox system container.",
-        "firecracker": "Its own kernel; stronger isolation."
+        "container": "Shares the host kernel inside a container.",
+        "microvm": "Its own kernel inside a microVM; stronger isolation."
       }
     },
     "reasons": {

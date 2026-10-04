@@ -31,8 +31,8 @@ export type Task = {
   max_retries?: number;
   image: string;
 
-  // what it is run as, and where. One from before there were classes names
-  // none, and one that has not been placed yet has no node.
+  // what it is run as, and where. A task names no class while the workload
+  // has none yet, and has no node until it is placed.
   runtime?: string;
   node?: string;
   endpoints: Endpoint[];

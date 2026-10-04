@@ -24,8 +24,8 @@ const sysbox = {
   capacity: {cpu: 8, allocated_cpu: 1.5, reserved: false},
 };
 
-const firecracker = {
-  class: "firecracker",
+const other = {
+  class: "other",
   default: false,
   available: false,
   nodes: 0,
@@ -48,9 +48,9 @@ beforeEach(() => {
 
 describe("loadRuntimes", () => {
   it("offers what the workload says a task can be run as", async () => {
-    fetchRuntimes.mockResolvedValue({items: [sysbox, firecracker]});
+    fetchRuntimes.mockResolvedValue({items: [sysbox, other]});
 
-    await expect(loadRuntimes(false)).resolves.toEqual([sysbox, firecracker]);
+    await expect(loadRuntimes(false)).resolves.toEqual([sysbox, other]);
     expect(fetchMyRuntimes).not.toHaveBeenCalled();
   });
 

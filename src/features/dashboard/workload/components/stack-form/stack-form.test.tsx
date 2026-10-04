@@ -29,8 +29,8 @@ const sysbox: Runtime = {
   capabilities: {isolation: "container", stack_networks: true},
 };
 
-const firecracker: Runtime = {
-  class: "firecracker",
+const other: Runtime = {
+  class: "other",
   default: false,
   available: true,
   nodes: 1,
@@ -71,7 +71,7 @@ beforeEach(() => {
 describe("StackForm", () => {
   it("starts on the default class, and sends it for the whole stack", async () => {
     const user = userEvent.setup();
-    form([sysbox, firecracker]);
+    form([sysbox, other]);
 
     expect(runtime("sysbox")).toBeChecked();
 
@@ -81,10 +81,10 @@ describe("StackForm", () => {
   });
 
   it("does not offer a class that cannot give the services a network to share", () => {
-    form([sysbox, firecracker]);
+    form([sysbox, other]);
 
-    expect(runtime("firecracker")).toBeDisabled();
-    expect(runtime("firecracker")).toHaveAccessibleDescription(
+    expect(runtime("other")).toBeDisabled();
+    expect(runtime("other")).toHaveAccessibleDescription(
       /tasks\.runtime\.noStackNetworks/,
     );
   });
@@ -109,7 +109,7 @@ describe("StackForm", () => {
     });
 
     const user = userEvent.setup();
-    form([sysbox, firecracker]);
+    form([sysbox, other]);
     await submit(user);
 
     expect(

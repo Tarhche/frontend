@@ -41,8 +41,8 @@ const sysbox: Runtime = {
   },
 };
 
-const firecracker: Runtime = {
-  class: "firecracker",
+const other: Runtime = {
+  class: "other",
   default: false,
   available: true,
   nodes: 1,
@@ -104,51 +104,51 @@ beforeEach(() => {
 
 describe("TaskForm", () => {
   it("starts on the class the workload runs a task as by default", () => {
-    form([firecracker, sysbox]);
+    form([other, sysbox]);
 
     expect(runtime("sysbox")).toBeChecked();
-    expect(runtime("firecracker")).not.toBeChecked();
+    expect(runtime("other")).not.toBeChecked();
   });
 
   it("says which class is the default, and what each one is", () => {
     mockWords = {
-      "tasks.runtime.classes.firecracker": "MicroVM (firecracker)",
-      "tasks.runtime.hints.firecracker": "Its own kernel; stronger isolation.",
+      "tasks.runtime.classes.other": "Another runtime",
+      "tasks.runtime.hints.microvm": "Its own kernel; stronger isolation.",
     };
 
-    form([sysbox, firecracker]);
+    form([sysbox, other]);
 
     expect(runtime("sysbox")).toHaveAccessibleName(/tasks\.runtime\.default/);
-    expect(runtime("MicroVM")).toHaveAccessibleDescription(
+    expect(runtime("Another runtime")).toHaveAccessibleDescription(
       "Its own kernel; stronger isolation.",
     );
   });
 
   it("shows a class no node can run, but not as one to choose, and says why", () => {
-    form([sysbox, {...firecracker, available: false, nodes: 0}]);
+    form([sysbox, {...other, available: false, nodes: 0}]);
 
-    expect(runtime("firecracker")).toBeDisabled();
-    expect(runtime("firecracker")).toHaveAccessibleDescription(
+    expect(runtime("other")).toBeDisabled();
+    expect(runtime("other")).toHaveAccessibleDescription(
       /tasks\.runtime\.unavailable/,
     );
     expect(runtime("sysbox")).toBeEnabled();
   });
 
   it("starts on a class that can be run when no node can run the default", () => {
-    form([{...sysbox, available: false, nodes: 0}, firecracker]);
+    form([{...sysbox, available: false, nodes: 0}, other]);
 
-    expect(runtime("firecracker")).toBeChecked();
+    expect(runtime("other")).toBeChecked();
     expect(runtime("sysbox")).toBeDisabled();
   });
 
   it("holds back what the chosen class cannot honour, and only while it is chosen", async () => {
     const user = userEvent.setup();
-    form([sysbox, firecracker]);
+    form([sysbox, other]);
 
     expect(network("Public")).toBeEnabled();
     expect(readOnly()).toBeEnabled();
 
-    await user.click(runtime("firecracker"));
+    await user.click(runtime("other"));
 
     expect(network("Public")).toBeDisabled();
     expect(network("Public")).toHaveAccessibleDescription(
@@ -166,13 +166,13 @@ describe("TaskForm", () => {
 
   it("says what the chosen class allows of the limits it has", async () => {
     const user = userEvent.setup();
-    form([sysbox, firecracker]);
+    form([sysbox, other]);
 
     expect(
       screen.queryByText(/tasks\.runtime\.cpusAtMost/),
     ).not.toBeInTheDocument();
 
-    await user.click(runtime("firecracker"));
+    await user.click(runtime("other"));
 
     expect(screen.getByText("tasks.runtime.cpusAtMost(2)")).toBeInTheDocument();
     expect(
@@ -182,21 +182,21 @@ describe("TaskForm", () => {
 
   it("sends the class that was chosen", async () => {
     const user = userEvent.setup();
-    form([sysbox, firecracker]);
+    form([sysbox, other]);
 
-    await user.click(runtime("firecracker"));
+    await user.click(runtime("other"));
     const sent = await submit(user);
 
-    expect(sent.get("runtime")).toBe("firecracker");
+    expect(sent.get("runtime")).toBe("other");
   });
 
   it("sends what the chosen class can honour rather than what it cannot", async () => {
     const user = userEvent.setup();
-    form([sysbox, firecracker]);
+    form([sysbox, other]);
 
     await user.click(network("Public"));
     await user.click(readOnly());
-    await user.click(runtime("firecracker"));
+    await user.click(runtime("other"));
 
     // never more of a network than was asked for
     expect(network("Isolated")).toBeChecked();
@@ -204,7 +204,7 @@ describe("TaskForm", () => {
 
     const sent = await submit(user);
 
-    expect(sent.get("runtime")).toBe("firecracker");
+    expect(sent.get("runtime")).toBe("other");
     expect(sent.get("network_mode")).toBe("isolated");
     expect(sent.get("read_only")).toBeNull();
     expect(sent.get("restart")).toBe("always");
@@ -231,16 +231,16 @@ describe("TaskForm", () => {
     run.mockResolvedValue({errors: {image: "image_not_found"}});
 
     const user = userEvent.setup();
-    form([sysbox, firecracker]);
+    form([sysbox, other]);
 
-    await user.click(runtime("firecracker"));
+    await user.click(runtime("other"));
     await user.click(network("None"));
     await submit(user);
 
     // the form is put back the way it was drawn once it is answered, which
     // would otherwise be the default class and the default network again.
     expect(await screen.findByText("image_not_found")).toBeInTheDocument();
-    expect(runtime("firecracker")).toBeChecked();
+    expect(runtime("other")).toBeChecked();
     expect(runtime("sysbox")).not.toBeChecked();
     expect(network("None")).toBeChecked();
   });
@@ -259,7 +259,7 @@ describe("TaskForm", () => {
     });
 
     const user = userEvent.setup();
-    form([sysbox, firecracker]);
+    form([sysbox, other]);
     await submit(user);
 
     expect(

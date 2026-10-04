@@ -7,12 +7,6 @@
  * say, so nothing here lists them; this only reads what it said.
  */
 
-/**
- * What a task that names no class runs as, and what every task ran as before
- * there were classes to name.
- */
-export const DEFAULT_RUNTIME = "sysbox";
-
 /** What a class can do, as the nodes running it right now agree on. */
 export type RuntimeCapabilities = {
   /** "container" or "microvm". */
@@ -50,11 +44,6 @@ export type Runtime = {
 
 /** Why a class cannot be chosen, when it cannot. */
 export type Refusal = "unavailable" | "noStackNetworks";
-
-/** The class a task was run as. */
-export function runtimeOf(runtime?: string | null): string {
-  return runtime || DEFAULT_RUNTIME;
-}
 
 /**
  * Why a class cannot be chosen here: no node can run it right now, or what is
@@ -168,12 +157,21 @@ export function runtimeName(
   return translated(t, `tasks.runtime.classes.${runtime}`) ?? runtime;
 }
 
-/** A line on what a class is, for the classes there are words for. */
+/**
+ * A line on what a class is. It is told by how the class keeps tasks apart
+ * rather than by its name, so a class nobody has words for is described as
+ * well as any. A class that does not say how, such as one no node runs right
+ * now, is given no line.
+ */
 export function runtimeHint(
   t: (key: string) => string,
-  runtime: string,
+  runtime: Runtime,
 ): string | undefined {
-  return translated(t, `tasks.runtime.hints.${runtime}`);
+  const isolation = runtime.capabilities?.isolation;
+
+  return isolation
+    ? translated(t, `tasks.runtime.hints.${isolation}`)
+    : undefined;
 }
 
 function translated(

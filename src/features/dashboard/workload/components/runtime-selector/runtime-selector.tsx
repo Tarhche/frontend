@@ -51,7 +51,7 @@ export function RuntimeSelector({
         {runtimes.map((runtime) => {
           const refusal = refusalOf(runtime, {stack});
           const description = [
-            runtimeHint(t, runtime.class),
+            runtimeHint(t, runtime),
             refusal && t(`tasks.runtime.${refusal}`),
           ]
             .filter(Boolean)

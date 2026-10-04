@@ -19,7 +19,7 @@ jest.mock("next/navigation", () => ({
 
 const services = {
   web: {image: "nginx:1.27-alpine", ports: ["80"]},
-  api: {image: "hashicorp/http-echo", runtime: "firecracker"},
+  api: {image: "hashicorp/http-echo", runtime: "other"},
 };
 
 /** A form as the stack form submits it, with whatever is given on top. */
@@ -52,9 +52,9 @@ beforeEach(() => {
 
 describe("runStack", () => {
   it("asks for the class that was chosen for the whole stack", async () => {
-    await runStack({}, form({runtime: "firecracker"}));
+    await runStack({}, form({runtime: "other"}));
 
-    expect(sent()).toEqual({name: "shop", runtime: "firecracker", services});
+    expect(sent()).toEqual({name: "shop", runtime: "other", services});
     expect(redirect).toHaveBeenCalledWith("/dashboard/stacks");
   });
 

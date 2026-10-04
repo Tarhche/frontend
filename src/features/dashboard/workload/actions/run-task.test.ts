@@ -51,12 +51,12 @@ beforeEach(() => {
 
 describe("runTask", () => {
   it("asks for the class that was chosen", async () => {
-    await runTask({}, form({runtime: "firecracker"}));
+    await runTask({}, form({runtime: "other"}));
 
     expect(sent()).toMatchObject({
       name: "web",
       image: "nginx:1.27-alpine",
-      runtime: "firecracker",
+      runtime: "other",
     });
     expect(redirect).toHaveBeenCalledWith("/dashboard/tasks");
   });

@@ -98,9 +98,11 @@ async function TaskPage({params}: Props) {
               <Field label={t("tasks.table.owner")}>
                 <OwnerInline owner={task.owner} size={28} />
               </Field>
-              <Field label={t("tasks.runtime.label")}>
-                <RuntimeBadge runtime={task.runtime} />
-              </Field>
+              {task.runtime && (
+                <Field label={t("tasks.runtime.label")}>
+                  <RuntimeBadge runtime={task.runtime} />
+                </Field>
+              )}
               <Field label={t("tasks.runtime.node")}>
                 {task.node ? (
                   <Code>{task.node}</Code>
