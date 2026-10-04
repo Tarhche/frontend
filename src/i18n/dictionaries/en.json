@@ -849,72 +849,23 @@
     }
   },
   "tasks": {
-    "title": "Tasks",
     "table": {
-      "newTask": "Run a task",
-      "empty": "No tasks running",
-      "name": "Name",
       "image": "Image",
       "state": "State",
       "endpoints": "Addresses",
-      "createdAt": "Created at",
       "noEndpoints": "No exposed ports",
       "stop": "Stop",
       "kill": "Kill",
       "restart": "Restart",
       "delete": "Delete",
-      "deleteConfirm": "Delete \"{name}\"? Its ports, its logs and the task itself all go.",
-      "killConfirm": "Kill \"{name}\"? It is stopped at once, with no chance to shut down cleanly.",
-      "readOnlyOn": "Read-only",
-      "readOnlyOff": "Writable",
-      "owner": "Owner",
       "retrying": "retrying",
       "retryingCount": "retrying {current} of {total}"
     },
-    "form": {
-      "name": "Name",
-      "nameHelp": "A unique address is derived from this, and its ports are served on that name.",
-      "image": "Image",
-      "command": "Command",
-      "entrypoint": "Entrypoint",
-      "workingDir": "Working directory",
-      "environment": "Environment",
-      "environmentHelp": "One KEY=value per line.",
-      "ports": "Exposed ports",
-      "portsHelp": "One task port per line. The workload picks the host side and serves it on the task's own name.",
-      "network": "Network access",
-      "networkNone": "None — no network at all",
-      "networkIsolated": "Isolated — its own stack and its ports, but no internet",
-      "networkPublic": "Public — reaches the internet",
-      "restart": "Restart policy",
-      "cpus": "CPUs",
-      "memory": "Memory",
-      "run": "Run",
-      "immutable": "A task cannot be changed once it is running. To change it, run a new one and delete this.",
-      "readOnly": "Read-only filesystem",
-      "readOnlyHelp": "The task cannot write to its own filesystem. Compose's read_only."
-    },
     "detail": {
-      "logs": "Logs",
       "terminal": "Terminal",
-      "overview": "Overview",
-      "follow": "Follow",
-      "noLogs": "Nothing written yet",
       "terminalEnded": "The session ended.",
       "notRunning": "The task is not running.",
-      "terminalReconnected": "The connection dropped. This is a new session.",
-      "terminalLost": "The connection was lost. Reload the page to start a new session.",
-      "leaveTerminalConfirm": "Leaving this tab ends the terminal session, and the command running in it stops. Leave anyway?",
-      "leaveTerminal": "Leave and end it",
-      "stayInTerminal": "Stay here"
-    },
-    "breadcrumb": {
-      "create": "Run a task",
-      "detail": "Task"
-    },
-    "tabs": {
-      "allTasks": "All tasks",
-      "myTasks": "My tasks"
+      "terminalLost": "The connection was lost. Reload the page to start a new session."
     },
     "states": {
       "created": "created",

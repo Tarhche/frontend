@@ -54,9 +54,9 @@ export const APP_PATHS = {
       index: "/dashboard/contact-us",
       detail: (uuid: string) => `/dashboard/contact-us/${uuid}`,
     },
+    // the tasks are gone from the dashboard; the old stacks pages still link
+    // their services here, and this goes with them.
     tasks: {
-      index: "/dashboard/tasks",
-      new: "/dashboard/tasks/new",
       detail: (uuid: string) => `/dashboard/tasks/${uuid}`,
     },
     stacks: {

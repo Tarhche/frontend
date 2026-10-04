@@ -59,15 +59,6 @@ export const PERMISSIONS = {
     INDEX: "permissions.index",
   },
   workload: {
-    tasks: {
-      CREATE: "workload.tasks.create",
-      DELETE: "workload.tasks.delete",
-      INDEX: "workload.tasks.index",
-      SHOW: "workload.tasks.show",
-      LOGS: "workload.tasks.logs",
-      MANAGE: "workload.tasks.manage",
-      ATTACH: "workload.tasks.attach",
-    },
     // MANAGE is starting, stopping, restarting and restoring one.
     vms: {
       CREATE: "workload.vms.create",
@@ -133,14 +124,6 @@ export const PERMISSIONS = {
       INDEX: "self.files.index",
     },
     workload: {
-      tasks: {
-        INDEX: "self.workload.tasks.index",
-        SHOW: "self.workload.tasks.show",
-        LOGS: "self.workload.tasks.logs",
-        MANAGE: "self.workload.tasks.manage",
-        ATTACH: "self.workload.tasks.attach",
-        DELETE: "self.workload.tasks.delete",
-      },
       vms: {
         INDEX: "self.workload.vms.index",
         SHOW: "self.workload.vms.show",
