@@ -75,6 +75,16 @@ export const PERMISSIONS = {
       SHOW: "workload.stacks.show",
       MANAGE: "workload.stacks.manage",
     },
+    // the containers in Docker VMs, and with them the images, networks and
+    // volumes those VMs hold.
+    containers: {
+      CREATE: "workload.containers.create",
+      DELETE: "workload.containers.delete",
+      INDEX: "workload.containers.index",
+      SHOW: "workload.containers.show",
+      MANAGE: "workload.containers.manage",
+      LOGS: "workload.containers.logs",
+    },
   },
   roles: {
     CREATE: "roles.create",
@@ -118,6 +128,13 @@ export const PERMISSIONS = {
         SHOW: "self.workload.stacks.show",
         MANAGE: "self.workload.stacks.manage",
         DELETE: "self.workload.stacks.delete",
+      },
+      containers: {
+        INDEX: "self.workload.containers.index",
+        SHOW: "self.workload.containers.show",
+        MANAGE: "self.workload.containers.manage",
+        DELETE: "self.workload.containers.delete",
+        LOGS: "self.workload.containers.logs",
       },
     },
   },
