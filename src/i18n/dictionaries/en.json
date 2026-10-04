@@ -795,6 +795,16 @@
       "ingressHelp": "Its exposed ports are served through the ingress.",
       "egress": "Reaches the internet",
       "egressHelp": "It can reach the public internet, never other VMs."
+    },
+    "tabs": {
+      "all": "All Docker VMs",
+      "mine": "My Docker VMs"
+    },
+    "empty": {
+      "booting": "{vm} is starting",
+      "stopped": "{vm} is not running",
+      "failed": "{vm} failed",
+      "gone": "{vm} is being deleted"
     }
   },
   "containers": {
@@ -1024,6 +1034,96 @@
       "attach": "Attach",
       "connected": "\"{name}\" is now on {network}.",
       "connectFailed": "It could not be attached"
+    }
+  },
+  "images": {
+    "title": "Images",
+    "pull": {
+      "reference": "Image to pull",
+      "referenceHelp": "A reference such as nginx:1.27-alpine or ghcr.io/owner/app:tag.",
+      "required": "Say which image to pull.",
+      "submit": "Pull",
+      "waiting": "Pulling {reference}…",
+      "waitingHelp": "Pulling an image takes as long as the registry does, sometimes minutes. You can leave this page: the image shows up here once it is pulled.",
+      "pulled": "{reference} was pulled into {vm}.",
+      "failed": "The image could not be pulled",
+      "unanswered": "Still waiting on the pull"
+    },
+    "table": {
+      "tags": "Tags",
+      "id": "ID",
+      "size": "Size",
+      "createdAt": "Created",
+      "inUse": "In use",
+      "used": "in use",
+      "unused": "unused",
+      "untagged": "untagged",
+      "empty": "This VM holds no images",
+      "listFailed": "The images could not be listed",
+      "remove": "Remove",
+      "removeOne": "Remove {image}",
+      "removeConfirm": "Remove {image} from this VM?",
+      "removeInUse": "A container uses it, so Docker refuses unless it is forced.",
+      "force": "Force",
+      "forceHelp": "Remove it even if a container uses it, untagging it if needed."
+    }
+  },
+  "networks": {
+    "title": "Networks",
+    "form": {
+      "legend": "New network",
+      "name": "Name",
+      "required": "Give the network a name.",
+      "driver": "Driver",
+      "driverHelp": "Networks are bridges inside the VM.",
+      "internal": "Internal",
+      "internalHelp": "Containers on it reach each other, and nothing outside the VM.",
+      "create": "Create network",
+      "created": "Network {name} was created.",
+      "failed": "The network could not be created"
+    },
+    "table": {
+      "name": "Name",
+      "driver": "Driver",
+      "scope": "Scope",
+      "containers": "Containers",
+      "createdAt": "Created",
+      "empty": "This VM has no networks",
+      "listFailed": "The networks could not be listed",
+      "internal": "internal",
+      "predefined": "Docker's own",
+      "remove": "Remove",
+      "removeOne": "Remove {name}",
+      "removeConfirm": "Remove the network {name}?",
+      "removeInUse": "Containers are still on it: Docker refuses until they leave it."
+    }
+  },
+  "volumes": {
+    "title": "Volumes",
+    "form": {
+      "name": "New volume",
+      "nameHelp": "A volume keeps what containers write to it after they are removed.",
+      "required": "Give the volume a name.",
+      "create": "Create volume",
+      "created": "Volume {name} was created.",
+      "failed": "The volume could not be created"
+    },
+    "table": {
+      "name": "Name",
+      "driver": "Driver",
+      "mountpoint": "Mount point",
+      "inUse": "In use",
+      "used": "in use",
+      "unused": "unused",
+      "createdAt": "Created",
+      "empty": "This VM holds no volumes",
+      "listFailed": "The volumes could not be listed",
+      "remove": "Remove",
+      "removeOne": "Remove {name}",
+      "removeConfirm": "Remove the volume {name}? What is in it goes with it.",
+      "removeInUse": "A container uses it, so Docker refuses unless it is forced.",
+      "force": "Force",
+      "forceHelp": "Remove it even if a container uses it."
     }
   }
 }

@@ -68,8 +68,15 @@ export function VmReadinessNote({vm}: {vm: Vm}) {
   }
 }
 
+type SummaryProps = {
+  vm: Vm;
+
+  /** whether what its state means is said here, or by whoever shows it. */
+  withReadiness?: boolean;
+};
+
 /** A Docker VM in a line or two: its state, its size, what it lets through. */
-export function VmSummary({vm}: {vm: Vm}) {
+export function VmSummary({vm, withReadiness = true}: SummaryProps) {
   const {t, locale} = useI18n();
   const ports = vm.ports ?? [];
 
@@ -104,7 +111,7 @@ export function VmSummary({vm}: {vm: Vm}) {
           </>
         )}
       </Text>
-      <VmReadinessNote vm={vm} />
+      {withReadiness && <VmReadinessNote vm={vm} />}
     </Stack>
   );
 }

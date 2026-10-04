@@ -36,6 +36,9 @@ type Props = {
 
   /** told of a pick as well, for whoever keeps it somewhere else too. */
   onPick?: (value: string | null) => void;
+
+  /** whether what a VM's state means is said under it, or by the page. */
+  withReadiness?: boolean;
 };
 
 /**
@@ -55,6 +58,7 @@ export function DockerVmSelect({
   fieldErrors,
   disabled,
   onPick,
+  withReadiness = true,
 }: Props) {
   const t = useTranslations();
   const {source, vms, loading, failed, choice, allowNew} = state;
@@ -198,7 +202,9 @@ export function DockerVmSelect({
         }}
       />
 
-      {choice.kind === "existing" && <VmSummary vm={choice.vm} />}
+      {choice.kind === "existing" && (
+        <VmSummary vm={choice.vm} withReadiness={withReadiness} />
+      )}
 
       {choice.kind === "new" && (
         <NewDockerVmFields
