@@ -4,13 +4,13 @@ import {type ReactNode} from "react";
 import {
   Group,
   InputWrapper,
-  NumberInput,
   SegmentedControl,
   Select,
   Stack,
 } from "@mantine/core";
 import {useTranslations} from "@/i18n/provider";
 import {type Lifetime, type LifetimeUnit} from "../../lib/lifetime";
+import {AmountInput} from "./amount-input";
 
 type Props = {
   value: Lifetime;
@@ -48,15 +48,10 @@ export function LifetimeInput({
         />
         {!value.keep && (
           <Group grow align="flex-start">
-            <NumberInput
+            <AmountInput
               aria-label={t("vms.form.lifetimeAmount")}
-              value={value.amount > 0 ? value.amount : ""}
-              onChange={(amount) =>
-                onChange({
-                  ...value,
-                  amount: typeof amount === "number" ? amount : 0,
-                })
-              }
+              value={value.amount}
+              onChange={(amount) => onChange({...value, amount})}
               min={0}
               allowNegative={false}
               decimalScale={1}

@@ -1,8 +1,9 @@
 "use client";
 
 import {type ReactNode} from "react";
-import {NativeSelect, NumberInput, rem} from "@mantine/core";
+import {NativeSelect, rem} from "@mantine/core";
 import {type Size, type SizeUnit} from "../../lib/units";
+import {AmountInput} from "./amount-input";
 
 type Props = {
   label: ReactNode;
@@ -31,16 +32,13 @@ export function SizeInput({
   disabled,
 }: Props) {
   return (
-    <NumberInput
+    <AmountInput
       label={label}
       description={description}
       error={error}
       disabled={disabled}
-      // empty rather than 0 while somebody is typing over it.
-      value={value.amount > 0 ? value.amount : ""}
-      onChange={(amount) =>
-        onChange({...value, amount: typeof amount === "number" ? amount : 0})
-      }
+      value={value.amount}
+      onChange={(amount) => onChange({...value, amount})}
       min={0}
       allowNegative={false}
       decimalScale={value.unit === "GiB" ? 2 : 0}

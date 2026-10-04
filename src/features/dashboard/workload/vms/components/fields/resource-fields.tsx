@@ -1,9 +1,10 @@
 "use client";
 
 import {type ReactNode} from "react";
-import {Group, NumberInput} from "@mantine/core";
+import {Group} from "@mantine/core";
 import {useTranslations} from "@/i18n/provider";
 import {type Size} from "../../lib/units";
+import {AmountInput} from "./amount-input";
 import {SizeInput} from "./size-input";
 
 type Props = {
@@ -32,13 +33,11 @@ export function ResourceFields({
 
   return (
     <Group grow align="flex-start" wrap="wrap">
-      <NumberInput
+      <AmountInput
         label={t("vms.form.cpus")}
         description={t("vms.form.cpusHelp")}
-        value={cpus > 0 ? cpus : ""}
-        onChange={(value) =>
-          onChange({cpus: typeof value === "number" ? value : 0})
-        }
+        value={cpus}
+        onChange={(value) => onChange({cpus: value})}
         min={1}
         step={1}
         allowDecimal={false}

@@ -103,6 +103,26 @@ describe("VmCreateForm", () => {
     });
   });
 
+  it("takes a fraction of a GiB as it is typed", async () => {
+    const user = userEvent.setup();
+    form();
+
+    await user.type(
+      screen.getByRole("textbox", {name: "vms.form.name"}),
+      "web",
+    );
+
+    const memory = screen.getByRole("textbox", {name: "vms.form.memory"});
+    await user.clear(memory);
+    await user.type(memory, "0.5");
+    expect(memory).toHaveValue("0.5");
+
+    await user.click(screen.getByRole("button", {name: "vms.form.create"}));
+
+    await waitFor(() => expect(mockCreate).toHaveBeenCalled());
+    expect(sent().resources.memory).toBe(512 * MiB);
+  });
+
   it("reads the number in whichever unit is picked for it", async () => {
     const user = userEvent.setup();
     form();

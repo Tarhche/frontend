@@ -38,6 +38,17 @@ import {PortsInput} from "../fields/ports-input";
 import {ResourceFields} from "../fields/resource-fields";
 import {VmKindBadge} from "../vm-kind-badge";
 
+// what of a VM its settings change, to tell when that has changed.
+function editableOf(vm: Vm): string {
+  return JSON.stringify([
+    vm.name,
+    vm.ports,
+    vm.network,
+    vm.lifetime_seconds,
+    vm.resources,
+  ]);
+}
+
 // the states in which a VM has something running that a restart would stop.
 const LIVE = ["running", "starting", "restarting", "restoring", "scheduled"];
 
@@ -70,6 +81,19 @@ export function VmSettingsForm({vm, scope}: Props) {
 
   const request = buildUpdateVmRequest(base, values);
   const changed = Object.keys(request).length > 0;
+
+  // the tab is drawn as the page is, and may be opened long after. Until
+  // somebody changes something, it follows the VM as it is read again --
+  // changed elsewhere, or by the save that just went through.
+  const [seen, setSeen] = useState(() => editableOf(vm));
+  if (editableOf(vm) !== seen) {
+    setSeen(editableOf(vm));
+
+    if (!changed && !pending) {
+      setBase(vm);
+      setValues(vmFormValuesFrom(vm));
+    }
+  }
   const restarts = LIVE.includes(vm.state) && restartsOnApply(request);
 
   const minDisk = base.resources.disk;
