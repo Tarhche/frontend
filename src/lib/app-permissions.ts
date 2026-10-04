@@ -68,6 +68,34 @@ export const PERMISSIONS = {
       MANAGE: "workload.tasks.manage",
       ATTACH: "workload.tasks.attach",
     },
+    // MANAGE is starting, stopping, restarting and restoring one.
+    vms: {
+      CREATE: "workload.vms.create",
+      DELETE: "workload.vms.delete",
+      INDEX: "workload.vms.index",
+      SHOW: "workload.vms.show",
+      UPDATE: "workload.vms.update",
+      MANAGE: "workload.vms.manage",
+      LOGS: "workload.vms.logs",
+      ATTACH: "workload.vms.attach",
+    },
+    snapshots: {
+      CREATE: "workload.snapshots.create",
+      DELETE: "workload.snapshots.delete",
+      INDEX: "workload.snapshots.index",
+      SHOW: "workload.snapshots.show",
+      UPDATE: "workload.snapshots.update",
+    },
+    // these cover a Docker VM's images, networks and volumes as well as its
+    // containers.
+    containers: {
+      CREATE: "workload.containers.create",
+      DELETE: "workload.containers.delete",
+      INDEX: "workload.containers.index",
+      SHOW: "workload.containers.show",
+      MANAGE: "workload.containers.manage",
+      LOGS: "workload.containers.logs",
+    },
     stacks: {
       CREATE: "workload.stacks.create",
       DELETE: "workload.stacks.delete",
@@ -112,6 +140,28 @@ export const PERMISSIONS = {
         MANAGE: "self.workload.tasks.manage",
         ATTACH: "self.workload.tasks.attach",
         DELETE: "self.workload.tasks.delete",
+      },
+      vms: {
+        INDEX: "self.workload.vms.index",
+        SHOW: "self.workload.vms.show",
+        UPDATE: "self.workload.vms.update",
+        DELETE: "self.workload.vms.delete",
+        MANAGE: "self.workload.vms.manage",
+        LOGS: "self.workload.vms.logs",
+        ATTACH: "self.workload.vms.attach",
+      },
+      snapshots: {
+        INDEX: "self.workload.snapshots.index",
+        SHOW: "self.workload.snapshots.show",
+        UPDATE: "self.workload.snapshots.update",
+        DELETE: "self.workload.snapshots.delete",
+      },
+      containers: {
+        INDEX: "self.workload.containers.index",
+        SHOW: "self.workload.containers.show",
+        DELETE: "self.workload.containers.delete",
+        MANAGE: "self.workload.containers.manage",
+        LOGS: "self.workload.containers.logs",
       },
       stacks: {
         INDEX: "self.workload.stacks.index",

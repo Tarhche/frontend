@@ -595,6 +595,253 @@
       "permissions": "It can do what you can do, and nothing more."
     }
   },
+  "vms": {
+    "title": "VMs",
+    "kinds": {
+      "machine": "Machine",
+      "docker": "Docker"
+    },
+    "units": {
+      "cpus": "{count} vCPU"
+    },
+    "table": {
+      "newVm": "New VM",
+      "empty": "No VMs yet",
+      "name": "Name",
+      "kind": "Kind",
+      "state": "State",
+      "cpu": "CPU",
+      "memory": "Memory",
+      "disk": "Disk",
+      "expires": "Expires",
+      "owner": "Owner"
+    },
+    "tabs": {
+      "allVms": "All VMs",
+      "myVms": "My VMs"
+    },
+    "breadcrumb": {
+      "create": "New VM",
+      "detail": "VM"
+    },
+    "expiry": {
+      "never": "Kept until deleted",
+      "due": "Being deleted"
+    },
+    "actions": {
+      "start": "Start",
+      "stop": "Stop",
+      "restart": "Restart",
+      "delete": "Delete",
+      "stopConfirm": "Stop \"{name}\"? Everything running in it stops with it.",
+      "restartConfirm": "Restart \"{name}\"? Everything running in it is stopped and started again.",
+      "deleteConfirm": "Delete \"{name}\"? Its disk is deleted with it. Its snapshots are kept.",
+      "failed": "That could not be done. Please try again."
+    },
+    "reasons": {
+      "no_capacity": "No node has room for it right now.",
+      "node_lost": "The node it was running on stopped responding."
+    },
+    "form": {
+      "name": "Name",
+      "nameHelp": "Its address is made from this name, and its ports are served on that address.",
+      "kind": "Kind",
+      "kindHelp": "A machine boots an operating system image. A Docker VM runs Docker, for containers and stacks.",
+      "kindFromSnapshot": "A restored VM is the same kind as its snapshot.",
+      "image": "Image",
+      "imageHelp": "The operating system it boots.",
+      "customImage": "Custom image",
+      "customImageReference": "Image reference",
+      "customImageHelp": "Any OCI image reference.",
+      "imageFromSnapshot": "Its image comes from the snapshot:",
+      "dockerImage": "A Docker VM boots the workload's Docker image, with dockerd already running in it.",
+      "snapshot": "Restore from snapshot",
+      "snapshotHelp": "Start from a snapshot of one of your VMs. Its kind, image and disk come from the snapshot.",
+      "snapshotNone": "Start with a fresh disk",
+      "snapshotOption": "{name} · {kind} · {size}",
+      "resources": "Resources",
+      "cpus": "vCPUs",
+      "cpusHelp": "Whole virtual CPUs",
+      "memory": "Memory",
+      "memoryHelp": "In MiB or GiB",
+      "disk": "Disk",
+      "diskHelp": "In MiB or GiB",
+      "diskAtLeast": "At least {size}, the size of the snapshot's disk",
+      "network": "Network",
+      "ports": "Exposed ports",
+      "portsHelp": "Up to {max} ports from 1 to 65535. Press Enter, a comma or a space after each one.",
+      "portsPlaceholder": "e.g. 80, 443",
+      "ingress": "Allow ingress",
+      "ingressHelp": "Its exposed ports can be reached at their addresses. When off, nothing can reach it.",
+      "egress": "Allow egress",
+      "egressHelp": "It can reach the public internet, but never private networks, the host or other VMs. When off, it cannot reach anything.",
+      "dockerWithoutEgressTitle": "Docker cannot pull images without egress",
+      "dockerWithoutEgress": "A Docker VM without egress can only run images that are already on its disk.",
+      "persistentDisk": "Persistent disk",
+      "persistentDiskHelp": "Keep what is written to the disk between starts. When off, the disk is reset to its image on every start.",
+      "lifetime": "Lifetime",
+      "lifetimeHelp": "How long the VM is kept before it is deleted.",
+      "lifetimeKeep": "Keep until deleted",
+      "lifetimeFor": "Delete after",
+      "lifetimeAmount": "How long",
+      "lifetimeUnit": "Unit",
+      "hours": "Hours",
+      "days": "Days",
+      "create": "Create VM",
+      "restore": "Restore as new VM",
+      "failed": "The VM could not be created. Please try again.",
+      "errors": {
+        "required": "Required",
+        "image": "An image reference cannot contain spaces",
+        "cpus": "At least one whole vCPU",
+        "size": "Enter a size",
+        "diskMin": "At least {size}",
+        "port": "Not a port: {value}. Ports are whole numbers from 1 to 65535.",
+        "tooManyPorts": "At most 16 ports",
+        "lifetime": "Enter how long to keep it"
+      }
+    },
+    "detail": {
+      "overview": "Overview",
+      "terminal": "Terminal",
+      "logs": "Logs",
+      "snapshots": "Snapshots",
+      "settings": "Settings",
+      "state": "State",
+      "addresses": "Addresses",
+      "kind": "Kind and image",
+      "resources": "Resources",
+      "resourcesValue": "{cpus} · {memory} memory · {disk} disk",
+      "network": "Network",
+      "ingress": "Ingress",
+      "egress": "Egress",
+      "allowed": "{label} allowed",
+      "denied": "{label} denied",
+      "disk": "Disk",
+      "persistentDisk": "Its disk is kept between starts.",
+      "ephemeralDisk": "Its disk is reset to its image on every start.",
+      "expires": "Expires",
+      "owner": "Owner",
+      "node": "Node",
+      "createdAt": "Created",
+      "startedAt": "Started",
+      "ingressDenied": "Ingress is denied: nothing can reach it.",
+      "noPorts": "No exposed ports",
+      "noAddressesYet": "Its addresses appear once it is running.",
+      "gone": "This VM no longer exists.",
+      "backToList": "Back to VMs",
+      "stale": "Could not refresh. Trying again…",
+      "terminalNotRunning": "The VM is not running, so there is no terminal to open.",
+      "leaveTerminalConfirm": "Leaving this tab ends the terminal session, and anything running in it stops. Leave anyway?",
+      "leaveTerminal": "Leave and end it",
+      "stayInTerminal": "Stay here"
+    },
+    "logs": {
+      "follow": "Follow",
+      "polling": "New lines are read every few seconds",
+      "failed": "Could not read the logs. Trying again…",
+      "truncated": "Only the latest lines are shown.",
+      "empty": "Nothing written yet"
+    },
+    "stats": {
+      "cpu": "CPU",
+      "memory": "Memory",
+      "disk": "Disk",
+      "ofCpus": "of {count} vCPU",
+      "of": "of {total}",
+      "used": "{label}: {percent} used",
+      "warning": "High",
+      "critical": "Very high",
+      "since": "Last {span}",
+      "collecting": "Collecting samples…",
+      "trend": "{label} over the last {count} samples: lowest {low}, highest {high}, now {now}",
+      "received": "{size} received",
+      "sent": "{size} sent",
+      "sampled": "Sampled {when}",
+      "none": "No stats yet. They appear once its node reports them.",
+      "notRunning": "Stats are only collected while the VM is running."
+    },
+    "settings": {
+      "immutable": "The kind and image cannot be changed.",
+      "lifetimeHelp": "How long the VM is kept before it is deleted. Changing it sets a new expiry.",
+      "diskGrows": "Can only grow: at least {size}",
+      "restartTitle": "Saving restarts the VM",
+      "restartWarning": "Changing ports, network or resources restarts the VM if it is running.",
+      "save": "Save changes",
+      "saveAndRestart": "Save and restart",
+      "saved": "Saved",
+      "savedRestarting": "Saved. The VM is restarting to apply the changes.",
+      "failed": "The changes could not be saved. Please try again."
+    }
+  },
+  "snapshots": {
+    "title": "Snapshots",
+    "tabs": {
+      "allSnapshots": "All snapshots",
+      "mySnapshots": "My snapshots"
+    },
+    "states": {
+      "creating": "taking…",
+      "ready": "ready",
+      "failed": "failed",
+      "deleting": "deleting…"
+    },
+    "table": {
+      "empty": "No snapshots yet",
+      "name": "Name",
+      "vm": "Taken of",
+      "kind": "Kind",
+      "size": "Size",
+      "state": "State",
+      "createdAt": "Taken at",
+      "owner": "Owner",
+      "diskTooltip": "Needs a disk of at least {size}"
+    },
+    "actions": {
+      "take": "Take snapshot",
+      "rename": "Rename",
+      "delete": "Delete",
+      "restoreAsNew": "Restore as new VM",
+      "restoreOnto": "Restore onto a VM",
+      "restoreOntoThis": "Restore onto this VM",
+      "deleteConfirm": "Delete \"{name}\"? It cannot be restored once it is gone.",
+      "failed": "That could not be done. Please try again."
+    },
+    "take": {
+      "title": "Take a snapshot",
+      "help": "A copy of the disk of \"{vm}\" as it is now, kept until you delete it.",
+      "name": "Name",
+      "nameRequired": "Required",
+      "submit": "Take snapshot",
+      "notNow": "A snapshot can only be taken of a VM that is running or stopped.",
+      "started": "Taking the snapshot. It is listed as ready once it is done."
+    },
+    "rename": {
+      "title": "Rename snapshot",
+      "name": "Name",
+      "submit": "Rename"
+    },
+    "restore": {
+      "title": "Restore \"{snapshot}\"",
+      "vm": "VM",
+      "vmHelp": "One of your {kind} VMs, with a disk of at least {size}.",
+      "vmPlaceholder": "Choose a VM",
+      "noVms": "You have no {kind} VM to restore it onto. You can restore it as a new VM instead.",
+      "warningTitle": "This replaces the VM's disk",
+      "confirm": "Restoring \"{snapshot}\" onto \"{vm}\" restarts the VM and replaces its disk with the snapshot's. Whatever is on its disk now is lost.",
+      "submit": "Restore",
+      "started": "Restoring \"{vm}\". It restarts once its disk is replaced.",
+      "unfit": {
+        "kind": "{name}: a different kind",
+        "disk": "{name}: its disk is too small",
+        "state": "{name}: cannot be restored right now"
+      }
+    },
+    "vm": {
+      "help": "Copies of this VM's disk, kept apart from it.",
+      "empty": "No snapshots of this VM yet"
+    }
+  },
   "tasks": {
     "title": "Tasks",
     "table": {

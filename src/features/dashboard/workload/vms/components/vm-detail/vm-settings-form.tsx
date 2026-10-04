@@ -1,0 +1,228 @@
+"use client";
+
+import {type FormEvent, useState, useTransition} from "react";
+import {
+  Alert,
+  Button,
+  Code,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  TextInput,
+  Title,
+} from "@mantine/core";
+import {notifications} from "@mantine/notifications";
+import {IconAlertTriangle} from "@tabler/icons-react";
+import {useQueryClient} from "@tanstack/react-query";
+import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
+import {useI18n} from "@/i18n/provider";
+import {type Scope} from "../../api";
+import {updateVm} from "../../actions/update-vm";
+import {vmKeys} from "../../hooks/queries";
+import {
+  applyUpdate,
+  buildUpdateVmRequest,
+  fieldErrorsFrom,
+  restartsOnApply,
+  validateVmForm,
+  type VmField,
+  type VmFormValues,
+  vmFormValuesFrom,
+} from "../../lib/form";
+import {formatBytes} from "../../lib/units";
+import {type ActionResult, type Vm} from "../../types";
+import {LifetimeInput} from "../fields/lifetime-input";
+import {NetworkFields} from "../fields/network-fields";
+import {PortsInput} from "../fields/ports-input";
+import {ResourceFields} from "../fields/resource-fields";
+import {VmKindBadge} from "../vm-kind-badge";
+
+// the states in which a VM has something running that a restart would stop.
+const LIVE = ["running", "starting", "restarting", "restoring", "scheduled"];
+
+type Props = {
+  vm: Vm;
+
+  /** The routes it is changed through. */
+  scope: Scope;
+};
+
+/**
+ * What can be changed about a VM once it exists: its name, ports, network,
+ * lifetime and resources. Its kind and image cannot be, and its disk can only
+ * grow. Only what was changed is sent.
+ */
+export function VmSettingsForm({vm, scope}: Props) {
+  const {t, locale} = useI18n();
+  const queryClient = useQueryClient();
+  const [pending, startTransition] = useTransition();
+
+  // what the form was filled in from, which is what a change is a change to:
+  // the VM is read again every few seconds, and that is no reason to undo
+  // what somebody is typing.
+  const [base, setBase] = useState<Vm>(vm);
+  const [values, setValues] = useState<VmFormValues>(() =>
+    vmFormValuesFrom(vm),
+  );
+  const [submitted, setSubmitted] = useState(false);
+  const [result, setResult] = useState<ActionResult | null>(null);
+
+  const request = buildUpdateVmRequest(base, values);
+  const changed = Object.keys(request).length > 0;
+  const restarts = LIVE.includes(vm.state) && restartsOnApply(request);
+
+  const minDisk = base.resources.disk;
+  const ours = submitted ? validateVmForm(values, {minDisk}) : {};
+  const theirs = fieldErrorsFrom(result && !result.ok ? result.errors : null);
+
+  const errorOf = (field: VmField) => {
+    const code = ours[field];
+    if (code) {
+      return t(`vms.form.errors.${code}`, {size: formatBytes(minDisk, locale)});
+    }
+
+    return theirs.fields[field];
+  };
+
+  const update = (patch: Partial<VmFormValues>) =>
+    setValues((current) => ({...current, ...patch}));
+
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSubmitted(true);
+
+    if (!changed || Object.keys(validateVmForm(values, {minDisk})).length > 0) {
+      return;
+    }
+
+    startTransition(async () => {
+      const answer = await updateVm(base.uuid, scope, request);
+      setResult(answer);
+
+      if (!answer.ok) {
+        if (!answer.errors) {
+          notifications.show({
+            color: "red",
+            title: t("errors.errorTitle"),
+            message: t("vms.settings.failed"),
+          });
+        }
+
+        return;
+      }
+
+      setBase(applyUpdate(base, request));
+      setSubmitted(false);
+      notifications.show({
+        color: "green",
+        message: restarts
+          ? t("vms.settings.savedRestarting")
+          : t("vms.settings.saved"),
+      });
+
+      await queryClient.invalidateQueries({queryKey: vmKeys.all});
+    });
+  };
+
+  return (
+    <form onSubmit={submit} noValidate>
+      <Stack>
+        <Paper withBorder p="md">
+          <Stack gap="xs">
+            <Group gap="xs">
+              <VmKindBadge kind={base.kind} />
+              <Code>{base.image}</Code>
+            </Group>
+            <Text size="sm" c="dimmed">
+              {t("vms.settings.immutable")}{" "}
+              {base.persistent_disk
+                ? t("vms.detail.persistentDisk")
+                : t("vms.detail.ephemeralDisk")}
+            </Text>
+          </Stack>
+        </Paper>
+
+        <Paper withBorder p="md">
+          <Stack>
+            <TextInput
+              label={t("vms.form.name")}
+              value={values.name}
+              onChange={(event) => update({name: event.currentTarget.value})}
+              error={errorOf("name")}
+              required
+            />
+            <LifetimeInput
+              value={values.lifetime}
+              onChange={(lifetime) => update({lifetime})}
+              description={t("vms.settings.lifetimeHelp")}
+              error={errorOf("lifetime")}
+            />
+          </Stack>
+        </Paper>
+
+        <Paper withBorder p="md">
+          <Stack>
+            <Title order={4}>{t("vms.form.resources")}</Title>
+            <ResourceFields
+              cpus={values.cpus}
+              memory={values.memory}
+              disk={values.disk}
+              onChange={update}
+              errors={{
+                cpus: errorOf("cpus"),
+                memory: errorOf("memory"),
+                disk: errorOf("disk"),
+              }}
+              diskDescription={t("vms.settings.diskGrows", {
+                size: formatBytes(minDisk, locale),
+              })}
+            />
+          </Stack>
+        </Paper>
+
+        <Paper withBorder p="md">
+          <Stack>
+            <Title order={4}>{t("vms.form.network")}</Title>
+            <PortsInput
+              value={values.ports}
+              onChange={(ports) => update({ports})}
+              error={errorOf("ports")}
+            />
+            <NetworkFields
+              kind={base.kind}
+              ingress={values.ingress}
+              egress={values.egress}
+              onChange={update}
+              errors={{ingress: errorOf("ingress"), egress: errorOf("egress")}}
+            />
+          </Stack>
+        </Paper>
+
+        <ValidationErrorsAlert errors={theirs.rest} />
+
+        <Alert
+          variant="light"
+          color={restarts ? "orange" : "gray"}
+          icon={<IconAlertTriangle />}
+          title={restarts ? t("vms.settings.restartTitle") : undefined}
+        >
+          {t("vms.settings.restartWarning")}
+        </Alert>
+
+        <Group justify="flex-end">
+          <Button
+            type="submit"
+            loading={pending}
+            disabled={!changed}
+            color={restarts ? "orange" : undefined}
+          >
+            {restarts
+              ? t("vms.settings.saveAndRestart")
+              : t("vms.settings.save")}
+          </Button>
+        </Group>
+      </Stack>
+    </form>
+  );
+}
