@@ -3,155 +3,48 @@
 import Link from "@/components/link";
 import {usePathname} from "next/navigation";
 import {useTranslations} from "@/i18n/provider";
-import {UnstyledButton} from "@mantine/core";
+import {Text, UnstyledButton} from "@mantine/core";
 import {
-  IconNotes,
-  IconHome,
-  IconFile,
-  IconMessage,
-  IconSettings,
-  IconBookmarks,
-  IconMessages,
-  IconUsers,
-  IconKey,
-  IconUser,
-  IconLanguage,
-  IconMail,
-  IconPictureInPicture,
-  IconBox,
-  IconStack2,
-} from "@tabler/icons-react";
-import {hasPermission} from "@/lib/auth/shared";
-import {APP_PATHS} from "@/lib/app-paths";
-import {Permissions} from "@/lib/app-permissions";
+  isActive,
+  isGroup,
+  SIDEBAR,
+  type SidebarLink,
+  visibleSidebar,
+} from "./sidebar-items";
 import classes from "./layout.module.css";
 
 type Props = {
   userPermissions: string[];
 };
 
-const dashboard = APP_PATHS.dashboard;
-
-type SidebarSchema = {
-  labelKey: string;
-  icon: any;
-  href: string;
-  requiredPermissions: Permissions[];
-};
-
-const SIDE_BAR_DATA: SidebarSchema[] = [
-  {
-    labelKey: "nav.dashboard",
-    icon: IconHome,
-    href: dashboard.index,
-    requiredPermissions: [],
-  },
-  {
-    labelKey: "dashboard.sidebar.articles",
-    icon: IconNotes,
-    href: dashboard.articles.index,
-    requiredPermissions: ["articles.index", "self.articles.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.comments",
-    icon: IconMessages,
-    href: dashboard.comments.index,
-    requiredPermissions: ["comments.index", "self.comments.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.files",
-    icon: IconFile,
-    href: dashboard.files,
-    requiredPermissions: ["files.index", "self.files.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.elements",
-    icon: IconPictureInPicture,
-    href: dashboard.elements.index,
-    requiredPermissions: ["elements.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.myBookmarks",
-    icon: IconBookmarks,
-    href: dashboard.my.bookmarks,
-    requiredPermissions: ["self.bookmarks.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.contactUs",
-    icon: IconMail,
-    href: dashboard.contactUs.index,
-    requiredPermissions: ["contactus.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.tasks",
-    icon: IconBox,
-    href: dashboard.tasks.index,
-    requiredPermissions: ["workload.tasks.index", "self.workload.tasks.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.stacks",
-    icon: IconStack2,
-    href: dashboard.stacks.index,
-    requiredPermissions: [
-      "workload.stacks.index",
-      "self.workload.stacks.index",
-    ],
-  },
-  {
-    labelKey: "dashboard.sidebar.users",
-    icon: IconUsers,
-    href: dashboard.users.index,
-    requiredPermissions: ["users.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.roles",
-    icon: IconKey,
-    href: dashboard.roles.index,
-    requiredPermissions: ["roles.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.languages",
-    icon: IconLanguage,
-    href: dashboard.languages.index,
-    requiredPermissions: ["languages.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.settings",
-    icon: IconSettings,
-    href: dashboard.settings,
-    requiredPermissions: ["config.show"],
-  },
-  {
-    labelKey: "dashboard.sidebar.profile",
-    icon: IconUser,
-    href: dashboard.profile.index,
-    requiredPermissions: [],
-  },
-];
-
 export function LayoutSidebar({userPermissions}: Props) {
   const t = useTranslations();
   const pathname = usePathname();
 
-  return SIDE_BAR_DATA.map((item) => {
-    const hasAccess = hasPermission(userPermissions, item.requiredPermissions);
+  const link = (item: SidebarLink) => (
+    <UnstyledButton
+      component={Link}
+      className={classes.link}
+      href={item.href}
+      key={item.labelKey}
+      mb={5}
+      data-active={isActive(item.href, pathname) || undefined}
+    >
+      <item.icon className={classes.linkIcon} stroke={1.5} />
+      <span>{t(item.labelKey)}</span>
+    </UnstyledButton>
+  );
 
-    if (hasAccess) {
-      return (
-        <UnstyledButton
-          component={Link}
-          className={classes.link}
-          href={item.href}
-          key={item.labelKey}
-          mb={5}
-          data-active={pathname === item.href || undefined}
-        >
-          <item.icon className={classes.linkIcon} stroke={1.5} />
-          <span>{t(item.labelKey)}</span>
-        </UnstyledButton>
-      );
-    }
-
-    return null;
-  });
+  return visibleSidebar(SIDEBAR, userPermissions).map((entry) =>
+    isGroup(entry) ? (
+      <div key={entry.labelKey} className={classes.group}>
+        <Text component="div" className={classes.groupLabel}>
+          {t(entry.labelKey)}
+        </Text>
+        {entry.links.map(link)}
+      </div>
+    ) : (
+      link(entry)
+    ),
+  );
 }

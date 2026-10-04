@@ -407,7 +407,13 @@
       "profile": "Profile",
       "logout": "Logout",
       "contactUs": "Contact us",
-      "tasks": "Tasks",
+      "workload": "Workload",
+      "vms": "VMs",
+      "snapshots": "Snapshots",
+      "containers": "Containers",
+      "images": "Images",
+      "networks": "Networks",
+      "volumes": "Volumes",
       "stacks": "Stacks"
     }
   },
