@@ -85,19 +85,32 @@ export function SnapshotActions({
   return (
     <>
       <ActionIconGroup>
-        {/* a link cannot be disabled, so one that is not ready has none. */}
-        {restoreAsNew && ready && (
+        {/* a link cannot be disabled, so one that is not ready yet is a
+            button that cannot be pressed, keeping the others in line. */}
+        {restoreAsNew && (
           <Tooltip label={t("snapshots.actions.restoreAsNew")} withArrow>
-            <ActionIcon
-              variant="light"
-              size="lg"
-              color="teal"
-              component={Link}
-              href={APP_PATHS.dashboard.vms.restore(snapshot.uuid)}
-              aria-label={t("snapshots.actions.restoreAsNew")}
-            >
-              <IconCopyPlus style={{width: rem(20)}} stroke={1.5} />
-            </ActionIcon>
+            {ready ? (
+              <ActionIcon
+                variant="light"
+                size="lg"
+                color="teal"
+                component={Link}
+                href={APP_PATHS.dashboard.vms.restore(snapshot.uuid)}
+                aria-label={t("snapshots.actions.restoreAsNew")}
+              >
+                <IconCopyPlus style={{width: rem(20)}} stroke={1.5} />
+              </ActionIcon>
+            ) : (
+              <ActionIcon
+                variant="light"
+                size="lg"
+                color="teal"
+                disabled
+                aria-label={t("snapshots.actions.restoreAsNew")}
+              >
+                <IconCopyPlus style={{width: rem(20)}} stroke={1.5} />
+              </ActionIcon>
+            )}
           </Tooltip>
         )}
         {restore && (

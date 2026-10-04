@@ -1,7 +1,7 @@
 "use client";
 
 import {type ReactNode} from "react";
-import {NativeSelect, NumberInput} from "@mantine/core";
+import {NativeSelect, NumberInput, rem} from "@mantine/core";
 import {type Size, type SizeUnit} from "../../lib/units";
 
 type Props = {
@@ -14,6 +14,9 @@ type Props = {
 };
 
 const UNITS: SizeUnit[] = ["MiB", "GiB"];
+
+// wide enough for "MiB" and the select's own chevron.
+const UNIT_WIDTH = 84;
 
 /**
  * A size, typed in MiB or GiB. The unit says what the number is in: somebody
@@ -41,7 +44,10 @@ export function SizeInput({
       min={0}
       allowNegative={false}
       decimalScale={value.unit === "GiB" ? 2 : 0}
-      rightSectionWidth={80}
+      // the unit is a select of its own, sitting in the input's end: it has
+      // to take clicks, and to draw its value rather than only its chevron.
+      rightSectionWidth={UNIT_WIDTH}
+      rightSectionPointerEvents="all"
       rightSection={
         <NativeSelect
           aria-label={typeof label === "string" ? label : undefined}
@@ -51,8 +57,16 @@ export function SizeInput({
           onChange={(event) =>
             onChange({...value, unit: event.currentTarget.value as SizeUnit})
           }
-          variant="unstyled"
-          size="sm"
+          rightSectionWidth={24}
+          styles={{
+            input: {
+              width: rem(UNIT_WIDTH),
+              fontWeight: 500,
+              borderStartStartRadius: 0,
+              borderEndStartRadius: 0,
+              marginInlineEnd: rem(-1),
+            },
+          }}
         />
       }
     />

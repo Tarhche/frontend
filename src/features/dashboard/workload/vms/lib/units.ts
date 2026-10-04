@@ -45,6 +45,13 @@ export function fromBytes(bytes: number): Size {
 
 const NAMES = ["B", "KiB", "MiB", "GiB", "TiB"];
 
+/** A count, in the reader's digits: "۲" beside Persian words, "2" otherwise. */
+export function formatNumber(value: number, locale = "en"): string {
+  return new Intl.NumberFormat(locale).format(
+    Number.isFinite(value) ? value : 0,
+  );
+}
+
 /** "512 MiB", "1.5 GiB": a size to read rather than to type. */
 export function formatBytes(bytes: number, locale = "en"): string {
   let value = Number.isFinite(bytes) ? Math.max(0, bytes) : 0;

@@ -25,7 +25,7 @@ import {
   severityOf,
   type StatsSample,
 } from "../../lib/stats";
-import {formatBytes} from "../../lib/units";
+import {formatBytes, formatNumber} from "../../lib/units";
 import {type Vm, type VmStats as Stats} from "../../types";
 import {Sparkline} from "./sparkline";
 
@@ -67,7 +67,9 @@ export function VmStats({
       key: "cpu",
       label: t("vms.stats.cpu"),
       value: formatPercent(stats.cpu_percent, locale),
-      detail: t("vms.stats.ofCpus", {count: vm.resources.cpus}),
+      detail: t("vms.stats.ofCpus", {
+        count: formatNumber(vm.resources.cpus, locale),
+      }),
       percent: clampPercent(stats.cpu_percent),
     },
     {
@@ -169,7 +171,7 @@ export function VmStats({
                     low: formatPercent(low, locale),
                     high: formatPercent(high, locale),
                     now: formatPercent(tile.percent, locale),
-                    count: values.length,
+                    count: formatNumber(values.length, locale),
                   })}
                   formatValue={(value) => formatPercent(value, locale)}
                   formatTime={clock}

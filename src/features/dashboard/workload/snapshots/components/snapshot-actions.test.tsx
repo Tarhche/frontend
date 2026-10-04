@@ -94,6 +94,9 @@ describe("SnapshotActions", () => {
       screen.queryByRole("link", {name: "snapshots.actions.restoreAsNew"}),
     ).not.toBeInTheDocument();
     expect(
+      screen.getByRole("button", {name: "snapshots.actions.restoreAsNew"}),
+    ).toBeDisabled();
+    expect(
       screen.getByRole("button", {name: "snapshots.actions.restoreOnto"}),
     ).toBeDisabled();
   });

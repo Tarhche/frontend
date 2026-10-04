@@ -2,8 +2,9 @@
 
 import {type ReactNode, useState} from "react";
 import {TagsInput} from "@mantine/core";
-import {useTranslations} from "@/i18n/provider";
+import {useI18n} from "@/i18n/provider";
 import {MAX_PORTS, readPorts} from "../../lib/form";
+import {formatNumber} from "../../lib/units";
 
 type Props = {
   value: number[];
@@ -17,13 +18,15 @@ type Props = {
  * a port is not kept, and is said to be not one.
  */
 export function PortsInput({value, onChange, error, disabled}: Props) {
-  const t = useTranslations();
+  const {t, locale} = useI18n();
   const [rejected, setRejected] = useState<string[]>([]);
 
   return (
     <TagsInput
       label={t("vms.form.ports")}
-      description={t("vms.form.portsHelp", {max: MAX_PORTS})}
+      description={t("vms.form.portsHelp", {
+        max: formatNumber(MAX_PORTS, locale),
+      })}
       placeholder={t("vms.form.portsPlaceholder")}
       value={value.map(String)}
       onChange={(entries) => {

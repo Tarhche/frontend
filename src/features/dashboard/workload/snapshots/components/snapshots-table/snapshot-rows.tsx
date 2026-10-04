@@ -103,7 +103,7 @@ export function SnapshotRows({
             </TableTd>
             {showOwner && (
               <TableTd>
-                <VmOwner vm={snapshot} />
+                <VmOwner vm={snapshot} me={me} />
               </TableTd>
             )}
             <TableTd>

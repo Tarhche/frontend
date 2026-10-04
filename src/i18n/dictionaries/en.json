@@ -620,7 +620,8 @@
       "memory": "Memory",
       "disk": "Disk",
       "expires": "Expires",
-      "owner": "Owner"
+      "owner": "Owner",
+      "you": "You"
     },
     "tabs": {
       "allVms": "All VMs",

@@ -19,7 +19,7 @@ import {isGregorianStartDateTime} from "@/lib/date-and-time";
 import {StateBadge} from "@/features/dashboard/workload/components/state-badge";
 import {formatDateTime} from "../../lib/lifetime";
 import {hasStats, type StatsSample} from "../../lib/stats";
-import {formatBytes} from "../../lib/units";
+import {formatBytes, formatNumber} from "../../lib/units";
 import {type Vm} from "../../types";
 import {VmExpiry} from "../vm-expiry";
 import {VmKindBadge} from "../vm-kind-badge";
@@ -92,7 +92,9 @@ export function VmOverview({vm, samples, showOwner}: Props) {
           <Field label={t("vms.detail.resources")}>
             <Text size="sm">
               {t("vms.detail.resourcesValue", {
-                cpus: t("vms.units.cpus", {count: vm.resources.cpus}),
+                cpus: t("vms.units.cpus", {
+                  count: formatNumber(vm.resources.cpus, locale),
+                }),
                 memory: formatBytes(vm.resources.memory, locale),
                 disk: formatBytes(vm.resources.disk, locale),
               })}

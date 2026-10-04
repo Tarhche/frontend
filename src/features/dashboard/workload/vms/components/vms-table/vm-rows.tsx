@@ -11,7 +11,7 @@ import {
 } from "@/features/dashboard/workload/components/state-badge";
 import {type Scope} from "../../api";
 import {useVms} from "../../hooks/queries";
-import {formatBytes} from "../../lib/units";
+import {formatBytes, formatNumber} from "../../lib/units";
 import {vmAbilities} from "../../permissions";
 import {type Page, type Vm} from "../../types";
 import {VmActions} from "../vm-actions";
@@ -106,7 +106,9 @@ export function VmRows({
             </TableTd>
             <TableTd>
               <Text size="sm">
-                {t("vms.units.cpus", {count: vm.resources.cpus})}
+                {t("vms.units.cpus", {
+                  count: formatNumber(vm.resources.cpus, locale),
+                })}
               </Text>
             </TableTd>
             <TableTd>
@@ -120,7 +122,7 @@ export function VmRows({
             </TableTd>
             {showOwner && (
               <TableTd>
-                <VmOwner vm={vm} />
+                <VmOwner vm={vm} me={me} />
               </TableTd>
             )}
             <TableTd>
