@@ -732,6 +732,66 @@
       "unanswered": "No answer came back in time. It may still be under way: pulling an image can take minutes. Check again in a little while."
     },
     "showOutput": "Show the output",
-    "hideOutput": "Hide the output"
+    "hideOutput": "Hide the output",
+    "vmStates": {
+      "created": "created",
+      "scheduled": "scheduled",
+      "starting": "starting",
+      "running": "running",
+      "stopping": "stopping",
+      "stopped": "stopped",
+      "restarting": "restarting",
+      "restoring": "restoring",
+      "failed": "failed",
+      "deleting": "deleting"
+    }
+  },
+  "dockerVms": {
+    "select": {
+      "label": "Docker VM",
+      "placeholder": "Pick a Docker VM",
+      "pickHelp": "You have several Docker VMs: pick the one to use, or a new one.",
+      "newVm": "New Docker VM",
+      "loading": "Loading your Docker VMs…",
+      "listFailed": "Your Docker VMs could not be listed",
+      "listFailedGoAhead": "If you go ahead anyway, the platform picks one for you, or creates one if you have none.",
+      "chosenForYou": "The Docker VM is chosen for you: your only one, or a new one if you have none. If you have several, you will be asked to pick.",
+      "cannotList": "You may not list Docker VMs, so there is none to pick from.",
+      "noneTitle": "No Docker VMs",
+      "noneHelp": "There is no Docker VM here yet. Create one under VMs, or create a container or a stack, which makes one for you.",
+      "willBeCreated": "A Docker VM will be created for you",
+      "willBeCreatedHelp": "You have no Docker VM yet, so one is created along with this. These are its defaults; change them if you like."
+    },
+    "summary": {
+      "resources": "{cpus} vCPU · {memory} memory · {disk} disk",
+      "ports": "Exposed ports: {ports}",
+      "noPorts": "No exposed ports",
+      "ingressAllowed": "reachable from the internet",
+      "ingressDenied": "not reachable from the internet",
+      "egressAllowed": "reaches the internet",
+      "egressDenied": "no internet access"
+    },
+    "readiness": {
+      "booting": "This VM is starting. Requests wait until Docker in it is ready, which can take a minute or two.",
+      "stopped": "This VM is not running, so nothing in it can be reached. Start it from its page under VMs first.",
+      "failed": "This VM failed, so nothing in it can be reached.",
+      "failedBecause": "This VM failed, so nothing in it can be reached: {reason}",
+      "gone": "This VM is being deleted."
+    },
+    "new": {
+      "legend": "New Docker VM",
+      "name": "Name",
+      "nameHelp": "Its address is made from this name.",
+      "cpus": "vCPUs",
+      "memory": "Memory",
+      "disk": "Disk",
+      "ports": "Exposed ports",
+      "portsHelp": "The VM's ports that the ingress serves. A container port published on any other port is only reachable inside the VM.",
+      "notPorts": "Not a port: {values}. A port is a number from 1 to 65535.",
+      "ingress": "Reachable from the internet",
+      "ingressHelp": "Its exposed ports are served through the ingress.",
+      "egress": "Reaches the internet",
+      "egressHelp": "It can reach the public internet, never other VMs."
+    }
   }
 }
