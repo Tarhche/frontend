@@ -42,10 +42,14 @@ const connectField = (path: string) =>
   path === "network" || path.startsWith("aliases");
 
 type Props = {
-  scope: Scope;
   vmUuid: string;
   container: Container;
-  may: {manage: boolean};
+
+  /** The routes the VM's networks are listed through, if they may be. */
+  list: Scope | null;
+
+  /** And those it joins and leaves them through, if it may. */
+  manage: Scope | null;
 };
 
 /**
@@ -53,10 +57,12 @@ type Props = {
  * reaches from one VM into another. It can be taken off one, or put on another
  * of the same VM, under names the others on it reach it by.
  */
-export function ContainerNetworks({scope, vmUuid, container, may}: Props) {
+export function ContainerNetworks({vmUuid, container, list, manage}: Props) {
   const {t} = useI18n();
   const queryClient = useQueryClient();
-  const networks = useNetworks(scope, vmUuid);
+  const networks = useNetworks(list ?? "mine", vmUuid, {
+    enabled: list !== null,
+  });
 
   const [network, setNetwork] = useState<string | null>(null);
   const [aliases, setAliases] = useState<string[]>([]);
@@ -81,7 +87,7 @@ export function ContainerNetworks({scope, vmUuid, container, may}: Props) {
   const connect = useMutation({
     mutationFn: (joining: {network: string; aliases: string[]}) =>
       connectContainerNetwork(
-        scope,
+        manage!,
         vmUuid,
         container.id,
         joining.network,
@@ -106,7 +112,7 @@ export function ContainerNetworks({scope, vmUuid, container, may}: Props) {
 
   const disconnect = useMutation({
     mutationFn: (leavingNetwork: string) =>
-      disconnectContainerNetwork(scope, vmUuid, container.id, leavingNetwork),
+      disconnectContainerNetwork(manage!, vmUuid, container.id, leavingNetwork),
     onSuccess: () => setLeaving(null),
     // said in the question that asked.
     onError: () => {},
@@ -162,7 +168,7 @@ export function ContainerNetworks({scope, vmUuid, container, may}: Props) {
                     <Text size="sm">{details?.driver ?? "—"}</Text>
                   </TableTd>
                   <TableTd>
-                    {may.manage && (
+                    {manage !== null && (
                       <Tooltip
                         label={t("containers.networks.disconnect")}
                         withArrow
@@ -191,7 +197,7 @@ export function ContainerNetworks({scope, vmUuid, container, may}: Props) {
         </Table>
       </TableScrollContainer>
 
-      {may.manage && (
+      {manage !== null && (
         <form onSubmit={submit} noValidate>
           <Fieldset legend={t("containers.networks.attachLegend")}>
             <Stack gap="sm">

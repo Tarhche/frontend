@@ -5,12 +5,10 @@ import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumb
 import {getServerDictionary} from "@/i18n/server";
 import {APP_PATHS} from "@/lib/app-paths";
 import {PERMISSIONS} from "@/lib/app-permissions";
-import {getUserPermissions, hasPermission} from "@/lib/auth";
+import {getUserPermissions, getUserUuid, hasPermission} from "@/lib/auth";
 import {ScopeSwitch} from "@/components/scope-switch";
 import {ContainersTable} from "@/features/dashboard/workload/docker/components/containers-table";
-import {dockerMay} from "@/features/dashboard/workload/docker/permissions";
 import {dockerVmSource} from "@/features/dashboard/workload/docker/server";
-import {stacksVisible} from "@/features/dashboard/workload/stacks/permissions";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
@@ -22,9 +20,11 @@ export async function generateMetadata(): Promise<Metadata> {
 async function ContainersPage() {
   const {t} = await getServerDictionary();
 
-  // the listing is the browser's, asked for again every few seconds: what the
-  // person may do is worked out here and handed to it, once per listing.
+  // the listing is the browser's, asked for again every few seconds: what
+  // the person holds, and who they are, is read here and handed to it, which
+  // works out what may be done to each container from whose VM it is in.
   const permissions = (await getUserPermissions()) ?? [];
+  const me = await getUserUuid();
   const canSeeAll = hasPermission(permissions, [
     PERMISSIONS.workload.containers.INDEX,
   ]);
@@ -61,19 +61,19 @@ async function ContainersPage() {
           all={
             <ContainersTable
               scope="all"
-              may={dockerMay(permissions, "all")}
+              permissions={permissions}
+              me={me}
               canCreate={canCreate}
               vmSource={allVms}
-              stacksVisible={stacksVisible(permissions, "all")}
             />
           }
           mine={
             <ContainersTable
               scope="mine"
-              may={dockerMay(permissions, "mine")}
+              permissions={permissions}
+              me={me}
               canCreate={canCreate}
               vmSource={myVms}
-              stacksVisible={stacksVisible(permissions, "mine")}
             />
           }
         />

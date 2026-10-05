@@ -4,9 +4,10 @@ import {withPermissions} from "@/components/with-authorization";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {getServerDictionary} from "@/i18n/server";
 import {APP_PATHS} from "@/lib/app-paths";
-import {getUserPermissions, hasPermission} from "@/lib/auth";
+import {getUserPermissions} from "@/lib/auth";
 import {ContainerForm} from "@/features/dashboard/workload/docker/components/container-form";
 import {dockerVmSource} from "@/features/dashboard/workload/docker/server";
+import {scopeFor} from "@/features/dashboard/workload/permissions";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
@@ -20,15 +21,10 @@ async function NewContainerPage() {
   const permissions = (await getUserPermissions()) ?? [];
 
   // a container is always created for whoever asks, in one of their own VMs:
-  // those are what is offered, and what is in them is read the same way.
+  // those are what is offered, and what is in them is read the way anything
+  // of one's own is.
   const vmSource = await dockerVmSource("mine", permissions);
-  const listScope = hasPermission(permissions, [
-    "self.workload.containers.index",
-  ])
-    ? "mine"
-    : hasPermission(permissions, ["workload.containers.index"])
-      ? "all"
-      : null;
+  const listScope = scopeFor(permissions, "containers", "index", true);
 
   return (
     <Box>

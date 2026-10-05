@@ -41,7 +41,6 @@ import {pullImage, removeImage} from "../../api";
 import {shortId} from "../../format";
 import {dockerKeys} from "../../hooks/queries";
 import {useImages} from "../../hooks/use-docker-objects";
-import {type DockerMay} from "../../permissions";
 import {type Image} from "../../types";
 import {Waiting} from "../waiting";
 
@@ -56,7 +55,10 @@ export function imageNames(image: Image): string[] {
 type Props = {
   scope: Scope;
   vm: Vm;
-  may: DockerMay;
+
+  /** The routes what is in it is added and removed through, if it may be. */
+  manage: Scope | null;
+  remove: Scope | null;
 };
 
 /**
@@ -64,7 +66,7 @@ type Props = {
  * the wait is shown for what it is; removing one a container uses is refused
  * by docker unless it is forced, which is asked about first.
  */
-export function ImagesTable({scope, vm, may}: Props) {
+export function ImagesTable({scope, vm, manage, remove: removeScope}: Props) {
   const {t, locale} = useI18n();
   const queryClient = useQueryClient();
   const images = useImages(scope, vm.uuid);
@@ -78,7 +80,7 @@ export function ImagesTable({scope, vm, may}: Props) {
     queryClient.invalidateQueries({queryKey: dockerKeys.root});
 
   const pull = useMutation({
-    mutationFn: (wanted: string) => pullImage(scope, vm.uuid, wanted),
+    mutationFn: (wanted: string) => pullImage(manage!, vm.uuid, wanted),
     onSuccess: (_, wanted) => {
       setReference("");
       setAttempted(false);
@@ -94,7 +96,7 @@ export function ImagesTable({scope, vm, may}: Props) {
 
   const remove = useMutation({
     mutationFn: (gone: {id: string; force: boolean}) =>
-      removeImage(scope, vm.uuid, gone.id, gone.force),
+      removeImage(removeScope!, vm.uuid, gone.id, gone.force),
     onSuccess: () => setRemoving(null),
     // said in the question that asked.
     onError: () => {},
@@ -116,7 +118,7 @@ export function ImagesTable({scope, vm, may}: Props) {
 
   return (
     <Stack>
-      {may.manage && (
+      {manage !== null && (
         <form onSubmit={submit} noValidate>
           <Stack gap="xs">
             <TextInput
@@ -250,7 +252,7 @@ export function ImagesTable({scope, vm, may}: Props) {
                       )}
                     </TableTd>
                     <TableTd>
-                      {may.delete && (
+                      {removeScope !== null && (
                         <Tooltip label={t("images.table.remove")} withArrow>
                           <ActionIcon
                             variant="light"

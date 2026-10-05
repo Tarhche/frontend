@@ -16,6 +16,10 @@ jest.mock("@/i18n/provider", () => {
   };
 });
 
+// an avatar is drawn by a module jest does not read; who is shown is the
+// point, not how.
+jest.mock("@/components/user-avatar", () => ({UserAvatar: () => null}));
+
 jest.mock("next/navigation", () => ({
   useRouter: () => ({push: jest.fn(), replace: jest.fn(), refresh: jest.fn()}),
   usePathname: () => "/dashboard/stacks/s-1",
@@ -36,14 +40,20 @@ jest.mock("@/features/dashboard/workload/vms/client", () => ({
   getAllVms: (...args: unknown[]) => getAllVms(...args),
 }));
 
-const may = {own: true, manage: true, delete: true};
+// what somebody who may do anything with their own stacks holds.
+const permissions = [
+  "self.workload.stacks.show",
+  "self.workload.stacks.manage",
+  "self.workload.stacks.delete",
+];
 
 function detail() {
   return renderWithProviders(
     <StackDetail
       scope="mine"
       uuid="s-1"
-      may={may}
+      permissions={permissions}
+      me="me"
       vmSource={{scope: "mine"}}
     />,
   );
@@ -141,6 +151,54 @@ describe("StackDetail", () => {
     expect(
       await screen.findByText("stacks.detail.goneTitle"),
     ).toBeInTheDocument();
+  });
+});
+
+describe("StackDetail, read as anybody's", () => {
+  const theirs = {
+    uuid: "s-9",
+    name: "blog",
+    slug: "blog-a1b2c",
+    owner_uuid: "somebody",
+    owner: {uuid: "somebody", name: "Sam"},
+    vm_uuid: "vm-9",
+    state: "running",
+    created_at: "2026-10-04T12:00:00Z",
+    containers: [],
+  };
+
+  function everybodys(held: string[]) {
+    return renderWithProviders(
+      <StackDetail
+        scope="all"
+        uuid="s-9"
+        permissions={held}
+        me="me"
+        vmSource={{scope: "all"}}
+      />,
+    );
+  }
+
+  it("says whose it is, and offers nothing on the strength of one's own", async () => {
+    fetchStack.mockResolvedValue(theirs);
+    everybodys(["workload.stacks.show", "self.workload.stacks.manage"]);
+
+    expect(await screen.findByText("Sam")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", {name: "stacks.actions.stop"}),
+    ).not.toBeInTheDocument();
+  });
+
+  it("offers what the workload's permissions allow over anybody's", async () => {
+    fetchStack.mockResolvedValue(theirs);
+    everybodys(["workload.stacks.show", "workload.stacks.manage"]);
+
+    expect(
+      await screen.findByRole("button", {name: "stacks.actions.stop"}),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", {name: "stacks.actions.delete"}),
+    ).not.toBeInTheDocument();
   });
 });
 

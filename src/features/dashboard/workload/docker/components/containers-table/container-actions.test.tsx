@@ -1,6 +1,7 @@
 import {screen, waitFor, within} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {AxiosError, AxiosHeaders, type InternalAxiosRequestConfig} from "axios";
+import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {renderWithProviders} from "../../test-utils";
 import {type Container} from "../../types";
 import {ContainerActions} from "./container-actions";
@@ -37,13 +38,18 @@ function container(overrides: Partial<Container> = {}): Container {
 const onRemoved = jest.fn();
 const onPending = jest.fn();
 
-function actions(shown: Container, may = {manage: true, delete: true}) {
+type Routes = {manage: Scope | null; remove: Scope | null};
+
+function actions(
+  shown: Container,
+  routes: Routes = {manage: "mine", remove: "mine"},
+) {
   return renderWithProviders(
     <ContainerActions
-      scope="mine"
       vmUuid="vm-1"
       container={shown}
-      may={may}
+      manage={routes.manage}
+      remove={routes.remove}
       onRemoved={onRemoved}
       onPending={onPending}
     />,
@@ -228,8 +234,37 @@ describe("ContainerActions", () => {
     expect(onRemoved).not.toHaveBeenCalled();
   });
 
+  it("asks through the routes it was given for each", async () => {
+    const user = userEvent.setup();
+    actions(container({state: "exited"}), {manage: "mine", remove: "all"});
+
+    await user.click(
+      screen.getByRole("button", {name: "containers.actions.start"}),
+    );
+    await waitFor(() =>
+      expect(commandContainer).toHaveBeenCalledWith(
+        "mine",
+        "vm-1",
+        "c-1",
+        "start",
+      ),
+    );
+
+    await user.click(
+      screen.getByRole("button", {name: "containers.actions.remove"}),
+    );
+    await user.click(
+      within(await screen.findByRole("dialog")).getByRole("button", {
+        name: "containers.actions.remove",
+      }),
+    );
+    await waitFor(() =>
+      expect(removeContainer).toHaveBeenCalledWith("all", "vm-1", "c-1", false),
+    );
+  });
+
   it("offers only what the person may do", () => {
-    actions(container(), {manage: false, delete: true});
+    actions(container(), {manage: null, remove: "mine"});
 
     expect(
       screen.queryByRole("button", {name: "containers.actions.stop"}),

@@ -1,12 +1,10 @@
+import {scopeFor} from "@/features/dashboard/workload/permissions";
 import {type Scope} from "./api";
 
 /**
- * What somebody may do to a VM, and through which routes.
- *
- * Every action has a permission over anybody's VMs and one over one's own,
- * served on different routes. One's own VM is asked about through one's own
- * routes when that permission is held -- it is the narrower one, and the API
- * checks the VM is the caller's -- and through the workload's otherwise.
+ * What somebody may do to a VM, and through which routes: one's own through
+ * one's own routes when that permission is held, anybody's through the
+ * workload's, as with everything in the workload (../permissions.ts).
  */
 
 export type VmAction =
@@ -18,15 +16,7 @@ export function vmScope(
   action: VmAction,
   isOwner: boolean,
 ): Scope | null {
-  if (isOwner && permissions.includes(`self.workload.vms.${action}`)) {
-    return "mine";
-  }
-
-  if (permissions.includes(`workload.vms.${action}`)) {
-    return "all";
-  }
-
-  return null;
+  return scopeFor(permissions, "vms", action, isOwner);
 }
 
 export type VmAbilities = {

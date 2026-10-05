@@ -6,6 +6,7 @@ import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
 import {StaleAlert} from "@/features/dashboard/workload/components/problem-alert";
+import {Owner} from "@/features/dashboard/workload/components/owner";
 import {type VmTransition, VmStateBadge} from "../vm-state-badge";
 import {type Scope} from "../../api";
 import {useVms} from "../../hooks/queries";
@@ -15,7 +16,6 @@ import {type Page, type Vm} from "../../types";
 import {VmActions} from "../vm-actions";
 import {VmExpiry} from "../vm-expiry";
 import {VmKindBadge} from "../vm-kind-badge";
-import {VmOwner} from "../vm-owner";
 
 type Props = {
   scope: Scope;
@@ -135,7 +135,7 @@ export function VmRows({
             </TableTd>
             {showOwner && (
               <TableTd>
-                <VmOwner vm={vm} me={me} />
+                <Owner of={vm} me={me} />
               </TableTd>
             )}
             <TableTd>

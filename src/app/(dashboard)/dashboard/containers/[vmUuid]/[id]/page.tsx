@@ -4,15 +4,11 @@ import {withPermissions} from "@/components/with-authorization";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {getServerDictionary} from "@/i18n/server";
 import {APP_PATHS} from "@/lib/app-paths";
-import {getUserPermissions} from "@/lib/auth";
+import {getUserPermissions, getUserUuid} from "@/lib/auth";
 import {ContainerDetail} from "@/features/dashboard/workload/docker/components/container-detail";
 import {shortId} from "@/features/dashboard/workload/docker/format";
-import {
-  containerScope,
-  dockerMay,
-} from "@/features/dashboard/workload/docker/permissions";
 import {dockerVmSource} from "@/features/dashboard/workload/docker/server";
-import {stacksVisible} from "@/features/dashboard/workload/stacks/permissions";
+import {readScope} from "@/features/dashboard/workload/permissions";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
@@ -29,11 +25,10 @@ async function ContainerPage({params}: Props) {
   const {t} = await getServerDictionary();
   const {vmUuid, id} = await params;
 
-  // somebody trusted with everybody's containers asks for this one as
-  // anybody's; somebody trusted with only their own asks for it as theirs,
-  // and is told it is not there when it is not theirs.
+  // read as anybody's by whoever may see anybody's, as one's own otherwise.
   const permissions = (await getUserPermissions()) ?? [];
-  const scope = containerScope(permissions);
+  const me = await getUserUuid();
+  const scope = readScope(permissions, "containers");
 
   return (
     <Box>
@@ -54,9 +49,9 @@ async function ContainerPage({params}: Props) {
           scope={scope}
           vmUuid={vmUuid}
           id={id}
-          may={dockerMay(permissions, scope)}
+          permissions={permissions}
+          me={me}
           vmSource={await dockerVmSource(scope, permissions)}
-          stacksVisible={stacksVisible(permissions, scope)}
         />
       </Box>
     </Box>

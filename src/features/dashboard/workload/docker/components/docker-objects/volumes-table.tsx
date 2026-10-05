@@ -39,13 +39,15 @@ import {
 import {createVolume, removeVolume} from "../../api";
 import {dockerKeys} from "../../hooks/queries";
 import {useVolumes} from "../../hooks/use-docker-objects";
-import {type DockerMay} from "../../permissions";
 import {type Volume} from "../../types";
 
 type Props = {
   scope: Scope;
   vm: Vm;
-  may: DockerMay;
+
+  /** The routes what is in it is added and removed through, if it may be. */
+  manage: Scope | null;
+  remove: Scope | null;
 };
 
 // a refusal of the name is said beside it.
@@ -56,7 +58,7 @@ const nameField = (path: string) => path === "name";
  * Removing one takes what is in it with it, and docker refuses to remove one
  * a container still uses unless it is forced, which is asked about first.
  */
-export function VolumesTable({scope, vm, may}: Props) {
+export function VolumesTable({scope, vm, manage, remove: removeScope}: Props) {
   const {t, locale} = useI18n();
   const queryClient = useQueryClient();
   const volumes = useVolumes(scope, vm.uuid);
@@ -71,7 +73,7 @@ export function VolumesTable({scope, vm, may}: Props) {
 
   const create = useMutation({
     mutationFn: (wanted: string) =>
-      createVolume(scope, vm.uuid, {name: wanted}),
+      createVolume(manage!, vm.uuid, {name: wanted}),
     onSuccess: (_, wanted) => {
       setName("");
       setAttempted(false);
@@ -87,7 +89,7 @@ export function VolumesTable({scope, vm, may}: Props) {
 
   const remove = useMutation({
     mutationFn: (gone: {name: string; force: boolean}) =>
-      removeVolume(scope, vm.uuid, gone.name, gone.force),
+      removeVolume(removeScope!, vm.uuid, gone.name, gone.force),
     onSuccess: () => setRemoving(null),
     // said in the question that asked.
     onError: () => {},
@@ -108,7 +110,7 @@ export function VolumesTable({scope, vm, may}: Props) {
 
   return (
     <Stack>
-      {may.manage && (
+      {manage !== null && (
         <form onSubmit={submit} noValidate>
           <Stack gap="xs">
             <TextInput
@@ -216,7 +218,7 @@ export function VolumesTable({scope, vm, may}: Props) {
                     </Text>
                   </TableTd>
                   <TableTd>
-                    {may.delete && (
+                    {removeScope !== null && (
                       <Tooltip label={t("volumes.table.remove")} withArrow>
                         <ActionIcon
                           variant="light"

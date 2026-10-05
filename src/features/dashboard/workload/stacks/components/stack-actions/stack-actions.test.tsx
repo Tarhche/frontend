@@ -27,6 +27,7 @@ function stack(overrides: Partial<Stack> = {}): Stack {
     uuid: "s-1",
     name: "shop",
     slug: "shop-x1y2z",
+    owner_uuid: "me",
     vm_uuid: "vm-1",
     state: "running",
     created_at: "2026-10-04T12:00:00Z",
@@ -35,11 +36,15 @@ function stack(overrides: Partial<Stack> = {}): Stack {
 }
 
 const onDeleted = jest.fn();
-const may = {own: true, manage: true, delete: true};
 
 function actions(shown: Stack) {
   return renderWithProviders(
-    <StackActions scope="mine" stack={shown} may={may} onDeleted={onDeleted} />,
+    <StackActions
+      stack={shown}
+      manage="mine"
+      remove="mine"
+      onDeleted={onDeleted}
+    />,
   );
 }
 

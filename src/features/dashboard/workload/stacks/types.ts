@@ -1,3 +1,4 @@
+import {type Author} from "@/features/authors/types";
 import {
   type ChosenVm,
   type Container,
@@ -12,6 +13,8 @@ import {
  *   starting | stopping | stopped | restarting | removing | failed.
  * - expected_state: what it was asked to be, running or stopped.
  * - output: the tail of what the last compose command printed.
+ * - compose: the file itself, which a listing leaves out and one stack's read
+ *   carries.
  */
 export type Stack = {
   uuid: string;
@@ -19,7 +22,10 @@ export type Stack = {
 
   /** the compose project's name inside the VM, which its containers carry. */
   slug: string;
-  owner_uuid?: string;
+  owner_uuid: string;
+
+  /** who it belongs to, as the API says beside the uuid. */
+  owner?: Partial<Author> | null;
   vm_uuid: string;
   vm_name?: string;
   compose?: string;

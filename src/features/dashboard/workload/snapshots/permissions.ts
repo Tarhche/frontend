@@ -1,3 +1,4 @@
+import {scopeFor} from "@/features/dashboard/workload/permissions";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 
 /**
@@ -12,13 +13,5 @@ export function snapshotScope(
   action: SnapshotAction,
   isOwner: boolean,
 ): Scope | null {
-  if (isOwner && permissions.includes(`self.workload.snapshots.${action}`)) {
-    return "mine";
-  }
-
-  if (permissions.includes(`workload.snapshots.${action}`)) {
-    return "all";
-  }
-
-  return null;
+  return scopeFor(permissions, "snapshots", action, isOwner);
 }

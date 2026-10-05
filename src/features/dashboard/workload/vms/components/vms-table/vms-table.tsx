@@ -78,7 +78,7 @@ export async function VmsTable({page, scope = "all"}: Props) {
           />
         </Table>
       </TableScrollContainer>
-      {items.length > 0 && (
+      {response.pagination?.total_pages > 1 && (
         <Group mt="md" mb="xl" justify="flex-end">
           <Pagination
             total={response.pagination.total_pages}

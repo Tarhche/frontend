@@ -26,6 +26,7 @@ import {TableSkeleton} from "@/components/skeletons";
 import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
+import {scopeFor} from "@/features/dashboard/workload/permissions";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
 import {useVmChoices} from "@/features/dashboard/workload/vms/hooks/queries";
@@ -36,7 +37,7 @@ import {
 } from "@/features/dashboard/workload/components/problem-alert";
 import {shortId} from "../../format";
 import {useContainer} from "../../hooks/use-containers";
-import {type DockerMay} from "../../permissions";
+import {dockerAbilities} from "../../permissions";
 import {
   ContainerStateBadge,
   type ContainerTransition,
@@ -48,16 +49,17 @@ import {ContainerOverview} from "./container-overview";
 import {ContainerStatsPanel} from "./container-stats";
 
 type Props = {
+  /** The routes it is read through. */
   scope: Scope;
   vmUuid: string;
   id: string;
-  may: DockerMay;
 
-  /** where the VM it is in is listed, for its name and its size. */
+  /** What the person looking holds, and who they are. */
+  permissions: string[];
+  me: string | null;
+
+  /** where the VM it is in is listed, for its name, its size and its owner. */
   vmSource: VmSource | null;
-
-  /** whether the stacks in this scope may be listed, to link to its own. */
-  stacksVisible?: boolean;
 };
 
 /**
@@ -71,9 +73,9 @@ export function ContainerDetail({
   scope,
   vmUuid,
   id,
-  may,
+  permissions,
+  me,
   vmSource,
-  stacksVisible = false,
 }: Props) {
   const {t} = useI18n();
   const router = useRouter();
@@ -131,7 +133,14 @@ export function ContainerDetail({
   const container = query.data;
   const vm = vms.data?.find((each) => each.uuid === vmUuid);
   const vmName = vm?.name ?? container.vm_name ?? shortId(vmUuid);
-  const stackUuid = stacksVisible ? container.stack_uuid : undefined;
+
+  // a container is its VM's owner's: what may be done to it follows from that.
+  const isOwner = scope === "mine" || (me !== null && vm?.owner_uuid === me);
+  const may = dockerAbilities(permissions, isOwner);
+  const stackUuid =
+    container.stack_uuid && scopeFor(permissions, "stacks", "show", isOwner)
+      ? container.stack_uuid
+      : undefined;
 
   return (
     <Stack>
@@ -152,10 +161,10 @@ export function ContainerDetail({
           </Text>
         </Stack>
         <ContainerActions
-          scope={scope}
           vmUuid={vmUuid}
           container={container}
-          may={may}
+          manage={may.manage}
+          remove={may.delete}
           onPending={setPending}
           onRemoved={() => router.push(APP_PATHS.dashboard.containers.index)}
         />
@@ -179,9 +188,11 @@ export function ContainerDetail({
               {t("containers.detail.logs")}
             </TabsTab>
           )}
-          <TabsTab value="stats" leftSection={<IconChartLine size={16} />}>
-            {t("containers.detail.stats")}
-          </TabsTab>
+          {may.show && (
+            <TabsTab value="stats" leftSection={<IconChartLine size={16} />}>
+              {t("containers.detail.stats")}
+            </TabsTab>
+          )}
           <TabsTab value="networks" leftSection={<IconNetwork size={16} />}>
             {t("containers.detail.networks")}
           </TabsTab>
@@ -201,26 +212,28 @@ export function ContainerDetail({
 
         {may.logs && (
           <TabsPanel value="logs" pt="md">
-            <ContainerLogs scope={scope} vmUuid={vmUuid} id={container.id} />
+            <ContainerLogs scope={may.logs} vmUuid={vmUuid} id={container.id} />
           </TabsPanel>
         )}
 
-        <TabsPanel value="stats" pt="md">
-          <ContainerStatsPanel
-            scope={scope}
-            vmUuid={vmUuid}
-            id={container.id}
-            running={container.state === "running"}
-            vmCpus={vm?.resources?.cpus}
-          />
-        </TabsPanel>
+        {may.show && (
+          <TabsPanel value="stats" pt="md">
+            <ContainerStatsPanel
+              scope={may.show}
+              vmUuid={vmUuid}
+              id={container.id}
+              running={container.state === "running"}
+              vmCpus={vm?.resources?.cpus}
+            />
+          </TabsPanel>
+        )}
 
         <TabsPanel value="networks" pt="md">
           <ContainerNetworks
-            scope={scope}
             vmUuid={vmUuid}
             container={container}
-            may={may}
+            list={may.index}
+            manage={may.manage}
           />
         </TabsPanel>
       </Tabs>

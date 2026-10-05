@@ -44,10 +44,12 @@ export function containerName(container: Pick<Container, "name" | "id">) {
 }
 
 type Props = {
-  scope: Scope;
   vmUuid: string;
   container: Container;
-  may: {manage: boolean; delete: boolean};
+
+  /** The routes it is managed and removed through; null where it may not be. */
+  manage: Scope | null;
+  remove: Scope | null;
 
   /** told what is on its way to the container, until docker has caught up. */
   onPending?: (transition: ContainerTransition | undefined) => void;
@@ -63,10 +65,10 @@ type Props = {
  * which the question says before anybody agrees to it.
  */
 export function ContainerActions({
-  scope,
   vmUuid,
   container,
-  may,
+  manage,
+  remove: removeScope,
   onPending,
   onRemoved,
 }: Props) {
@@ -88,7 +90,7 @@ export function ContainerActions({
 
   const command = useMutation({
     mutationFn: (which: ContainerCommand) =>
-      commandContainer(scope, vmUuid, container.id, which),
+      commandContainer(manage!, vmUuid, container.id, which),
     onMutate: (which) => onPending?.(underway[which]),
     onSuccess: () => setConfirming(null),
     onError: (error, which) => {
@@ -106,7 +108,7 @@ export function ContainerActions({
   });
 
   const remove = useMutation({
-    mutationFn: () => removeContainer(scope, vmUuid, container.id, up),
+    mutationFn: () => removeContainer(removeScope!, vmUuid, container.id, up),
     onMutate: () => onPending?.("removing"),
     onSuccess: () => {
       setConfirming(null);
@@ -139,7 +141,7 @@ export function ContainerActions({
   return (
     <>
       <ActionIconGroup>
-        {may.manage && (
+        {manage !== null && (
           <>
             {up ? (
               <Tooltip label={t("containers.actions.stop")} withArrow>
@@ -183,7 +185,7 @@ export function ContainerActions({
             </Tooltip>
           </>
         )}
-        {may.delete && (
+        {removeScope !== null && (
           <Tooltip label={t("containers.actions.remove")} withArrow>
             <ActionIcon
               variant="light"

@@ -27,7 +27,6 @@ import {dockerKeys} from "@/features/dashboard/workload/docker/hooks/queries";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {commandStack, deleteStack} from "../../api";
 import {isInFlight, stackKeys} from "../../hooks/use-stacks";
-import {type StackMay} from "../../permissions";
 import {type Stack, type StackCommand} from "../../types";
 import {type StackTransition} from "../stack-state-badge";
 
@@ -39,9 +38,11 @@ const underway: Record<StackCommand, StackTransition> = {
 };
 
 type Props = {
-  scope: Scope;
   stack: Stack;
-  may: StackMay;
+
+  /** The routes it is managed and deleted through; null where it may not be. */
+  manage: Scope | null;
+  remove: Scope | null;
 
   /** told what is on its way to the stack, until its VM has caught up. */
   onPending?: (transition: StackTransition | undefined) => void;
@@ -60,7 +61,13 @@ type Props = {
  * that is asked for too, since what is in them is usually what somebody would
  * want back.
  */
-export function StackActions({scope, stack, may, onPending, onDeleted}: Props) {
+export function StackActions({
+  stack,
+  manage,
+  remove: removeScope,
+  onPending,
+  onDeleted,
+}: Props) {
   const t = useTranslations();
   const queryClient = useQueryClient();
 
@@ -79,7 +86,8 @@ export function StackActions({scope, stack, may, onPending, onDeleted}: Props) {
   };
 
   const command = useMutation({
-    mutationFn: (which: StackCommand) => commandStack(scope, stack.uuid, which),
+    mutationFn: (which: StackCommand) =>
+      commandStack(manage!, stack.uuid, which),
     onMutate: (which) => onPending?.(underway[which]),
     onSuccess: () => setConfirming(null),
     onError: (error, which) => {
@@ -97,7 +105,8 @@ export function StackActions({scope, stack, may, onPending, onDeleted}: Props) {
   });
 
   const remove = useMutation({
-    mutationFn: (volumes: boolean) => deleteStack(scope, stack.uuid, volumes),
+    mutationFn: (volumes: boolean) =>
+      deleteStack(removeScope!, stack.uuid, volumes),
     onMutate: () => onPending?.("removing"),
     onSuccess: () => {
       setConfirming(null);
@@ -136,7 +145,7 @@ export function StackActions({scope, stack, may, onPending, onDeleted}: Props) {
   return (
     <>
       <ActionIconGroup>
-        {may.manage && (
+        {manage !== null && (
           <>
             {running ? (
               <Tooltip label={t("stacks.actions.stop")} withArrow>
@@ -180,7 +189,7 @@ export function StackActions({scope, stack, may, onPending, onDeleted}: Props) {
             </Tooltip>
           </>
         )}
-        {may.delete && (
+        {removeScope !== null && (
           <Tooltip label={t("stacks.actions.delete")} withArrow>
             <ActionIcon
               variant="light"

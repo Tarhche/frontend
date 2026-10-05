@@ -5,11 +5,10 @@ import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumb
 import {getServerDictionary} from "@/i18n/server";
 import {APP_PATHS} from "@/lib/app-paths";
 import {PERMISSIONS} from "@/lib/app-permissions";
-import {getUserPermissions, hasPermission} from "@/lib/auth";
+import {getUserPermissions, getUserUuid, hasPermission} from "@/lib/auth";
 import {ScopeSwitch} from "@/components/scope-switch";
 import {dockerVmSource} from "@/features/dashboard/workload/docker/server";
 import {StacksTable} from "@/features/dashboard/workload/stacks/components/stacks-table";
-import {stackMay} from "@/features/dashboard/workload/stacks/permissions";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
@@ -30,8 +29,10 @@ async function StacksPage({searchParams}: Props) {
   const current = Math.max(1, Number.parseInt(page ?? "1", 10) || 1);
 
   // the listing is the browser's, asked for again while a stack is on its way
-  // somewhere: what the person may do is worked out here and handed to it.
+  // somewhere: what the person holds, and who they are, is read here and
+  // handed to it, which works out what may be done to each stack.
   const permissions = (await getUserPermissions()) ?? [];
+  const me = await getUserUuid();
   const canSeeAll = hasPermission(permissions, [
     PERMISSIONS.workload.stacks.INDEX,
   ]);
@@ -69,7 +70,8 @@ async function StacksPage({searchParams}: Props) {
             <StacksTable
               scope="all"
               page={current}
-              may={stackMay(permissions, "all")}
+              permissions={permissions}
+              me={me}
               canCreate={canCreate}
               vmSource={allVms}
               containersVisible={hasPermission(permissions, [
@@ -81,7 +83,8 @@ async function StacksPage({searchParams}: Props) {
             <StacksTable
               scope="mine"
               page={current}
-              may={stackMay(permissions, "mine")}
+              permissions={permissions}
+              me={me}
               canCreate={canCreate}
               vmSource={myVms}
               containersVisible={hasPermission(permissions, [

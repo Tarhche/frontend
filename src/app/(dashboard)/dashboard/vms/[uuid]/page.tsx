@@ -5,9 +5,8 @@ import {withPermissions} from "@/components/with-authorization";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {getServerDictionary} from "@/i18n/server";
 import {APP_PATHS} from "@/lib/app-paths";
-import {PERMISSIONS} from "@/lib/app-permissions";
-import {getUserPermissions, getUserUuid, hasPermission} from "@/lib/auth";
-import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {getUserPermissions, getUserUuid} from "@/lib/auth";
+import {readScope} from "@/features/dashboard/workload/permissions";
 import {fetchVm} from "@/features/dashboard/workload/vms/dal";
 import {VmDetail} from "@/features/dashboard/workload/vms/components/vm-detail";
 
@@ -26,16 +25,10 @@ async function VmPage({params}: Props) {
   const {t} = await getServerDictionary();
   const {uuid} = await params;
 
-  // Somebody trusted with everybody's VMs asks for this one as anybody's;
-  // somebody trusted with only their own asks for it as theirs, and is told it
-  // does not exist when it is not.
+  // read as anybody's by whoever may see anybody's, as one's own otherwise.
   const permissions = (await getUserPermissions()) ?? [];
   const me = await getUserUuid();
-  const scope: Scope = hasPermission(permissions, [
-    PERMISSIONS.workload.vms.SHOW,
-  ])
-    ? "all"
-    : "mine";
+  const scope = readScope(permissions, "vms");
 
   const vm = await fetchVm(scope, uuid);
   if (!vm) {

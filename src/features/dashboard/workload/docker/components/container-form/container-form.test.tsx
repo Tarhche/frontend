@@ -6,6 +6,10 @@ import {ltr} from "../../format";
 import {dockerVm, renderWithProviders} from "../../test-utils";
 import {ContainerForm} from "./container-form";
 
+// an avatar is drawn by a module jest does not read; who is shown is the
+// point, not how.
+jest.mock("@/components/user-avatar", () => ({UserAvatar: () => null}));
+
 jest.mock("@/i18n/provider", () => {
   const t = (key: string, vars?: Record<string, string | number>) =>
     vars ? `${key}(${Object.values(vars).join(",")})` : key;

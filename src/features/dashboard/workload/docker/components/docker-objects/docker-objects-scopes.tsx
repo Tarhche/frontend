@@ -1,8 +1,7 @@
 import {ScopeSwitch} from "@/components/scope-switch";
 import {getServerDictionary} from "@/i18n/server";
 import {PERMISSIONS} from "@/lib/app-permissions";
-import {getUserPermissions, hasPermission} from "@/lib/auth";
-import {dockerMay} from "../../permissions";
+import {getUserPermissions, getUserUuid, hasPermission} from "@/lib/auth";
 import {dockerVmSource} from "../../server";
 import {DockerObjectsPage, type DockerObjects} from "./docker-objects-page";
 
@@ -15,12 +14,13 @@ type Props = {
 
 /**
  * Everybody's Docker VMs, or one's own, for a page that looks into one. What
- * the person may do in each is worked out here, on the server, and handed to
- * the page that asks the VMs.
+ * the person holds is read here, on the server, and handed to the page, which
+ * works out what may be done in whichever VM is picked from whose VM it is.
  */
 export async function DockerObjectsScopes({objects, initialVm}: Props) {
   const {t} = await getServerDictionary();
   const permissions = (await getUserPermissions()) ?? [];
+  const me = await getUserUuid();
 
   const [allVms, myVms] = await Promise.all([
     dockerVmSource("all", permissions),
@@ -43,7 +43,8 @@ export async function DockerObjectsScopes({objects, initialVm}: Props) {
         <DockerObjectsPage
           objects={objects}
           scope="all"
-          may={dockerMay(permissions, "all")}
+          permissions={permissions}
+          me={me}
           vmSource={allVms}
           initialVm={initialVm}
         />
@@ -52,7 +53,8 @@ export async function DockerObjectsScopes({objects, initialVm}: Props) {
         <DockerObjectsPage
           objects={objects}
           scope="mine"
-          may={dockerMay(permissions, "mine")}
+          permissions={permissions}
+          me={me}
           vmSource={myVms}
           initialVm={initialVm}
         />

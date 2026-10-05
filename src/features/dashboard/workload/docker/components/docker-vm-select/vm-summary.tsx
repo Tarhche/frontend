@@ -8,6 +8,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import {useI18n} from "@/i18n/provider";
+import {Owner} from "@/features/dashboard/workload/components/owner";
 import {type Vm} from "@/features/dashboard/workload/vms/types";
 import {
   formatBytes,
@@ -77,10 +78,16 @@ type SummaryProps = {
 
   /** whether what its state means is said here, or by whoever shows it. */
   withReadiness?: boolean;
+
+  /** who is looking: whose the VM is is said when it is not theirs. */
+  me?: string | null;
 };
 
-/** A Docker VM in a line or two: its state, its size, what it lets through. */
-export function VmSummary({vm, withReadiness = true}: SummaryProps) {
+/**
+ * A Docker VM in a line or two: its state, its size, what it lets through,
+ * and whose it is when it is somebody else's.
+ */
+export function VmSummary({vm, withReadiness = true, me}: SummaryProps) {
   const {t, locale} = useI18n();
   const ports = vm.ports ?? [];
 
@@ -115,6 +122,14 @@ export function VmSummary({vm, withReadiness = true}: SummaryProps) {
           </>
         )}
       </Text>
+      {me !== undefined && me !== null && vm.owner_uuid !== me && (
+        <Group gap="xs">
+          <Text size="sm" c="dimmed">
+            {t("dockerVms.summary.owner")}
+          </Text>
+          <Owner of={vm} me={me} />
+        </Group>
+      )}
       {withReadiness && <VmReadinessNote vm={vm} />}
     </Stack>
   );

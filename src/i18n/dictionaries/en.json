@@ -634,7 +634,8 @@
       "since": "Last {span}",
       "collecting": "Collecting samples…",
       "trend": "{label} over the last {count} samples: lowest {low}, highest {high}, now {now}"
-    }
+    },
+    "you": "You"
   },
   "vms": {
     "title": "VMs",
@@ -655,8 +656,7 @@
       "memory": "Memory",
       "disk": "Disk",
       "expires": "Expires",
-      "owner": "Owner",
-      "you": "You"
+      "owner": "Owner"
     },
     "tabs": {
       "allVms": "All VMs",
@@ -944,7 +944,8 @@
       "state": "State",
       "containers": "Containers",
       "containersHelp": "Counted from the containers its VM has now; — when that VM is not running.",
-      "createdAt": "Created"
+      "createdAt": "Created",
+      "owner": "Owner"
     },
     "actions": {
       "start": "Start",
@@ -979,6 +980,7 @@
       "inVm": "in {vm}",
       "project": "compose project {slug}",
       "createdAt": "created {date}",
+      "owner": "Owner",
       "reason": "Why",
       "output": "Last compose output",
       "compose": "Compose file",
@@ -1024,7 +1026,8 @@
       "ingressAllowed": "reachable from the internet",
       "ingressDenied": "not reachable from the internet",
       "egressAllowed": "reaches the internet",
-      "egressDenied": "no internet access"
+      "egressDenied": "no internet access",
+      "owner": "Owner"
     },
     "readiness": {
       "booting": "This VM is starting. Requests wait until Docker in it is ready, which can take a minute or two.",
@@ -1096,6 +1099,7 @@
       "ports": "Ports",
       "vm": "VM",
       "stack": "Stack",
+      "owner": "Owner",
       "service": "service {service}"
     },
     "actions": {

@@ -32,7 +32,6 @@ import {TableSkeleton} from "@/components/skeletons";
 import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
-import {formatDate} from "@/lib/date-and-time";
 import {ContainerStateBadge} from "@/features/dashboard/workload/docker/components/container-state-badge";
 import {
   ContainerPorts,
@@ -46,10 +45,12 @@ import {VmStateBadge} from "@/features/dashboard/workload/vms/components/vm-stat
 import {problemOf} from "@/features/dashboard/workload/lib/problem";
 import {shortId} from "@/features/dashboard/workload/docker/format";
 import {useVmChoices} from "@/features/dashboard/workload/vms/hooks/queries";
+import {Owner} from "@/features/dashboard/workload/components/owner";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {formatDateTime} from "@/features/dashboard/workload/vms/lib/lifetime";
 import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
 import {useStack} from "../../hooks/use-stacks";
-import {type StackMay} from "../../permissions";
+import {stackAbilities} from "../../permissions";
 import {type StackDetail as StackRecord} from "../../types";
 import {ComposeEditor} from "../compose-editor";
 import {StackActions} from "../stack-actions";
@@ -165,9 +166,13 @@ function Containers({stack}: {stack: StackRecord}) {
 }
 
 type Props = {
+  /** The routes it is read through. */
   scope: Scope;
   uuid: string;
-  may: StackMay;
+
+  /** What the person looking holds, and who they are. */
+  permissions: string[];
+  me: string | null;
 
   /** where the VM it is in is listed, for its name and state. */
   vmSource: VmSource | null;
@@ -178,7 +183,7 @@ type Props = {
  * and the containers it has now. There is no editing it; it is started,
  * stopped, restarted or deleted, and a different compose file is a new stack.
  */
-export function StackDetail({scope, uuid, may, vmSource}: Props) {
+export function StackDetail({scope, uuid, permissions, me, vmSource}: Props) {
   const {t, locale} = useI18n();
   const router = useRouter();
   const query = useStack(scope, uuid);
@@ -235,6 +240,8 @@ export function StackDetail({scope, uuid, may, vmSource}: Props) {
   const stack = query.data;
   const vm = vms.data?.find((each) => each.uuid === stack.vm_uuid);
   const failed = stack.state === "failed";
+  const isOwner = scope === "mine" || (me !== null && stack.owner_uuid === me);
+  const may = stackAbilities(permissions, isOwner);
 
   return (
     <Stack>
@@ -261,14 +268,22 @@ export function StackDetail({scope, uuid, may, vmSource}: Props) {
             {t("stacks.detail.project", {slug: stack.slug})}
             {" · "}
             {t("stacks.detail.createdAt", {
-              date: formatDate(stack.created_at, locale),
+              date: formatDateTime(stack.created_at, locale),
             })}
           </Text>
+          {!isOwner && (
+            <Group gap="xs">
+              <Text size="sm" c="dimmed">
+                {t("stacks.detail.owner")}
+              </Text>
+              <Owner of={stack} me={me} />
+            </Group>
+          )}
         </Stack>
         <StackActions
-          scope={scope}
           stack={stack}
-          may={may}
+          manage={may.manage}
+          remove={may.delete}
           onPending={setPending}
           onDeleted={() => router.push(APP_PATHS.dashboard.stacks.index)}
         />

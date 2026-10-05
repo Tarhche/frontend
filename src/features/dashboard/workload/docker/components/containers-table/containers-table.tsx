@@ -20,8 +20,11 @@ import {TableSkeleton} from "@/components/skeletons";
 import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
+import {Owner} from "@/features/dashboard/workload/components/owner";
+import {scopeFor} from "@/features/dashboard/workload/permissions";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
+import {type Vm} from "@/features/dashboard/workload/vms/types";
 import {useVmChoices} from "@/features/dashboard/workload/vms/hooks/queries";
 import {vmReadiness} from "@/features/dashboard/workload/vms/lib/state";
 import {problemOf} from "@/features/dashboard/workload/lib/problem";
@@ -31,7 +34,7 @@ import {
 } from "@/features/dashboard/workload/components/problem-alert";
 import {shortId} from "../../format";
 import {useContainers} from "../../hooks/use-containers";
-import {type DockerMay} from "../../permissions";
+import {dockerAbilities, type DockerAbilities} from "../../permissions";
 import {type Container} from "../../types";
 import {
   ContainerStateBadge,
@@ -41,23 +44,27 @@ import {ContainerActions, containerName} from "./container-actions";
 import {ContainerPorts} from "./container-ports";
 
 type RowProps = {
-  scope: Scope;
   container: Container;
   vmUuid: string;
   vmName: string;
-  may: DockerMay;
+
+  /** what may be done to it, and through which routes. */
+  may: DockerAbilities;
 
   /** where the stack it belongs to is shown, when it belongs to one. */
   stackHref?: string;
+
+  /** whose it is, in a listing of everybody's. */
+  owner?: {vm?: Vm; me: string | null};
 };
 
 function ContainerRow({
-  scope,
   container,
   vmUuid,
   vmName,
   may,
   stackHref,
+  owner,
 }: RowProps) {
   const {t} = useI18n();
 
@@ -117,12 +124,17 @@ function ContainerRow({
           </Text>
         )}
       </TableTd>
+      {owner && (
+        <TableTd>
+          <Owner of={owner.vm ?? {}} me={owner.me} />
+        </TableTd>
+      )}
       <TableTd>
         <ContainerActions
-          scope={scope}
           vmUuid={vmUuid}
           container={container}
-          may={may}
+          manage={may.manage}
+          remove={may.delete}
           onPending={setPending}
         />
       </TableTd>
@@ -132,14 +144,14 @@ function ContainerRow({
 
 type Props = {
   scope: Scope;
-  may: DockerMay;
+
+  /** what the person looking holds, and who they are, for each row. */
+  permissions: string[];
+  me: string | null;
   canCreate: boolean;
 
   /** where the Docker VMs to filter by are listed, if they may be. */
   vmSource: VmSource | null;
-
-  /** whether the stacks in this scope may be listed, to link to them. */
-  stacksVisible?: boolean;
 };
 
 /**
@@ -153,10 +165,10 @@ type Props = {
  */
 export function ContainersTable({
   scope,
-  may,
+  permissions,
+  me,
   canCreate,
   vmSource,
-  stacksVisible = false,
 }: Props) {
   const {t} = useI18n();
   const [vm, setVm] = useState<string | null>(null);
@@ -164,9 +176,12 @@ export function ContainersTable({
   const containers = useContainers(scope, vm ?? undefined);
   const vms = useVmChoices(vmSource, {kind: "docker"});
 
-  const vmNames = new Map(
-    (vms.data ?? []).map((each) => [each.uuid, each.name]),
-  );
+  const vmByUuid = new Map((vms.data ?? []).map((each) => [each.uuid, each]));
+
+  // in somebody's own listing every row is theirs, so saying so on each one
+  // says nothing.
+  const showOwner = scope === "all";
+  const columns = showOwner ? 9 : 8;
   const notRunning = (vms.data ?? []).filter(
     (each) =>
       vmReadiness(each.state) !== "running" &&
@@ -175,10 +190,15 @@ export function ContainersTable({
 
   const items = containers.data ?? [];
 
-  // a container says which stack deployed it, which is worth a link for
-  // whoever may look at that stack.
+  // a container is its VM's owner's, and what may be done to it, and whether
+  // the stack that deployed it may be looked at, follows from that.
+  const isOwner = (container: Container) =>
+    scope === "mine" ||
+    (me !== null && vmByUuid.get(container.vm_uuid ?? "")?.owner_uuid === me);
+
   const stackHref = (container: Container) =>
-    stacksVisible && container.stack_uuid
+    container.stack_uuid &&
+    scopeFor(permissions, "stacks", "show", isOwner(container))
       ? APP_PATHS.dashboard.stacks.detail(container.stack_uuid)
       : undefined;
 
@@ -232,7 +252,10 @@ export function ContainersTable({
       )}
 
       {containers.isPending ? (
-        <TableSkeleton columnsCount={8} tableProps={{verticalSpacing: "sm"}} />
+        <TableSkeleton
+          columnsCount={columns}
+          tableProps={{verticalSpacing: "sm"}}
+        />
       ) : containers.isError && !containers.data ? (
         <ProblemAlert
           problem={problemOf(containers.error)}
@@ -252,33 +275,31 @@ export function ContainersTable({
                 <TableTh>{t("containers.table.ports")}</TableTh>
                 <TableTh>{t("containers.table.vm")}</TableTh>
                 <TableTh>{t("containers.table.stack")}</TableTh>
+                {showOwner && <TableTh>{t("containers.table.owner")}</TableTh>}
                 <TableTh>{t("common.actions")}</TableTh>
               </TableTr>
             </TableThead>
             <TableTbody>
               {items.length === 0 && (
                 <TableTr>
-                  <TableTd colSpan={8} ta="center">
+                  <TableTd colSpan={columns} ta="center">
                     {t("containers.table.empty")}
                   </TableTd>
                 </TableTr>
               )}
               {items.map((container) => {
                 const vmUuid = container.vm_uuid ?? vm ?? "";
+                const inVm = vmByUuid.get(vmUuid);
 
                 return (
                   <ContainerRow
                     key={`${vmUuid}/${container.id}`}
-                    scope={scope}
                     container={container}
                     vmUuid={vmUuid}
-                    vmName={
-                      container.vm_name ??
-                      vmNames.get(vmUuid) ??
-                      shortId(vmUuid)
-                    }
-                    may={may}
+                    vmName={container.vm_name ?? inVm?.name ?? shortId(vmUuid)}
+                    may={dockerAbilities(permissions, isOwner(container))}
                     stackHref={stackHref(container)}
+                    owner={showOwner ? {vm: inVm, me} : undefined}
                   />
                 );
               })}

@@ -42,7 +42,6 @@ import {
 import {createNetwork, removeNetwork} from "../../api";
 import {dockerKeys} from "../../hooks/queries";
 import {useNetworks} from "../../hooks/use-docker-objects";
-import {type DockerMay} from "../../permissions";
 import {type Network} from "../../types";
 
 /** The networks docker makes for itself, which are not anybody's to remove. */
@@ -51,7 +50,10 @@ export const PREDEFINED_NETWORKS = ["bridge", "host", "none"];
 type Props = {
   scope: Scope;
   vm: Vm;
-  may: DockerMay;
+
+  /** The routes what is in it is added and removed through, if it may be. */
+  manage: Scope | null;
+  remove: Scope | null;
 };
 
 // a refusal of the name is said beside it.
@@ -62,7 +64,7 @@ const nameField = (path: string) => path === "name";
  * of them reaches any other VM, whatever it is called. An internal network
  * has no way out of the VM at all.
  */
-export function NetworksTable({scope, vm, may}: Props) {
+export function NetworksTable({scope, vm, manage, remove: removeScope}: Props) {
   const {t, locale} = useI18n();
   const queryClient = useQueryClient();
   const networks = useNetworks(scope, vm.uuid);
@@ -77,7 +79,7 @@ export function NetworksTable({scope, vm, may}: Props) {
 
   const create = useMutation({
     mutationFn: (network: {name: string; internal: boolean}) =>
-      createNetwork(scope, vm.uuid, {...network, driver: "bridge"}),
+      createNetwork(manage!, vm.uuid, {...network, driver: "bridge"}),
     onSuccess: (_, network) => {
       setName("");
       setInternal(false);
@@ -93,7 +95,7 @@ export function NetworksTable({scope, vm, may}: Props) {
   });
 
   const remove = useMutation({
-    mutationFn: (id: string) => removeNetwork(scope, vm.uuid, id),
+    mutationFn: (id: string) => removeNetwork(removeScope!, vm.uuid, id),
     onSuccess: () => setRemoving(null),
     // said in the question that asked.
     onError: () => {},
@@ -114,7 +116,7 @@ export function NetworksTable({scope, vm, may}: Props) {
 
   return (
     <Stack>
-      {may.manage && (
+      {manage !== null && (
         <form onSubmit={submit} noValidate>
           <Fieldset
             legend={t("networks.form.legend")}
@@ -247,7 +249,7 @@ export function NetworksTable({scope, vm, may}: Props) {
                       </Text>
                     </TableTd>
                     <TableTd>
-                      {may.delete && !predefined && (
+                      {removeScope !== null && !predefined && (
                         <Tooltip label={t("networks.table.remove")} withArrow>
                           <ActionIcon
                             variant="light"

@@ -18,9 +18,9 @@ import {
 import {IconPlus} from "@tabler/icons-react";
 import {TableSkeleton} from "@/components/skeletons";
 import Link from "@/components/link";
+import {Pagination} from "@/components/pagination";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
-import {formatDate} from "@/lib/date-and-time";
 import {
   ProblemAlert,
   StaleAlert,
@@ -32,16 +32,17 @@ import {useContainers} from "@/features/dashboard/workload/docker/hooks/use-cont
 import {useVmChoices} from "@/features/dashboard/workload/vms/hooks/queries";
 import {type Container} from "@/features/dashboard/workload/docker/types";
 import {vmReadiness} from "@/features/dashboard/workload/vms/lib/state";
+import {Owner} from "@/features/dashboard/workload/components/owner";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {formatDateTime} from "@/features/dashboard/workload/vms/lib/lifetime";
 import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
 import {type Vm} from "@/features/dashboard/workload/vms/types";
 import {formatNumber} from "@/features/dashboard/workload/vms/lib/units";
 import {useStacks} from "../../hooks/use-stacks";
-import {type StackMay} from "../../permissions";
+import {stackAbilities, type StackAbilities} from "../../permissions";
 import {type Stack as StackRecord} from "../../types";
 import {StackActions} from "../stack-actions";
 import {StackStateBadge, type StackTransition} from "../stack-state-badge";
-import {StacksPagination} from "./stacks-pagination";
 
 /**
  * How many containers each stack has. A container says which stack deployed
@@ -79,14 +80,18 @@ export function containersOf(
 }
 
 type RowProps = {
-  scope: Scope;
   stack: StackRecord;
   vm?: Vm;
   containers: string;
-  may: StackMay;
+
+  /** what may be done to it, and through which routes. */
+  may: StackAbilities;
+
+  /** who is looking, when whose each stack is is worth a column. */
+  owner?: {me: string | null};
 };
 
-function StackRow({scope, stack, vm, containers, may}: RowProps) {
+function StackRow({stack, vm, containers, may, owner}: RowProps) {
   const {locale} = useI18n();
 
   // what somebody has just asked of it, shown until its VM starts on it.
@@ -116,13 +121,18 @@ function StackRow({scope, stack, vm, containers, may}: RowProps) {
         <Text size="sm">{containers}</Text>
       </TableTd>
       <TableTd>
-        <Text size="sm">{formatDate(stack.created_at, locale)}</Text>
+        <Text size="sm">{formatDateTime(stack.created_at, locale)}</Text>
       </TableTd>
+      {owner && (
+        <TableTd>
+          <Owner of={stack} me={owner.me} />
+        </TableTd>
+      )}
       <TableTd>
         <StackActions
-          scope={scope}
           stack={stack}
-          may={may}
+          manage={may.manage}
+          remove={may.delete}
           onPending={setPending}
         />
       </TableTd>
@@ -133,7 +143,10 @@ function StackRow({scope, stack, vm, containers, may}: RowProps) {
 type Props = {
   scope: Scope;
   page: number;
-  may: StackMay;
+
+  /** what the person looking holds, and who they are, for each row. */
+  permissions: string[];
+  me: string | null;
   canCreate: boolean;
 
   /** where the Docker VMs the stacks are in are listed, if they may be. */
@@ -150,7 +163,8 @@ type Props = {
 export function StacksTable({
   scope,
   page,
-  may,
+  permissions,
+  me,
   canCreate,
   vmSource,
   containersVisible,
@@ -179,6 +193,11 @@ export function StacksTable({
   const items = stacks.data?.items ?? [];
   const pagination = stacks.data?.pagination;
 
+  // in somebody's own listing every row is theirs, so saying so on each one
+  // says nothing.
+  const showOwner = scope === "all";
+  const columns = showOwner ? 7 : 6;
+
   return (
     <Stack gap="md">
       {canCreate && (
@@ -203,7 +222,10 @@ export function StacksTable({
       )}
 
       {stacks.isPending ? (
-        <TableSkeleton columnsCount={6} tableProps={{verticalSpacing: "sm"}} />
+        <TableSkeleton
+          columnsCount={columns}
+          tableProps={{verticalSpacing: "sm"}}
+        />
       ) : stacks.isError && !stacks.data ? (
         <ProblemAlert
           problem={problemOf(stacks.error)}
@@ -230,13 +252,14 @@ export function StacksTable({
                   </Tooltip>
                 </TableTh>
                 <TableTh>{t("stacks.table.createdAt")}</TableTh>
+                {showOwner && <TableTh>{t("stacks.table.owner")}</TableTh>}
                 <TableTh>{t("common.actions")}</TableTh>
               </TableTr>
             </TableThead>
             <TableTbody>
               {items.length === 0 && (
                 <TableTr>
-                  <TableTd colSpan={6} ta="center">
+                  <TableTd colSpan={columns} ta="center">
                     {t("stacks.table.empty")}
                   </TableTd>
                 </TableTr>
@@ -244,11 +267,15 @@ export function StacksTable({
               {items.map((stack) => (
                 <StackRow
                   key={stack.uuid}
-                  scope={scope}
                   stack={stack}
                   vm={vmByUuid.get(stack.vm_uuid)}
                   containers={containerCount(stack)}
-                  may={may}
+                  may={stackAbilities(
+                    permissions,
+                    scope === "mine" ||
+                      (me !== null && stack.owner_uuid === me),
+                  )}
+                  owner={showOwner ? {me} : undefined}
                 />
               ))}
             </TableTbody>
@@ -258,7 +285,7 @@ export function StacksTable({
 
       {pagination && pagination.total_pages > 1 && (
         <Group mt="md" mb="xl" justify="flex-end">
-          <StacksPagination
+          <Pagination
             total={pagination.total_pages}
             current={pagination.current_page}
           />

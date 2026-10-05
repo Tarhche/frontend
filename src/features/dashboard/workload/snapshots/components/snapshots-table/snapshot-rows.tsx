@@ -7,7 +7,7 @@ import {APP_PATHS} from "@/lib/app-paths";
 import {StaleAlert} from "@/features/dashboard/workload/components/problem-alert";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {VmKindBadge} from "@/features/dashboard/workload/vms/components/vm-kind-badge";
-import {VmOwner} from "@/features/dashboard/workload/vms/components/vm-owner";
+import {Owner} from "@/features/dashboard/workload/components/owner";
 import {formatDateTime} from "@/features/dashboard/workload/vms/lib/lifetime";
 import {formatBytes} from "@/features/dashboard/workload/vms/lib/units";
 import {
@@ -120,7 +120,7 @@ export function SnapshotRows({
             </TableTd>
             {showOwner && (
               <TableTd>
-                <VmOwner vm={snapshot} me={me} />
+                <Owner of={snapshot} me={me} />
               </TableTd>
             )}
             <TableTd>

@@ -17,12 +17,18 @@ import {
 } from "@tabler/icons-react";
 import {useTranslations} from "@/i18n/provider";
 import {VmStateBadge} from "@/features/dashboard/workload/vms/components/vm-state-badge";
+import {type Vm} from "@/features/dashboard/workload/vms/types";
 import {problemOf} from "@/features/dashboard/workload/lib/problem";
 import {ProblemAlert} from "@/features/dashboard/workload/components/problem-alert";
 import {NEW_VM} from "./choice";
 import {NewDockerVmFields} from "./new-docker-vm-fields";
 import {type DockerVmChoiceState} from "./use-docker-vm-choice";
 import {VmSummary} from "./vm-summary";
+
+// whose a VM is, in a line of an option: a name, or what of the uuid there is.
+function ownerName(vm: Vm): string {
+  return vm.owner?.name || vm.owner?.username || vm.owner_uuid.slice(0, 8);
+}
 
 type Props = {
   state: DockerVmChoiceState;
@@ -39,6 +45,12 @@ type Props = {
 
   /** whether what a VM's state means is said under it, or by the page. */
   withReadiness?: boolean;
+
+  /**
+   * Who is looking, where the VMs offered are everybody's: whose a VM is is
+   * said beside it when it is not theirs.
+   */
+  me?: string | null;
 };
 
 /**
@@ -59,6 +71,7 @@ export function DockerVmSelect({
   disabled,
   onPick,
   withReadiness = true,
+  me,
 }: Props) {
   const t = useTranslations();
   const {source, vms, loading, failed, choice, allowNew} = state;
@@ -193,9 +206,19 @@ export function DockerVmSelect({
             );
           }
 
+          const theirs =
+            me !== undefined && me !== null && vm.owner_uuid !== me;
+
           return (
             <Group justify="space-between" wrap="nowrap" style={{flex: 1}}>
-              <Text size="sm">{vm.name}</Text>
+              <div>
+                <Text size="sm">{vm.name}</Text>
+                {theirs && (
+                  <Text size="xs" c="dimmed">
+                    {ownerName(vm)}
+                  </Text>
+                )}
+              </div>
               <VmStateBadge
                 state={vm.state}
                 expectedState={vm.expected_state}
@@ -206,7 +229,7 @@ export function DockerVmSelect({
       />
 
       {choice.kind === "existing" && (
-        <VmSummary vm={choice.vm} withReadiness={withReadiness} />
+        <VmSummary vm={choice.vm} withReadiness={withReadiness} me={me} />
       )}
 
       {choice.kind === "new" && (

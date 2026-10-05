@@ -1,40 +1,43 @@
-import {hasPermission} from "@/lib/auth/shared";
+import {scopeFor} from "@/features/dashboard/workload/permissions";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 
 /**
- * What a person may do with the Docker objects in a scope.
+ * What somebody may do with what is in a Docker VM, and through which routes:
+ * one's own through one's own routes when that permission is held, anybody's
+ * through the workload's (../permissions.ts). What is in a VM is its owner's,
+ * so whose it is is whose the VM is.
  *
- * Containers' permissions cover the images, networks and volumes of the same
- * VMs. Pulling an image, or creating a network or a volume, changes a VM the
- * way starting a container does, so it is the manage permission that allows
- * it; removing any of them is the delete one.
+ * The containers' permissions cover the images, networks and volumes of the
+ * same VMs.
  */
-export type DockerMay = {
-  own: boolean;
-  manage: boolean;
-  delete: boolean;
-  logs: boolean;
+export type DockerAbilities = {
+  /** listing what is in it: containers, images, networks, volumes. */
+  index: Scope | null;
+
+  /** reading one container, its usage included. */
+  show: Scope | null;
+
+  /**
+   * starting, stopping and restarting a container, joining and leaving
+   * networks, and pulling an image or creating a network or a volume: what
+   * changes a VM the way starting a container does.
+   */
+  manage: Scope | null;
+
+  /** removing a container, an image, a network or a volume. */
+  delete: Scope | null;
+  logs: Scope | null;
 };
 
-export function dockerMay(permissions: string[], scope: Scope): DockerMay {
-  const own = scope === "mine";
-  const prefix = own ? "self.workload.containers" : "workload.containers";
-
+export function dockerAbilities(
+  permissions: readonly string[],
+  isOwner: boolean,
+): DockerAbilities {
   return {
-    own,
-    manage: hasPermission(permissions, [`${prefix}.manage`]),
-    delete: hasPermission(permissions, [`${prefix}.delete`]),
-    logs: hasPermission(permissions, [`${prefix}.logs`]),
+    index: scopeFor(permissions, "containers", "index", isOwner),
+    show: scopeFor(permissions, "containers", "show", isOwner),
+    manage: scopeFor(permissions, "containers", "manage", isOwner),
+    delete: scopeFor(permissions, "containers", "delete", isOwner),
+    logs: scopeFor(permissions, "containers", "logs", isOwner),
   };
-}
-
-/**
- * The scope a single container is asked for in: somebody trusted with
- * everybody's asks for it as anybody's; somebody trusted with only their own
- * asks for it as theirs, and is told it does not exist when it is not.
- */
-export function containerScope(permissions: string[]): Scope {
-  return hasPermission(permissions, ["workload.containers.show"])
-    ? "all"
-    : "mine";
 }

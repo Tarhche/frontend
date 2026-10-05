@@ -17,6 +17,7 @@ import {IconExternalLink, IconInfoCircle} from "@tabler/icons-react";
 import {useI18n} from "@/i18n/provider";
 import {isGregorianStartDateTime} from "@/lib/date-and-time";
 import {stateLabel} from "@/lib/state-label";
+import {Owner} from "@/features/dashboard/workload/components/owner";
 import {VmStateBadge} from "../vm-state-badge";
 import {formatDateTime} from "../../lib/lifetime";
 import {hasStats, type StatsSample} from "../../lib/stats";
@@ -24,7 +25,6 @@ import {formatBytes, formatNumber} from "../../lib/units";
 import {type Vm} from "../../types";
 import {VmExpiry} from "../vm-expiry";
 import {VmKindBadge} from "../vm-kind-badge";
-import {VmOwner} from "../vm-owner";
 import {VmStats} from "./vm-stats";
 
 type Props = {
@@ -124,7 +124,7 @@ export function VmOverview({vm, samples, showOwner}: Props) {
 
           {showOwner && (
             <Field label={t("vms.detail.owner")}>
-              <VmOwner vm={vm} />
+              <Owner of={vm} />
             </Field>
           )}
 

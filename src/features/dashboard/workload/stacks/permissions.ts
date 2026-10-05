@@ -1,35 +1,26 @@
-import {hasPermission} from "@/lib/auth/shared";
+import {scopeFor} from "@/features/dashboard/workload/permissions";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 
-/** What a person may do with the stacks in a scope. There is no editing one. */
-export type StackMay = {
-  own: boolean;
-  manage: boolean;
-  delete: boolean;
+/**
+ * What somebody may do to a stack, and through which routes: one's own
+ * through one's own routes when that permission is held, anybody's through the
+ * workload's (../permissions.ts). There is no editing one.
+ */
+export type StackAbilities = {
+  show: Scope | null;
+
+  /** starting, stopping and restarting it. */
+  manage: Scope | null;
+  delete: Scope | null;
 };
 
-export function stackMay(permissions: string[], scope: Scope): StackMay {
-  const own = scope === "mine";
-  const prefix = own ? "self.workload.stacks" : "workload.stacks";
-
+export function stackAbilities(
+  permissions: readonly string[],
+  isOwner: boolean,
+): StackAbilities {
   return {
-    own,
-    manage: hasPermission(permissions, [`${prefix}.manage`]),
-    delete: hasPermission(permissions, [`${prefix}.delete`]),
+    show: scopeFor(permissions, "stacks", "show", isOwner),
+    manage: scopeFor(permissions, "stacks", "manage", isOwner),
+    delete: scopeFor(permissions, "stacks", "delete", isOwner),
   };
-}
-
-/**
- * The scope a single stack is asked for in: everybody's for whoever may see
- * everybody's, one's own otherwise, where somebody else's is not found.
- */
-export function stackScope(permissions: string[]): Scope {
-  return hasPermission(permissions, ["workload.stacks.show"]) ? "all" : "mine";
-}
-
-/** Whether a scope's stacks may be listed, which linking to them takes. */
-export function stacksVisible(permissions: string[], scope: Scope): boolean {
-  return hasPermission(permissions, [
-    scope === "mine" ? "self.workload.stacks.index" : "workload.stacks.index",
-  ]);
 }

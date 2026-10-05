@@ -4,13 +4,10 @@ import {withPermissions} from "@/components/with-authorization";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {getServerDictionary} from "@/i18n/server";
 import {APP_PATHS} from "@/lib/app-paths";
-import {getUserPermissions} from "@/lib/auth";
+import {getUserPermissions, getUserUuid} from "@/lib/auth";
 import {dockerVmSource} from "@/features/dashboard/workload/docker/server";
+import {readScope} from "@/features/dashboard/workload/permissions";
 import {StackDetail} from "@/features/dashboard/workload/stacks/components/stack-detail";
-import {
-  stackMay,
-  stackScope,
-} from "@/features/dashboard/workload/stacks/permissions";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
@@ -27,11 +24,10 @@ async function StackPage({params}: Props) {
   const {t} = await getServerDictionary();
   const {uuid} = await params;
 
-  // somebody trusted with everybody's stacks asks for this one as anybody's;
-  // somebody trusted with only their own asks for it as theirs, and is told
-  // it is not there when it is not theirs.
+  // read as anybody's by whoever may see anybody's, as one's own otherwise.
   const permissions = (await getUserPermissions()) ?? [];
-  const scope = stackScope(permissions);
+  const me = await getUserUuid();
+  const scope = readScope(permissions, "stacks");
 
   return (
     <Box>
@@ -48,7 +44,8 @@ async function StackPage({params}: Props) {
         <StackDetail
           scope={scope}
           uuid={uuid}
-          may={stackMay(permissions, scope)}
+          permissions={permissions}
+          me={me}
           vmSource={await dockerVmSource(scope, permissions)}
         />
       </Box>
