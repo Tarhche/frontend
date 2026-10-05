@@ -42,7 +42,7 @@ import {
   ProblemAlert,
   StaleAlert,
 } from "@/features/dashboard/workload/components/problem-alert";
-import {StateBadge} from "@/features/dashboard/workload/components/state-badge";
+import {VmStateBadge} from "@/features/dashboard/workload/vms/components/vm-state-badge";
 import {problemOf} from "@/features/dashboard/workload/lib/problem";
 import {shortId} from "@/features/dashboard/workload/docker/format";
 import {useVmChoices} from "@/features/dashboard/workload/vms/hooks/queries";
@@ -251,7 +251,10 @@ export function StackDetail({scope, uuid, may, vmSource}: Props) {
               })}
             </Text>
             {vm && (
-              <StateBadge state={vm.state} expectedState={vm.expected_state} />
+              <VmStateBadge
+                state={vm.state}
+                expectedState={vm.expected_state}
+              />
             )}
           </Group>
           <Text size="sm" c="dimmed">

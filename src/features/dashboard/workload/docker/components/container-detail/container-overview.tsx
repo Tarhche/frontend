@@ -21,9 +21,9 @@ import {IconCheck, IconCopy} from "@tabler/icons-react";
 import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
 import {formatDateTime} from "@/features/dashboard/workload/vms/lib/lifetime";
+import {stateLabel} from "@/lib/state-label";
 import {type Container} from "../../types";
 import {ContainerPorts} from "../containers-table/container-ports";
-import {stateLabel} from "../state-label";
 
 function Item({label, children}: {label: string; children: ReactNode}) {
   return (

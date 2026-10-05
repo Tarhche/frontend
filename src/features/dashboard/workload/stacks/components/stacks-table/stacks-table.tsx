@@ -25,7 +25,7 @@ import {
   ProblemAlert,
   StaleAlert,
 } from "@/features/dashboard/workload/components/problem-alert";
-import {StateBadge} from "@/features/dashboard/workload/components/state-badge";
+import {VmStateBadge} from "@/features/dashboard/workload/vms/components/vm-state-badge";
 import {problemOf} from "@/features/dashboard/workload/lib/problem";
 import {shortId} from "@/features/dashboard/workload/docker/format";
 import {useContainers} from "@/features/dashboard/workload/docker/hooks/use-containers";
@@ -88,7 +88,7 @@ function StackRow({scope, stack, vm, containers, may}: RowProps) {
         <Group gap="xs" wrap="nowrap">
           <Text size="sm">{vmName}</Text>
           {vm && vmReadiness(vm.state) !== "running" && (
-            <StateBadge state={vm.state} expectedState={vm.expected_state} />
+            <VmStateBadge state={vm.state} expectedState={vm.expected_state} />
           )}
         </Group>
       </TableTd>

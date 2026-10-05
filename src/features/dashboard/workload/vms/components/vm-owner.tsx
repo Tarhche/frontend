@@ -2,7 +2,7 @@
 
 import {Text, Tooltip} from "@mantine/core";
 import {useTranslations} from "@/i18n/provider";
-import {OwnerInline} from "@/features/dashboard/workload/components/owner-inline";
+import {AuthorInline} from "@/features/authors/components/author-inline";
 import {type Vm} from "../types";
 
 /**
@@ -23,7 +23,7 @@ export function VmOwner({
   }
 
   if (vm.owner?.uuid) {
-    return <OwnerInline owner={vm.owner} size={28} />;
+    return <AuthorInline author={vm.owner} size={28} />;
   }
 
   return (

@@ -16,7 +16,8 @@ import {
 import {IconExternalLink, IconInfoCircle} from "@tabler/icons-react";
 import {useI18n} from "@/i18n/provider";
 import {isGregorianStartDateTime} from "@/lib/date-and-time";
-import {StateBadge} from "@/features/dashboard/workload/components/state-badge";
+import {stateLabel} from "@/lib/state-label";
+import {VmStateBadge} from "../vm-state-badge";
 import {formatDateTime} from "../../lib/lifetime";
 import {hasStats, type StatsSample} from "../../lib/stats";
 import {formatBytes, formatNumber} from "../../lib/units";
@@ -41,14 +42,9 @@ export function VmOverview({vm, samples, showOwner}: Props) {
   const {t, locale} = useI18n();
   const running = vm.state === "running";
 
-  const reason = vm.reason
-    ? (() => {
-        const key = `vms.reasons.${vm.reason}`;
-        const said = t(key);
-
-        return said === key ? vm.reason : said;
-      })()
-    : null;
+  // the workload's word for why, said in the reader's when there are words
+  // for it, and as it was said otherwise.
+  const reason = vm.reason ? stateLabel(t, "vms.reasons", vm.reason) : null;
 
   return (
     <Stack>
@@ -65,7 +61,7 @@ export function VmOverview({vm, samples, showOwner}: Props) {
           <Field label={t("vms.detail.state")}>
             <Stack gap={4}>
               <Group gap="xs">
-                <StateBadge
+                <VmStateBadge
                   state={vm.state}
                   expectedState={vm.expected_state}
                 />

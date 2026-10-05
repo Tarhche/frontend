@@ -2,7 +2,7 @@
 
 import {Badge} from "@mantine/core";
 import {useTranslations} from "@/i18n/provider";
-import {stateLabel} from "../state-label";
+import {stateLabel} from "@/lib/state-label";
 
 /** What has just been asked of a container, which docker has yet to show. */
 export type ContainerTransition =

@@ -14,7 +14,7 @@ import {
   formatNumber,
 } from "@/features/dashboard/workload/vms/lib/units";
 import {vmReadiness} from "@/features/dashboard/workload/vms/lib/state";
-import {StateBadge} from "@/features/dashboard/workload/components/state-badge";
+import {VmStateBadge} from "@/features/dashboard/workload/vms/components/vm-state-badge";
 import {ltr} from "../../format";
 
 /**
@@ -87,7 +87,7 @@ export function VmSummary({vm, withReadiness = true}: SummaryProps) {
   return (
     <Stack gap="xs">
       <Group gap="xs" wrap="wrap">
-        <StateBadge state={vm.state} expectedState={vm.expected_state} />
+        <VmStateBadge state={vm.state} expectedState={vm.expected_state} />
         {vm.resources && (
           <Text size="sm" c="dimmed">
             {t("dockerVms.summary.resources", {

@@ -802,6 +802,25 @@
     },
     "logs": {
       "label": "VM output"
+    },
+    "states": {
+      "created": "created",
+      "scheduled": "scheduled",
+      "starting": "starting",
+      "running": "running",
+      "stopping": "stopping",
+      "stopped": "stopped",
+      "restarting": "restarting",
+      "restoring": "restoring",
+      "failed": "failed",
+      "deleting": "deleting"
+    },
+    "transitions": {
+      "starting": "starting...",
+      "stopping": "stopping...",
+      "restarting": "restarting...",
+      "restoring": "restoring...",
+      "deleting": "deleting..."
     }
   },
   "snapshots": {
@@ -873,18 +892,6 @@
     }
   },
   "tasks": {
-    "table": {
-      "image": "Image",
-      "state": "State",
-      "endpoints": "Addresses",
-      "noEndpoints": "No exposed ports",
-      "stop": "Stop",
-      "kill": "Kill",
-      "restart": "Restart",
-      "delete": "Delete",
-      "retrying": "retrying",
-      "retryingCount": "retrying {current} of {total}"
-    },
     "detail": {
       "terminal": "Terminal",
       "terminalEnded": "The session ended.",
@@ -899,18 +906,7 @@
       "stopped": "stopped",
       "completed": "completed",
       "failed": "failed",
-      "restarting": "restarting",
-      "starting": "starting",
-      "restoring": "restoring",
-      "deleting": "deleting"
-    },
-    "transitions": {
-      "starting": "running...",
-      "stopping": "stopping...",
-      "killing": "killing...",
-      "restarting": "restarting...",
-      "deleting": "deleting...",
-      "restoring": "restoring..."
+      "restarting": "restarting"
     }
   },
   "stacks": {

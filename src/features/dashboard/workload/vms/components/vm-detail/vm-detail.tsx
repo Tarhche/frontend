@@ -7,13 +7,10 @@ import {IconInfoCircle} from "@tabler/icons-react";
 import Link from "@/components/link";
 import {useTranslations} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
-import {
-  StateBadge,
-  type Transition,
-} from "@/features/dashboard/workload/components/state-badge";
 import {StaleAlert} from "@/features/dashboard/workload/components/problem-alert";
 import {VmSnapshots} from "@/features/dashboard/workload/snapshots/components/vm-snapshots";
 import {snapshotScope} from "@/features/dashboard/workload/snapshots/permissions";
+import {type VmTransition, VmStateBadge} from "../vm-state-badge";
 import {type Scope} from "../../api";
 import {useVm} from "../../hooks/queries";
 import {useStatsSamples} from "../../hooks/use-stats-samples";
@@ -51,7 +48,7 @@ export function VmDetail({initial, scope, permissions, me}: Props) {
     uuid: initial.uuid,
     initialData: initial,
   });
-  const [pending, setPending] = useState<Transition | undefined>(undefined);
+  const [pending, setPending] = useState<VmTransition | undefined>(undefined);
 
   // the last VM read, until it is gone: a failed read keeps what was shown.
   const vm = data === undefined ? initial : data;
@@ -81,7 +78,7 @@ export function VmDetail({initial, scope, permissions, me}: Props) {
         <Group gap="sm">
           <Title order={2}>{vm.name}</Title>
           <VmKindBadge kind={vm.kind} />
-          <StateBadge
+          <VmStateBadge
             state={vm.state}
             expectedState={vm.expected_state}
             pending={pending}

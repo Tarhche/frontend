@@ -2,6 +2,7 @@
 
 import {Badge, Tooltip} from "@mantine/core";
 import {useTranslations} from "@/i18n/provider";
+import {stateLabel} from "@/lib/state-label";
 import {type Snapshot} from "../types";
 
 const COLORS: Record<string, string> = {
@@ -18,12 +19,10 @@ export function SnapshotStateBadge({
   snapshot: Pick<Snapshot, "state" | "reason">;
 }) {
   const t = useTranslations();
-  const key = `snapshots.states.${snapshot.state}`;
-  const said = t(key);
 
   const badge = (
     <Badge variant="light" color={COLORS[snapshot.state] ?? "gray"}>
-      {said === key ? snapshot.state : said}
+      {stateLabel(t, "snapshots.states", snapshot.state)}
     </Badge>
   );
 

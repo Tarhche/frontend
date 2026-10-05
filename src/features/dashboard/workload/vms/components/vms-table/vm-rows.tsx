@@ -6,10 +6,7 @@ import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
 import {StaleAlert} from "@/features/dashboard/workload/components/problem-alert";
-import {
-  StateBadge,
-  type Transition,
-} from "@/features/dashboard/workload/components/state-badge";
+import {type VmTransition, VmStateBadge} from "../vm-state-badge";
 import {type Scope} from "../../api";
 import {useVms} from "../../hooks/queries";
 import {formatBytes, formatNumber} from "../../lib/units";
@@ -57,9 +54,9 @@ export function VmRows({
   const vms = data?.items ?? [];
 
   // what somebody has just asked of a VM, until the workload says so itself.
-  const [asked, setAsked] = useState<Record<string, Transition>>({});
+  const [asked, setAsked] = useState<Record<string, VmTransition>>({});
   const markAsked = useCallback(
-    (uuid: string, underway: Transition | undefined) => {
+    (uuid: string, underway: VmTransition | undefined) => {
       setAsked((current) => {
         if (current[uuid] === underway) {
           return current;
@@ -114,7 +111,7 @@ export function VmRows({
               <VmKindBadge kind={vm.kind} />
             </TableTd>
             <TableTd>
-              <StateBadge
+              <VmStateBadge
                 state={vm.state}
                 expectedState={vm.expected_state}
                 pending={asked[vm.uuid]}

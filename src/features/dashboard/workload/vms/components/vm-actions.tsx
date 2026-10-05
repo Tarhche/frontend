@@ -20,11 +20,11 @@ import {
 import {useQueryClient} from "@tanstack/react-query";
 import {useTranslations} from "@/i18n/provider";
 import {ConfirmModal} from "@/features/dashboard/workload/components/confirm-modal";
-import {type Transition} from "@/features/dashboard/workload/components/state-badge";
 import {
   problemMessage,
   type Problem,
 } from "@/features/dashboard/workload/lib/problem";
+import {type VmTransition} from "./vm-state-badge";
 import {type Scope} from "../api";
 import {commandVm, deleteVm} from "../actions/vm-commands";
 import {vmKeys} from "../hooks/queries";
@@ -34,7 +34,7 @@ import {type ActionResult, type Vm, type VmCommand} from "../types";
 type Asked = VmCommand | "delete";
 
 // what asking for each of these is, in the words of what it does to a VM.
-const underway: Record<Asked, Transition> = {
+const underway: Record<Asked, VmTransition> = {
   start: "starting",
   stop: "stopping",
   restart: "restarting",
@@ -52,7 +52,7 @@ type Props = {
    * Told what is on its way to the VM while it is being asked for, so that
    * its state can say so before the workload does.
    */
-  onPending?: (underway: Transition | undefined) => void;
+  onPending?: (underway: VmTransition | undefined) => void;
 
   /** Called once it has been asked to go. */
   onDeleted?: () => void;

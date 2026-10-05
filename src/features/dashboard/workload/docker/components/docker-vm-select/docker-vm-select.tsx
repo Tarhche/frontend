@@ -16,7 +16,7 @@ import {
   IconSparkles,
 } from "@tabler/icons-react";
 import {useTranslations} from "@/i18n/provider";
-import {StateBadge} from "@/features/dashboard/workload/components/state-badge";
+import {VmStateBadge} from "@/features/dashboard/workload/vms/components/vm-state-badge";
 import {problemOf} from "@/features/dashboard/workload/lib/problem";
 import {ProblemAlert} from "@/features/dashboard/workload/components/problem-alert";
 import {NEW_VM} from "./choice";
@@ -196,7 +196,10 @@ export function DockerVmSelect({
           return (
             <Group justify="space-between" wrap="nowrap" style={{flex: 1}}>
               <Text size="sm">{vm.name}</Text>
-              <StateBadge state={vm.state} expectedState={vm.expected_state} />
+              <VmStateBadge
+                state={vm.state}
+                expectedState={vm.expected_state}
+              />
             </Group>
           );
         }}

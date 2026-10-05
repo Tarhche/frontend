@@ -802,6 +802,25 @@
     },
     "logs": {
       "label": "خروجی ماشین مجازی"
+    },
+    "states": {
+      "created": "ساخته‌شده",
+      "scheduled": "زمان‌بندی‌شده",
+      "starting": "در حال روشن شدن",
+      "running": "در حال اجرا",
+      "stopping": "در حال توقف",
+      "stopped": "متوقف‌شده",
+      "restarting": "در حال راه‌اندازی مجدد",
+      "restoring": "در حال بازگردانی",
+      "failed": "ناموفق",
+      "deleting": "در حال حذف"
+    },
+    "transitions": {
+      "starting": "در حال روشن شدن...",
+      "stopping": "در حال توقف...",
+      "restarting": "در حال راه‌اندازی مجدد...",
+      "restoring": "در حال بازگردانی...",
+      "deleting": "در حال حذف..."
     }
   },
   "snapshots": {
@@ -873,18 +892,6 @@
     }
   },
   "tasks": {
-    "table": {
-      "image": "ایمیج",
-      "state": "وضعیت",
-      "endpoints": "آدرس‌ها",
-      "noEndpoints": "پورتی منتشر نشده است",
-      "stop": "توقف",
-      "kill": "توقف اجباری",
-      "restart": "راه‌اندازی مجدد",
-      "delete": "حذف",
-      "retrying": "در حال تلاش دوباره",
-      "retryingCount": "تلاش دوباره {current} از {total}"
-    },
     "detail": {
       "terminal": "ترمینال",
       "terminalEnded": "جلسه پایان یافت.",
@@ -899,18 +906,7 @@
       "stopped": "متوقف‌شده",
       "completed": "پایان‌یافته",
       "failed": "ناموفق",
-      "restarting": "در حال راه‌اندازی مجدد",
-      "starting": "در حال روشن شدن",
-      "restoring": "در حال بازگردانی",
-      "deleting": "در حال حذف"
-    },
-    "transitions": {
-      "starting": "در حال اجرا...",
-      "stopping": "در حال توقف...",
-      "killing": "در حال کشتن...",
-      "restarting": "در حال راه‌اندازی مجدد...",
-      "deleting": "در حال حذف...",
-      "restoring": "در حال بازگردانی..."
+      "restarting": "در حال راه‌اندازی مجدد"
     }
   },
   "stacks": {
