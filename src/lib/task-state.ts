@@ -1,16 +1,9 @@
-/**
- * What a task's state is called in the reader's own language.
- *
- * The workload names its states in English, since that is what they are inside
- * it. What is shown of them is translated, and a state nobody has named yet
- * falls back to what the workload called it rather than to nothing.
- */
+import {stateLabel} from "./state-label";
+
+/** What a code runner's task's state is called in the reader's language. */
 export function taskStateLabel(
   t: (key: string) => string,
   state: string,
 ): string {
-  const key = `tasks.states.${state}`;
-  const translated = t(key);
-
-  return translated && translated !== key ? translated : state;
+  return stateLabel(t, "tasks.states", state);
 }

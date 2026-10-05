@@ -1,0 +1,268 @@
+"use client";
+
+import {useState, type FormEvent} from "react";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
+import {
+  ActionIcon,
+  Badge,
+  Button,
+  Fieldset,
+  Group,
+  Select,
+  Stack,
+  Table,
+  TableScrollContainer,
+  TableTbody,
+  TableTd,
+  TableTh,
+  TableThead,
+  TableTr,
+  TagsInput,
+  Text,
+  Tooltip,
+} from "@mantine/core";
+import {notifications} from "@mantine/notifications";
+import {IconPlugConnectedX} from "@tabler/icons-react";
+import {useI18n} from "@/i18n/provider";
+import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {
+  hasMoreToSay,
+  problemOf,
+} from "@/features/dashboard/workload/lib/problem";
+import {ConfirmModal} from "@/features/dashboard/workload/components/confirm-modal";
+import {ProblemAlert} from "@/features/dashboard/workload/components/problem-alert";
+import {connectContainerNetwork, disconnectContainerNetwork} from "../../api";
+import {dockerKeys} from "../../hooks/queries";
+import {useNetworks} from "../../hooks/use-docker-objects";
+import {type Container} from "../../types";
+import {containerName} from "../containers-table/container-actions";
+
+// a refusal of the network or its aliases is said beside them.
+const connectField = (path: string) =>
+  path === "network" || path.startsWith("aliases");
+
+type Props = {
+  vmUuid: string;
+  container: Container;
+
+  /** The routes the VM's networks are listed through, if they may be. */
+  list: Scope | null;
+
+  /** And those it joins and leaves them through, if it may. */
+  manage: Scope | null;
+};
+
+/**
+ * The networks a container is on, all of them its own VM's: a network never
+ * reaches from one VM into another. It can be taken off one, or put on another
+ * of the same VM, under names the others on it reach it by.
+ */
+export function ContainerNetworks({vmUuid, container, list, manage}: Props) {
+  const {t} = useI18n();
+  const queryClient = useQueryClient();
+  const networks = useNetworks(list ?? "mine", vmUuid, {
+    enabled: list !== null,
+  });
+
+  const [network, setNetwork] = useState<string | null>(null);
+  const [aliases, setAliases] = useState<string[]>([]);
+  const [attempted, setAttempted] = useState(false);
+  const [leaving, setLeaving] = useState<string | null>(null);
+
+  const name = containerName(container);
+  const attached = container.networks ?? [];
+  const known = new Map((networks.data ?? []).map((each) => [each.name, each]));
+
+  // host and none are not networks one joins beside another.
+  const candidates = (networks.data ?? []).filter(
+    (each) =>
+      !attached.includes(each.name) &&
+      each.driver !== "host" &&
+      each.driver !== "null",
+  );
+
+  const settle = () =>
+    queryClient.invalidateQueries({queryKey: dockerKeys.root});
+
+  const connect = useMutation({
+    mutationFn: (joining: {network: string; aliases: string[]}) =>
+      connectContainerNetwork(
+        manage!,
+        vmUuid,
+        container.id,
+        joining.network,
+        joining.aliases,
+      ),
+    onSuccess: (_, joining) => {
+      setNetwork(null);
+      setAliases([]);
+      setAttempted(false);
+      notifications.show({
+        color: "green",
+        message: t("containers.networks.connected", {
+          name,
+          network: joining.network,
+        }),
+      });
+    },
+    // said under the form that asked.
+    onError: () => {},
+    onSettled: settle,
+  });
+
+  const disconnect = useMutation({
+    mutationFn: (leavingNetwork: string) =>
+      disconnectContainerNetwork(manage!, vmUuid, container.id, leavingNetwork),
+    onSuccess: () => setLeaving(null),
+    // said in the question that asked.
+    onError: () => {},
+    onSettled: settle,
+  });
+
+  const refused = connect.error ? problemOf(connect.error) : null;
+
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setAttempted(true);
+
+    if (network) {
+      connect.mutate({network, aliases});
+    }
+  };
+
+  return (
+    <Stack>
+      <TableScrollContainer minWidth={480}>
+        <Table verticalSpacing="sm" striped withRowBorders>
+          <TableThead>
+            <TableTr>
+              <TableTh>{t("containers.networks.name")}</TableTh>
+              <TableTh>{t("containers.networks.driver")}</TableTh>
+              <TableTh>{t("common.actions")}</TableTh>
+            </TableTr>
+          </TableThead>
+          <TableTbody>
+            {attached.length === 0 && (
+              <TableTr>
+                <TableTd colSpan={3} ta="center">
+                  {t("containers.networks.none")}
+                </TableTd>
+              </TableTr>
+            )}
+            {attached.map((attachedName) => {
+              const details = known.get(attachedName);
+
+              return (
+                <TableTr key={attachedName}>
+                  <TableTd>
+                    <Group gap="xs">
+                      <Text size="sm">{attachedName}</Text>
+                      {details?.internal && (
+                        <Badge size="sm" variant="light" color="gray">
+                          {t("containers.networks.internal")}
+                        </Badge>
+                      )}
+                    </Group>
+                  </TableTd>
+                  <TableTd>
+                    <Text size="sm">{details?.driver ?? "—"}</Text>
+                  </TableTd>
+                  <TableTd>
+                    {manage !== null && (
+                      <Tooltip
+                        label={t("containers.networks.disconnect")}
+                        withArrow
+                      >
+                        <ActionIcon
+                          variant="light"
+                          color="red"
+                          size="lg"
+                          aria-label={t("containers.networks.disconnectFrom", {
+                            network: attachedName,
+                          })}
+                          onClick={() => {
+                            disconnect.reset();
+                            setLeaving(attachedName);
+                          }}
+                        >
+                          <IconPlugConnectedX size={18} stroke={1.5} />
+                        </ActionIcon>
+                      </Tooltip>
+                    )}
+                  </TableTd>
+                </TableTr>
+              );
+            })}
+          </TableTbody>
+        </Table>
+      </TableScrollContainer>
+
+      {manage !== null && (
+        <form onSubmit={submit} noValidate>
+          <Fieldset legend={t("containers.networks.attachLegend")}>
+            <Stack gap="sm">
+              <Group align="flex-start" grow>
+                <Select
+                  label={t("containers.networks.network")}
+                  placeholder={
+                    candidates.length > 0
+                      ? t("containers.networks.pick")
+                      : t("containers.networks.noneToAttach")
+                  }
+                  data={candidates.map((each) => each.name)}
+                  value={network}
+                  onChange={setNetwork}
+                  error={
+                    attempted && !network
+                      ? t("containers.networks.pickError")
+                      : refused?.fields.network
+                  }
+                  required
+                  searchable
+                  disabled={connect.isPending}
+                />
+                <TagsInput
+                  label={t("containers.networks.aliases")}
+                  description={t("containers.networks.aliasesHelp")}
+                  value={aliases}
+                  onChange={setAliases}
+                  disabled={connect.isPending}
+                  error={refused?.fields.aliases}
+                  clearable
+                />
+              </Group>
+              {refused && hasMoreToSay(refused, connectField) && (
+                <ProblemAlert
+                  problem={refused}
+                  shown={connectField}
+                  title={t("containers.networks.connectFailed")}
+                />
+              )}
+              <Group justify="flex-end">
+                <Button type="submit" loading={connect.isPending}>
+                  {t("containers.networks.attach")}
+                </Button>
+              </Group>
+            </Stack>
+          </Fieldset>
+        </form>
+      )}
+
+      <ConfirmModal
+        opened={leaving !== null}
+        onClose={() => setLeaving(null)}
+        onConfirm={() => leaving && disconnect.mutate(leaving)}
+        loading={disconnect.isPending}
+        problem={disconnect.error ? problemOf(disconnect.error) : null}
+        confirmLabel={t("containers.networks.disconnect")}
+      >
+        <Text>
+          {t("containers.networks.disconnectConfirm", {
+            name,
+            network: leaving ?? "",
+          })}
+        </Text>
+      </ConfirmModal>
+    </Stack>
+  );
+}

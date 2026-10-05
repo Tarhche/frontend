@@ -1,157 +1,122 @@
 "use client";
 
+import {useId, useState} from "react";
 import Link from "@/components/link";
 import {usePathname} from "next/navigation";
 import {useTranslations} from "@/i18n/provider";
-import {UnstyledButton} from "@mantine/core";
+import {Collapse, UnstyledButton} from "@mantine/core";
+import {IconChevronRight} from "@tabler/icons-react";
 import {
-  IconNotes,
-  IconHome,
-  IconFile,
-  IconMessage,
-  IconSettings,
-  IconBookmarks,
-  IconMessages,
-  IconUsers,
-  IconKey,
-  IconUser,
-  IconLanguage,
-  IconMail,
-  IconPictureInPicture,
-  IconBox,
-  IconStack2,
-} from "@tabler/icons-react";
-import {hasPermission} from "@/lib/auth/shared";
-import {APP_PATHS} from "@/lib/app-paths";
-import {Permissions} from "@/lib/app-permissions";
+  holdsActive,
+  isActive,
+  isGroup,
+  SIDEBAR,
+  type SidebarGroup,
+  type SidebarLink,
+  visibleSidebar,
+} from "./sidebar-items";
 import classes from "./layout.module.css";
 
 type Props = {
   userPermissions: string[];
 };
 
-const dashboard = APP_PATHS.dashboard;
-
-type SidebarSchema = {
-  labelKey: string;
-  icon: any;
-  href: string;
-  requiredPermissions: Permissions[];
-};
-
-const SIDE_BAR_DATA: SidebarSchema[] = [
-  {
-    labelKey: "nav.dashboard",
-    icon: IconHome,
-    href: dashboard.index,
-    requiredPermissions: [],
-  },
-  {
-    labelKey: "dashboard.sidebar.articles",
-    icon: IconNotes,
-    href: dashboard.articles.index,
-    requiredPermissions: ["articles.index", "self.articles.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.comments",
-    icon: IconMessages,
-    href: dashboard.comments.index,
-    requiredPermissions: ["comments.index", "self.comments.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.files",
-    icon: IconFile,
-    href: dashboard.files,
-    requiredPermissions: ["files.index", "self.files.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.elements",
-    icon: IconPictureInPicture,
-    href: dashboard.elements.index,
-    requiredPermissions: ["elements.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.myBookmarks",
-    icon: IconBookmarks,
-    href: dashboard.my.bookmarks,
-    requiredPermissions: ["self.bookmarks.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.contactUs",
-    icon: IconMail,
-    href: dashboard.contactUs.index,
-    requiredPermissions: ["contactus.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.tasks",
-    icon: IconBox,
-    href: dashboard.tasks.index,
-    requiredPermissions: ["workload.tasks.index", "self.workload.tasks.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.stacks",
-    icon: IconStack2,
-    href: dashboard.stacks.index,
-    requiredPermissions: [
-      "workload.stacks.index",
-      "self.workload.stacks.index",
-    ],
-  },
-  {
-    labelKey: "dashboard.sidebar.users",
-    icon: IconUsers,
-    href: dashboard.users.index,
-    requiredPermissions: ["users.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.roles",
-    icon: IconKey,
-    href: dashboard.roles.index,
-    requiredPermissions: ["roles.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.languages",
-    icon: IconLanguage,
-    href: dashboard.languages.index,
-    requiredPermissions: ["languages.index"],
-  },
-  {
-    labelKey: "dashboard.sidebar.settings",
-    icon: IconSettings,
-    href: dashboard.settings,
-    requiredPermissions: ["config.show"],
-  },
-  {
-    labelKey: "dashboard.sidebar.profile",
-    icon: IconUser,
-    href: dashboard.profile.index,
-    requiredPermissions: [],
-  },
-];
-
 export function LayoutSidebar({userPermissions}: Props) {
-  const t = useTranslations();
   const pathname = usePathname();
 
-  return SIDE_BAR_DATA.map((item) => {
-    const hasAccess = hasPermission(userPermissions, item.requiredPermissions);
+  return visibleSidebar(SIDEBAR, userPermissions).map((entry) =>
+    isGroup(entry) ? (
+      <SidebarLinksGroup
+        key={entry.labelKey}
+        group={entry}
+        pathname={pathname}
+      />
+    ) : (
+      <SidebarItem key={entry.labelKey} link={entry} pathname={pathname} />
+    ),
+  );
+}
 
-    if (hasAccess) {
-      return (
-        <UnstyledButton
-          component={Link}
-          className={classes.link}
-          href={item.href}
-          key={item.labelKey}
-          mb={5}
-          data-active={pathname === item.href || undefined}
-        >
-          <item.icon className={classes.linkIcon} stroke={1.5} />
-          <span>{t(item.labelKey)}</span>
-        </UnstyledButton>
-      );
+type ItemProps = {
+  link: SidebarLink;
+  pathname: string;
+};
+
+function SidebarItem({link, pathname}: ItemProps) {
+  const t = useTranslations();
+  const active = isActive(link.href, pathname);
+
+  return (
+    <UnstyledButton
+      component={Link}
+      className={classes.link}
+      href={link.href}
+      mb={5}
+      data-active={active || undefined}
+      aria-current={active ? "page" : undefined}
+    >
+      <link.icon className={classes.linkIcon} stroke={1.5} />
+      <span>{t(link.labelKey)}</span>
+    </UnstyledButton>
+  );
+}
+
+type GroupProps = {
+  group: SidebarGroup;
+  pathname: string;
+};
+
+/**
+ * An entry that opens to show the pages under it, and closes to put them
+ * away. It is open on one of its pages, and opens again whenever somebody
+ * comes to one of them from elsewhere; otherwise it is left as they put it.
+ */
+function SidebarLinksGroup({group, pathname}: GroupProps) {
+  const t = useTranslations();
+  const buttonId = useId();
+  const linksId = useId();
+  const holdsCurrentPage = holdsActive(group, pathname);
+  const [opened, setOpened] = useState(holdsCurrentPage);
+  const [heldCurrentPage, setHeldCurrentPage] = useState(holdsCurrentPage);
+
+  if (holdsCurrentPage !== heldCurrentPage) {
+    setHeldCurrentPage(holdsCurrentPage);
+    if (holdsCurrentPage) {
+      setOpened(true);
     }
+  }
 
-    return null;
-  });
+  return (
+    <>
+      <UnstyledButton
+        id={buttonId}
+        className={classes.link}
+        w="100%"
+        mb={5}
+        aria-expanded={opened}
+        aria-controls={linksId}
+        onClick={() => setOpened((isOpened) => !isOpened)}
+      >
+        <group.icon className={classes.linkIcon} stroke={1.5} />
+        <span>{t(group.labelKey)}</span>
+        <IconChevronRight
+          className={classes.chevron}
+          stroke={1.5}
+          aria-hidden
+        />
+      </UnstyledButton>
+      <Collapse
+        expanded={opened}
+        id={linksId}
+        role="group"
+        aria-labelledby={buttonId}
+      >
+        <div className={classes.groupLinks}>
+          {group.links.map((link) => (
+            <SidebarItem key={link.labelKey} link={link} pathname={pathname} />
+          ))}
+        </div>
+      </Collapse>
+    </>
+  );
 }

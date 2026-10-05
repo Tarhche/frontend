@@ -54,15 +54,40 @@ export const APP_PATHS = {
       index: "/dashboard/contact-us",
       detail: (uuid: string) => `/dashboard/contact-us/${uuid}`,
     },
-    tasks: {
-      index: "/dashboard/tasks",
-      new: "/dashboard/tasks/new",
-      detail: (uuid: string) => `/dashboard/tasks/${uuid}`,
-    },
     stacks: {
       index: "/dashboard/stacks",
       new: "/dashboard/stacks/new",
       detail: (uuid: string) => `/dashboard/stacks/${uuid}`,
+    },
+    vms: {
+      index: "/dashboard/vms",
+      new: "/dashboard/vms/new",
+
+      // the same form, starting from a snapshot: the VM it makes is restored
+      // from it.
+      restore: (snapshotUuid: string) =>
+        `/dashboard/vms/new?snapshot=${encodeURIComponent(snapshotUuid)}`,
+      detail: (uuid: string) => `/dashboard/vms/${uuid}`,
+    },
+    snapshots: {
+      index: "/dashboard/snapshots",
+    },
+    // a container is only ever found inside the Docker VM holding it, so its
+    // address names the VM as well as the container.
+    containers: {
+      index: "/dashboard/containers",
+      new: "/dashboard/containers/new",
+      detail: (vmUuid: string, id: string) =>
+        `/dashboard/containers/${vmUuid}/${id}`,
+    },
+    images: {
+      index: "/dashboard/images",
+    },
+    networks: {
+      index: "/dashboard/networks",
+    },
+    volumes: {
+      index: "/dashboard/volumes",
     },
     files: "/dashboard/files",
     settings: "/dashboard/settings",
