@@ -2,8 +2,8 @@
 
 import {useState} from "react";
 import {useRouter} from "next/navigation";
-import {Alert, Anchor, Box, Group, Stack, Text, Title} from "@mantine/core";
-import {IconInfoCircle} from "@tabler/icons-react";
+import {Box, Button, EmptyState, Group, Title} from "@mantine/core";
+import {IconServer2} from "@tabler/icons-react";
 import Link from "@/components/link";
 import {useTranslations} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
@@ -54,16 +54,27 @@ export function VmDetail({initial, scope, permissions, me}: Props) {
   const vm = data === undefined ? initial : data;
   const samples = useStatsSamples(vm?.stats);
 
+  // gone while it was being looked at, said as a container or a stack that
+  // is not there is.
   if (vm === null) {
     return (
-      <Alert variant="light" color="gray" icon={<IconInfoCircle />} mt="md">
-        <Stack gap="xs">
-          <Text>{t("vms.detail.gone")}</Text>
-          <Anchor component={Link} href={APP_PATHS.dashboard.vms.index}>
+      <EmptyState
+        icon={<IconServer2 />}
+        withIndicatorBackground
+        title={t("vms.detail.goneTitle")}
+        description={t("vms.detail.gone")}
+        mt="md"
+      >
+        <Group justify="center" mt="md">
+          <Button
+            component={Link}
+            href={APP_PATHS.dashboard.vms.index}
+            variant="light"
+          >
             {t("vms.detail.backToList")}
-          </Anchor>
-        </Stack>
-      </Alert>
+          </Button>
+        </Group>
+      </EmptyState>
     );
   }
 

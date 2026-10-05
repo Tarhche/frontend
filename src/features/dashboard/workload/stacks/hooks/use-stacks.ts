@@ -5,6 +5,7 @@ import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {
   IDLE_POLL_MS,
   LIVE,
+  POLL_MS,
 } from "@/features/dashboard/workload/vms/hooks/queries";
 import {fetchStack, fetchStacks} from "../api";
 import {type Stack} from "../types";
@@ -37,7 +38,7 @@ export function isInFlight(stack: Pick<Stack, "state">): boolean {
 // a stack whose command is running is looked at every few seconds, until it
 // is done; the rest now and then, since their containers come and go.
 function every(inFlight: boolean) {
-  return inFlight ? 3_000 : IDLE_POLL_MS / 2;
+  return inFlight ? POLL_MS : IDLE_POLL_MS / 2;
 }
 
 /** A page of a scope's stacks. */

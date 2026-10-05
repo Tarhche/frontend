@@ -774,7 +774,8 @@
       "terminalNotRunning": "The VM is not running, so there is no terminal to open.",
       "leaveTerminalConfirm": "Leaving this tab ends the terminal session, and anything running in it stops. Leave anyway?",
       "leaveTerminal": "Leave and end it",
-      "stayInTerminal": "Stay here"
+      "stayInTerminal": "Stay here",
+      "goneTitle": "VM not found"
     },
     "stats": {
       "cpu": "CPU",

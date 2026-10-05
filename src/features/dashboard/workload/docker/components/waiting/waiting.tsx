@@ -1,27 +1,19 @@
 "use client";
 
-import {useEffect, useState, type ReactNode} from "react";
+import {useState, type ReactNode} from "react";
 import {Group, Loader, Paper, Progress, Stack, Text} from "@mantine/core";
 import {useTranslations} from "@/i18n/provider";
+import {useNow} from "@/features/dashboard/workload/vms/hooks/use-now";
 
 /**
  * Seconds since this was first shown, counted while it is on the screen. It is
  * shown when the wait begins, so that is what it counts from.
  */
 function useElapsed(): number {
-  const [elapsed, setElapsed] = useState(0);
+  const [started] = useState(() => Date.now());
+  const now = useNow(1_000);
 
-  useEffect(() => {
-    const started = Date.now();
-    const ticking = setInterval(
-      () => setElapsed(Math.floor((Date.now() - started) / 1_000)),
-      1_000,
-    );
-
-    return () => clearInterval(ticking);
-  }, []);
-
-  return elapsed;
+  return Math.max(0, Math.floor((now - started) / 1_000));
 }
 
 function minutesAndSeconds(total: number): string {
