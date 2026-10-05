@@ -37,14 +37,31 @@ export function acceptsRequests(vm: Vm): boolean {
   return readiness === "running" || readiness === "booting";
 }
 
-/** Whether the VM is on its way somewhere, and so worth looking at again soon. */
-export function isSettling(vm: Vm): boolean {
-  const readiness = vmReadiness(vm.state);
+// the states a VM passes through rather than stays in.
+const IN_FLIGHT: readonly string[] = [
+  "created",
+  "scheduled",
+  "starting",
+  "stopping",
+  "restarting",
+  "restoring",
+  "deleting",
+];
+
+/**
+ * Whether a VM is on its way somewhere: in a passing state, or not yet where
+ * it was asked to be. What is read about one of these is worth reading again
+ * soon. It is the VM pages' own test (vms/lib/state.ts), so that both read a
+ * VM the same way.
+ */
+export function isInFlight(vm: Pick<Vm, "state" | "expected_state">): boolean {
+  if (IN_FLIGHT.includes(vm.state)) {
+    return true;
+  }
 
   return (
-    readiness === "booting" ||
-    vm.state === "stopping" ||
-    vm.state === "deleting" ||
-    (vm.expected_state !== undefined && vm.expected_state !== vm.state)
+    !!vm.expected_state &&
+    vm.expected_state !== vm.state &&
+    vm.state !== "failed"
   );
 }

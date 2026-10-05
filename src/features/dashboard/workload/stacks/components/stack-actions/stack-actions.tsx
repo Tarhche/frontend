@@ -26,7 +26,7 @@ import {
 import {dockerKeys} from "@/features/dashboard/workload/docker/hooks/queries";
 import {type Scope} from "@/features/dashboard/workload/docker/types";
 import {commandStack, deleteStack} from "../../api";
-import {isSettling, stackKeys} from "../../hooks/use-stacks";
+import {isInFlight, stackKeys} from "../../hooks/use-stacks";
 import {type StackMay} from "../../permissions";
 import {type Stack, type StackCommand} from "../../types";
 import {type StackTransition} from "../stack-state-badge";
@@ -113,7 +113,7 @@ export function StackActions({scope, stack, may, onPending, onDeleted}: Props) {
   // while a compose command is running in the VM, another would only queue
   // up behind it; deleting is the exception, which takes it down whatever
   // it is doing.
-  const settling = isSettling(stack);
+  const settling = isInFlight(stack);
   const running = stack.state === "running";
 
   const ask = (which: "stop" | "restart" | "delete") => {

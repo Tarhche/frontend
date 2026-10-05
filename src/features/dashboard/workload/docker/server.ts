@@ -1,15 +1,6 @@
 import "server-only";
-import {getUserPermissions, hasPermission} from "@/lib/auth";
-import {getCredentialsFromCookies} from "@/lib/http";
-import {sessionClaims} from "@/lib/accounts/session";
+import {getUserPermissions, getUserUuid, hasPermission} from "@/lib/auth";
 import {type Scope, type VmSource} from "./types";
-
-/** Who is asking: the subject of their own session. */
-async function currentUserUuid(): Promise<string | null> {
-  const {accessToken} = await getCredentialsFromCookies();
-
-  return sessionClaims(accessToken)?.sub ?? null;
-}
 
 /**
  * Where the Docker VMs a page offers are listed from.
@@ -36,7 +27,7 @@ export async function dockerVmSource(
   }
 
   if (hasPermission(granted, ["workload.vms.index"])) {
-    const owner = await currentUserUuid();
+    const owner = await getUserUuid();
 
     return owner ? {scope: "all", owner} : null;
   }

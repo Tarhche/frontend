@@ -1,7 +1,10 @@
 "use client";
 
 import {useQuery} from "@tanstack/react-query";
-import {retryTransient} from "@/features/dashboard/workload/docker/errors";
+import {
+  IDLE_POLL_MS,
+  LIVE,
+} from "@/features/dashboard/workload/docker/hooks/queries";
 import {type Scope} from "@/features/dashboard/workload/docker/types";
 import {fetchStack, fetchStacks} from "../api";
 import {type Stack} from "../types";
@@ -28,41 +31,35 @@ const UNDER_WAY = [
  * Whether a stack is on its way somewhere: a compose command is running in
  * its VM, and its state changes when that command is done.
  */
-export function isSettling(stack: Pick<Stack, "state">): boolean {
+export function isInFlight(stack: Pick<Stack, "state">): boolean {
   return UNDER_WAY.includes(stack.state);
 }
 
 // a stack whose command is running is looked at every few seconds, until it
 // is done; the rest now and then, since their containers come and go.
-function every(settling: boolean) {
-  return settling ? 3_000 : 15_000;
+function every(inFlight: boolean) {
+  return inFlight ? 3_000 : IDLE_POLL_MS / 2;
 }
 
 /** A page of a scope's stacks. */
 export function useStacks(scope: Scope, page: number) {
   return useQuery({
+    ...LIVE,
     queryKey: stackKeys.list(scope, page),
     queryFn: () => fetchStacks(scope, {page}),
-    staleTime: 2_000,
-    retry: retryTransient,
     refetchInterval: (query) =>
-      query.state.status === "error"
-        ? false
-        : every(query.state.data?.items.some(isSettling) ?? false),
+      every(query.state.data?.items.some(isInFlight) ?? false),
   });
 }
 
 /** A stack, with its containers. */
 export function useStack(scope: Scope, uuid: string) {
   return useQuery({
+    ...LIVE,
     queryKey: stackKeys.one(scope, uuid),
     queryFn: () => fetchStack(scope, uuid),
-    staleTime: 2_000,
-    retry: retryTransient,
     refetchInterval: (query) =>
-      query.state.status === "error"
-        ? false
-        : every(query.state.data ? isSettling(query.state.data) : false),
+      every(query.state.data ? isInFlight(query.state.data) : false),
   });
 }
 
@@ -99,8 +96,8 @@ export function useStackLinks(scope: Scope, enabled: boolean) {
 
       return links;
     },
+    ...LIVE,
     enabled,
     staleTime: 60_000,
-    retry: retryTransient,
   });
 }

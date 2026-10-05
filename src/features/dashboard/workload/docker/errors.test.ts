@@ -1,5 +1,5 @@
 import {AxiosError, AxiosHeaders, type InternalAxiosRequestConfig} from "axios";
-import {problemMessage, problemOf, retryTransient} from "./errors";
+import {fieldPaths, problemMessage, problemOf} from "./errors";
 
 const config = {headers: new AxiosHeaders()} as InternalAxiosRequestConfig;
 
@@ -98,13 +98,23 @@ describe("problemMessage", () => {
   });
 });
 
-describe("retryTransient", () => {
-  it("does not ask again what was refused", () => {
-    expect(retryTransient(0, answered(404, ""))).toBe(false);
-  });
-
-  it("asks again, a couple of times, what may pass", () => {
-    expect(retryTransient(0, answered(503, ""))).toBe(true);
-    expect(retryTransient(2, answered(503, ""))).toBe(false);
+describe("fieldPaths", () => {
+  it("reads every refusal as the JSON path of what it is about", () => {
+    expect(
+      fieldPaths(
+        {
+          "container.ports.0": "taken",
+          "mounts[1].target": "relative",
+          image: "required",
+          "vm.network.ingress": "invalid",
+        },
+        "container",
+      ),
+    ).toEqual({
+      "ports.0": "taken",
+      "mounts.1.target": "relative",
+      image: "required",
+      "vm.network.ingress": "invalid",
+    });
   });
 });

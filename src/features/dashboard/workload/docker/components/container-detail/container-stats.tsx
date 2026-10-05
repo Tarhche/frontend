@@ -143,7 +143,7 @@ type Props = {
   id: string;
   running: boolean;
 
-  /** the vCPUs of the VM, which is what a hundred percent each is of. */
+  /** the vCPUs of the VM, all of which together are a hundred percent. */
   vmCpus?: number;
 };
 
@@ -204,9 +204,6 @@ export function ContainerStatsPanel({
   const percent = (value: number) => formatPercent(value, locale);
   const count = (value: number) => formatNumber(value, locale);
 
-  // a hundred percent is one vCPU; how many the VM has is what it can reach.
-  const cpus = vmCpus ?? Math.max(1, Math.ceil(latest.cpu_percent / 100));
-
   // a rate needs two samples, so its trend starts one sample later.
   const rate = (counter: (sample: ContainerStats) => number) => {
     const rates = ratesOf(samples, counter);
@@ -244,8 +241,12 @@ export function ContainerStatsPanel({
         <Tile
           label={t("containers.stats.cpu")}
           value={percent(latest.cpu_percent)}
-          detail={t("containers.stats.ofCpus", {cpus})}
-          ratio={latest.cpu_percent / (cpus * 100)}
+          detail={
+            vmCpus
+              ? t("containers.stats.ofVmCpus", {cpus: vmCpus})
+              : t("containers.stats.ofVm")
+          }
+          ratio={latest.cpu_percent / 100}
           trend={samples.map((sample) => sample.cpu_percent)}
           times={times}
           format={percent}

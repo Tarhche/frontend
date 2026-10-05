@@ -25,6 +25,7 @@ import {
 } from "@/features/dashboard/workload/docker/components/docker-vm-select";
 import {ProblemAlert} from "@/features/dashboard/workload/docker/components/problem-alert";
 import {
+  fieldPaths,
   isRefusal,
   problemOf,
 } from "@/features/dashboard/workload/docker/errors";
@@ -40,9 +41,12 @@ import {
   stackRequest,
 } from "./stack-request";
 
-// what the server may refuse that is shown where it is; anything else it
-// refuses is listed above the button.
-const SHOWN_FIELDS = ["name", "compose", "vm_uuid", "vm"];
+// what the server may refuse that is shown beside the field it is about, as
+// JSON paths; anything else it refuses is listed above the button.
+const SHOWN_INLINE = [
+  /^(name|compose|vm_uuid|vm)$/,
+  /^vm\.(name|ports|resources\.(cpus|memory|disk)|network\.(ingress|egress))$/,
+];
 
 type Props = {
   /** where the person's own Docker VMs are listed. */
@@ -91,9 +95,9 @@ export function StackForm({vmSource}: Props) {
   });
 
   const problem = create.error ? problemOf(create.error) : null;
-  const refused = problem?.fields ?? {};
+  const refused = fieldPaths(problem?.fields ?? {}, "stack");
   const unshown = Object.entries(refused).filter(
-    ([field]) => !SHOWN_FIELDS.includes(field) && !field.startsWith("vm."),
+    ([field]) => !SHOWN_INLINE.some((pattern) => pattern.test(field)),
   );
 
   const fieldError = (field: string): string | undefined => {
@@ -110,6 +114,7 @@ export function StackForm({vmSource}: Props) {
     attempted && vmIssue
       ? t(`containers.form.vmIssues.${vmIssue}`)
       : (refused.vm_uuid ??
+        refused.vm ??
         (problem?.code === "vm_required"
           ? t("docker.errors.vm_required")
           : undefined));

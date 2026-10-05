@@ -2,9 +2,8 @@
 
 import {useQuery} from "@tanstack/react-query";
 import {fetchContainer, fetchContainers} from "../api";
-import {retryTransient} from "../errors";
 import {type Container, type Scope} from "../types";
-import {dockerKeys, pollUntilFailed} from "./queries";
+import {dockerKeys, LIVE} from "./queries";
 
 /**
  * The containers across a scope's running Docker VMs, or one VM's. Nothing
@@ -17,22 +16,20 @@ export function useContainers(
   options?: {enabled?: boolean},
 ) {
   return useQuery<Container[]>({
+    ...LIVE,
     queryKey: dockerKeys.containers(scope, vm),
     queryFn: () => fetchContainers(scope, vm),
     enabled: options?.enabled ?? true,
-    staleTime: 5_000,
-    retry: retryTransient,
-    refetchInterval: pollUntilFailed(10_000),
+    refetchInterval: 10_000,
   });
 }
 
 /** One container, as its VM's dockerd inspects it now. */
 export function useContainer(scope: Scope, vmUuid: string, id: string) {
   return useQuery<Container>({
+    ...LIVE,
     queryKey: dockerKeys.container(scope, vmUuid, id),
     queryFn: () => fetchContainer(scope, vmUuid, id),
-    staleTime: 5_000,
-    retry: retryTransient,
-    refetchInterval: pollUntilFailed(10_000),
+    refetchInterval: 10_000,
   });
 }

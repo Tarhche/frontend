@@ -15,43 +15,139 @@ export type VmSource = {
   owner?: string;
 };
 
+/*
+ * The VM shapes below are the VM pages' own (vms/types.ts), written out again
+ * here so that this feature stands on its own until the two are merged; the
+ * names and fields are the same, so one can be swapped for the other.
+ */
+
+/**
+ * What a VM is booted as: an OS image with nothing running in it but what is
+ * started there, or the Docker image with dockerd running, which is what
+ * containers and stacks are run in.
+ */
+export type VmKind = "machine" | "docker";
+
+/** Whether traffic one way is let through at all. */
 export type Access = "allow" | "deny";
 
-/** CPUs are whole vCPUs; memory and disk are bytes, end to end. */
+/**
+ * How much of the network a VM has. Nothing ever lets one VM reach another.
+ *
+ * Ingress allowed, its ports are reachable through the ingress; denied, nothing
+ * reaches it. Egress allowed, it reaches the public internet -- never private
+ * ranges, the host or other VMs; denied, it reaches nothing at all.
+ */
+export type VmNetwork = {
+  ingress: Access;
+  egress: Access;
+};
+
+/** What a VM is given: whole vCPUs, and memory and disk in bytes. */
 export type VmResources = {
   cpus: number;
   memory: number;
   disk: number;
 };
 
-/** How much of the network a VM has. Nothing lets one VM reach another. */
-export type VmNetwork = {
-  ingress: Access;
-  egress: Access;
+/**
+ * Where a VM is. Created, scheduled, starting, restarting, restoring, stopping
+ * and deleting are on the way somewhere; the rest are where it is.
+ */
+export type VmState =
+  | "created"
+  | "scheduled"
+  | "starting"
+  | "running"
+  | "stopping"
+  | "stopped"
+  | "restarting"
+  | "restoring"
+  | "failed"
+  | "deleting";
+
+/** The last sample its node reported. Bytes, and a percentage of its CPUs. */
+export type VmStats = {
+  cpu_percent: number;
+  memory_used: number;
+  memory_limit: number;
+  disk_used: number;
+  disk_total: number;
+  network_rx: number;
+  network_tx: number;
+  sampled_at: string;
 };
 
-/**
- * A VM as the dashboard API returns one. Only what the Docker pages read is
- * typed here; the VM pages own the rest of it.
- */
+/** Where one of its ports is served, when its ingress is allowed. */
+export type VmUrl = {
+  port: number;
+  url: string;
+};
+
+/** One VM, as the dashboard API presents it. */
 export type Vm = {
   uuid: string;
   name: string;
-  slug?: string;
-  owner_uuid?: string;
-  kind: "machine" | "docker";
-  image?: string;
-  resources?: VmResources;
+  slug: string;
+  owner_uuid: string;
+  kind: VmKind;
 
-  /** the guest ports the ingress serves; a container port published on any
-   * other VM port is reachable only from inside the VM. */
-  ports?: number[];
-  network?: VmNetwork;
-  state: string;
-  expected_state?: string;
+  /** An OCI reference. A Docker VM's is the workload's own dind image. */
+  image: string;
+  resources: VmResources;
+
+  /**
+   * Guest ports exposed through the ingress, sorted and unique. A container
+   * port published on any other port of the VM is reachable only inside it.
+   */
+  ports: number[] | null;
+  network: VmNetwork;
+
+  /** Kept between starts; otherwise the disk is pristine on every start. */
+  persistent_disk: boolean;
+
+  /** 0 keeps it until it is deleted; otherwise it is deleted at expires_at. */
+  lifetime_seconds: number;
+  expires_at?: string | null;
+
+  state: VmState;
+  expected_state?: VmState;
+
+  /** Why it failed, or what is pending. */
   reason?: string;
-  urls?: {port: number; url: string}[];
-  created_at?: string;
+  node_name?: string;
+  stats?: VmStats | null;
+  urls?: VmUrl[] | null;
+  created_at: string;
+  started_at?: string | null;
+  updated_at?: string | null;
+};
+
+export type Pagination = {
+  total_pages: number;
+  current_page: number;
+};
+
+/** Which VMs a listing is of. */
+export type VmListParams = {
+  page?: number | string;
+
+  /** Only VMs of this kind: the Docker VMs are the ones containers run in. */
+  kind?: VmKind;
+};
+
+/** One page of a listing. */
+export type Page<T> = {
+  items: T[];
+  pagination: Pagination;
+};
+
+/**
+ * What is in a Docker VM, listed whole: dockerd is asked each time, so there
+ * are no pages of it.
+ */
+export type Listing<T> = {
+  items: T[];
 };
 
 export type Protocol = "tcp" | "udp";
@@ -210,13 +306,4 @@ export type NetworkCreateRequest = {
 
 export type VolumeCreateRequest = {
   name: string;
-};
-
-/** A page of a listing, the way every dashboard listing is answered. */
-export type Page<T> = {
-  items: T[];
-  pagination?: {
-    total_pages: number;
-    current_page: number;
-  };
 };

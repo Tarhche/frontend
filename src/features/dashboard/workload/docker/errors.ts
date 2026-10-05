@@ -172,15 +172,25 @@ export function problemMessage(problem: Problem, t: TFunction): string {
 }
 
 /**
- * Whether a failed read is worth asking again. A refusal will be refused again,
- * so only what may pass — a node that was busy, a gateway that gave up — is.
+ * What was refused, keyed by where it is in what was sent, as JSON paths are
+ * written: `ports.0.host_port`. A key written with brackets is read the same
+ * way, and one under the name the request was sent as (`container.ports.0`)
+ * without it, so a form finds each refusal beside the field it is about.
  */
-export function retryTransient(failureCount: number, error: unknown): boolean {
-  const status = isAxiosError(error) ? error.response?.status : undefined;
+export function fieldPaths(
+  fields: Record<string, string>,
+  prefix?: string,
+): Record<string, string> {
+  const paths: Record<string, string> = {};
 
-  if (status !== undefined && status >= 400 && status < 500) {
-    return false;
+  for (const [field, message] of Object.entries(fields)) {
+    let path = field.replace(/\[(\d+)\]/g, ".$1");
+    if (prefix && path.startsWith(`${prefix}.`)) {
+      path = path.slice(prefix.length + 1);
+    }
+
+    paths[path] = message;
   }
 
-  return failureCount < 2;
+  return paths;
 }

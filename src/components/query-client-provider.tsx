@@ -52,7 +52,13 @@ function handleError(err: any) {
 function createQueryClient() {
   return new QueryClient({
     queryCache: new QueryCache({
-      onError: (err) => handleError(err),
+      // a query that says it is silent shows its own failures where it is
+      // shown: one that polls would otherwise raise the same notification
+      // every few seconds for as long as whatever it asks is unreachable.
+      onError: (err, query) => {
+        if (query.meta?.silent) return;
+        handleError(err);
+      },
     }),
     mutationCache: new MutationCache({
       onError: (err, _vars, _ctx, mutation) => {

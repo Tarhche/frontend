@@ -49,12 +49,17 @@ export function dockerVm(overrides: Partial<Vm> = {}): Vm {
   return {
     uuid: "vm-1",
     name: "docker-one",
-    kind: "docker",
-    state: "running",
+    slug: "docker-one-ab12c",
     owner_uuid: "me",
+    kind: "docker",
+    image: "docker:29-dind",
+    state: "running",
     ports: [80, 443, 8080],
     network: {ingress: "allow", egress: "allow"},
     resources: {cpus: 2, memory: 2 * 1024 ** 3, disk: 20 * 1024 ** 3},
+    persistent_disk: true,
+    lifetime_seconds: 0,
+    created_at: "2026-10-04T12:00:00Z",
     ...overrides,
   };
 }

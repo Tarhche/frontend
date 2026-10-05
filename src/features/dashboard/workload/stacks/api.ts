@@ -1,8 +1,5 @@
 import {clientDalDriver} from "@/dal/client/client-dal-driver";
-import {
-  CREATE_BASE,
-  workloadBase,
-} from "@/features/dashboard/workload/docker/api";
+import {workloadPath} from "@/features/dashboard/workload/docker/api";
 import {
   type Page,
   type Scope,
@@ -15,9 +12,24 @@ import {
   type StackDetail,
 } from "./types";
 
-function stackPath(scope: Scope, uuid: string): string {
-  return `${workloadBase(scope)}/stacks/${encodeURIComponent(uuid)}`;
+export function stacksPath(scope: Scope): string {
+  return workloadPath(scope, "stacks");
 }
+
+export function stackPath(scope: Scope, uuid: string): string {
+  return `${stacksPath(scope)}/${encodeURIComponent(uuid)}`;
+}
+
+/**
+ * Where stacks are created. It is the workload's own route whoever asks, and
+ * it always deploys for the caller, into one of the caller's Docker VMs.
+ */
+export function createStackPath(): string {
+  return stacksPath("all");
+}
+
+// a listing that came without its pages is all there is of it.
+const ONE_PAGE = {total_pages: 1, current_page: 1};
 
 /** A page of a scope's stacks, of one VM's when a VM is named. */
 export async function fetchStacks(
@@ -25,15 +37,15 @@ export async function fetchStacks(
   options: {page?: number | string; vm?: string} = {},
 ): Promise<Page<Stack>> {
   const {data} = await clientDalDriver.get<Page<Stack> | Stack[]>(
-    `${workloadBase(scope)}/stacks`,
+    stacksPath(scope),
     {params: {page: options.page, vm: options.vm}},
   );
 
   if (Array.isArray(data)) {
-    return {items: data};
+    return {items: data, pagination: ONE_PAGE};
   }
 
-  return {items: data?.items ?? [], pagination: data?.pagination};
+  return {items: data?.items ?? [], pagination: data?.pagination ?? ONE_PAGE};
 }
 
 /** A stack, with its containers as its VM lists them now. */
@@ -54,7 +66,7 @@ export async function createStack(
   body: StackCreateRequest,
 ): Promise<StackCreateResponse> {
   const {data} = await clientDalDriver.post<StackCreateResponse>(
-    `${CREATE_BASE}/stacks`,
+    createStackPath(),
     body,
   );
 

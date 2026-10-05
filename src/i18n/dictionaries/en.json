@@ -1057,7 +1057,6 @@
       "diskRead": "Disk read",
       "diskWrite": "Disk write",
       "pids": "Processes",
-      "ofCpus": "of {cpus} vCPU; 100% is one",
       "ofLimit": "of {limit}",
       "noLimit": "no limit",
       "total": "{value} in all",
@@ -1068,7 +1067,9 @@
       "notRunningTitle": "Not running",
       "notRunning": "Usage is sampled while the container runs.",
       "failed": "Its usage could not be read",
-      "refreshFailed": "The last sample could not be read"
+      "refreshFailed": "The last sample could not be read",
+      "ofVmCpus": "of its VM's {cpus} vCPU",
+      "ofVm": "of its VM's CPUs"
     },
     "networks": {
       "name": "Network",

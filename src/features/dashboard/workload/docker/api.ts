@@ -6,44 +6,63 @@ import {
   type ContainerCreateResponse,
   type ContainerStats,
   type Image,
+  type Listing,
   type LogsResponse,
   type Network,
   type NetworkCreateRequest,
   type Page,
   type Scope,
   type Vm,
+  type VmListParams,
   type Volume,
   type VolumeCreateRequest,
 } from "./types";
 
-/**
- * Where a scope's routes are. Everybody's are the admin set; one's own are the
- * "my" set, which answers only for what the caller owns.
+/*
+ * The paths are named and built the way the VM pages build theirs (vms/api.ts),
+ * so that the two can become one.
  */
-export function workloadBase(scope: Scope): string {
-  return scope === "mine" ? "dashboard/my/workload" : "dashboard/workload";
+
+const ROOTS: Record<Scope, string> = {
+  all: "dashboard/workload",
+  mine: "dashboard/my/workload",
+};
+
+/**
+ * A path under the workload's part of the dashboard API, for a scope.
+ * Everybody's things are asked about through the workload's own routes; one's
+ * own through the "my" ones, which answer only about the caller's.
+ */
+export function workloadPath(scope: Scope, path: string): string {
+  return `${ROOTS[scope]}/${path.replace(/^\/+/, "")}`;
+}
+
+export function vmsPath(scope: Scope): string {
+  return workloadPath(scope, "vms");
+}
+
+export function vmPath(scope: Scope, uuid: string): string {
+  return `${vmsPath(scope)}/${encodeURIComponent(uuid)}`;
 }
 
 /**
- * Creating is asked for on the admin set alone, and always creates for the
- * caller: there is no creating something in somebody else's name.
+ * Where containers are created. It is the workload's own route whoever asks,
+ * and it always creates for the caller, in one of the caller's Docker VMs.
  */
-export const CREATE_BASE = "dashboard/workload";
+export function createContainerPath(): string {
+  return workloadPath("all", "containers");
+}
 
 // a docker id or name goes into a path as one segment, whatever it holds: an
 // image id carries a colon, and a network name may carry anything docker allows.
 const segment = encodeURIComponent;
 
-function vmPath(scope: Scope, vmUuid: string): string {
-  return `${workloadBase(scope)}/vms/${segment(vmUuid)}`;
-}
-
 function containerPath(scope: Scope, vmUuid: string, id: string): string {
   return `${vmPath(scope, vmUuid)}/containers/${segment(id)}`;
 }
 
-/** What a listing holds, whether it was answered as a page or as the list. */
-export function itemsOf<T>(data: Page<T> | T[] | null | undefined): T[] {
+/** What a listing holds, whether it was answered as one or as the bare list. */
+export function itemsOf<T>(data: Listing<T> | T[] | null | undefined): T[] {
   if (Array.isArray(data)) {
     return data;
   }
@@ -51,35 +70,38 @@ export function itemsOf<T>(data: Page<T> | T[] | null | undefined): T[] {
   return data?.items ?? [];
 }
 
+/** A page of a scope's VMs, as the VM pages read one (vms/client.ts). */
+export async function getVms(
+  scope: Scope,
+  params: VmListParams = {},
+): Promise<Page<Vm>> {
+  const response = await clientDalDriver.get(vmsPath(scope), {params});
+
+  return response.data;
+}
+
 // a person holds a handful of Docker VMs, and somebody looking at everybody's
 // is looking for one to pick: past this many pages, a select is no help anyway.
 const MAX_VM_PAGES = 10;
 
 /**
- * The Docker VMs in a scope, every page of them. Only VMs of kind docker are
- * kept, whatever the server made of the filter: a machine VM has no dockerd to
- * put anything in.
+ * The Docker VMs in a scope, every page of them, for picking one. Only VMs of
+ * kind docker are kept, whatever the server made of the filter: a machine VM
+ * has no dockerd to put anything in.
  */
 export async function fetchDockerVms(scope: Scope): Promise<Vm[]> {
   const vms: Vm[] = [];
 
   for (let page = 1; page <= MAX_VM_PAGES; page++) {
-    const {data} = await clientDalDriver.get<Page<Vm> | Vm[]>(
-      `${workloadBase(scope)}/vms`,
-      {params: {kind: "docker", page}},
-    );
+    const listed = await getVms(scope, {kind: "docker", page});
+    vms.push(...itemsOf(listed));
 
-    vms.push(...itemsOf(data));
-
-    const pages = Array.isArray(data)
-      ? 1
-      : (data?.pagination?.total_pages ?? 1);
-    if (page >= pages) {
+    if (page >= (listed?.pagination?.total_pages ?? 1)) {
       break;
     }
   }
 
-  return vms.filter((vm) => vm.kind === undefined || vm.kind === "docker");
+  return vms.filter((vm) => vm.kind === "docker");
 }
 
 /**
@@ -90,8 +112,8 @@ export async function fetchContainers(
   scope: Scope,
   vm?: string,
 ): Promise<Container[]> {
-  const {data} = await clientDalDriver.get<Page<Container> | Container[]>(
-    `${workloadBase(scope)}/containers`,
+  const {data} = await clientDalDriver.get<Listing<Container> | Container[]>(
+    workloadPath(scope, "containers"),
     {params: vm ? {vm} : undefined},
   );
 
@@ -119,7 +141,7 @@ export async function createContainer(
   body: ContainerCreateRequest,
 ): Promise<ContainerCreateResponse> {
   const {data} = await clientDalDriver.post<ContainerCreateResponse>(
-    `${CREATE_BASE}/containers`,
+    createContainerPath(),
     body,
   );
 
@@ -211,7 +233,7 @@ export async function fetchImages(
   scope: Scope,
   vmUuid: string,
 ): Promise<Image[]> {
-  const {data} = await clientDalDriver.get<Page<Image> | Image[]>(
+  const {data} = await clientDalDriver.get<Listing<Image> | Image[]>(
     `${vmPath(scope, vmUuid)}/images`,
   );
 
@@ -250,7 +272,7 @@ export async function fetchNetworks(
   scope: Scope,
   vmUuid: string,
 ): Promise<Network[]> {
-  const {data} = await clientDalDriver.get<Page<Network> | Network[]>(
+  const {data} = await clientDalDriver.get<Listing<Network> | Network[]>(
     `${vmPath(scope, vmUuid)}/networks`,
   );
 
@@ -284,7 +306,7 @@ export async function fetchVolumes(
   scope: Scope,
   vmUuid: string,
 ): Promise<Volume[]> {
-  const {data} = await clientDalDriver.get<Page<Volume> | Volume[]>(
+  const {data} = await clientDalDriver.get<Listing<Volume> | Volume[]>(
     `${vmPath(scope, vmUuid)}/volumes`,
   );
 
