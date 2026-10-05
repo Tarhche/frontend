@@ -20,10 +20,6 @@ import {TableSkeleton} from "@/components/skeletons";
 import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
-import {
-  stackLinkKey,
-  useStackLinks,
-} from "@/features/dashboard/workload/stacks/hooks/use-stacks";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
 import {useVmChoices} from "@/features/dashboard/workload/vms/hooks/queries";
@@ -179,19 +175,12 @@ export function ContainersTable({
 
   const items = containers.data ?? [];
 
-  // a container says which compose project it came from; which stack that is
-  // takes the stacks, read only when there is a container to link.
-  const links = useStackLinks(
-    scope,
-    stacksVisible && items.some((container) => Boolean(container.stack)),
-  );
-  const stackHref = (vmUuid: string, container: Container) => {
-    const uuid = container.stack
-      ? links.data?.[stackLinkKey(vmUuid, container.stack)]
+  // a container says which stack deployed it, which is worth a link for
+  // whoever may look at that stack.
+  const stackHref = (container: Container) =>
+    stacksVisible && container.stack_uuid
+      ? APP_PATHS.dashboard.stacks.detail(container.stack_uuid)
       : undefined;
-
-    return uuid ? APP_PATHS.dashboard.stacks.detail(uuid) : undefined;
-  };
 
   return (
     <Stack gap="md">
@@ -289,7 +278,7 @@ export function ContainersTable({
                       shortId(vmUuid)
                     }
                     may={may}
-                    stackHref={stackHref(vmUuid, container)}
+                    stackHref={stackHref(container)}
                   />
                 );
               })}

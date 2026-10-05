@@ -60,6 +60,9 @@ export type Container = {
    * stack. The project is the stack's slug. */
   stack?: string;
   service?: string;
+
+  /** the stack that deployed it, when the API could tell which one that is. */
+  stack_uuid?: string;
   restart_policy?: string;
   created_at?: string;
 

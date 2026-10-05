@@ -3,7 +3,7 @@ import {
   dockerVm,
   renderWithProviders,
 } from "@/features/dashboard/workload/docker/test-utils";
-import {countContainers} from "../stacks-table/stacks-table";
+import {containersOf, countContainers} from "../stacks-table/stacks-table";
 import {StackDetail} from "./stack-detail";
 
 jest.mock("@/i18n/provider", () => {
@@ -144,8 +144,8 @@ describe("StackDetail", () => {
   });
 });
 
-describe("countContainers", () => {
-  it("counts each stack's containers in its own VM", () => {
+describe("counting a stack's containers", () => {
+  it("counts them by the stack the API says deployed them, or by VM and slug", () => {
     const counts = countContainers([
       {
         id: "1",
@@ -154,6 +154,7 @@ describe("countContainers", () => {
         state: "running",
         status: "",
         stack: "shop",
+        stack_uuid: "s-1",
         vm_uuid: "vm-1",
       },
       {
@@ -163,8 +164,10 @@ describe("countContainers", () => {
         state: "exited",
         status: "",
         stack: "shop",
+        stack_uuid: "s-1",
         vm_uuid: "vm-1",
       },
+      // a container the API could not link is still counted, by where it is.
       {
         id: "3",
         name: "c",
@@ -177,8 +180,14 @@ describe("countContainers", () => {
       {id: "4", name: "d", image: "x", state: "running", status: ""},
     ]);
 
-    expect(counts.get("vm-1/shop")).toBe(2);
-    expect(counts.get("vm-2/shop")).toBe(1);
-    expect(counts.size).toBe(2);
+    expect(
+      containersOf(counts, {uuid: "s-1", vm_uuid: "vm-1", slug: "shop"}),
+    ).toBe(2);
+    expect(
+      containersOf(counts, {uuid: "s-2", vm_uuid: "vm-2", slug: "shop"}),
+    ).toBe(1);
+    expect(
+      containersOf(counts, {uuid: "s-3", vm_uuid: "vm-3", slug: "blog"}),
+    ).toBe(0);
   });
 });

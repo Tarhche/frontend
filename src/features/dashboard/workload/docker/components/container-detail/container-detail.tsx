@@ -26,10 +26,6 @@ import {TableSkeleton} from "@/components/skeletons";
 import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
-import {
-  stackLinkKey,
-  useStackLinks,
-} from "@/features/dashboard/workload/stacks/hooks/use-stacks";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
 import {useVmChoices} from "@/features/dashboard/workload/vms/hooks/queries";
@@ -84,10 +80,6 @@ export function ContainerDetail({
   const query = useContainer(scope, vmUuid, id);
   const vms = useVmChoices(vmSource, {kind: "docker"});
   const [pending, setPending] = useState<ContainerTransition | undefined>();
-  const links = useStackLinks(
-    scope,
-    stacksVisible && Boolean(query.data?.stack),
-  );
 
   if (query.isPending) {
     return (
@@ -139,9 +131,7 @@ export function ContainerDetail({
   const container = query.data;
   const vm = vms.data?.find((each) => each.uuid === vmUuid);
   const vmName = vm?.name ?? container.vm_name ?? shortId(vmUuid);
-  const stackUuid = container.stack
-    ? links.data?.[stackLinkKey(vmUuid, container.stack)]
-    : undefined;
+  const stackUuid = stacksVisible ? container.stack_uuid : undefined;
 
   return (
     <Stack>

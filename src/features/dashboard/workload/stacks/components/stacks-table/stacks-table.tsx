@@ -36,7 +36,7 @@ import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
 import {type Vm} from "@/features/dashboard/workload/vms/types";
 import {formatNumber} from "@/features/dashboard/workload/vms/lib/units";
-import {stackLinkKey, useStacks} from "../../hooks/use-stacks";
+import {useStacks} from "../../hooks/use-stacks";
 import {type StackMay} from "../../permissions";
 import {type Stack as StackRecord} from "../../types";
 import {StackActions} from "../stack-actions";
@@ -44,21 +44,38 @@ import {StackStateBadge, type StackTransition} from "../stack-state-badge";
 import {StacksPagination} from "./stacks-pagination";
 
 /**
- * How many containers each stack has, by its VM and slug. A stack's containers
- * are the ones its compose project made, and each one says which project that
- * was, so they are counted off the listing of containers.
+ * How many containers each stack has. A container says which stack deployed
+ * it when the API could tell, and which compose project it came from in which
+ * VM always, which is the stack's slug: it is counted under the first, or the
+ * second when that is all there is.
  */
 export function countContainers(containers: Container[]): Map<string, number> {
   const counts = new Map<string, number>();
 
   for (const container of containers) {
-    if (container.stack && container.vm_uuid) {
-      const key = stackLinkKey(container.vm_uuid, container.stack);
+    const key =
+      container.stack_uuid ??
+      (container.stack && container.vm_uuid
+        ? `${container.vm_uuid}/${container.stack}`
+        : undefined);
+
+    if (key) {
       counts.set(key, (counts.get(key) ?? 0) + 1);
     }
   }
 
   return counts;
+}
+
+/** The containers counted for a stack, by its uuid or by its VM and slug. */
+export function containersOf(
+  counts: Map<string, number>,
+  stack: Pick<StackRecord, "uuid" | "vm_uuid" | "slug">,
+): number {
+  return (
+    (counts.get(stack.uuid) ?? 0) +
+    (counts.get(`${stack.vm_uuid}/${stack.slug}`) ?? 0)
+  );
 }
 
 type RowProps = {
@@ -150,16 +167,13 @@ export function StacksTable({
 
   // a VM that is not running has no containers to list, which is not the same
   // as a stack that has none.
-  const containersOf = (stack: StackRecord): string => {
+  const containerCount = (stack: StackRecord): string => {
     const vm = vmByUuid.get(stack.vm_uuid);
     if (!containers.data || (vm && vmReadiness(vm.state) !== "running")) {
       return "—";
     }
 
-    return formatNumber(
-      counts.get(stackLinkKey(stack.vm_uuid, stack.slug)) ?? 0,
-      locale,
-    );
+    return formatNumber(containersOf(counts, stack), locale);
   };
 
   const items = stacks.data?.items ?? [];
@@ -233,7 +247,7 @@ export function StacksTable({
                   scope={scope}
                   stack={stack}
                   vm={vmByUuid.get(stack.vm_uuid)}
-                  containers={containersOf(stack)}
+                  containers={containerCount(stack)}
                   may={may}
                 />
               ))}

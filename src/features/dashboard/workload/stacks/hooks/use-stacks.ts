@@ -15,7 +15,6 @@ export const stackKeys = {
     ["workload", "stacks", scope, "list", page] as const,
   one: (scope: Scope, uuid: string) =>
     ["workload", "stacks", scope, "one", uuid] as const,
-  links: (scope: Scope) => ["workload", "stacks", scope, "links"] as const,
 };
 
 // what a compose command is in the middle of, and so what is worth watching.
@@ -60,44 +59,5 @@ export function useStack(scope: Scope, uuid: string) {
     queryFn: () => fetchStack(scope, uuid),
     refetchInterval: (query) =>
       every(query.state.data ? isInFlight(query.state.data) : false),
-  });
-}
-
-// a person has a handful of stacks; past this many pages a link is not worth
-// what it takes to find.
-const MAX_LINK_PAGES = 5;
-
-/** Where a stack is found from what its containers say: its VM and slug. */
-export function stackLinkKey(vmUuid: string, slug: string): string {
-  return `${vmUuid}/${slug}`;
-}
-
-/**
- * Which stack a container belongs to. A container says only the compose
- * project it was deployed as, which is its stack's slug inside its VM, so the
- * stacks are read once to tell which uuid that is.
- */
-export function useStackLinks(scope: Scope, enabled: boolean) {
-  return useQuery({
-    queryKey: stackKeys.links(scope),
-    queryFn: async () => {
-      const links: Record<string, string> = {};
-
-      for (let page = 1; page <= MAX_LINK_PAGES; page++) {
-        const {items, pagination} = await fetchStacks(scope, {page});
-        for (const stack of items) {
-          links[stackLinkKey(stack.vm_uuid, stack.slug)] = stack.uuid;
-        }
-
-        if (page >= (pagination?.total_pages ?? 1)) {
-          break;
-        }
-      }
-
-      return links;
-    },
-    ...LIVE,
-    enabled,
-    staleTime: 60_000,
   });
 }
