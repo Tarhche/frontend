@@ -1,7 +1,6 @@
 "use client";
 
 import {useState} from "react";
-import Link from "@/components/link";
 import {
   Alert,
   Button,
@@ -18,19 +17,22 @@ import {
   Text,
 } from "@mantine/core";
 import {IconFilter, IconPlus} from "@tabler/icons-react";
+import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
 import {
   stackLinkKey,
   useStackLinks,
 } from "@/features/dashboard/workload/stacks/hooks/use-stacks";
+import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
+import {useVmChoices} from "@/features/dashboard/workload/vms/hooks/queries";
+import {vmReadiness} from "@/features/dashboard/workload/vms/lib/state";
 import {problemMessage, problemOf} from "../../errors";
 import {shortId} from "../../format";
 import {useContainers} from "../../hooks/use-containers";
-import {useDockerVms} from "../../hooks/use-docker-vms";
 import {type DockerMay} from "../../permissions";
-import {type Container, type Scope, type VmSource} from "../../types";
-import {vmReadiness} from "../../vm-state";
+import {type Container} from "../../types";
 import {
   ContainerStateBadge,
   type ContainerTransition,
@@ -162,7 +164,7 @@ export function ContainersTable({
   const [vm, setVm] = useState<string | null>(null);
 
   const containers = useContainers(scope, vm ?? undefined);
-  const vms = useDockerVms(vmSource);
+  const vms = useVmChoices(vmSource, {kind: "docker"});
 
   const vmNames = new Map(
     (vms.data ?? []).map((each) => [each.uuid, each.name]),

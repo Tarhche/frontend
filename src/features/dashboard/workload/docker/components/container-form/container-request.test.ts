@@ -1,4 +1,4 @@
-import {GiB, MiB} from "../../format";
+import {GiB, MiB} from "@/features/dashboard/workload/vms/lib/units";
 import {dockerVm} from "../../test-utils";
 import {DOCKER_VM_DEFAULTS} from "../docker-vm-select/choice";
 import {

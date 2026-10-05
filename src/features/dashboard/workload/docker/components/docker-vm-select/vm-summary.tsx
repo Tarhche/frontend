@@ -8,10 +8,14 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import {useI18n} from "@/i18n/provider";
-import {formatBytes, formatNumber, ltr} from "../../format";
-import {type Vm} from "../../types";
-import {vmReadiness} from "../../vm-state";
-import {VmStateBadge} from "../vm-state-badge";
+import {type Vm} from "@/features/dashboard/workload/vms/types";
+import {
+  formatBytes,
+  formatNumber,
+} from "@/features/dashboard/workload/vms/lib/units";
+import {vmReadiness} from "@/features/dashboard/workload/vms/lib/state";
+import {StateBadge} from "@/features/dashboard/workload/components/state-badge";
+import {ltr} from "../../format";
 
 /**
  * What a VM that is not running means for whatever is to be done in it. One on
@@ -83,7 +87,7 @@ export function VmSummary({vm, withReadiness = true}: SummaryProps) {
   return (
     <Stack gap="xs">
       <Group gap="xs" wrap="wrap">
-        <VmStateBadge state={vm.state} />
+        <StateBadge state={vm.state} expectedState={vm.expected_state} />
         {vm.resources && (
           <Text size="sm" c="dimmed">
             {t("dockerVms.summary.resources", {

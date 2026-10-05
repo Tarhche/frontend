@@ -2,7 +2,6 @@
 
 import {useId, useState, type ReactNode} from "react";
 import {useRouter} from "next/navigation";
-import Link from "@/components/link";
 import {
   Alert,
   Button,
@@ -29,6 +28,7 @@ import {
   IconPlayerStop,
   IconStack2,
 } from "@tabler/icons-react";
+import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
 import {formatDate} from "@/lib/date-and-time";
@@ -39,17 +39,15 @@ import {
 } from "@/features/dashboard/workload/docker/components/containers-table";
 import {ProblemAlert} from "@/features/dashboard/workload/docker/components/problem-alert";
 import {TableSkeleton} from "@/features/dashboard/workload/docker/components/table-skeleton";
-import {VmStateBadge} from "@/features/dashboard/workload/docker/components/vm-state-badge";
+import {StateBadge} from "@/features/dashboard/workload/components/state-badge";
 import {
   problemMessage,
   problemOf,
 } from "@/features/dashboard/workload/docker/errors";
 import {shortId} from "@/features/dashboard/workload/docker/format";
-import {useDockerVms} from "@/features/dashboard/workload/docker/hooks/use-docker-vms";
-import {
-  type Scope,
-  type VmSource,
-} from "@/features/dashboard/workload/docker/types";
+import {useVmChoices} from "@/features/dashboard/workload/vms/hooks/queries";
+import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
 import {useStack} from "../../hooks/use-stacks";
 import {type StackMay} from "../../permissions";
 import {type StackDetail as StackRecord} from "../../types";
@@ -184,7 +182,7 @@ export function StackDetail({scope, uuid, may, vmSource}: Props) {
   const {t, locale} = useI18n();
   const router = useRouter();
   const query = useStack(scope, uuid);
-  const vms = useDockerVms(vmSource);
+  const vms = useVmChoices(vmSource, {kind: "docker"});
   const [pending, setPending] = useState<StackTransition | undefined>();
 
   if (query.isPending) {
@@ -248,7 +246,9 @@ export function StackDetail({scope, uuid, may, vmSource}: Props) {
                 vm: vm?.name ?? stack.vm_name ?? shortId(stack.vm_uuid),
               })}
             </Text>
-            {vm && <VmStateBadge state={vm.state} />}
+            {vm && (
+              <StateBadge state={vm.state} expectedState={vm.expected_state} />
+            )}
           </Group>
           <Text size="sm" c="dimmed">
             {t("stacks.detail.project", {slug: stack.slug})}

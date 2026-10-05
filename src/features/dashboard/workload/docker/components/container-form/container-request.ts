@@ -1,4 +1,5 @@
-import {MiB, portNumber, shellWords} from "../../format";
+import {MiB} from "@/features/dashboard/workload/vms/lib/units";
+import {portNumber, shellWords} from "../../format";
 import {
   type ContainerCreateRequest,
   type Mount,

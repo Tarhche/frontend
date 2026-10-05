@@ -14,6 +14,7 @@ import Link from "@/components/link";
 import {useTranslations} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
 import {ConfirmModal} from "@/features/dashboard/workload/vms/components/confirm-modal";
 import {deleteSnapshot} from "../actions/snapshot-commands";
 import {snapshotKeys} from "../hooks/queries";
@@ -41,7 +42,7 @@ type Props = {
   restore?: {
     scope: Scope;
     vm?: RestoreTarget;
-    choose?: {scope: Scope; me: string | null};
+    choose?: VmSource | null;
   } | null;
 };
 

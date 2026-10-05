@@ -11,10 +11,11 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import {useTranslations} from "@/i18n/provider";
+import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {commandContainer, removeContainer} from "../../api";
 import {problemMessage, problemOf} from "../../errors";
 import {dockerKeys} from "../../hooks/queries";
-import {type Container, type ContainerCommand, type Scope} from "../../types";
+import {type Container, type ContainerCommand} from "../../types";
 import {ConfirmModal} from "../confirm-modal";
 import {type ContainerTransition} from "../container-state-badge";
 

@@ -996,18 +996,6 @@
     },
     "showOutput": "Show the output",
     "hideOutput": "Hide the output",
-    "vmStates": {
-      "created": "created",
-      "scheduled": "scheduled",
-      "starting": "starting",
-      "running": "running",
-      "stopping": "stopping",
-      "stopped": "stopped",
-      "restarting": "restarting",
-      "restoring": "restoring",
-      "failed": "failed",
-      "deleting": "deleting"
-    },
     "waiting": {
       "elapsed": "Time elapsed"
     }
@@ -1048,16 +1036,7 @@
       "legend": "New Docker VM",
       "name": "Name",
       "nameHelp": "Its address is made from this name.",
-      "cpus": "vCPUs",
-      "memory": "Memory",
-      "disk": "Disk",
-      "ports": "Exposed ports",
-      "portsHelp": "The VM's ports that the ingress serves. A container port published on any other port is only reachable inside the VM.",
-      "notPorts": "Not a port: {values}. A port is a number from 1 to 65535.",
-      "ingress": "Reachable from the internet",
-      "ingressHelp": "Its exposed ports are served through the ingress.",
-      "egress": "Reaches the internet",
-      "egressHelp": "It can reach the public internet, never other VMs."
+      "portsHelp": "The VM's ports that the ingress serves. A container port published on any other port is only reachable inside the VM."
     },
     "tabs": {
       "all": "All Docker VMs",

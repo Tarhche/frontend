@@ -70,3 +70,36 @@ export function vmAbilities(
 export function canCreateVms(permissions: readonly string[]): boolean {
   return permissions.includes("workload.vms.create");
 }
+
+/**
+ * Where VMs to pick one from are listed: a scope's routes, narrowed to one
+ * owner's VMs when the workload's routes stand in for somebody's own.
+ */
+export type VmSource = {
+  scope: Scope;
+  owner?: string;
+};
+
+/**
+ * Where somebody lists VMs to pick one of. Everybody's are listed through the
+ * workload's routes, for whoever may list them. One's own are listed through
+ * one's own routes, or through the workload's narrowed to one's own when that
+ * is all that is held. Null when they may not be listed at all, and nothing
+ * can be picked.
+ */
+export function vmSource(
+  permissions: readonly string[],
+  whose: Scope,
+  me: string | null,
+): VmSource | null {
+  if (whose === "all") {
+    return vmScope(permissions, "index", false) ? {scope: "all"} : null;
+  }
+
+  const scope = vmScope(permissions, "index", true);
+  if (scope === "mine") {
+    return {scope};
+  }
+
+  return scope === "all" && me ? {scope, owner: me} : null;
+}

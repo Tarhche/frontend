@@ -1,14 +1,16 @@
 import "server-only";
-import {getUserPermissions, getUserUuid, hasPermission} from "@/lib/auth";
-import {type Scope, type VmSource} from "./types";
+import {getUserPermissions, getUserUuid} from "@/lib/auth";
+import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {
+  type VmSource,
+  vmSource,
+} from "@/features/dashboard/workload/vms/permissions";
 
 /**
- * Where the Docker VMs a page offers are listed from.
- *
- * Everybody's VMs are listed through the admin routes, for whoever may list
- * them. One's own are listed through the "my" routes; somebody who may list
- * everybody's but not, as such, their own gets everybody's narrowed to theirs.
- * Somebody who may list neither has nothing to pick from, and is told so.
+ * Where the Docker VMs a page offers are listed from, by the VM pages' own
+ * rule (vmSource): everybody's for whoever may list them, one's own through
+ * one's own routes or through the workload's narrowed to one's own. Somebody
+ * who may list neither has nothing to pick from, and is told so.
  */
 export async function dockerVmSource(
   scope: Scope,
@@ -16,21 +18,9 @@ export async function dockerVmSource(
 ): Promise<VmSource | null> {
   const granted = permissions ?? (await getUserPermissions()) ?? [];
 
-  if (scope === "all") {
-    return hasPermission(granted, ["workload.vms.index"])
-      ? {scope: "all"}
-      : null;
-  }
-
-  if (hasPermission(granted, ["self.workload.vms.index"])) {
-    return {scope: "mine"};
-  }
-
-  if (hasPermission(granted, ["workload.vms.index"])) {
-    const owner = await getUserUuid();
-
-    return owner ? {scope: "all", owner} : null;
-  }
-
-  return null;
+  return vmSource(
+    granted,
+    scope,
+    scope === "mine" ? await getUserUuid() : null,
+  );
 }

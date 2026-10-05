@@ -1,7 +1,9 @@
 import {
   expiryOf,
+  formatDateTime,
   formatDuration,
   formatRelative,
+  formatTime,
   lifetimeFrom,
   lifetimeSeconds,
 } from "./lifetime";
@@ -58,5 +60,19 @@ describe("a VM's lifetime", () => {
     expect(formatDuration(45)).toBe("45 sec");
     expect(formatDuration(240)).toBe("4 min");
     expect(formatDuration(7200)).toBe("2 hr");
+  });
+});
+
+describe("a moment", () => {
+  const at = new Date(2026, 9, 4, 14, 5, 9);
+
+  it("is told to the second on a 24-hour clock", () => {
+    expect(formatTime(at)).toBe("14:05:09");
+  });
+
+  it("is nothing when there is none", () => {
+    expect(formatTime(undefined)).toBe("");
+    expect(formatDateTime("")).toBe("");
+    expect(formatDateTime("not a date")).toBe("");
   });
 });

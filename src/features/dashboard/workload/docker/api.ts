@@ -1,5 +1,10 @@
 import {clientDalDriver} from "@/dal/client/client-dal-driver";
 import {
+  type Scope,
+  vmPath,
+  workloadPath,
+} from "@/features/dashboard/workload/vms/api";
+import {
   type Container,
   type ContainerCommand,
   type ContainerCreateRequest,
@@ -10,40 +15,15 @@ import {
   type LogsResponse,
   type Network,
   type NetworkCreateRequest,
-  type Page,
-  type Scope,
-  type Vm,
-  type VmListParams,
   type Volume,
   type VolumeCreateRequest,
 } from "./types";
 
 /*
- * The paths are named and built the way the VM pages build theirs (vms/api.ts),
- * so that the two can become one.
+ * What the browser asks of the Docker VMs: their containers, images, networks
+ * and volumes, read live from each VM's dockerd. The paths are the VM pages'
+ * (vms/api.ts), and so are the VMs themselves (vms/client.ts).
  */
-
-const ROOTS: Record<Scope, string> = {
-  all: "dashboard/workload",
-  mine: "dashboard/my/workload",
-};
-
-/**
- * A path under the workload's part of the dashboard API, for a scope.
- * Everybody's things are asked about through the workload's own routes; one's
- * own through the "my" ones, which answer only about the caller's.
- */
-export function workloadPath(scope: Scope, path: string): string {
-  return `${ROOTS[scope]}/${path.replace(/^\/+/, "")}`;
-}
-
-export function vmsPath(scope: Scope): string {
-  return workloadPath(scope, "vms");
-}
-
-export function vmPath(scope: Scope, uuid: string): string {
-  return `${vmsPath(scope)}/${encodeURIComponent(uuid)}`;
-}
 
 /**
  * Where containers are created. It is the workload's own route whoever asks,
@@ -68,40 +48,6 @@ export function itemsOf<T>(data: Listing<T> | T[] | null | undefined): T[] {
   }
 
   return data?.items ?? [];
-}
-
-/** A page of a scope's VMs, as the VM pages read one (vms/client.ts). */
-export async function getVms(
-  scope: Scope,
-  params: VmListParams = {},
-): Promise<Page<Vm>> {
-  const response = await clientDalDriver.get(vmsPath(scope), {params});
-
-  return response.data;
-}
-
-// a person holds a handful of Docker VMs, and somebody looking at everybody's
-// is looking for one to pick: past this many pages, a select is no help anyway.
-const MAX_VM_PAGES = 10;
-
-/**
- * The Docker VMs in a scope, every page of them, for picking one. Only VMs of
- * kind docker are kept, whatever the server made of the filter: a machine VM
- * has no dockerd to put anything in.
- */
-export async function fetchDockerVms(scope: Scope): Promise<Vm[]> {
-  const vms: Vm[] = [];
-
-  for (let page = 1; page <= MAX_VM_PAGES; page++) {
-    const listed = await getVms(scope, {kind: "docker", page});
-    vms.push(...itemsOf(listed));
-
-    if (page >= (listed?.pagination?.total_pages ?? 1)) {
-      break;
-    }
-  }
-
-  return vms.filter((vm) => vm.kind === "docker");
 }
 
 /**

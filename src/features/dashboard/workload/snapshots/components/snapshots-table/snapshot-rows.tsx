@@ -12,6 +12,7 @@ import {formatBytes} from "@/features/dashboard/workload/vms/lib/units";
 import {
   canCreateVms,
   vmScope,
+  vmSource,
 } from "@/features/dashboard/workload/vms/permissions";
 import {type Page} from "@/features/dashboard/workload/vms/types";
 import {useSnapshots} from "../../hooks/queries";
@@ -49,7 +50,7 @@ export function SnapshotRows({
   // through one's own routes when that is allowed, through the workload's
   // narrowed to one's own otherwise.
   const restoreScope = vmScope(permissions, "manage", true);
-  const listScope = vmScope(permissions, "index", true);
+  const ownVms = vmSource(permissions, "mine", me);
   const mayCreate = canCreateVms(permissions);
 
   return (
@@ -113,8 +114,8 @@ export function SnapshotRows({
                 remove={snapshotScope(permissions, "delete", own)}
                 restoreAsNew={own && mayCreate}
                 restore={
-                  own && restoreScope && listScope
-                    ? {scope: restoreScope, choose: {scope: listScope, me}}
+                  own && restoreScope && ownVms
+                    ? {scope: restoreScope, choose: ownVms}
                     : null
                 }
               />

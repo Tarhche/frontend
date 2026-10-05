@@ -1,9 +1,14 @@
 "use client";
 
 import {useQuery} from "@tanstack/react-query";
+import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {
+  IDLE_POLL_MS,
+  LIVE,
+} from "@/features/dashboard/workload/vms/hooks/queries";
 import {fetchImages, fetchNetworks, fetchVolumes} from "../api";
-import {type Image, type Network, type Scope, type Volume} from "../types";
-import {dockerKeys, IDLE_POLL_MS, LIVE} from "./queries";
+import {type Image, type Network, type Volume} from "../types";
+import {dockerKeys} from "./queries";
 
 // what is in a VM changes when somebody changes it, mostly from this very page,
 // which asks again when it does; a stack deploying alongside is the rest, so it

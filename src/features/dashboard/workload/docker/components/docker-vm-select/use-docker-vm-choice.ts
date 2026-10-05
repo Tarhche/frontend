@@ -1,8 +1,8 @@
 "use client";
 
 import {useState} from "react";
-import {useDockerVms} from "../../hooks/use-docker-vms";
-import {type VmSource} from "../../types";
+import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
+import {useVmChoices} from "@/features/dashboard/workload/vms/hooks/queries";
 import {
   DOCKER_VM_DEFAULTS,
   resolveChoice,
@@ -29,7 +29,7 @@ export function useDockerVmChoice(
   source: VmSource | null,
   {allowNew, initial = null}: Options,
 ) {
-  const query = useDockerVms(source);
+  const query = useVmChoices(source, {kind: "docker"});
   const [picked, pick] = useState<string | null>(initial);
   const [newVm, setNewVm] = useState<NewDockerVm>(DOCKER_VM_DEFAULTS);
 

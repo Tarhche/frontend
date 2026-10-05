@@ -1,7 +1,8 @@
 import {act, screen, waitFor} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {AxiosError, AxiosHeaders, type InternalAxiosRequestConfig} from "axios";
-import {ltr, MiB} from "../../format";
+import {MiB} from "@/features/dashboard/workload/vms/lib/units";
+import {ltr} from "../../format";
 import {dockerVm, renderWithProviders} from "../../test-utils";
 import {ContainerForm} from "./container-form";
 
@@ -23,15 +24,18 @@ jest.mock("next/navigation", () => ({
 }));
 
 const api = {
-  fetchDockerVms: jest.fn(),
+  getAllVms: jest.fn(),
   fetchImages: jest.fn(),
   fetchNetworks: jest.fn(),
   fetchVolumes: jest.fn(),
   createContainer: jest.fn(),
 };
 
+jest.mock("@/features/dashboard/workload/vms/client", () => ({
+  getAllVms: (...args: unknown[]) => api.getAllVms(...args),
+}));
+
 jest.mock("../../api", () => ({
-  fetchDockerVms: (...args: unknown[]) => api.fetchDockerVms(...args),
   fetchImages: (...args: unknown[]) => api.fetchImages(...args),
   fetchNetworks: (...args: unknown[]) => api.fetchNetworks(...args),
   fetchVolumes: (...args: unknown[]) => api.fetchVolumes(...args),
@@ -55,7 +59,7 @@ beforeEach(() => {
   Object.values(api).forEach((mock) => mock.mockReset());
   push.mockReset();
 
-  api.fetchDockerVms.mockResolvedValue([vm]);
+  api.getAllVms.mockResolvedValue([vm]);
   api.fetchImages.mockResolvedValue([
     {id: "sha256:1", tags: ["nginx:1.27-alpine"], size: 1},
   ]);

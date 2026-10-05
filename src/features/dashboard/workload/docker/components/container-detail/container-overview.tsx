@@ -1,7 +1,6 @@
 "use client";
 
 import {useId, useState, type ReactNode} from "react";
-import Link from "@/components/link";
 import {
   ActionIcon,
   Button,
@@ -19,8 +18,9 @@ import {
   Tooltip,
 } from "@mantine/core";
 import {IconCheck, IconCopy} from "@tabler/icons-react";
+import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
-import {formatDateTime} from "../../format";
+import {formatDateTime} from "@/features/dashboard/workload/vms/lib/lifetime";
 import {type Container} from "../../types";
 import {ContainerPorts} from "../containers-table/container-ports";
 import {stateLabel} from "../state-label";

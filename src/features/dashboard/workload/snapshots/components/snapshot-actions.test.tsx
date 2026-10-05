@@ -87,7 +87,7 @@ describe("SnapshotActions", () => {
     actions({
       snapshot: {...nightly, state: "creating"},
       restoreAsNew: true,
-      restore: {scope: "mine", choose: {scope: "mine", me: "me"}},
+      restore: {scope: "mine", choose: {scope: "mine"}},
     });
 
     expect(

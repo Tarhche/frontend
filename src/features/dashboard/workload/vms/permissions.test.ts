@@ -1,4 +1,4 @@
-import {canCreateVms, vmAbilities, vmScope} from "./permissions";
+import {canCreateVms, vmAbilities, vmScope, vmSource} from "./permissions";
 
 describe("what somebody may do to a VM", () => {
   it("asks about one's own through one's own routes", () => {
@@ -43,5 +43,32 @@ describe("what somebody may do to a VM", () => {
   it("creates only under the workload's create", () => {
     expect(canCreateVms(["workload.vms.create"])).toBe(true);
     expect(canCreateVms(["self.workload.vms.index"])).toBe(false);
+  });
+});
+
+describe("where VMs to pick from are listed", () => {
+  it("lists everybody's through the workload's routes, for whoever may", () => {
+    expect(vmSource(["workload.vms.index"], "all", "me")).toEqual({
+      scope: "all",
+    });
+    expect(vmSource(["self.workload.vms.index"], "all", "me")).toBe(null);
+  });
+
+  it("lists one's own through one's own routes", () => {
+    expect(
+      vmSource(["workload.vms.index", "self.workload.vms.index"], "mine", "me"),
+    ).toEqual({scope: "mine"});
+  });
+
+  it("narrows the workload's to one's own when that is all that is held", () => {
+    expect(vmSource(["workload.vms.index"], "mine", "me")).toEqual({
+      scope: "all",
+      owner: "me",
+    });
+    expect(vmSource(["workload.vms.index"], "mine", null)).toBe(null);
+  });
+
+  it("lists nothing for somebody who may list neither", () => {
+    expect(vmSource([], "mine", "me")).toBe(null);
   });
 });

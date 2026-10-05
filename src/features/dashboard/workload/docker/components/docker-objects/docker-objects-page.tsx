@@ -1,9 +1,10 @@
 "use client";
 
 import {Stack} from "@mantine/core";
+import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
+import {vmReadiness} from "@/features/dashboard/workload/vms/lib/state";
 import {type DockerMay} from "../../permissions";
-import {type Scope, type VmSource} from "../../types";
-import {vmReadiness} from "../../vm-state";
 import {DockerVmSelect, useDockerVmChoice} from "../docker-vm-select";
 import {ImagesTable} from "./images-table";
 import {NetworksTable} from "./networks-table";

@@ -14,7 +14,7 @@ jest.mock("@/i18n/provider", () => {
 });
 
 const api = {
-  fetchDockerVms: jest.fn(),
+  getAllVms: jest.fn(),
   fetchImages: jest.fn(),
   pullImage: jest.fn(),
   removeImage: jest.fn(),
@@ -26,8 +26,11 @@ const api = {
   removeVolume: jest.fn(),
 };
 
+jest.mock("@/features/dashboard/workload/vms/client", () => ({
+  getAllVms: (...args: unknown[]) => api.getAllVms(...args),
+}));
+
 jest.mock("../../api", () => ({
-  fetchDockerVms: (...args: unknown[]) => api.fetchDockerVms(...args),
   fetchImages: (...args: unknown[]) => api.fetchImages(...args),
   pullImage: (...args: unknown[]) => api.pullImage(...args),
   removeImage: (...args: unknown[]) => api.removeImage(...args),
@@ -55,7 +58,7 @@ function page(objects: DockerObjects) {
 beforeEach(() => {
   Object.values(api).forEach((mock) => mock.mockReset());
 
-  api.fetchDockerVms.mockResolvedValue([
+  api.getAllVms.mockResolvedValue([
     dockerVm({uuid: "vm-1", name: "docker-one"}),
   ]);
   api.fetchImages.mockResolvedValue([
@@ -75,7 +78,7 @@ beforeEach(() => {
 
 describe("DockerObjectsPage", () => {
   it("says a VM that is not running has nothing to show, and asks it nothing", async () => {
-    api.fetchDockerVms.mockResolvedValue([
+    api.getAllVms.mockResolvedValue([
       dockerVm({uuid: "vm-1", name: "docker-one", state: "stopped"}),
     ]);
     page("images");

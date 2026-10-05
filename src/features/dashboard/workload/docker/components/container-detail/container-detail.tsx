@@ -2,7 +2,6 @@
 
 import {useState} from "react";
 import {useRouter} from "next/navigation";
-import Link from "@/components/link";
 import {
   Alert,
   Button,
@@ -24,18 +23,20 @@ import {
   IconInfoCircle,
   IconNetwork,
 } from "@tabler/icons-react";
+import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
 import {
   stackLinkKey,
   useStackLinks,
 } from "@/features/dashboard/workload/stacks/hooks/use-stacks";
+import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
+import {useVmChoices} from "@/features/dashboard/workload/vms/hooks/queries";
 import {problemMessage, problemOf} from "../../errors";
 import {shortId} from "../../format";
 import {useContainer} from "../../hooks/use-containers";
-import {useDockerVms} from "../../hooks/use-docker-vms";
 import {type DockerMay} from "../../permissions";
-import {type Scope, type VmSource} from "../../types";
 import {
   ContainerStateBadge,
   type ContainerTransition,
@@ -77,7 +78,7 @@ export function ContainerDetail({
   const {t} = useI18n();
   const router = useRouter();
   const query = useContainer(scope, vmUuid, id);
-  const vms = useDockerVms(vmSource);
+  const vms = useVmChoices(vmSource, {kind: "docker"});
   const [pending, setPending] = useState<ContainerTransition | undefined>();
   const links = useStackLinks(
     scope,

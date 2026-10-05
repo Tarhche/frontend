@@ -1,8 +1,9 @@
 import {screen, waitFor, within} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {GiB} from "../../format";
+import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
+import {type Vm} from "@/features/dashboard/workload/vms/types";
+import {GiB} from "@/features/dashboard/workload/vms/lib/units";
 import {dockerVm, renderWithProviders} from "../../test-utils";
-import {type Vm, type VmSource} from "../../types";
 import {vmTarget} from "./choice";
 import {DockerVmSelect} from "./docker-vm-select";
 import {useDockerVmChoice} from "./use-docker-vm-choice";
@@ -19,10 +20,10 @@ jest.mock("@/i18n/provider", () => {
   };
 });
 
-const fetchDockerVms = jest.fn();
+const getAllVms = jest.fn();
 
-jest.mock("../../api", () => ({
-  fetchDockerVms: (...args: unknown[]) => fetchDockerVms(...args),
+jest.mock("@/features/dashboard/workload/vms/client", () => ({
+  getAllVms: (...args: unknown[]) => getAllVms(...args),
 }));
 
 /** The select as a create form uses it, with what it would send beside it. */
@@ -50,11 +51,11 @@ function sent() {
 }
 
 function listing(vms: Vm[]) {
-  fetchDockerVms.mockResolvedValue(vms);
+  getAllVms.mockResolvedValue(vms);
 }
 
 beforeEach(() => {
-  fetchDockerVms.mockReset();
+  getAllVms.mockReset();
 });
 
 describe("DockerVmSelect, creating something", () => {
@@ -67,11 +68,9 @@ describe("DockerVmSelect, creating something", () => {
     ).toBeInTheDocument();
     expect(screen.getByLabelText("dockerVms.new.name")).toHaveValue("docker");
     expect(
-      screen.getByRole("switch", {name: /dockerVms.new.ingress/}),
+      screen.getByRole("switch", {name: /vms.form.ingress/}),
     ).toBeChecked();
-    expect(
-      screen.getByRole("switch", {name: /dockerVms.new.egress/}),
-    ).toBeChecked();
+    expect(screen.getByRole("switch", {name: /vms.form.egress/})).toBeChecked();
 
     expect(sent()).toEqual({
       vm: {
@@ -92,13 +91,11 @@ describe("DockerVmSelect, creating something", () => {
     await user.clear(name);
     await user.type(name, "builds");
 
-    const cpus = screen.getByLabelText("dockerVms.new.cpus");
+    const cpus = screen.getByLabelText("vms.form.cpus");
     await user.clear(cpus);
     await user.type(cpus, "4");
 
-    await user.click(
-      screen.getByRole("switch", {name: /dockerVms.new.ingress/}),
-    );
+    await user.click(screen.getByRole("switch", {name: /vms.form.ingress/}));
 
     expect(sent()).toMatchObject({
       vm: {
@@ -179,7 +176,7 @@ describe("DockerVmSelect, creating something", () => {
     expect(
       screen.getByText("dockerVms.select.chosenForYou"),
     ).toBeInTheDocument();
-    expect(fetchDockerVms).not.toHaveBeenCalled();
+    expect(getAllVms).not.toHaveBeenCalled();
     expect(sent()).toEqual({});
   });
 });
@@ -192,6 +189,6 @@ describe("DockerVmSelect, looking into a VM", () => {
     expect(
       await screen.findByText("dockerVms.select.noneTitle"),
     ).toBeInTheDocument();
-    expect(fetchDockerVms).toHaveBeenCalledWith("all");
+    expect(getAllVms).toHaveBeenCalledWith("all", {kind: "docker"});
   });
 });

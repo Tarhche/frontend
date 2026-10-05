@@ -17,18 +17,24 @@ jest.mock("@/i18n/provider", () => {
 });
 
 // the API: the restore is a server action, and the VMs to restore onto are
-// read from the browser.
+// read from the browser, every page of them.
 const mockRestore = jest.fn();
-const mockGetVms = jest.fn();
+const mockGet = jest.fn();
 const mockNotify = jest.fn();
 
 jest.mock("@/features/dashboard/workload/vms/actions/vm-commands", () => ({
   restoreVm: (...args: unknown[]) => mockRestore(...args),
 }));
 
-jest.mock("@/features/dashboard/workload/vms/client", () => ({
-  getVms: (...args: unknown[]) => mockGetVms(...args),
+jest.mock("@/dal/client/client-dal-driver", () => ({
+  clientDalDriver: {get: (...args: unknown[]) => mockGet(...args)},
 }));
+
+function listing(items: Vm[]) {
+  mockGet.mockResolvedValue({
+    data: {items, pagination: {total_pages: 1, current_page: 1}},
+  });
+}
 
 jest.mock("@mantine/notifications", () => ({
   notifications: {show: (...args: unknown[]) => mockNotify(...args)},
@@ -45,7 +51,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   mockRestore.mockReset();
-  mockGetVms.mockReset();
+  mockGet.mockReset();
   mockNotify.mockReset();
   mockRestore.mockResolvedValue({ok: true});
 });
@@ -163,22 +169,21 @@ describe("restoring a snapshot onto this VM", () => {
 describe("restoring a snapshot onto a VM somebody chooses", () => {
   it("offers their own VMs of its kind, and only those that can take it", async () => {
     const user = userEvent.setup();
-    mockGetVms.mockResolvedValue({
-      items: [
-        vm({uuid: "vm-web", name: "web"}),
-        vm({
-          uuid: "vm-tiny",
-          name: "tiny",
-          resources: {cpus: 1, memory: GiB, disk: GiB},
-        }),
-        vm({uuid: "vm-docker", name: "builds", kind: "docker"}),
-      ],
-      pagination: {total_pages: 1, current_page: 1},
-    });
-    modal({choose: {scope: "mine", me: "me"}});
+    listing([
+      vm({uuid: "vm-web", name: "web"}),
+      vm({
+        uuid: "vm-tiny",
+        name: "tiny",
+        resources: {cpus: 1, memory: GiB, disk: GiB},
+      }),
+      vm({uuid: "vm-docker", name: "builds", kind: "docker"}),
+    ]);
+    modal({choose: {scope: "mine"}});
 
     await waitFor(() =>
-      expect(mockGetVms).toHaveBeenCalledWith("mine", {kind: "machine"}),
+      expect(mockGet).toHaveBeenCalledWith("dashboard/my/workload/vms", {
+        params: {kind: "machine", page: 1},
+      }),
     );
 
     await user.click(
@@ -209,14 +214,11 @@ describe("restoring a snapshot onto a VM somebody chooses", () => {
 
   it("narrows the workload's listing to their own", async () => {
     const user = userEvent.setup();
-    mockGetVms.mockResolvedValue({
-      items: [
-        vm({uuid: "vm-mine", name: "mine"}),
-        vm({uuid: "vm-theirs", name: "theirs", owner_uuid: "somebody"}),
-      ],
-      pagination: {total_pages: 1, current_page: 1},
-    });
-    modal({choose: {scope: "all", me: "me"}});
+    listing([
+      vm({uuid: "vm-mine", name: "mine"}),
+      vm({uuid: "vm-theirs", name: "theirs", owner_uuid: "somebody"}),
+    ]);
+    modal({choose: {scope: "all", owner: "me"}});
 
     await user.click(
       await screen.findByRole("combobox", {name: "snapshots.restore.vm"}),
@@ -229,11 +231,8 @@ describe("restoring a snapshot onto a VM somebody chooses", () => {
   });
 
   it("says when there is nothing to restore onto", async () => {
-    mockGetVms.mockResolvedValue({
-      items: [],
-      pagination: {total_pages: 0, current_page: 1},
-    });
-    modal({choose: {scope: "mine", me: "me"}});
+    listing([]);
+    modal({choose: {scope: "mine"}});
 
     expect(
       await screen.findByText("snapshots.restore.noVms(vms.kinds.machine)"),

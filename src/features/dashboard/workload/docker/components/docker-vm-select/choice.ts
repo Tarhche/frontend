@@ -1,36 +1,45 @@
-import {GiB, portNumber} from "../../format";
-import {type Vm, type VmTarget} from "../../types";
-import {vmReadiness} from "../../vm-state";
+import {
+  defaultVmFormValues,
+  networkFromToggles,
+} from "@/features/dashboard/workload/vms/lib/form";
+import {vmReadiness} from "@/features/dashboard/workload/vms/lib/state";
+import {type Size, toBytes} from "@/features/dashboard/workload/vms/lib/units";
+import {type Vm} from "@/features/dashboard/workload/vms/types";
+import {type VmTarget} from "../../types";
 
 /** What the select holds for "a new Docker VM". No VM's uuid is this. */
 export const NEW_VM = "new";
 
 /**
- * The Docker VM to create, as somebody edits it: sizes in GiB, as typed. A size
- * left empty is left to the platform's default.
+ * The Docker VM to create, as somebody edits it: the VM form's own fields
+ * (vms/lib/form.ts), with sizes as typed. A size left empty is left to the
+ * platform's default.
  */
 export type NewDockerVm = {
   name: string;
-  cpus: number | "";
-  memoryGiB: number | "";
-  diskGiB: number | "";
+  cpus: number;
+  memory: Size;
+  disk: Size;
   ports: number[];
   ingress: boolean;
   egress: boolean;
 };
 
+const DOCKER_FORM = defaultVmFormValues("docker");
+
 /**
- * What the platform gives a Docker VM nobody said anything about. They are
- * shown as they are, and sent as shown: what somebody sees is what they get.
+ * What the platform gives a Docker VM nobody said anything about, which is
+ * what the VM form starts a Docker VM with too. They are shown as they are,
+ * and sent as shown: what somebody sees is what they get.
  */
 export const DOCKER_VM_DEFAULTS: NewDockerVm = {
   name: "docker",
-  cpus: 2,
-  memoryGiB: 2,
-  diskGiB: 20,
-  ports: [80, 443, 8080],
-  ingress: true,
-  egress: true,
+  cpus: DOCKER_FORM.cpus,
+  memory: DOCKER_FORM.memory,
+  disk: DOCKER_FORM.disk,
+  ports: [...DOCKER_FORM.ports],
+  ingress: DOCKER_FORM.ingress,
+  egress: DOCKER_FORM.egress,
 };
 
 /**
@@ -89,30 +98,24 @@ export function resolveChoice(
   };
 }
 
-// sizes go to the API in bytes, as every size does.
-function bytesOf(gib: number | ""): number | undefined {
-  return gib === "" ? undefined : Math.round(gib * GiB);
-}
-
 /** What a choice adds to a create request. */
 export function vmTarget(choice: VmChoice): VmTarget {
   switch (choice.kind) {
     case "existing":
       return {vm_uuid: choice.vm.uuid};
     case "new":
+      // sizes go to the API in bytes, as every size does; one left empty is
+      // not sent, and the platform's default is what it gets.
       return {
         vm: {
           name: choice.vm.name.trim() || undefined,
           resources: {
-            cpus: choice.vm.cpus === "" ? undefined : choice.vm.cpus,
-            memory: bytesOf(choice.vm.memoryGiB),
-            disk: bytesOf(choice.vm.diskGiB),
+            cpus: choice.vm.cpus > 0 ? Math.trunc(choice.vm.cpus) : undefined,
+            memory: toBytes(choice.vm.memory) || undefined,
+            disk: toBytes(choice.vm.disk) || undefined,
           },
           ports: choice.vm.ports,
-          network: {
-            ingress: choice.vm.ingress ? "allow" : "deny",
-            egress: choice.vm.egress ? "allow" : "deny",
-          },
+          network: networkFromToggles(choice.vm),
         },
       };
     case "unset":
@@ -150,24 +153,4 @@ export function choiceIssue(
     default:
       return null;
   }
-}
-
-/** The ports somebody typed, as the sorted, distinct ports they can be. */
-export function portsFrom(values: string[]): {
-  ports: number[];
-  rejected: string[];
-} {
-  const ports = new Set<number>();
-  const rejected: string[] = [];
-
-  for (const value of values) {
-    const port = portNumber(value.trim());
-    if (port === null) {
-      rejected.push(value);
-    } else {
-      ports.add(port);
-    }
-  }
-
-  return {ports: [...ports].sort((a, b) => a - b), rejected};
 }

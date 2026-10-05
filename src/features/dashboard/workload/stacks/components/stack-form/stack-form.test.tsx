@@ -45,12 +45,11 @@ jest.mock("../compose-editor", () => ({
   ),
 }));
 
-const fetchDockerVms = jest.fn();
+const getAllVms = jest.fn();
 const createStack = jest.fn();
 
-jest.mock("@/features/dashboard/workload/docker/api", () => ({
-  ...jest.requireActual("@/features/dashboard/workload/docker/api"),
-  fetchDockerVms: (...args: unknown[]) => fetchDockerVms(...args),
+jest.mock("@/features/dashboard/workload/vms/client", () => ({
+  getAllVms: (...args: unknown[]) => getAllVms(...args),
 }));
 
 jest.mock("../../api", () => ({
@@ -78,10 +77,8 @@ function refused(data: unknown) {
 beforeEach(() => {
   push.mockReset();
   createStack.mockReset();
-  fetchDockerVms.mockReset();
-  fetchDockerVms.mockResolvedValue([
-    dockerVm({uuid: "vm-1", name: "docker-one"}),
-  ]);
+  getAllVms.mockReset();
+  getAllVms.mockResolvedValue([dockerVm({uuid: "vm-1", name: "docker-one"})]);
 });
 
 async function fill(name: string, compose: string) {
@@ -167,7 +164,7 @@ describe("StackForm", () => {
   });
 
   it("creates a Docker VM along with it for somebody who has none", async () => {
-    fetchDockerVms.mockResolvedValue([]);
+    getAllVms.mockResolvedValue([]);
     createStack.mockResolvedValue({
       vm: {uuid: "vm-9", name: "docker", created: true},
       stack: {uuid: "s-2", name: "shop", state: "deploying"},

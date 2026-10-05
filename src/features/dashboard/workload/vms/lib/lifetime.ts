@@ -115,10 +115,24 @@ export function formatDuration(seconds: number, locale = "en"): string {
   }).format(value);
 }
 
-/** A moment, with its time: an expiry is worth more than its day. */
-export function formatDateTime(at: Date | string, locale = "en"): string {
+// a moment as it was given, or nothing for one that is missing or no moment.
+function dateOf(at: Date | string | null | undefined): Date | null {
+  if (!at) {
+    return null;
+  }
+
   const date = typeof at === "string" ? new Date(at) : at;
-  if (Number.isNaN(date.getTime())) {
+
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+/** A moment, with its time: an expiry is worth more than its day. */
+export function formatDateTime(
+  at: Date | string | null | undefined,
+  locale = "en",
+): string {
+  const date = dateOf(at);
+  if (date === null) {
     return "";
   }
 
@@ -128,5 +142,23 @@ export function formatDateTime(at: Date | string, locale = "en"): string {
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+  });
+}
+
+/** The time of day something happened, to the second, on a 24-hour clock. */
+export function formatTime(
+  at: Date | string | null | undefined,
+  locale = "en",
+): string {
+  const date = dateOf(at);
+  if (date === null) {
+    return "";
+  }
+
+  return date.toLocaleTimeString(intlLocale(locale), {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
   });
 }

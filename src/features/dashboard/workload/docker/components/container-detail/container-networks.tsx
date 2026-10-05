@@ -24,11 +24,12 @@ import {
 import {notifications} from "@mantine/notifications";
 import {IconPlugConnectedX} from "@tabler/icons-react";
 import {useI18n} from "@/i18n/provider";
+import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {connectContainerNetwork, disconnectContainerNetwork} from "../../api";
 import {problemOf} from "../../errors";
 import {dockerKeys} from "../../hooks/queries";
 import {useNetworks} from "../../hooks/use-docker-objects";
-import {type Container, type Scope} from "../../types";
+import {type Container} from "../../types";
 import {ConfirmModal} from "../confirm-modal";
 import {containerName} from "../containers-table/container-actions";
 import {ProblemAlert} from "../problem-alert";

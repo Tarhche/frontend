@@ -3,9 +3,9 @@
 import {useEffect, useRef, useState} from "react";
 import {Box, Code, Group, Loader, Stack, Switch, Text} from "@mantine/core";
 import {useI18n} from "@/i18n/provider";
-import {formatTime} from "../../format";
+import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {formatTime} from "@/features/dashboard/workload/vms/lib/lifetime";
 import {LOG_TAIL, useContainerLogs} from "../../hooks/use-container-logs";
-import {type Scope} from "../../types";
 import {ProblemAlert} from "../problem-alert";
 
 type Props = {

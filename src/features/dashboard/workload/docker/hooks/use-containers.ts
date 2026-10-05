@@ -1,9 +1,11 @@
 "use client";
 
 import {useQuery} from "@tanstack/react-query";
+import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {LIVE} from "@/features/dashboard/workload/vms/hooks/queries";
 import {fetchContainer, fetchContainers} from "../api";
-import {type Container, type Scope} from "../types";
-import {dockerKeys, LIVE} from "./queries";
+import {type Container} from "../types";
+import {dockerKeys} from "./queries";
 
 /**
  * The containers across a scope's running Docker VMs, or one VM's. Nothing

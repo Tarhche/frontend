@@ -1,5 +1,5 @@
 import {hasPermission} from "@/lib/auth/shared";
-import {type Scope} from "./types";
+import {type Scope} from "@/features/dashboard/workload/vms/api";
 
 /**
  * What a person may do with the Docker objects in a scope.

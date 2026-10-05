@@ -30,7 +30,7 @@ import {
   problemOf,
 } from "@/features/dashboard/workload/docker/errors";
 import {dockerKeys} from "@/features/dashboard/workload/docker/hooks/queries";
-import {type VmSource} from "@/features/dashboard/workload/docker/types";
+import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
 import {createStack} from "../../api";
 import {type StackCreateRequest} from "../../types";
 import {stackKeys} from "../../hooks/use-stacks";

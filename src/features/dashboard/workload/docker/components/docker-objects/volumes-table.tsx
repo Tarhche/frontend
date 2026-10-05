@@ -23,13 +23,15 @@ import {
 import {notifications} from "@mantine/notifications";
 import {IconPlus, IconTrash} from "@tabler/icons-react";
 import {useI18n} from "@/i18n/provider";
+import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {type Vm} from "@/features/dashboard/workload/vms/types";
+import {formatDateTime} from "@/features/dashboard/workload/vms/lib/lifetime";
 import {createVolume, removeVolume} from "../../api";
 import {problemOf} from "../../errors";
-import {formatDateTime} from "../../format";
 import {dockerKeys} from "../../hooks/queries";
 import {useVolumes} from "../../hooks/use-docker-objects";
 import {type DockerMay} from "../../permissions";
-import {type Scope, type Vm, type Volume} from "../../types";
+import {type Volume} from "../../types";
 import {ConfirmModal} from "../confirm-modal";
 import {ProblemAlert} from "../problem-alert";
 import {TableSkeleton} from "../table-skeleton";

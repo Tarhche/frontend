@@ -60,3 +60,33 @@ export function canSnapshot(state: VmState): boolean {
 export function canRestore(state: VmState): boolean {
   return state === "running" || state === "stopped" || state === "failed";
 }
+
+/**
+ * What a Docker VM's state means for the things inside it.
+ *
+ * - running: dockerd answers.
+ * - booting: on its way up. A request waits for dockerd to be ready, so it may
+ *   be sent, but it takes a while.
+ * - stopped: nothing answers until it is started.
+ * - failed: nothing answers; its reason says why.
+ * - gone: it is being deleted.
+ */
+export type VmReadiness = "running" | "booting" | "stopped" | "failed" | "gone";
+
+const READINESS: Record<VmState, VmReadiness> = {
+  running: "running",
+  created: "booting",
+  scheduled: "booting",
+  starting: "booting",
+  restarting: "booting",
+  restoring: "booting",
+  stopping: "stopped",
+  stopped: "stopped",
+  failed: "failed",
+  deleting: "gone",
+};
+
+export function vmReadiness(state: string): VmReadiness {
+  // a state nobody has named here yet is not one to send anything to.
+  return READINESS[state as VmState] ?? "stopped";
+}

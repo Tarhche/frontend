@@ -18,9 +18,13 @@ import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert
 import {useI18n} from "@/i18n/provider";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {restoreVm} from "@/features/dashboard/workload/vms/actions/vm-commands";
-import {useVms, vmKeys} from "@/features/dashboard/workload/vms/hooks/queries";
+import {
+  useVmChoices,
+  vmKeys,
+} from "@/features/dashboard/workload/vms/hooks/queries";
 import {canRestore} from "@/features/dashboard/workload/vms/lib/state";
 import {formatBytes} from "@/features/dashboard/workload/vms/lib/units";
+import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
 import {type Vm} from "@/features/dashboard/workload/vms/types";
 import {snapshotKeys} from "../hooks/queries";
 import {type Snapshot} from "../types";
@@ -43,10 +47,10 @@ type Props = {
   vm?: RestoreTarget;
 
   /**
-   * Otherwise, how the person's own VMs are listed to choose one from: their
+   * Otherwise, where the person's own VMs are listed to choose one from: their
    * own routes, or the workload's narrowed to theirs.
    */
-  choose?: {scope: Scope; me: string | null};
+  choose?: VmSource | null;
 };
 
 /** Why a VM cannot take a snapshot, if it cannot. */
@@ -86,17 +90,12 @@ export function RestoreSnapshotModal({
 
   // the person's own VMs of the snapshot's kind, read when there is a choice
   // to make and the modal is open to make it.
-  const listing = useVms({
-    scope: choose?.scope ?? "mine",
-    params: {kind: snapshot.kind},
-    enabled: opened && !vm && !!choose,
+  const listing = useVmChoices(choose ?? null, {
+    kind: snapshot.kind,
+    enabled: opened && !vm,
   });
 
-  const candidates = (listing.data?.items ?? []).filter(
-    (one) =>
-      one.kind === snapshot.kind &&
-      (choose?.scope === "mine" || one.owner_uuid === choose?.me),
-  );
+  const candidates = listing.data ?? [];
 
   const target = vm ?? candidates.find((one) => one.uuid === chosen) ?? null;
   const kind = t(`vms.kinds.${snapshot.kind}`);

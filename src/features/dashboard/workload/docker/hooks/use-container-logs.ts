@@ -1,9 +1,10 @@
 "use client";
 
 import {useEffect, useRef, useState} from "react";
+import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {fetchContainerLogs} from "../api";
 import {problemOf, type Problem} from "../errors";
-import {type LogLine, type Scope} from "../types";
+import {type LogLine} from "../types";
 
 /** How much of a container's output is asked for when the log is opened. */
 export const LOG_TAIL = 500;

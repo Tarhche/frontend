@@ -11,19 +11,20 @@ import {
 } from "@mantine/core";
 import {IconAlertTriangle, IconChartLine} from "@tabler/icons-react";
 import {useI18n} from "@/i18n/provider";
+import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {formatTime} from "@/features/dashboard/workload/vms/lib/lifetime";
+import {formatPercent} from "@/features/dashboard/workload/vms/lib/stats";
 import {
   formatBytes,
   formatNumber,
-  formatPercent,
-  formatTime,
-} from "../../format";
+} from "@/features/dashboard/workload/vms/lib/units";
 import {
   MAX_SAMPLES,
   ratesOf,
   STATS_EVERY,
   useContainerStats,
 } from "../../hooks/use-container-stats";
-import {type ContainerStats, type Scope} from "../../types";
+import {type ContainerStats} from "../../types";
 import {ProblemAlert} from "../problem-alert";
 import {Sparkline} from "./sparkline";
 import classes from "./container-stats.module.css";

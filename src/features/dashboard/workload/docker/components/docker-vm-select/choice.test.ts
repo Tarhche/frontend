@@ -1,10 +1,9 @@
-import {GiB} from "../../format";
+import {GiB} from "@/features/dashboard/workload/vms/lib/units";
 import {dockerVm} from "../../test-utils";
 import {
   choiceIssue,
   DOCKER_VM_DEFAULTS,
   NEW_VM,
-  portsFrom,
   resolveChoice,
   vmTarget,
 } from "./choice";
@@ -80,7 +79,11 @@ describe("vmTarget", () => {
     expect(
       vmTarget({
         kind: "new",
-        vm: {...DOCKER_VM_DEFAULTS, memoryGiB: 1.5, egress: false},
+        vm: {
+          ...DOCKER_VM_DEFAULTS,
+          memory: {amount: 1.5, unit: "GiB"},
+          egress: false,
+        },
       }),
     ).toEqual({
       vm: {
@@ -95,7 +98,12 @@ describe("vmTarget", () => {
   it("leaves a size nobody gave to the platform", () => {
     const target = vmTarget({
       kind: "new",
-      vm: {...DOCKER_VM_DEFAULTS, name: " ", cpus: "", diskGiB: ""},
+      vm: {
+        ...DOCKER_VM_DEFAULTS,
+        name: " ",
+        cpus: 0,
+        disk: {amount: 0, unit: "GiB"},
+      },
     });
 
     expect(JSON.parse(JSON.stringify(target))).toEqual({
@@ -131,14 +139,5 @@ describe("choiceIssue", () => {
         two,
       ]),
     ).toBeNull();
-  });
-});
-
-describe("portsFrom", () => {
-  it("keeps the ports, sorted and once each, and says what was not one", () => {
-    expect(portsFrom(["8080", "80", "80", "http", "70000"])).toEqual({
-      ports: [80, 8080],
-      rejected: ["http", "70000"],
-    });
   });
 });

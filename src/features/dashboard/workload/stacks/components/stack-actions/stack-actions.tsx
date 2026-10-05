@@ -24,7 +24,7 @@ import {
   problemOf,
 } from "@/features/dashboard/workload/docker/errors";
 import {dockerKeys} from "@/features/dashboard/workload/docker/hooks/queries";
-import {type Scope} from "@/features/dashboard/workload/docker/types";
+import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {commandStack, deleteStack} from "../../api";
 import {isInFlight, stackKeys} from "../../hooks/use-stacks";
 import {type StackMay} from "../../permissions";

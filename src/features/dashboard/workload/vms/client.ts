@@ -18,6 +18,32 @@ export async function getVms(
   return response.data;
 }
 
+// a person holds a handful of VMs, and somebody looking at everybody's is
+// looking for one to pick: past this many pages, a select is no help anyway.
+const MAX_PAGES = 10;
+
+/**
+ * Every page of a listing, for picking one VM out of all of them. Only VMs of
+ * the kind asked for are kept, whatever the server made of the filter.
+ */
+export async function getAllVms(
+  scope: Scope,
+  params: Omit<VmListParams, "page"> = {},
+): Promise<Vm[]> {
+  const vms: Vm[] = [];
+
+  for (let page = 1; page <= MAX_PAGES; page++) {
+    const listed = await getVms(scope, {...params, page});
+    vms.push(...(listed?.items ?? []));
+
+    if (page >= (listed?.pagination?.total_pages ?? 1)) {
+      break;
+    }
+  }
+
+  return params.kind ? vms.filter((vm) => vm.kind === params.kind) : vms;
+}
+
 /** The VM, or null once it is gone. */
 export async function getVm(scope: Scope, uuid: string): Promise<Vm | null> {
   try {

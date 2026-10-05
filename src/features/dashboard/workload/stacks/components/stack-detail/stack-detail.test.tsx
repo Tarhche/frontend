@@ -26,15 +26,14 @@ jest.mock("../compose-editor", () => ({
 }));
 
 const fetchStack = jest.fn();
-const fetchDockerVms = jest.fn();
+const getAllVms = jest.fn();
 
 jest.mock("../../api", () => ({
   fetchStack: (...args: unknown[]) => fetchStack(...args),
 }));
 
-jest.mock("@/features/dashboard/workload/docker/api", () => ({
-  ...jest.requireActual("@/features/dashboard/workload/docker/api"),
-  fetchDockerVms: (...args: unknown[]) => fetchDockerVms(...args),
+jest.mock("@/features/dashboard/workload/vms/client", () => ({
+  getAllVms: (...args: unknown[]) => getAllVms(...args),
 }));
 
 const may = {own: true, manage: true, delete: true};
@@ -52,10 +51,8 @@ function detail() {
 
 beforeEach(() => {
   fetchStack.mockReset();
-  fetchDockerVms.mockReset();
-  fetchDockerVms.mockResolvedValue([
-    dockerVm({uuid: "vm-1", name: "docker-one"}),
-  ]);
+  getAllVms.mockReset();
+  getAllVms.mockResolvedValue([dockerVm({uuid: "vm-1", name: "docker-one"})]);
 });
 
 describe("StackDetail", () => {

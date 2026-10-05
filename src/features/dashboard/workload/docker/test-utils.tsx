@@ -2,7 +2,7 @@ import {type ReactNode} from "react";
 import {render} from "@testing-library/react";
 import {MantineProvider} from "@mantine/core";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
-import {type Vm} from "./types";
+import {type Vm} from "@/features/dashboard/workload/vms/types";
 
 // jsdom draws nothing, so it measures nothing: Mantine's scroll areas watch
 // their size anyway, and a combobox scrolls to the option it has picked.

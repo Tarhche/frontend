@@ -8,8 +8,8 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import {useI18n} from "@/i18n/provider";
-import {type Vm} from "../../types";
-import {vmReadiness} from "../../vm-state";
+import {type Vm} from "@/features/dashboard/workload/vms/types";
+import {vmReadiness} from "@/features/dashboard/workload/vms/lib/state";
 
 const ICONS = {
   booting: IconHourglass,

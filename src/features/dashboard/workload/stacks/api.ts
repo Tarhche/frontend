@@ -1,9 +1,6 @@
 import {clientDalDriver} from "@/dal/client/client-dal-driver";
-import {workloadPath} from "@/features/dashboard/workload/docker/api";
-import {
-  type Page,
-  type Scope,
-} from "@/features/dashboard/workload/docker/types";
+import {type Scope, workloadPath} from "@/features/dashboard/workload/vms/api";
+import {type Page} from "@/features/dashboard/workload/vms/types";
 import {
   type Stack,
   type StackCommand,

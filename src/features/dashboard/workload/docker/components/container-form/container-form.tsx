@@ -2,7 +2,6 @@
 
 import {useId, useState, type FormEvent} from "react";
 import {useRouter} from "next/navigation";
-import Link from "@/components/link";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {
   Alert,
@@ -23,8 +22,12 @@ import {
 } from "@mantine/core";
 import {notifications} from "@mantine/notifications";
 import {IconWorldOff} from "@tabler/icons-react";
+import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
+import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
+import {vmReadiness} from "@/features/dashboard/workload/vms/lib/state";
 import {createContainer} from "../../api";
 import {fieldPaths, isRefusal, problemOf} from "../../errors";
 import {ltr} from "../../format";
@@ -34,13 +37,7 @@ import {
   useNetworks,
   useVolumes,
 } from "../../hooks/use-docker-objects";
-import {
-  type ContainerCreateRequest,
-  type RestartPolicy,
-  type Scope,
-  type VmSource,
-} from "../../types";
-import {vmReadiness} from "../../vm-state";
+import {type ContainerCreateRequest, type RestartPolicy} from "../../types";
 import {
   choiceIssue,
   DockerVmSelect,

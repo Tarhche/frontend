@@ -1,11 +1,11 @@
 "use client";
 
 import {useQuery} from "@tanstack/react-query";
+import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {
   IDLE_POLL_MS,
   LIVE,
-} from "@/features/dashboard/workload/docker/hooks/queries";
-import {type Scope} from "@/features/dashboard/workload/docker/types";
+} from "@/features/dashboard/workload/vms/hooks/queries";
 import {fetchStack, fetchStacks} from "../api";
 import {type Stack} from "../types";
 

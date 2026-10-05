@@ -1,7 +1,6 @@
 "use client";
 
 import {useState} from "react";
-import Link from "@/components/link";
 import {
   Button,
   Group,
@@ -17,26 +16,23 @@ import {
   Tooltip,
 } from "@mantine/core";
 import {IconPlus} from "@tabler/icons-react";
+import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
 import {formatDate} from "@/lib/date-and-time";
 import {ProblemAlert} from "@/features/dashboard/workload/docker/components/problem-alert";
 import {TableSkeleton} from "@/features/dashboard/workload/docker/components/table-skeleton";
-import {VmStateBadge} from "@/features/dashboard/workload/docker/components/vm-state-badge";
+import {StateBadge} from "@/features/dashboard/workload/components/state-badge";
 import {problemOf} from "@/features/dashboard/workload/docker/errors";
-import {
-  formatNumber,
-  shortId,
-} from "@/features/dashboard/workload/docker/format";
+import {shortId} from "@/features/dashboard/workload/docker/format";
 import {useContainers} from "@/features/dashboard/workload/docker/hooks/use-containers";
-import {useDockerVms} from "@/features/dashboard/workload/docker/hooks/use-docker-vms";
-import {
-  type Container,
-  type Scope,
-  type Vm,
-  type VmSource,
-} from "@/features/dashboard/workload/docker/types";
-import {vmReadiness} from "@/features/dashboard/workload/docker/vm-state";
+import {useVmChoices} from "@/features/dashboard/workload/vms/hooks/queries";
+import {type Container} from "@/features/dashboard/workload/docker/types";
+import {vmReadiness} from "@/features/dashboard/workload/vms/lib/state";
+import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
+import {type Vm} from "@/features/dashboard/workload/vms/types";
+import {formatNumber} from "@/features/dashboard/workload/vms/lib/units";
 import {stackLinkKey, useStacks} from "../../hooks/use-stacks";
 import {type StackMay} from "../../permissions";
 import {type Stack as StackRecord} from "../../types";
@@ -89,7 +85,7 @@ function StackRow({scope, stack, vm, containers, may}: RowProps) {
         <Group gap="xs" wrap="nowrap">
           <Text size="sm">{vmName}</Text>
           {vm && vmReadiness(vm.state) !== "running" && (
-            <VmStateBadge state={vm.state} />
+            <StateBadge state={vm.state} expectedState={vm.expected_state} />
           )}
         </Group>
       </TableTd>
@@ -141,7 +137,7 @@ export function StacksTable({
 }: Props) {
   const {t, locale} = useI18n();
   const stacks = useStacks(scope, page);
-  const vms = useDockerVms(vmSource);
+  const vms = useVmChoices(vmSource, {kind: "docker"});
   const containers = useContainers(scope, undefined, {
     enabled: containersVisible,
   });

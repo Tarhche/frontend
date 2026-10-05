@@ -1,12 +1,4 @@
-import {
-  formatBytes,
-  formatPortBinding,
-  GiB,
-  MiB,
-  portNumber,
-  shellWords,
-  shortId,
-} from "./format";
+import {formatPortBinding, portNumber, shellWords, shortId} from "./format";
 
 describe("shellWords", () => {
   it("splits a command on the spaces between its arguments", () => {
@@ -38,18 +30,6 @@ describe("shellWords", () => {
 
   it("says when a quote was left open", () => {
     expect(shellWords(`echo "hi`).unterminated).toBe(true);
-  });
-});
-
-describe("formatBytes", () => {
-  it("says a size in the largest unit it has a whole one of", () => {
-    expect(formatBytes(512 * MiB, "en")).toBe("512 MiB");
-    expect(formatBytes(1.5 * GiB, "en")).toBe("1.5 GiB");
-    expect(formatBytes(20 * GiB, "en")).toBe("20 GiB");
-  });
-
-  it("says nothing is nothing", () => {
-    expect(formatBytes(0, "en")).toBe("0 B");
   });
 });
 
