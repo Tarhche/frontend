@@ -13,12 +13,13 @@ import {
   Stack,
   Text,
 } from "@mantine/core";
-import {IconExternalLink, IconInfoCircle} from "@tabler/icons-react";
+import {IconCode, IconExternalLink, IconInfoCircle} from "@tabler/icons-react";
 import {useI18n} from "@/i18n/provider";
 import {isGregorianStartDateTime} from "@/lib/date-and-time";
 import {stateLabel} from "@/lib/state-label";
 import {Owner} from "@/features/dashboard/workload/components/owner";
 import {VmStateBadge} from "../vm-state-badge";
+import {isCodeRunnerRun} from "../../lib/code-runner";
 import {formatDateTime} from "../../lib/lifetime";
 import {hasStats, type StatsSample} from "../../lib/stats";
 import {formatBytes, formatNumber} from "../../lib/units";
@@ -37,22 +38,40 @@ type Props = {
   showOwner: boolean;
 };
 
-/** A VM at a glance: where it is, what it is using, and how it is set up. */
+/**
+ * A VM at a glance: where it is, what it is using, and how it is set up. A run
+ * of the code runner's says what it is, since it is not one to set up.
+ */
 export function VmOverview({vm, samples, showOwner}: Props) {
   const {t, locale} = useI18n();
   const running = vm.state === "running";
+  const run = isCodeRunnerRun(vm);
 
   // the workload's word for why, said in the reader's when there are words
   // for it, and as it was said otherwise.
   const reason = vm.reason ? stateLabel(t, "vms.reasons", vm.reason) : null;
 
+  // a run's node reports no stats for it, so there is never anything to
+  // wait for.
+  const noStats = run
+    ? t("vms.stats.run")
+    : running
+      ? t("vms.stats.none")
+      : t("vms.stats.notRunning");
+
   return (
     <Stack>
+      {run && (
+        <Alert variant="light" color="grape" icon={<IconCode />}>
+          {t("vms.codeRunner.note")}
+        </Alert>
+      )}
+
       {running && hasStats(vm.stats) ? (
         <VmStats vm={vm} stats={vm.stats} samples={samples} />
       ) : (
         <Alert variant="light" color="gray" icon={<IconInfoCircle />}>
-          {running ? t("vms.stats.none") : t("vms.stats.notRunning")}
+          {noStats}
         </Alert>
       )}
 
@@ -112,9 +131,11 @@ export function VmOverview({vm, samples, showOwner}: Props) {
 
           <Field label={t("vms.detail.disk")}>
             <Text size="sm">
-              {vm.persistent_disk
-                ? t("vms.detail.persistentDisk")
-                : t("vms.detail.ephemeralDisk")}
+              {run
+                ? t("vms.detail.runDisk")
+                : vm.persistent_disk
+                  ? t("vms.detail.persistentDisk")
+                  : t("vms.detail.ephemeralDisk")}
             </Text>
           </Field>
 

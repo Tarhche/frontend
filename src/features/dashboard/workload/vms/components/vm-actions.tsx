@@ -28,6 +28,7 @@ import {type VmTransition} from "./vm-state-badge";
 import {type Scope} from "../api";
 import {commandVm, deleteVm} from "../actions/vm-commands";
 import {vmKeys} from "../hooks/queries";
+import {isCodeRunnerRun} from "../lib/code-runner";
 import {canRestart, canStart, canStop} from "../lib/state";
 import {type ActionResult, type Vm, type VmCommand} from "../types";
 
@@ -42,7 +43,7 @@ const underway: Record<Asked, VmTransition> = {
 };
 
 type Props = {
-  vm: Pick<Vm, "uuid" | "name" | "state">;
+  vm: Pick<Vm, "uuid" | "name" | "state" | "managed_by">;
 
   /** The routes it is managed and deleted through; null where it may not be. */
   manage: Scope | null;
@@ -66,6 +67,9 @@ type Props = {
  * harmless and happens at once; anything that interrupts what is running in it
  * is asked about first, and the question stays open until the answer comes, so
  * a refusal is said where it was asked.
+ *
+ * A run of the code runner's is the code runner's to start, and it is gone once
+ * its snippet ends: it can only be stopped or deleted.
  */
 export function VmActions({
   vm,
@@ -86,6 +90,8 @@ export function VmActions({
     onPending?.(pending && asked ? underway[asked] : undefined);
   }, [asked, pending, onPending]);
 
+  const run = isCodeRunnerRun(vm);
+
   const actions: Array<{
     what: Asked;
     allowed: boolean;
@@ -96,7 +102,7 @@ export function VmActions({
   }> = [
     {
       what: "start",
-      allowed: manage !== null,
+      allowed: manage !== null && !run,
       enabled: canStart(vm.state),
       color: "green",
       icon: IconPlayerPlay,
@@ -112,7 +118,7 @@ export function VmActions({
     },
     {
       what: "restart",
-      allowed: manage !== null,
+      allowed: manage !== null && !run,
       enabled: canRestart(vm.state),
       color: "blue",
       icon: IconRefresh,
@@ -243,7 +249,12 @@ export function VmActions({
             confirmColor={action.color}
           >
             <Text>
-              {t(`vms.actions.${action.what}Confirm`, {name: vm.name})}
+              {t(
+                run
+                  ? `vms.actions.${action.what}RunConfirm`
+                  : `vms.actions.${action.what}Confirm`,
+                {name: vm.name},
+              )}
             </Text>
           </ConfirmModal>
         ))}

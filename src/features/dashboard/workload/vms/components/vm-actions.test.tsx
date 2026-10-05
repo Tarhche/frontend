@@ -42,7 +42,10 @@ beforeEach(() => {
   mockNotify.mockReset();
 });
 
-function actions(state: "running" | "stopped" = "running") {
+function actions(
+  state: "running" | "stopped" = "running",
+  managedBy?: "code-runner",
+) {
   const onDeleted = jest.fn();
   const client = new QueryClient({defaultOptions: {queries: {retry: false}}});
 
@@ -50,7 +53,7 @@ function actions(state: "running" | "stopped" = "running") {
     <QueryClientProvider client={client}>
       <MantineProvider env="test">
         <VmActions
-          vm={{uuid: "vm-1", name: "web", state}}
+          vm={{uuid: "vm-1", name: "web", state, managed_by: managedBy}}
           manage="mine"
           remove="mine"
           onDeleted={onDeleted}
@@ -102,6 +105,46 @@ describe("VmActions", () => {
     await waitFor(() =>
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
     );
+  });
+
+  it("offers a run of the code runner's only to be stopped or deleted, each asked about first", async () => {
+    const user = userEvent.setup();
+    const {onDeleted} = actions("running", "code-runner");
+
+    expect(
+      screen.queryByRole("button", {name: "vms.actions.start"}),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", {name: "vms.actions.restart"}),
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", {name: "vms.actions.stop"}));
+    const stopping = await screen.findByRole("dialog");
+    expect(
+      within(stopping).getByText("vms.actions.stopRunConfirm(web)"),
+    ).toBeInTheDocument();
+    await user.click(
+      within(stopping).getByRole("button", {name: "vms.actions.stop"}),
+    );
+    await waitFor(() =>
+      expect(mockCommand).toHaveBeenCalledWith("stop", "vm-1", "mine"),
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
+
+    await user.click(screen.getByRole("button", {name: "vms.actions.delete"}));
+    const deleting = await screen.findByRole("dialog");
+    expect(
+      within(deleting).getByText("vms.actions.deleteRunConfirm(web)"),
+    ).toBeInTheDocument();
+    await user.click(
+      within(deleting).getByRole("button", {name: "vms.actions.delete"}),
+    );
+    await waitFor(() =>
+      expect(mockDelete).toHaveBeenCalledWith("vm-1", "mine"),
+    );
+    expect(onDeleted).toHaveBeenCalled();
   });
 
   it("keeps the question open with the refusal in it", async () => {

@@ -106,6 +106,13 @@ export type Vm = {
    * promises owner_uuid; a listing of everybody's shows this when it is there.
    */
   owner?: Partial<Author>;
+
+  /**
+   * What keeps a VM that is not a record of its own: "code-runner" for a
+   * snippet the code runner is running, in a VM of its own until the snippet
+   * ends (lib/code-runner.ts). Left out for every VM somebody asked for.
+   */
+  managed_by?: "code-runner";
 };
 
 export type Pagination = {

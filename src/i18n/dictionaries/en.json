@@ -677,7 +677,9 @@
       "delete": "Delete",
       "stopConfirm": "Stop \"{name}\"? Everything running in it stops with it.",
       "restartConfirm": "Restart \"{name}\"? Everything running in it is stopped and started again.",
-      "deleteConfirm": "Delete \"{name}\"? Its disk is deleted with it. Its snapshots are kept."
+      "deleteConfirm": "Delete \"{name}\"? Its disk is deleted with it. Its snapshots are kept.",
+      "stopRunConfirm": "Stop the run \"{name}\"? Its snippet stops, and the run is gone once it has.",
+      "deleteRunConfirm": "Delete the run \"{name}\"? Its snippet stops at once, and the run is gone."
     },
     "reasons": {
       "no_capacity": "No node has room for it right now.",
@@ -775,7 +777,10 @@
       "leaveTerminalConfirm": "Leaving this tab ends the terminal session, and anything running in it stops. Leave anyway?",
       "leaveTerminal": "Leave and end it",
       "stayInTerminal": "Stay here",
-      "goneTitle": "VM not found"
+      "goneTitle": "VM not found",
+      "runDisk": "Its disk is thrown away when the run ends.",
+      "runGoneTitle": "Run finished",
+      "runGone": "This run has finished and is gone."
     },
     "stats": {
       "cpu": "CPU",
@@ -787,7 +792,8 @@
       "sent": "{size} sent",
       "sampled": "Sampled {when}",
       "none": "No stats yet. They appear once its node reports them.",
-      "notRunning": "Stats are only collected while the VM is running."
+      "notRunning": "Stats are only collected while the VM is running.",
+      "run": "The code runner does not report stats for its runs."
     },
     "settings": {
       "immutable": "The kind and image cannot be changed.",
@@ -822,6 +828,11 @@
       "restarting": "restarting...",
       "restoring": "restoring...",
       "deleting": "deleting..."
+    },
+    "codeRunner": {
+      "badge": "Code runner",
+      "help": "A snippet the code runner is running for a reader, in a VM of its own until the snippet ends.",
+      "note": "The code runner is running a reader's snippet in this VM, for the guest it was run for. It can be stopped or deleted, and it is gone once the snippet ends."
     }
   },
   "snapshots": {

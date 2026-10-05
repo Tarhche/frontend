@@ -1,7 +1,7 @@
 "use client";
 
 import {useCallback, useState} from "react";
-import {TableTbody, TableTd, TableTr, Text} from "@mantine/core";
+import {Group, TableTbody, TableTd, TableTr, Text} from "@mantine/core";
 import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
@@ -10,9 +10,11 @@ import {Owner} from "@/features/dashboard/workload/components/owner";
 import {type VmTransition, VmStateBadge} from "../vm-state-badge";
 import {type Scope} from "../../api";
 import {useVms} from "../../hooks/queries";
+import {isCodeRunnerRun} from "../../lib/code-runner";
 import {formatBytes, formatNumber} from "../../lib/units";
 import {vmAbilities} from "../../permissions";
 import {type Page, type Vm} from "../../types";
+import {CodeRunnerBadge} from "../code-runner-badge";
 import {VmActions} from "../vm-actions";
 import {VmExpiry} from "../vm-expiry";
 import {VmKindBadge} from "../vm-kind-badge";
@@ -103,9 +105,12 @@ export function VmRows({
         return (
           <TableTr key={vm.uuid}>
             <TableTd>
-              <Link href={APP_PATHS.dashboard.vms.detail(vm.uuid)}>
-                {vm.name}
-              </Link>
+              <Group gap="xs" wrap="nowrap">
+                <Link href={APP_PATHS.dashboard.vms.detail(vm.uuid)}>
+                  {vm.name}
+                </Link>
+                {isCodeRunnerRun(vm) && <CodeRunnerBadge />}
+              </Group>
             </TableTd>
             <TableTd>
               <VmKindBadge kind={vm.kind} />

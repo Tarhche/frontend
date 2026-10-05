@@ -3,6 +3,7 @@
 import {useQuery} from "@tanstack/react-query";
 import {type Scope} from "../api";
 import {getAllVms, getVm, getVms} from "../client";
+import {isCodeRunnerRun} from "../lib/code-runner";
 import {isInFlight} from "../lib/state";
 import {type VmSource} from "../permissions";
 import {type Page, type Vm, type VmKind, type VmListParams} from "../types";
@@ -66,7 +67,9 @@ export function useVm({
 
 /**
  * A page of VMs, read again often while any of them is on its way somewhere
- * and now and then otherwise.
+ * and now and then otherwise. A run of the code runner's lasts as long as its
+ * snippet, seconds rather than days, so a page with one is read often too, and
+ * the run is gone from it soon after it ends.
  */
 export function useVms({
   scope,
@@ -86,14 +89,20 @@ export function useVms({
     initialData,
     enabled,
     refetchInterval: (query) =>
-      query.state.data?.items?.some(isInFlight) ? POLL_MS : IDLE_POLL_MS,
+      query.state.data?.items?.some(
+        (vm) => isInFlight(vm) || isCodeRunnerRun(vm),
+      )
+        ? POLL_MS
+        : IDLE_POLL_MS,
   });
 }
 
 /**
  * The VMs somebody may pick one of: every page of a source's, of one kind when
  * a kind is asked for, narrowed to an owner's when the source says so. Nothing
- * is read without a source, since there is nowhere it may be read from.
+ * is read without a source, since there is nowhere it may be read from. A run
+ * of the code runner's is never one: nothing goes into it, and it is gone in
+ * moments.
  *
  * A VM on its way somewhere is looked at again every few seconds, so whatever
  * waits on it to be running finds out when it is; the rest now and then, since
@@ -107,7 +116,9 @@ export function useVmChoices(
     ...LIVE,
     queryKey: vmKeys.choices(source, kind),
     queryFn: async () => {
-      const vms = await getAllVms(source!.scope, kind ? {kind} : {});
+      const vms = (await getAllVms(source!.scope, kind ? {kind} : {})).filter(
+        (vm) => !isCodeRunnerRun(vm),
+      );
 
       return source?.owner
         ? vms.filter((vm) => vm.owner_uuid === source.owner)

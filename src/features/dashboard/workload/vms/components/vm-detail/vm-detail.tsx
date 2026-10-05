@@ -14,8 +14,10 @@ import {type VmTransition, VmStateBadge} from "../vm-state-badge";
 import {type Scope} from "../../api";
 import {useVm} from "../../hooks/queries";
 import {useStatsSamples} from "../../hooks/use-stats-samples";
+import {isCodeRunnerRun} from "../../lib/code-runner";
 import {vmAbilities} from "../../permissions";
 import {type Vm} from "../../types";
+import {CodeRunnerBadge} from "../code-runner-badge";
 import {VmActions} from "../vm-actions";
 import {VmKindBadge} from "../vm-kind-badge";
 import {VmLogs} from "./vm-logs";
@@ -39,6 +41,10 @@ type Props = {
 /**
  * One VM, kept current while the page is open: read every few seconds, which
  * is also what its stats are sampled from, whichever tab is showing.
+ *
+ * A run of the code runner's is looked at, stopped and deleted, and nothing
+ * else: it has no terminal anybody may open, no snapshots and no settings, and
+ * it goes once its snippet ends, which is said as the run being over.
  */
 export function VmDetail({initial, scope, permissions, me}: Props) {
   const t = useTranslations();
@@ -55,14 +61,17 @@ export function VmDetail({initial, scope, permissions, me}: Props) {
   const samples = useStatsSamples(vm?.stats);
 
   // gone while it was being looked at, said as a container or a stack that
-  // is not there is.
+  // is not there is; a run of the code runner's goes once its snippet ends,
+  // which is it having finished rather than having been lost.
   if (vm === null) {
+    const run = isCodeRunnerRun(initial);
+
     return (
       <EmptyState
         icon={<IconServer2 />}
         withIndicatorBackground
-        title={t("vms.detail.goneTitle")}
-        description={t("vms.detail.gone")}
+        title={t(run ? "vms.detail.runGoneTitle" : "vms.detail.goneTitle")}
+        description={t(run ? "vms.detail.runGone" : "vms.detail.gone")}
         mt="md"
       >
         <Group justify="center" mt="md">
@@ -78,9 +87,10 @@ export function VmDetail({initial, scope, permissions, me}: Props) {
     );
   }
 
+  const run = isCodeRunnerRun(vm);
   const isOwner = vm.owner_uuid === me;
   const may = vmAbilities(permissions, isOwner);
-  const snapshots = snapshotScope(permissions, "index", isOwner);
+  const snapshots = run ? null : snapshotScope(permissions, "index", isOwner);
   const running = vm.state === "running";
 
   return (
@@ -89,6 +99,7 @@ export function VmDetail({initial, scope, permissions, me}: Props) {
         <Group gap="sm">
           <Title order={2}>{vm.name}</Title>
           <VmKindBadge kind={vm.kind} />
+          {run && <CodeRunnerBadge />}
           <VmStateBadge
             state={vm.state}
             expectedState={vm.expected_state}
@@ -116,12 +127,23 @@ export function VmDetail({initial, scope, permissions, me}: Props) {
       )}
 
       <VmTabs
-        hasSession={may.attach && running}
+        hasSession={!run && may.attach && running}
         overview={<VmOverview vm={vm} samples={samples} showOwner={!isOwner} />}
         terminal={
-          may.attach ? <VmTerminal uuid={vm.uuid} running={running} /> : null
+          !run && may.attach ? (
+            <VmTerminal uuid={vm.uuid} running={running} />
+          ) : null
         }
-        logs={may.logs ? <VmLogs scope={may.logs} uuid={vm.uuid} /> : null}
+        logs={
+          may.logs ? (
+            <VmLogs
+              scope={may.logs}
+              uuid={vm.uuid}
+              // a run's log goes with it: read the run again, which says so.
+              onGone={run ? () => void refetch() : undefined}
+            />
+          ) : null
+        }
         snapshots={
           snapshots ? (
             <VmSnapshots
@@ -135,7 +157,9 @@ export function VmDetail({initial, scope, permissions, me}: Props) {
           ) : null
         }
         settings={
-          may.update ? <VmSettingsForm vm={vm} scope={may.update} /> : null
+          !run && may.update ? (
+            <VmSettingsForm vm={vm} scope={may.update} />
+          ) : null
         }
       />
     </>
