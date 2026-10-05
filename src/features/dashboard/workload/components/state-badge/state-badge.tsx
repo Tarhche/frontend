@@ -33,25 +33,33 @@ type Props = {
 
 /** What a task is on its way to, in the words of the thing being done. */
 export type Transition =
-  "starting" | "stopping" | "killing" | "restarting" | "deleting";
+  "starting" | "stopping" | "killing" | "restarting" | "restoring" | "deleting";
 
-// what each state says about a task, at a glance.
+// what each state says about a task, at a glance. A VM passes through a few a
+// task does not: it is started, restored from a snapshot and deleted in steps
+// the workload reports.
 const colors: Record<string, string> = {
   created: "gray",
   scheduled: "blue",
+  starting: "blue",
   running: "green",
   restarting: "blue",
+  restoring: "violet",
   stopping: "yellow",
   stopped: "gray",
   completed: "teal",
   failed: "red",
+  deleting: "red",
 };
 
 // what a task in one of these states is in the middle of doing, whatever it
 // happens to be called inside the workload.
 const underway: Record<string, Transition> = {
+  starting: "starting",
   stopping: "stopping",
   restarting: "restarting",
+  restoring: "restoring",
+  deleting: "deleting",
 };
 
 // and what one that is on its way somewhere is on its way to, which only the
@@ -72,6 +80,12 @@ function transitionOf(
 
   if (underway[state]) {
     return underway[state];
+  }
+
+  // one that failed stays failed until it is asked for again: nothing is on
+  // its way to it, whatever it was last asked to be.
+  if (state === "failed") {
+    return undefined;
   }
 
   // one that has been asked for but is not anywhere yet is on its way to
@@ -102,8 +116,10 @@ export function StateBadge({
   // it failed, and the workload has not given up on it: what it shows then is
   // which attempt it is on, and red is kept for the ones nothing more is going
   // to happen to. That it is on its way back is the retrying, not a transition
-  // of its own.
-  const retrying = state === "failed" && expectedState === "running";
+  // of its own. Something that is never tried again -- a VM -- has no attempts
+  // to count, and is simply failed.
+  const retrying =
+    state === "failed" && expectedState === "running" && maxRetries !== 0;
 
   const transition = retrying
     ? pending

@@ -1,4 +1,4 @@
-import {render} from "@testing-library/react";
+import {render, screen} from "@testing-library/react";
 import {MantineProvider} from "@mantine/core";
 import {StateBadge} from "./state-badge";
 
@@ -13,7 +13,7 @@ jest.mock("@/i18n/provider", () => ({
 function badge(props: React.ComponentProps<typeof StateBadge>) {
   // wrapped, so that what is read back is the badge rather than the styles
   // mantine puts beside it.
-  const {getByTestId, unmount} = render(
+  const {unmount} = render(
     <MantineProvider>
       <div data-testid="badge">
         <StateBadge {...props} />
@@ -21,7 +21,7 @@ function badge(props: React.ComponentProps<typeof StateBadge>) {
     </MantineProvider>,
   );
 
-  const said = getByTestId("badge").textContent;
+  const said = screen.getByTestId("badge").textContent;
   unmount();
 
   return said;
@@ -125,6 +125,31 @@ describe("StateBadge", () => {
     const deadline = new Date(Date.now() + 95_000).toISOString();
 
     expect(badge({state: "stopped", deadline})).toBe("stopped");
+  });
+
+  it("says what a VM is in the middle of, in the words of what is being done", () => {
+    expect(badge({state: "starting", expectedState: "running"})).toBe(
+      "tasks.transitions.starting",
+    );
+    expect(badge({state: "restoring", expectedState: "running"})).toBe(
+      "tasks.transitions.restoring",
+    );
+    expect(badge({state: "deleting", expectedState: "running"})).toBe(
+      "tasks.transitions.deleting",
+    );
+  });
+
+  it("says a VM that failed has failed, rather than that it is on its way back", () => {
+    // nothing tries a VM again by itself, so there are no attempts to count
+    // and nothing it is on its way to.
+    expect(badge({state: "failed", expectedState: "running"})).toBe("failed");
+    expect(badge({state: "failed", expectedState: "stopped"})).toBe("failed");
+  });
+
+  it("still says what somebody asked of a VM that failed", () => {
+    expect(
+      badge({state: "failed", expectedState: "running", pending: "starting"}),
+    ).toBe("tasks.transitions.starting");
   });
 
   it("shows what is being done to a task rather than its time", () => {

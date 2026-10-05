@@ -54,15 +54,40 @@ export const APP_PATHS = {
       index: "/dashboard/contact-us",
       detail: (uuid: string) => `/dashboard/contact-us/${uuid}`,
     },
+    // the tasks are gone from the dashboard; the old stacks pages still link
+    // their services here, and this goes with them.
     tasks: {
-      index: "/dashboard/tasks",
-      new: "/dashboard/tasks/new",
       detail: (uuid: string) => `/dashboard/tasks/${uuid}`,
     },
     stacks: {
       index: "/dashboard/stacks",
       new: "/dashboard/stacks/new",
       detail: (uuid: string) => `/dashboard/stacks/${uuid}`,
+    },
+    vms: {
+      index: "/dashboard/vms",
+      new: "/dashboard/vms/new",
+
+      // the same form, starting from a snapshot: the VM it makes is restored
+      // from it.
+      restore: (snapshotUuid: string) =>
+        `/dashboard/vms/new?snapshot=${encodeURIComponent(snapshotUuid)}`,
+      detail: (uuid: string) => `/dashboard/vms/${uuid}`,
+    },
+    snapshots: {
+      index: "/dashboard/snapshots",
+    },
+    containers: {
+      index: "/dashboard/containers",
+    },
+    images: {
+      index: "/dashboard/images",
+    },
+    networks: {
+      index: "/dashboard/networks",
+    },
+    volumes: {
+      index: "/dashboard/volumes",
     },
     files: "/dashboard/files",
     settings: "/dashboard/settings",
