@@ -171,6 +171,42 @@ describe("ContainerForm", () => {
     );
   });
 
+  it("leaves for the container without asking the VM again for what the form showed", async () => {
+    const user = userEvent.setup();
+    const {client} = form();
+    await ready();
+    await waitFor(() => {
+      expect(api.fetchImages).toHaveBeenCalledTimes(1);
+      expect(api.fetchNetworks).toHaveBeenCalledTimes(1);
+      expect(api.fetchVolumes).toHaveBeenCalledTimes(1);
+    });
+
+    await user.type(
+      screen.getByRole("combobox", {name: /containers.form.image/}),
+      "nginx:1.27-alpine",
+    );
+    await user.click(
+      screen.getByRole("button", {name: "containers.form.create"}),
+    );
+
+    await waitFor(() =>
+      expect(push).toHaveBeenCalledWith("/dashboard/containers/vm-1/c-1"),
+    );
+
+    // what is asked of one VM queues up: asking it again for the form's
+    // images, networks and volumes would hold up the container's page.
+    expect(api.fetchImages).toHaveBeenCalledTimes(1);
+    expect(api.fetchNetworks).toHaveBeenCalledTimes(1);
+    expect(api.fetchVolumes).toHaveBeenCalledTimes(1);
+
+    // they are out of date all the same, for whichever page reads them next.
+    const read = client
+      .getQueryCache()
+      .findAll({queryKey: ["workload", "docker"]});
+    expect(read).not.toHaveLength(0);
+    expect(read.every((query) => query.state.isInvalidated)).toBe(true);
+  });
+
   it("warns that a host port the VM does not expose is not reachable from outside", async () => {
     const user = userEvent.setup();
     form();

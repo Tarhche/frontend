@@ -143,7 +143,13 @@ export function ContainerForm({vmSource, listScope}: Props) {
   const create = useMutation({
     mutationFn: (request: ContainerCreateRequest) => createContainer(request),
     onSuccess: (created) => {
-      void queryClient.invalidateQueries({queryKey: dockerKeys.root});
+      // what was read of the VM is out of date, but none of it is read again
+      // here: this page is left for the container's, and asking the VM for
+      // what this page showed would only hold up what that page asks.
+      void queryClient.invalidateQueries({
+        queryKey: dockerKeys.root,
+        refetchType: "none",
+      });
       notifications.show({
         color: "green",
         title: t("containers.form.created"),
