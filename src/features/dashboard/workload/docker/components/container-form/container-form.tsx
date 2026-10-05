@@ -26,7 +26,8 @@ import {IconWorldOff} from "@tabler/icons-react";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
 import {createContainer} from "../../api";
-import {isRefusal, problemOf} from "../../errors";
+import {fieldPaths, isRefusal, problemOf} from "../../errors";
+import {ltr} from "../../format";
 import {dockerKeys} from "../../hooks/queries";
 import {
   useImages,
@@ -62,24 +63,20 @@ const RESTART_POLICIES: RestartPolicy[] = [
   "on-failure",
 ];
 
-// the fields the server may refuse that are shown where they are; anything
-// else it refuses is listed above the button instead.
-const SHOWN_FIELDS = [
-  "image",
-  "name",
-  "command",
-  "entrypoint",
-  "working_dir",
-  "env",
-  "ports",
-  "mounts",
-  "networks",
-  "restart_policy",
-  "cpus",
-  "memory",
-  "vm_uuid",
-  "vm",
+// what the server may refuse that is shown beside the field it is about, as
+// JSON paths; anything else it refuses is listed above the button instead, so
+// that nothing it says goes unsaid.
+const SHOWN_INLINE = [
+  /^(image|name|command|entrypoint|working_dir|networks|restart_policy|cpus|memory|vm_uuid|vm|env|ports|mounts)$/,
+  /^vm\.(name|ports|resources\.(cpus|memory|disk)|network\.(ingress|egress))$/,
+  /^env\.\d+$/,
+  /^ports\.\d+(\.(container_port|host_port))?$/,
+  /^mounts\.\d+(\.(source|target))?$/,
 ];
+
+export function shownInline(path: string): boolean {
+  return SHOWN_INLINE.some((pattern) => pattern.test(path));
+}
 
 type Props = {
   /** where the person's own Docker VMs are listed. */
@@ -166,12 +163,9 @@ export function ContainerForm({vmSource, listScope}: Props) {
   });
 
   const problem = create.error ? problemOf(create.error) : null;
-  const refused = problem?.fields ?? {};
+  const refused = fieldPaths(problem?.fields ?? {}, "container");
   const unshown = Object.entries(refused).filter(
-    ([field]) =>
-      !SHOWN_FIELDS.includes(field) &&
-      !field.startsWith("vm.") &&
-      !/^(env|ports|mounts)\./.test(field),
+    ([field]) => !shownInline(field),
   );
 
   // what is wrong is said once somebody has tried to send it, and then as it
@@ -185,13 +179,13 @@ export function ContainerForm({vmSource, listScope}: Props) {
   };
 
   const rowError = (list: string) => (index: number, field?: string) =>
-    fieldError(field ? `${list}.${index}.${field}` : `${list}.${index}`) ??
-    (field ? refused[`${list}[${index}].${field}`] : undefined);
+    fieldError(field ? `${list}.${index}.${field}` : `${list}.${index}`);
 
   const vmError =
     attempted && vmIssue
       ? t(`containers.form.vmIssues.${vmIssue}`)
       : (refused.vm_uuid ??
+        refused.vm ??
         (problem?.code === "vm_required"
           ? t("docker.errors.vm_required")
           : undefined));
@@ -329,14 +323,16 @@ export function ContainerForm({vmSource, listScope}: Props) {
                 {reach.ingressDenied
                   ? t("containers.form.hint.ingressDenied")
                   : t(
-                      choice.kind === "new"
-                        ? "containers.form.hint.unreachableNewVm"
-                        : "containers.form.hint.unreachable",
+                      `containers.form.hint.${
+                        choice.kind === "new"
+                          ? "unreachableNewVm"
+                          : "unreachable"
+                      }${reach.unreachable.length === 1 ? "One" : ""}`,
                       {
-                        ports: reach.unreachable.join(", "),
+                        ports: ltr(reach.unreachable.join(", ")),
                         exposed:
                           reach.exposed.length > 0
-                            ? reach.exposed.join(", ")
+                            ? ltr(reach.exposed.join(", "))
                             : t("containers.form.hint.noExposed"),
                       },
                     )}
@@ -370,9 +366,11 @@ export function ContainerForm({vmSource, listScope}: Props) {
               description={
                 choice.kind === "new"
                   ? t("containers.form.networksNewVm")
-                  : askable
-                    ? t("containers.form.networksHelp")
-                    : t("containers.form.networksUnavailable")
+                  : choice.kind === "unset"
+                    ? t("containers.form.networksPickVm")
+                    : askable
+                      ? t("containers.form.networksHelp")
+                      : t("containers.form.networksUnavailable")
               }
               data={attachable.map((network) => network.name)}
               value={pickedNetworks}

@@ -44,12 +44,18 @@ export function Sparkline({
   const count = values.length;
   const at = looking !== null && looking < count ? looking : null;
 
-  const top = Math.max(...values, 0);
-  const span = top > 0 ? top : 1;
+  // the trend is drawn over its own range: the number it is now is written
+  // above it, so what the line has to show is how it has moved. One that has
+  // not moved at all is drawn level through the middle.
+  const low = Math.min(...values);
+  const high = Math.max(...values);
+  const span = high - low;
   const x = (index: number) =>
     PAD + (count > 1 ? (index / (count - 1)) * (width - 2 * PAD) : 0);
   const y = (value: number) =>
-    HEIGHT - PAD - (Math.max(0, value) / span) * (HEIGHT - 2 * PAD);
+    span > 0
+      ? HEIGHT - PAD - ((value - low) / span) * (HEIGHT - 2 * PAD)
+      : HEIGHT / 2;
 
   const nearest = (event: PointerEvent<SVGSVGElement>) => {
     const box = event.currentTarget.getBoundingClientRect();

@@ -189,3 +189,12 @@ export function portNumber(value: string | number | undefined): number | null {
 
   return number;
 }
+
+/**
+ * Text that reads left to right whatever surrounds it, such as a list of
+ * ports in a Persian sentence: without it, the commas between the numbers are
+ * laid out right to left and the list reads back to front.
+ */
+export function ltr(text: string): string {
+  return `⁦${text}⁩`;
+}

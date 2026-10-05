@@ -939,7 +939,9 @@
         "none": "No variables.",
         "add": "Add a variable",
         "key": "Name of variable {n}",
-        "value": "Value of variable {n}"
+        "value": "Value of variable {n}",
+        "keyHeading": "Name",
+        "valueHeading": "Value"
       },
       "ports": {
         "legend": "Ports",
@@ -950,14 +952,18 @@
         "containerPlaceholder": "Container port",
         "host": "VM port of binding {n}",
         "hostPlaceholder": "VM port",
-        "protocol": "Protocol of binding {n}"
+        "protocol": "Protocol of binding {n}",
+        "protocolHeading": "Protocol",
+        "sameAsContainer": "same as the container port"
       },
       "hint": {
         "title": "Not reachable from outside",
         "unreachable": "VM ports {ports} are not among the VM's exposed ports ({exposed}): they will not be reachable from outside the VM. Add them in the VM's settings to reach them.",
         "unreachableNewVm": "VM ports {ports} are not among the new VM's exposed ports ({exposed}): they will not be reachable from outside the VM. Add them to its exposed ports above.",
         "ingressDenied": "The VM lets nothing in from outside, so what it publishes is only reachable inside it. Allow ingress in the VM's settings to reach it.",
-        "noExposed": "none"
+        "noExposed": "none",
+        "unreachableOne": "VM port {ports} is not among the VM's exposed ports ({exposed}): it will not be reachable from outside the VM. Add it in the VM's settings to reach it.",
+        "unreachableNewVmOne": "VM port {ports} is not among the new VM's exposed ports ({exposed}): it will not be reachable from outside the VM. Add it to its exposed ports above."
       },
       "mounts": {
         "legend": "Storage",
@@ -969,7 +975,10 @@
         "source": "Source of mount {n}",
         "volumePlaceholder": "Volume name",
         "target": "Path in the container for mount {n}",
-        "readOnly": "Mount {n} is read-only"
+        "readOnly": "Mount {n} is read-only",
+        "typeHeading": "Kind",
+        "sourceHeading": "Volume or VM path",
+        "targetHeading": "Path in the container"
       },
       "removeRow": "Remove row {n}",
       "resources": "Networks and resources",
@@ -1009,7 +1018,8 @@
         "notAPort": "A port is a number from 1 to 65535.",
         "duplicatePort": "This VM port is already published.",
         "absolutePath": "A path starts with /."
-      }
+      },
+      "networksPickVm": "Pick a Docker VM to choose among its networks."
     },
     "detail": {
       "overview": "Overview",

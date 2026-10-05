@@ -1,9 +1,10 @@
 "use client";
 
-import {type ReactNode} from "react";
+import {Fragment, type CSSProperties, type ReactNode} from "react";
 import {
   ActionIcon,
   Autocomplete,
+  Box,
   Button,
   Checkbox,
   Group,
@@ -29,6 +30,49 @@ type RowsProps<Row> = {
   errorFor: (index: number, field?: string) => string | undefined;
   disabled?: boolean;
 };
+
+// a row's fields and the headings over them share their columns, so a heading
+// stays over its field whatever is typed in it.
+function columns(template: string): CSSProperties {
+  return {
+    display: "grid",
+    gridTemplateColumns: template,
+    gap: "var(--mantine-spacing-xs)",
+    alignItems: "start",
+  };
+}
+
+type GridProps = {
+  template: string;
+
+  /** what each column is: the fields are named for whoever cannot see these,
+   * so the headings are for the eye alone. */
+  headings: string[];
+  children: ReactNode;
+};
+
+/**
+ * Rows of fields under headings, in one grid: a column as wide as its widest
+ * field is as wide over its heading too.
+ */
+function RowGrid({template, headings, children}: GridProps) {
+  return (
+    <Box style={columns(template)}>
+      {headings.map((heading, index) => (
+        <Text
+          key={`heading-${index}`}
+          size="xs"
+          fw={500}
+          c="dimmed"
+          aria-hidden
+        >
+          {heading}
+        </Text>
+      ))}
+      {children}
+    </Box>
+  );
+}
 
 type ListProps = {
   empty: string;
@@ -106,6 +150,8 @@ function useRows<Row extends {id: string}>(
   };
 }
 
+const ENV_COLUMNS = "minmax(0, 1fr) minmax(0, 2fr) 34px";
+
 /** The container's environment, a KEY and its value per row. */
 export function EnvRowsField({
   rows,
@@ -124,41 +170,52 @@ export function EnvRowsField({
       onAdd={() => onChange([...rows, {id: rowId(), key: "", value: ""}])}
       disabled={disabled}
     >
-      {rows.map((row, index) => (
-        <Group key={row.id} align="flex-start" wrap="nowrap" gap="xs">
-          <TextInput
-            aria-label={t("containers.form.env.key", {n: index + 1})}
-            placeholder="KEY"
-            value={row.key}
-            onChange={(event) =>
-              update(row.id, {key: event.currentTarget.value})
-            }
-            error={errorFor(index)}
-            dir="ltr"
-            autoComplete="off"
-            style={{flex: 1}}
-          />
-          <TextInput
-            aria-label={t("containers.form.env.value", {n: index + 1})}
-            placeholder="value"
-            value={row.value}
-            onChange={(event) =>
-              update(row.id, {value: event.currentTarget.value})
-            }
-            dir="ltr"
-            autoComplete="off"
-            style={{flex: 2}}
-          />
-          <RemoveRow
-            label={t("containers.form.removeRow", {n: index + 1})}
-            onClick={() => remove(row.id)}
-            disabled={disabled}
-          />
-        </Group>
-      ))}
+      {rows.length > 0 && (
+        <RowGrid
+          template={ENV_COLUMNS}
+          headings={[
+            t("containers.form.env.keyHeading"),
+            t("containers.form.env.valueHeading"),
+            "",
+          ]}
+        >
+          {rows.map((row, index) => (
+            <Fragment key={row.id}>
+              <TextInput
+                aria-label={t("containers.form.env.key", {n: index + 1})}
+                placeholder="KEY"
+                value={row.key}
+                onChange={(event) =>
+                  update(row.id, {key: event.currentTarget.value})
+                }
+                error={errorFor(index)}
+                dir="ltr"
+                autoComplete="off"
+              />
+              <TextInput
+                aria-label={t("containers.form.env.value", {n: index + 1})}
+                placeholder="value"
+                value={row.value}
+                onChange={(event) =>
+                  update(row.id, {value: event.currentTarget.value})
+                }
+                dir="ltr"
+                autoComplete="off"
+              />
+              <RemoveRow
+                label={t("containers.form.removeRow", {n: index + 1})}
+                onClick={() => remove(row.id)}
+                disabled={disabled}
+              />
+            </Fragment>
+          ))}
+        </RowGrid>
+      )}
     </RowList>
   );
 }
+
+const PORT_COLUMNS = "minmax(0, 1fr) minmax(0, 1fr) auto 34px";
 
 /** The ports the container publishes on its VM, one binding per row. */
 export function PortRowsField({
@@ -183,59 +240,73 @@ export function PortRowsField({
       }
       disabled={disabled}
     >
-      {rows.map((row, index) => (
-        <Group key={row.id} align="flex-start" wrap="nowrap" gap="xs">
-          <TextInput
-            aria-label={t("containers.form.ports.container", {n: index + 1})}
-            placeholder={t("containers.form.ports.containerPlaceholder")}
-            value={row.containerPort}
-            onChange={(event) =>
-              update(row.id, {containerPort: event.currentTarget.value})
-            }
-            error={errorFor(index, "container_port")}
-            inputMode="numeric"
-            dir="ltr"
-            autoComplete="off"
-            style={{flex: 1}}
-          />
-          <TextInput
-            aria-label={t("containers.form.ports.host", {n: index + 1})}
-            placeholder={
-              row.containerPort.trim() ||
-              t("containers.form.ports.hostPlaceholder")
-            }
-            value={row.hostPort}
-            onChange={(event) =>
-              update(row.id, {hostPort: event.currentTarget.value})
-            }
-            error={errorFor(index, "host_port")}
-            inputMode="numeric"
-            dir="ltr"
-            autoComplete="off"
-            style={{flex: 1}}
-          />
-          <SegmentedControl
-            aria-label={t("containers.form.ports.protocol", {n: index + 1})}
-            value={row.protocol}
-            onChange={(protocol) =>
-              update(row.id, {protocol: protocol === "udp" ? "udp" : "tcp"})
-            }
-            data={[
-              {value: "tcp", label: "TCP"},
-              {value: "udp", label: "UDP"},
-            ]}
-            disabled={disabled}
-          />
-          <RemoveRow
-            label={t("containers.form.removeRow", {n: index + 1})}
-            onClick={() => remove(row.id)}
-            disabled={disabled}
-          />
-        </Group>
-      ))}
+      {rows.length > 0 && (
+        <RowGrid
+          template={PORT_COLUMNS}
+          headings={[
+            t("containers.form.ports.containerPlaceholder"),
+            t("containers.form.ports.hostPlaceholder"),
+            t("containers.form.ports.protocolHeading"),
+            "",
+          ]}
+        >
+          {rows.map((row, index) => (
+            <Fragment key={row.id}>
+              <TextInput
+                aria-label={t("containers.form.ports.container", {
+                  n: index + 1,
+                })}
+                placeholder="80"
+                value={row.containerPort}
+                onChange={(event) =>
+                  update(row.id, {containerPort: event.currentTarget.value})
+                }
+                error={errorFor(index, "container_port") ?? errorFor(index)}
+                inputMode="numeric"
+                dir="ltr"
+                autoComplete="off"
+              />
+              <TextInput
+                aria-label={t("containers.form.ports.host", {n: index + 1})}
+                placeholder={
+                  row.containerPort.trim() ||
+                  t("containers.form.ports.sameAsContainer")
+                }
+                value={row.hostPort}
+                onChange={(event) =>
+                  update(row.id, {hostPort: event.currentTarget.value})
+                }
+                error={errorFor(index, "host_port")}
+                inputMode="numeric"
+                dir="ltr"
+                autoComplete="off"
+              />
+              <SegmentedControl
+                aria-label={t("containers.form.ports.protocol", {n: index + 1})}
+                value={row.protocol}
+                onChange={(protocol) =>
+                  update(row.id, {protocol: protocol === "udp" ? "udp" : "tcp"})
+                }
+                data={[
+                  {value: "tcp", label: "TCP"},
+                  {value: "udp", label: "UDP"},
+                ]}
+                disabled={disabled}
+              />
+              <RemoveRow
+                label={t("containers.form.removeRow", {n: index + 1})}
+                onClick={() => remove(row.id)}
+                disabled={disabled}
+              />
+            </Fragment>
+          ))}
+        </RowGrid>
+      )}
     </RowList>
   );
 }
+
+const MOUNT_COLUMNS = "auto minmax(0, 1fr) minmax(0, 1fr) 34px";
 
 type MountProps = RowsProps<MountRow> & {
   /** the VM's volumes, offered for a volume's name. */
@@ -272,74 +343,87 @@ export function MountRowsField({
       }
       disabled={disabled}
     >
-      {rows.map((row, index) => (
-        <Stack key={row.id} gap={6}>
-          <Group align="flex-start" wrap="nowrap" gap="xs">
-            <SegmentedControl
-              aria-label={t("containers.form.mounts.type", {n: index + 1})}
-              value={row.type}
-              onChange={(type) =>
-                update(row.id, {type: type === "bind" ? "bind" : "volume"})
-              }
-              data={[
-                {value: "volume", label: t("containers.form.mounts.volume")},
-                {value: "bind", label: t("containers.form.mounts.bind")},
-              ]}
-              disabled={disabled}
-            />
-            {row.type === "volume" ? (
-              <Autocomplete
-                aria-label={t("containers.form.mounts.source", {n: index + 1})}
-                placeholder={t("containers.form.mounts.volumePlaceholder")}
-                data={volumes}
-                value={row.source}
-                onChange={(source) => update(row.id, {source})}
-                error={errorFor(index, "source")}
-                dir="ltr"
-                style={{flex: 1}}
-              />
-            ) : (
-              <TextInput
-                aria-label={t("containers.form.mounts.source", {n: index + 1})}
-                placeholder="/srv/data"
-                value={row.source}
-                onChange={(event) =>
-                  update(row.id, {source: event.currentTarget.value})
+      {rows.length > 0 && (
+        <RowGrid
+          template={MOUNT_COLUMNS}
+          headings={[
+            t("containers.form.mounts.typeHeading"),
+            t("containers.form.mounts.sourceHeading"),
+            t("containers.form.mounts.targetHeading"),
+            "",
+          ]}
+        >
+          {rows.map((row, index) => (
+            <Fragment key={row.id}>
+              <SegmentedControl
+                aria-label={t("containers.form.mounts.type", {n: index + 1})}
+                value={row.type}
+                onChange={(type) =>
+                  update(row.id, {type: type === "bind" ? "bind" : "volume"})
                 }
-                error={errorFor(index, "source")}
+                data={[
+                  {value: "volume", label: t("containers.form.mounts.volume")},
+                  {value: "bind", label: t("containers.form.mounts.bind")},
+                ]}
+                disabled={disabled}
+              />
+              {row.type === "volume" ? (
+                <Autocomplete
+                  aria-label={t("containers.form.mounts.source", {
+                    n: index + 1,
+                  })}
+                  placeholder={t("containers.form.mounts.volumePlaceholder")}
+                  data={volumes}
+                  value={row.source}
+                  onChange={(source) => update(row.id, {source})}
+                  error={errorFor(index, "source")}
+                  dir="ltr"
+                />
+              ) : (
+                <TextInput
+                  aria-label={t("containers.form.mounts.source", {
+                    n: index + 1,
+                  })}
+                  placeholder="/srv/data"
+                  value={row.source}
+                  onChange={(event) =>
+                    update(row.id, {source: event.currentTarget.value})
+                  }
+                  error={errorFor(index, "source")}
+                  dir="ltr"
+                  autoComplete="off"
+                />
+              )}
+              <TextInput
+                aria-label={t("containers.form.mounts.target", {n: index + 1})}
+                placeholder="/var/lib/data"
+                value={row.target}
+                onChange={(event) =>
+                  update(row.id, {target: event.currentTarget.value})
+                }
+                error={errorFor(index, "target") ?? errorFor(index)}
                 dir="ltr"
                 autoComplete="off"
-                style={{flex: 1}}
               />
-            )}
-            <TextInput
-              aria-label={t("containers.form.mounts.target", {n: index + 1})}
-              placeholder="/var/lib/data"
-              value={row.target}
-              onChange={(event) =>
-                update(row.id, {target: event.currentTarget.value})
-              }
-              error={errorFor(index, "target")}
-              dir="ltr"
-              autoComplete="off"
-              style={{flex: 1}}
-            />
-            <RemoveRow
-              label={t("containers.form.removeRow", {n: index + 1})}
-              onClick={() => remove(row.id)}
-              disabled={disabled}
-            />
-          </Group>
-          <Checkbox
-            label={t("containers.form.mounts.readOnly", {n: index + 1})}
-            checked={row.readOnly}
-            onChange={(event) =>
-              update(row.id, {readOnly: event.currentTarget.checked})
-            }
-            disabled={disabled}
-          />
-        </Stack>
-      ))}
+              <RemoveRow
+                label={t("containers.form.removeRow", {n: index + 1})}
+                onClick={() => remove(row.id)}
+                disabled={disabled}
+              />
+              <Checkbox
+                style={{gridColumn: "1 / -1"}}
+                mb="xs"
+                label={t("containers.form.mounts.readOnly", {n: index + 1})}
+                checked={row.readOnly}
+                onChange={(event) =>
+                  update(row.id, {readOnly: event.currentTarget.checked})
+                }
+                disabled={disabled}
+              />
+            </Fragment>
+          ))}
+        </RowGrid>
+      )}
     </RowList>
   );
 }

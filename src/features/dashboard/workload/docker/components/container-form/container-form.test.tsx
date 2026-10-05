@@ -1,7 +1,7 @@
 import {act, screen, waitFor} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {AxiosError} from "axios";
-import {MiB} from "../../format";
+import {AxiosError, AxiosHeaders, type InternalAxiosRequestConfig} from "axios";
+import {ltr, MiB} from "../../format";
 import {dockerVm, renderWithProviders} from "../../test-utils";
 import {ContainerForm} from "./container-form";
 
@@ -48,7 +48,7 @@ function form() {
 
 async function ready() {
   // the form is ready once it knows which VM it is for.
-  await screen.findByText(/dockerVms\.summary\.ports\(80, 443\)/);
+  await screen.findByText(/dockerVms\.summary\.ports\(\u2066?80, 443\u2069?\)/);
 }
 
 beforeEach(() => {
@@ -177,7 +177,9 @@ describe("ContainerForm", () => {
 
     await user.type(containerPort, "3000");
     expect(
-      screen.getByText("containers.form.hint.unreachable(3000,80, 443)"),
+      screen.getByText(
+        `containers.form.hint.unreachableOne(${ltr("3000")},${ltr("80, 443")})`,
+      ),
     ).toBeInTheDocument();
 
     // published on a port the VM does expose, it is reachable after all.
@@ -268,5 +270,58 @@ describe("ContainerForm", () => {
     expect(
       screen.getByRole("link", {name: "containers.form.seeContainers"}),
     ).toHaveAttribute("href", "/dashboard/containers");
+  });
+
+  it("says each refusal beside what it is about, and lists the rest", async () => {
+    const config = {headers: new AxiosHeaders()} as InternalAxiosRequestConfig;
+    api.createContainer.mockRejectedValue(
+      new AxiosError(
+        "refused",
+        undefined,
+        config,
+        {},
+        {
+          status: 400,
+          statusText: "",
+          headers: {},
+          config,
+          data: {
+            errors: {
+              "container.ports.0": "port 8080 is already published",
+              "container.image": "no such image",
+              "labels.owner": "is reserved",
+            },
+          },
+        },
+      ),
+    );
+
+    const user = userEvent.setup();
+    form();
+    await ready();
+
+    await user.type(
+      screen.getByRole("combobox", {name: /containers.form.image/}),
+      "nginx",
+    );
+    await user.click(
+      screen.getByRole("button", {name: "containers.form.ports.add"}),
+    );
+    await user.type(
+      screen.getByLabelText("containers.form.ports.container(1)"),
+      "8080",
+    );
+    await user.click(
+      screen.getByRole("button", {name: "containers.form.create"}),
+    );
+
+    expect(
+      await screen.findByText("port 8080 is already published"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("no such image")).toBeInTheDocument();
+
+    // what has no field of its own is still said, with what it was about.
+    expect(screen.getByText("labels.owner")).toBeInTheDocument();
+    expect(screen.getByText(/is reserved/)).toBeInTheDocument();
   });
 });

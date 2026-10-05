@@ -8,7 +8,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import {useI18n} from "@/i18n/provider";
-import {formatBytes} from "../../format";
+import {formatBytes, formatNumber, ltr} from "../../format";
 import {type Vm} from "../../types";
 import {vmReadiness} from "../../vm-state";
 import {VmStateBadge} from "../vm-state-badge";
@@ -87,7 +87,7 @@ export function VmSummary({vm, withReadiness = true}: SummaryProps) {
         {vm.resources && (
           <Text size="sm" c="dimmed">
             {t("dockerVms.summary.resources", {
-              cpus: vm.resources.cpus,
+              cpus: formatNumber(vm.resources.cpus, locale),
               memory: formatBytes(vm.resources.memory, locale),
               disk: formatBytes(vm.resources.disk, locale),
             })}
@@ -96,7 +96,7 @@ export function VmSummary({vm, withReadiness = true}: SummaryProps) {
       </Group>
       <Text size="sm" c="dimmed">
         {ports.length > 0
-          ? t("dockerVms.summary.ports", {ports: ports.join(", ")})
+          ? t("dockerVms.summary.ports", {ports: ltr(ports.join(", "))})
           : t("dockerVms.summary.noPorts")}
         {vm.network && (
           <>
