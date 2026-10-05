@@ -100,7 +100,7 @@ export function VmStateBadge({state, expectedState, pending}: Props) {
   }
 
   return (
-    <Badge color={color} variant="light">
+    <Badge color={color} variant="light" miw="max-content">
       {transition
         ? t(`vms.transitions.${transition}`)
         : stateLabel(t, "vms.states", state)}

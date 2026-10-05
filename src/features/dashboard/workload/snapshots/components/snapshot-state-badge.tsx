@@ -21,7 +21,11 @@ export function SnapshotStateBadge({
   const t = useTranslations();
 
   const badge = (
-    <Badge variant="light" color={COLORS[snapshot.state] ?? "gray"}>
+    <Badge
+      variant="light"
+      color={COLORS[snapshot.state] ?? "gray"}
+      miw="max-content"
+    >
       {stateLabel(t, "snapshots.states", snapshot.state)}
     </Badge>
   );

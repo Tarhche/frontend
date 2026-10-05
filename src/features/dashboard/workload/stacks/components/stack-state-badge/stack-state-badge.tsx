@@ -35,14 +35,18 @@ export function StackStateBadge({state, pending}: Props) {
 
   if (pending) {
     return (
-      <Badge color={pending === "removing" ? "red" : "blue"} variant="light">
+      <Badge
+        color={pending === "removing" ? "red" : "blue"}
+        variant="light"
+        miw="max-content"
+      >
         {t(`stacks.transitions.${pending}`)}
       </Badge>
     );
   }
 
   return (
-    <Badge color={colors[state] ?? "gray"} variant="light">
+    <Badge color={colors[state] ?? "gray"} variant="light" miw="max-content">
       {stateLabel(t, "stacks.states", state)}
     </Badge>
   );

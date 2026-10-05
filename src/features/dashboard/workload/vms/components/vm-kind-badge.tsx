@@ -14,6 +14,7 @@ export function VmKindBadge({kind}: {kind: VmKind}) {
     <Badge
       variant="outline"
       color={kind === "docker" ? "cyan" : "gray"}
+      miw="max-content"
       leftSection={<Icon size={12} stroke={1.75} />}
     >
       {t(`vms.kinds.${kind}`)}

@@ -45,7 +45,11 @@ export function ContainerStateBadge({state, status, pending}: Props) {
 
   if (pending) {
     return (
-      <Badge color={pending === "removing" ? "red" : "blue"} variant="light">
+      <Badge
+        color={pending === "removing" ? "red" : "blue"}
+        variant="light"
+        miw="max-content"
+      >
         {t(`containers.transitions.${pending}`)}
       </Badge>
     );
@@ -55,7 +59,11 @@ export function ContainerStateBadge({state, status, pending}: Props) {
   const failed = exitCode !== null && exitCode !== 0;
 
   return (
-    <Badge color={failed ? "red" : (colors[state] ?? "gray")} variant="light">
+    <Badge
+      color={failed ? "red" : (colors[state] ?? "gray")}
+      variant="light"
+      miw="max-content"
+    >
       {failed
         ? t("containers.states.exitedWith", {code: exitCode})
         : stateLabel(t, "containers.states", state)}

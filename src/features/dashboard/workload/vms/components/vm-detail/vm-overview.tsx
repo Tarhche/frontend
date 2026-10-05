@@ -176,7 +176,7 @@ function Addresses({vm}: {vm: Vm}) {
     <Stack gap={2}>
       {urls.map((url) => (
         <Group key={url.port} gap={6} wrap="nowrap">
-          <Badge variant="light" color="gray" size="sm">
+          <Badge variant="light" color="gray" size="sm" miw="max-content">
             {url.port}
           </Badge>
           <Anchor
