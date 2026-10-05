@@ -10,7 +10,7 @@ import {VisuallyHidden} from "@mantine/core";
 import classes from "./sparkline.module.css";
 
 type Props = {
-  /** Shares from 0 to 100, oldest first. */
+  /** What was sampled, oldest first. */
   values: number[];
 
   /** When each one was sampled. */
@@ -39,14 +39,22 @@ function xOf(index: number, count: number): number {
   return count < 2 ? WIDTH : (index / (count - 1)) * WIDTH;
 }
 
-function yOf(value: number): number {
-  const share = Math.min(100, Math.max(0, value)) / 100;
+/**
+ * Where a value sits, over the range the values span: what is written above a
+ * trend is what it is now, so what the line has to show is how it has moved,
+ * which drawn from zero is a flat line for anything that moves a little. One
+ * that has not moved at all is drawn level through the middle.
+ */
+function yOf(value: number, low: number, high: number): number {
+  if (high <= low) {
+    return HEIGHT / 2;
+  }
 
-  return PAD + (1 - share) * (HEIGHT - 2 * PAD);
+  return PAD + (1 - (value - low) / (high - low)) * (HEIGHT - 2 * PAD);
 }
 
 /**
- * How one share has gone while the page has been open.
+ * How one figure has gone while the page has been open.
  *
  * Pointing at it, or moving along it with the arrow keys once it has focus,
  * reads out the sample nearest; the tile it is in says the latest anyway, so
@@ -64,16 +72,29 @@ export function Sparkline({
   const [focused, setFocused] = useState<number | null>(null);
   const count = values.length;
 
+  // nothing sampled yet keeps its place, so a tile does not grow when it is.
   if (count === 0) {
-    return null;
+    return (
+      <div className={classes.root}>
+        <div className={classes.readout}>
+          <span>{caption}</span>
+        </div>
+        <div className={classes.plot} aria-hidden />
+      </div>
+    );
   }
 
   const last = count - 1;
-  const points = values.map((value, i) => `${xOf(i, count)},${yOf(value)}`);
+  const low = Math.min(...values);
+  const high = Math.max(...values);
+  const points = values.map(
+    (value, i) => `${xOf(i, count)},${yOf(value, low, high)}`,
+  );
   const area = `M0,${HEIGHT} L${points.join(" L")} L${WIDTH},${HEIGHT} Z`;
 
   const left = (index: number) => `${(xOf(index, count) / WIDTH) * 100}%`;
-  const top = (index: number) => `${(yOf(values[index]) / HEIGHT) * 100}%`;
+  const top = (index: number) =>
+    `${(yOf(values[index], low, high) / HEIGHT) * 100}%`;
 
   const point = (event: PointerEvent<HTMLDivElement>) => {
     const box = event.currentTarget.getBoundingClientRect();

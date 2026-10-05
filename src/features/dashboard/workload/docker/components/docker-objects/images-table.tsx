@@ -22,6 +22,7 @@ import {
 } from "@mantine/core";
 import {notifications} from "@mantine/notifications";
 import {IconCloudDownload, IconTrash} from "@tabler/icons-react";
+import {TableSkeleton} from "@/components/skeletons";
 import {useI18n} from "@/i18n/provider";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {type Vm} from "@/features/dashboard/workload/vms/types";
@@ -42,7 +43,6 @@ import {dockerKeys} from "../../hooks/queries";
 import {useImages} from "../../hooks/use-docker-objects";
 import {type DockerMay} from "../../permissions";
 import {type Image} from "../../types";
-import {TableSkeleton} from "../table-skeleton";
 import {Waiting} from "../waiting";
 
 // a refusal of the reference is said beside it.
@@ -176,7 +176,7 @@ export function ImagesTable({scope, vm, may}: Props) {
       )}
 
       {images.isPending ? (
-        <TableSkeleton />
+        <TableSkeleton columnsCount={6} tableProps={{verticalSpacing: "sm"}} />
       ) : images.isError && !images.data ? (
         <ProblemAlert
           problem={problemOf(images.error)}

@@ -16,6 +16,7 @@ import {
   Text,
 } from "@mantine/core";
 import {IconFilter, IconPlus} from "@tabler/icons-react";
+import {TableSkeleton} from "@/components/skeletons";
 import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
@@ -40,7 +41,6 @@ import {
   ContainerStateBadge,
   type ContainerTransition,
 } from "../container-state-badge";
-import {TableSkeleton} from "../table-skeleton";
 import {ContainerActions, containerName} from "./container-actions";
 import {ContainerPorts} from "./container-ports";
 
@@ -243,7 +243,7 @@ export function ContainersTable({
       )}
 
       {containers.isPending ? (
-        <TableSkeleton />
+        <TableSkeleton columnsCount={8} tableProps={{verticalSpacing: "sm"}} />
       ) : containers.isError && !containers.data ? (
         <ProblemAlert
           problem={problemOf(containers.error)}

@@ -1,5 +1,5 @@
-/* A VM's logs: written left to right whatever the page's direction, since
-   that is how they were written. */
+/* A log: written left to right whatever the page's direction, since that is
+   how it was written. */
 .logs {
   direction: ltr;
   text-align: left;
@@ -24,13 +24,19 @@
   word-break: break-word;
 }
 
+/* what was written to a stream of errors, told apart by more than colour:
+   its tag says so too. */
+.error {
+  color: light-dark(var(--mantine-color-red-8), var(--mantine-color-red-4));
+}
+
 .at,
-.source {
+.tag {
   flex: none;
   color: var(--mantine-color-dimmed);
   font-variant-numeric: tabular-nums;
 }
 
-.source {
+.tag {
   min-width: 4.5em;
 }

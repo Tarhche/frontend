@@ -22,6 +22,7 @@ import {
   IconInfoCircle,
   IconNetwork,
 } from "@tabler/icons-react";
+import {TableSkeleton} from "@/components/skeletons";
 import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
@@ -45,7 +46,6 @@ import {
   type ContainerTransition,
 } from "../container-state-badge";
 import {ContainerActions, containerName} from "../containers-table";
-import {TableSkeleton} from "../table-skeleton";
 import {ContainerLogs} from "./container-logs";
 import {ContainerNetworks} from "./container-networks";
 import {ContainerOverview} from "./container-overview";
@@ -66,8 +66,10 @@ type Props = {
 
 /**
  * One container, looked at through what it is, what it writes, what it uses
- * and what it is connected to. A tab that is not open is not running, so its
- * log is not followed and its usage is not sampled behind the reader's back.
+ * and what it is connected to. A tab that is not open is kept but not running,
+ * as a VM's tabs are: its log is not followed and its usage is not sampled
+ * behind the reader's back, and both carry on where they were when it is
+ * opened again.
  */
 export function ContainerDetail({
   scope,
@@ -91,7 +93,11 @@ export function ContainerDetail({
     return (
       <Stack>
         <Skeleton height={34} width={260} />
-        <TableSkeleton rows={4} />
+        <TableSkeleton
+          rowsCount={4}
+          columnsCount={4}
+          tableProps={{verticalSpacing: "sm"}}
+        />
       </Stack>
     );
   }
@@ -173,7 +179,7 @@ export function ContainerDetail({
         />
       )}
 
-      <Tabs defaultValue="overview" keepMounted={false}>
+      <Tabs defaultValue="overview">
         <TabsList>
           <TabsTab value="overview" leftSection={<IconInfoCircle size={16} />}>
             {t("containers.detail.overview")}

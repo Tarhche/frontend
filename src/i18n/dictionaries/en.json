@@ -618,7 +618,23 @@
       "stale": "What is shown could not be refreshed: {reason}"
     },
     "showOutput": "Show the output",
-    "hideOutput": "Hide the output"
+    "hideOutput": "Hide the output",
+    "logs": {
+      "help": "The last {tail} lines, then whatever is written next.",
+      "follow": "Follow",
+      "times": "Times",
+      "empty": "Nothing written yet",
+      "failed": "The logs could not be read",
+      "skipped": "Some lines were left out: more was written between two reads than one answer carries."
+    },
+    "usage": {
+      "warning": "High",
+      "critical": "Very high",
+      "used": "{label}: {percent} used",
+      "since": "Last {span}",
+      "collecting": "Collecting samples…",
+      "trend": "{label} over the last {count} samples: lowest {low}, highest {high}, now {now}"
+    }
   },
   "vms": {
     "title": "VMs",
@@ -760,25 +776,12 @@
       "leaveTerminal": "Leave and end it",
       "stayInTerminal": "Stay here"
     },
-    "logs": {
-      "follow": "Follow",
-      "polling": "New lines are read every few seconds",
-      "failed": "Could not read the logs. Trying again…",
-      "truncated": "Only the latest lines are shown.",
-      "empty": "Nothing written yet"
-    },
     "stats": {
       "cpu": "CPU",
       "memory": "Memory",
       "disk": "Disk",
       "ofCpus": "of {count} vCPU",
       "of": "of {total}",
-      "used": "{label}: {percent} used",
-      "warning": "High",
-      "critical": "Very high",
-      "since": "Last {span}",
-      "collecting": "Collecting samples…",
-      "trend": "{label} over the last {count} samples: lowest {low}, highest {high}, now {now}",
       "received": "{size} received",
       "sent": "{size} sent",
       "sampled": "Sampled {when}",
@@ -796,6 +799,9 @@
       "saved": "Saved",
       "savedRestarting": "Saved. The VM is restarting to apply the changes.",
       "failed": "The changes could not be saved. Please try again."
+    },
+    "logs": {
+      "label": "VM output"
     }
   },
   "snapshots": {
@@ -1234,13 +1240,7 @@
       "hideRaw": "Hide the details"
     },
     "logs": {
-      "help": "The last {tail} lines, then whatever it writes next.",
-      "follow": "Follow",
-      "times": "Times",
-      "label": "Container output",
-      "empty": "Nothing written yet",
-      "failed": "The logs could not be read",
-      "truncated": "Some lines were left out: there were more than one answer can carry."
+      "label": "Container output"
     },
     "stats": {
       "help": "Sampled every {seconds} seconds; the last {minutes} minutes are kept while this page is open. Last sample at {at}.",
@@ -1255,13 +1255,9 @@
       "noLimit": "no limit",
       "total": "{value} in all",
       "perSecond": "{value}/s",
-      "trend": "lowest {low}, highest {high}, now {now}",
-      "warning": "close to its limit",
-      "danger": "at its limit",
       "notRunningTitle": "Not running",
       "notRunning": "Usage is sampled while the container runs.",
       "failed": "Its usage could not be read",
-      "refreshFailed": "The last sample could not be read",
       "ofVmCpus": "of its VM's {cpus} vCPU",
       "ofVm": "of its VM's CPUs"
     },

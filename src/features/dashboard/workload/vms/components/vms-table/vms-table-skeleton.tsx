@@ -1,11 +1,8 @@
-import {Skeleton, Stack} from "@mantine/core";
+import {TableSkeleton} from "@/components/skeletons";
 
+/** Where the VMs will be, while they are being asked for. */
 export function VmsTableSkeleton() {
   return (
-    <Stack>
-      {Array.from({length: 5}).map((_, index) => (
-        <Skeleton key={index} height={44} radius="sm" />
-      ))}
-    </Stack>
+    <TableSkeleton columnsCount={8} tableProps={{verticalSpacing: "sm"}} />
   );
 }

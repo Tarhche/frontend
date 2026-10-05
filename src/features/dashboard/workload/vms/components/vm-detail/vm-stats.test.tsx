@@ -60,11 +60,13 @@ describe("VmStats", () => {
   it("says in words, not colour alone, that a disk is nearly full", () => {
     tiles();
 
-    expect(screen.getByText("vms.stats.critical")).toBeInTheDocument();
-    expect(screen.queryByText("vms.stats.warning")).not.toBeInTheDocument();
+    expect(screen.getByText("workload.usage.critical")).toBeInTheDocument();
+    expect(
+      screen.queryByText("workload.usage.warning"),
+    ).not.toBeInTheDocument();
     expect(
       screen.getByRole("progressbar", {
-        name: "vms.stats.used(vms.stats.disk,90%)",
+        name: "workload.usage.used(vms.stats.disk,90%)",
       }),
     ).toBeInTheDocument();
   });
@@ -74,7 +76,7 @@ describe("VmStats", () => {
 
     expect(
       screen.getByRole("img", {
-        name: "vms.stats.trend(vms.stats.cpu,10%,38%,38%,2)",
+        name: "workload.usage.trend(vms.stats.cpu,10%,38%,38%,2)",
       }),
     ).toBeInTheDocument();
   });

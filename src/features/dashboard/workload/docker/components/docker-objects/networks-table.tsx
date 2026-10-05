@@ -25,6 +25,7 @@ import {
 } from "@mantine/core";
 import {notifications} from "@mantine/notifications";
 import {IconPlus, IconTrash} from "@tabler/icons-react";
+import {TableSkeleton} from "@/components/skeletons";
 import {useI18n} from "@/i18n/provider";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {type Vm} from "@/features/dashboard/workload/vms/types";
@@ -43,7 +44,6 @@ import {dockerKeys} from "../../hooks/queries";
 import {useNetworks} from "../../hooks/use-docker-objects";
 import {type DockerMay} from "../../permissions";
 import {type Network} from "../../types";
-import {TableSkeleton} from "../table-skeleton";
 
 /** The networks docker makes for itself, which are not anybody's to remove. */
 export const PREDEFINED_NETWORKS = ["bridge", "host", "none"];
@@ -179,7 +179,7 @@ export function NetworksTable({scope, vm, may}: Props) {
       )}
 
       {networks.isPending ? (
-        <TableSkeleton />
+        <TableSkeleton columnsCount={6} tableProps={{verticalSpacing: "sm"}} />
       ) : networks.isError && !networks.data ? (
         <ProblemAlert
           problem={problemOf(networks.error)}

@@ -22,6 +22,7 @@ import {
 } from "@mantine/core";
 import {notifications} from "@mantine/notifications";
 import {IconPlus, IconTrash} from "@tabler/icons-react";
+import {TableSkeleton} from "@/components/skeletons";
 import {useI18n} from "@/i18n/provider";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {type Vm} from "@/features/dashboard/workload/vms/types";
@@ -40,7 +41,6 @@ import {dockerKeys} from "../../hooks/queries";
 import {useVolumes} from "../../hooks/use-docker-objects";
 import {type DockerMay} from "../../permissions";
 import {type Volume} from "../../types";
-import {TableSkeleton} from "../table-skeleton";
 
 type Props = {
   scope: Scope;
@@ -155,7 +155,7 @@ export function VolumesTable({scope, vm, may}: Props) {
       )}
 
       {volumes.isPending ? (
-        <TableSkeleton />
+        <TableSkeleton columnsCount={6} tableProps={{verticalSpacing: "sm"}} />
       ) : volumes.isError && !volumes.data ? (
         <ProblemAlert
           problem={problemOf(volumes.error)}

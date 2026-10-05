@@ -1,11 +1,8 @@
-import {Skeleton, Stack} from "@mantine/core";
+import {TableSkeleton} from "@/components/skeletons";
 
+/** Where the snapshots will be, while they are being asked for. */
 export function SnapshotsTableSkeleton() {
   return (
-    <Stack>
-      {Array.from({length: 5}).map((_, index) => (
-        <Skeleton key={index} height={44} radius="sm" />
-      ))}
-    </Stack>
+    <TableSkeleton columnsCount={7} tableProps={{verticalSpacing: "sm"}} />
   );
 }

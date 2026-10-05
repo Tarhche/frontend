@@ -28,6 +28,7 @@ import {
   IconPlayerStop,
   IconStack2,
 } from "@tabler/icons-react";
+import {TableSkeleton} from "@/components/skeletons";
 import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
@@ -41,7 +42,6 @@ import {
   ProblemAlert,
   StaleAlert,
 } from "@/features/dashboard/workload/components/problem-alert";
-import {TableSkeleton} from "@/features/dashboard/workload/docker/components/table-skeleton";
 import {StateBadge} from "@/features/dashboard/workload/components/state-badge";
 import {problemOf} from "@/features/dashboard/workload/lib/problem";
 import {shortId} from "@/features/dashboard/workload/docker/format";
@@ -189,7 +189,11 @@ export function StackDetail({scope, uuid, may, vmSource}: Props) {
     return (
       <Stack>
         <Skeleton height={34} width={260} />
-        <TableSkeleton rows={3} />
+        <TableSkeleton
+          rowsCount={3}
+          columnsCount={4}
+          tableProps={{verticalSpacing: "sm"}}
+        />
       </Stack>
     );
   }

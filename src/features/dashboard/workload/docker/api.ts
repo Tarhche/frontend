@@ -123,13 +123,11 @@ export async function fetchContainerLogs(
   scope: Scope,
   vmUuid: string,
   id: string,
-  options: {since?: string; tail: number},
+  params: {since?: string; tail?: number},
 ): Promise<LogsResponse> {
   const {data} = await clientDalDriver.get<
     LogsResponse | LogsResponse["items"]
-  >(`${containerPath(scope, vmUuid, id)}/logs`, {
-    params: {tail: options.tail, since: options.since},
-  });
+  >(`${containerPath(scope, vmUuid, id)}/logs`, {params});
 
   if (Array.isArray(data)) {
     return {items: data};

@@ -14,6 +14,17 @@ export const dockerKeys = {
     ["workload", "docker", scope, "containers", vm ?? ""] as const,
   container: (scope: Scope, vmUuid: string, id: string) =>
     ["workload", "docker", scope, "vm", vmUuid, "container", id] as const,
+  stats: (scope: Scope, vmUuid: string, id: string) =>
+    [
+      "workload",
+      "docker",
+      scope,
+      "vm",
+      vmUuid,
+      "container",
+      id,
+      "stats",
+    ] as const,
   images: (scope: Scope, vmUuid: string) =>
     ["workload", "docker", scope, "vm", vmUuid, "images"] as const,
   networks: (scope: Scope, vmUuid: string) =>
