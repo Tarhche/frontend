@@ -141,6 +141,13 @@ export function TaskTerminal({
         const resize = () => {
           fit.fit();
 
+          // a size can only be said once the socket is open. The box is
+          // usually measured before then, and that size is what the command
+          // must be told first, so it is not counted as said until it is.
+          if (socket.readyState !== WebSocket.OPEN) {
+            return;
+          }
+
           if (
             terminal.rows === drawnTo.rows &&
             terminal.cols === drawnTo.cols
@@ -150,15 +157,13 @@ export function TaskTerminal({
 
           drawnTo = {rows: terminal.rows, cols: terminal.cols};
 
-          if (socket.readyState === WebSocket.OPEN) {
-            socket.send(
-              JSON.stringify({
-                type: "resize",
-                rows: terminal.rows,
-                cols: terminal.cols,
-              }),
-            );
-          }
+          socket.send(
+            JSON.stringify({
+              type: "resize",
+              rows: terminal.rows,
+              cols: terminal.cols,
+            }),
+          );
         };
 
         socket.onopen = () => {
