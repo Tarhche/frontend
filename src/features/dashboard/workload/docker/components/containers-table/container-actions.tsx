@@ -12,11 +12,14 @@ import {
 } from "@tabler/icons-react";
 import {useTranslations} from "@/i18n/provider";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {
+  problemMessage,
+  problemOf,
+} from "@/features/dashboard/workload/lib/problem";
+import {ConfirmModal} from "@/features/dashboard/workload/components/confirm-modal";
 import {commandContainer, removeContainer} from "../../api";
-import {problemMessage, problemOf} from "../../errors";
 import {dockerKeys} from "../../hooks/queries";
 import {type Container, type ContainerCommand} from "../../types";
-import {ConfirmModal} from "../confirm-modal";
 import {type ContainerTransition} from "../container-state-badge";
 
 // what asking for each command is, in the words of what it does to one.
@@ -94,7 +97,7 @@ export function ContainerActions({
       if (which === "start") {
         notifications.show({
           color: "red",
-          title: t("containers.actions.failed", {name}),
+          title: t("workload.errors.startFailed", {name}),
           message: problemMessage(problemOf(error), t),
         });
       }
@@ -196,43 +199,51 @@ export function ContainerActions({
         )}
       </ActionIconGroup>
 
+      {/* each question is a modal of its own, so one closing keeps what it
+          asked while it fades away. */}
       <ConfirmModal
-        opened={confirming !== null}
+        opened={confirming === "stop"}
         onClose={() => setConfirming(null)}
         onConfirm={confirm}
         loading={busy}
-        problem={failed ? problemOf(failed) : null}
-        confirmColor={confirming === "restart" ? "blue" : "red"}
-        confirmLabel={
-          confirming === "remove"
-            ? t("containers.actions.remove")
-            : confirming === "restart"
-              ? t("containers.actions.restart")
-              : t("containers.actions.stop")
-        }
+        problem={confirming === "stop" && failed ? problemOf(failed) : null}
+        confirmLabel={t("containers.actions.stop")}
       >
-        {confirming === "stop" && (
-          <Text>{t("containers.actions.stopConfirm", {name})}</Text>
+        <Text>{t("containers.actions.stopConfirm", {name})}</Text>
+      </ConfirmModal>
+
+      <ConfirmModal
+        opened={confirming === "restart"}
+        onClose={() => setConfirming(null)}
+        onConfirm={confirm}
+        loading={busy}
+        problem={confirming === "restart" && failed ? problemOf(failed) : null}
+        confirmColor="blue"
+        confirmLabel={t("containers.actions.restart")}
+      >
+        <Text>{t("containers.actions.restartConfirm", {name})}</Text>
+      </ConfirmModal>
+
+      <ConfirmModal
+        opened={confirming === "remove"}
+        onClose={() => setConfirming(null)}
+        onConfirm={confirm}
+        loading={busy}
+        problem={confirming === "remove" && failed ? problemOf(failed) : null}
+        confirmLabel={t("containers.actions.remove")}
+      >
+        <Text>{t("containers.actions.removeConfirm", {name})}</Text>
+        {up && (
+          <Text c="red" size="sm">
+            {t("containers.actions.removeRunning")}
+          </Text>
         )}
-        {confirming === "restart" && (
-          <Text>{t("containers.actions.restartConfirm", {name})}</Text>
-        )}
-        {confirming === "remove" && (
-          <>
-            <Text>{t("containers.actions.removeConfirm", {name})}</Text>
-            {up && (
-              <Text c="red" size="sm">
-                {t("containers.actions.removeRunning")}
-              </Text>
-            )}
-            {container.stack && (
-              <Text c="dimmed" size="sm">
-                {t("containers.actions.removeFromStack", {
-                  stack: container.stack,
-                })}
-              </Text>
-            )}
-          </>
+        {container.stack && (
+          <Text c="dimmed" size="sm">
+            {t("containers.actions.removeFromStack", {
+              stack: container.stack,
+            })}
+          </Text>
         )}
       </ConfirmModal>
     </>

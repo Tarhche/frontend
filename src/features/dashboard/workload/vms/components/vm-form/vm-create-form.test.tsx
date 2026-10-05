@@ -172,10 +172,14 @@ describe("VmCreateForm", () => {
   it("shows what the API refused beside the field it is about", async () => {
     const user = userEvent.setup();
     mockCreate.mockResolvedValue({
-      errors: {
-        name: "already taken",
-        "resources.memory": "more than a VM may have",
-        quota: "you have reached your limit of VMs",
+      problem: {
+        status: 400,
+        fields: {
+          name: "already taken",
+          "resources.memory": "more than a VM may have",
+          vm: "you have reached your limit of VMs",
+        },
+        unanswered: false,
       },
     });
     form();

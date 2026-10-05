@@ -25,14 +25,21 @@ import {notifications} from "@mantine/notifications";
 import {IconPlugConnectedX} from "@tabler/icons-react";
 import {useI18n} from "@/i18n/provider";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {
+  hasMoreToSay,
+  problemOf,
+} from "@/features/dashboard/workload/lib/problem";
+import {ConfirmModal} from "@/features/dashboard/workload/components/confirm-modal";
+import {ProblemAlert} from "@/features/dashboard/workload/components/problem-alert";
 import {connectContainerNetwork, disconnectContainerNetwork} from "../../api";
-import {problemOf} from "../../errors";
 import {dockerKeys} from "../../hooks/queries";
 import {useNetworks} from "../../hooks/use-docker-objects";
 import {type Container} from "../../types";
-import {ConfirmModal} from "../confirm-modal";
 import {containerName} from "../containers-table/container-actions";
-import {ProblemAlert} from "../problem-alert";
+
+// a refusal of the network or its aliases is said beside them.
+const connectField = (path: string) =>
+  path === "network" || path.startsWith("aliases");
 
 type Props = {
   scope: Scope;
@@ -105,6 +112,8 @@ export function ContainerNetworks({scope, vmUuid, container, may}: Props) {
     onError: () => {},
     onSettled: settle,
   });
+
+  const refused = connect.error ? problemOf(connect.error) : null;
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -200,7 +209,7 @@ export function ContainerNetworks({scope, vmUuid, container, may}: Props) {
                   error={
                     attempted && !network
                       ? t("containers.networks.pickError")
-                      : undefined
+                      : refused?.fields.network
                   }
                   required
                   searchable
@@ -212,12 +221,14 @@ export function ContainerNetworks({scope, vmUuid, container, may}: Props) {
                   value={aliases}
                   onChange={setAliases}
                   disabled={connect.isPending}
+                  error={refused?.fields.aliases}
                   clearable
                 />
               </Group>
-              {connect.error && (
+              {refused && hasMoreToSay(refused, connectField) && (
                 <ProblemAlert
-                  problem={problemOf(connect.error)}
+                  problem={refused}
+                  shown={connectField}
                   title={t("containers.networks.connectFailed")}
                 />
               )}

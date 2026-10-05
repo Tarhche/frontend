@@ -37,13 +37,13 @@ import {
   ContainerPorts,
   containerName,
 } from "@/features/dashboard/workload/docker/components/containers-table";
-import {ProblemAlert} from "@/features/dashboard/workload/docker/components/problem-alert";
+import {
+  ProblemAlert,
+  StaleAlert,
+} from "@/features/dashboard/workload/components/problem-alert";
 import {TableSkeleton} from "@/features/dashboard/workload/docker/components/table-skeleton";
 import {StateBadge} from "@/features/dashboard/workload/components/state-badge";
-import {
-  problemMessage,
-  problemOf,
-} from "@/features/dashboard/workload/docker/errors";
+import {problemOf} from "@/features/dashboard/workload/lib/problem";
 import {shortId} from "@/features/dashboard/workload/docker/format";
 import {useVmChoices} from "@/features/dashboard/workload/vms/hooks/queries";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
@@ -268,11 +268,11 @@ export function StackDetail({scope, uuid, may, vmSource}: Props) {
       </Group>
 
       {query.isError && (
-        <Alert color="yellow" variant="light" role="status">
-          {t("stacks.detail.refreshFailed", {
-            reason: problemMessage(problemOf(query.error), t),
-          })}
-        </Alert>
+        <StaleAlert
+          error={query.error}
+          onRetry={() => void query.refetch()}
+          retrying={query.isFetching}
+        />
       )}
 
       {stack.reason && (

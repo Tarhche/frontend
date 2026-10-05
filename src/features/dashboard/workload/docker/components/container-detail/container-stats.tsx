@@ -18,6 +18,7 @@ import {
   formatBytes,
   formatNumber,
 } from "@/features/dashboard/workload/vms/lib/units";
+import {ProblemAlert} from "@/features/dashboard/workload/components/problem-alert";
 import {
   MAX_SAMPLES,
   ratesOf,
@@ -25,7 +26,6 @@ import {
   useContainerStats,
 } from "../../hooks/use-container-stats";
 import {type ContainerStats} from "../../types";
-import {ProblemAlert} from "../problem-alert";
 import {Sparkline} from "./sparkline";
 import classes from "./container-stats.module.css";
 

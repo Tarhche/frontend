@@ -1,4 +1,5 @@
 import {type Author} from "@/features/authors/types";
+import {type Problem} from "@/features/dashboard/workload/lib/problem";
 
 /**
  * What a VM is booted as: an OS image with nothing running in it but what is
@@ -177,12 +178,8 @@ export type VmLogs = {
   truncated?: boolean;
 };
 
-/** How an action the API may refuse turned out. */
-export type ActionResult =
-  | {ok: true}
-  | {
-      ok: false;
-
-      /** What the API said was wrong with what was sent, field by field. */
-      errors?: Record<string, string>;
-    };
+/**
+ * How an action the API may refuse turned out. What went wrong is said the way
+ * it is said wherever the dashboard asks the workload for something.
+ */
+export type ActionResult = {ok: true} | {ok: false; problem: Problem};

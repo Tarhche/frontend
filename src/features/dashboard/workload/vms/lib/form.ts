@@ -424,6 +424,11 @@ const API_FIELDS: ReadonlyArray<[RegExp, VmField]> = [
   [/^snapshot(_uuid)?$/, "snapshot"],
 ];
 
+/** The field of the form a refusal is about, if the form shows that field. */
+export function vmFieldOf(path: string): VmField | undefined {
+  return API_FIELDS.find(([pattern]) => pattern.test(path))?.[1];
+}
+
 export function fieldErrorsFrom(errors?: Record<string, string> | null): {
   fields: Partial<Record<VmField, string>>;
   rest: string[];
@@ -436,7 +441,7 @@ export function fieldErrorsFrom(errors?: Record<string, string> | null): {
       continue;
     }
 
-    const field = API_FIELDS.find(([pattern]) => pattern.test(key))?.[1];
+    const field = vmFieldOf(key);
     if (field === undefined) {
       rest.push(message);
     } else if (fields[field] === undefined) {

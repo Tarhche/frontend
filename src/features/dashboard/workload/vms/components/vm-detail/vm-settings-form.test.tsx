@@ -144,7 +144,11 @@ describe("VmSettingsForm", () => {
     const user = userEvent.setup();
     mockUpdate.mockResolvedValue({
       ok: false,
-      errors: {"resources.cpus": "more than a VM may have"},
+      problem: {
+        status: 400,
+        fields: {"resources.cpus": "more than a VM may have"},
+        unanswered: false,
+      },
     });
     settings(web);
 

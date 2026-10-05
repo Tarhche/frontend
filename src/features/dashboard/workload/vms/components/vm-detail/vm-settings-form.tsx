@@ -15,8 +15,9 @@ import {
 import {notifications} from "@mantine/notifications";
 import {IconAlertTriangle} from "@tabler/icons-react";
 import {useQueryClient} from "@tanstack/react-query";
-import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import {useI18n} from "@/i18n/provider";
+import {ProblemAlert} from "@/features/dashboard/workload/components/problem-alert";
+import {hasMoreToSay} from "@/features/dashboard/workload/lib/problem";
 import {type Scope} from "../../api";
 import {updateVm} from "../../actions/update-vm";
 import {vmKeys} from "../../hooks/queries";
@@ -27,6 +28,7 @@ import {
   restartsOnApply,
   validateVmForm,
   type VmField,
+  vmFieldOf,
   type VmFormValues,
   vmFormValuesFrom,
 } from "../../lib/form";
@@ -51,6 +53,24 @@ function editableOf(vm: Vm): string {
 
 // the states in which a VM has something running that a restart would stop.
 const LIVE = ["running", "starting", "restarting", "restoring", "scheduled"];
+
+// the fields the settings show, beside which what the API refused is said.
+const SHOWN: readonly VmField[] = [
+  "name",
+  "lifetime",
+  "cpus",
+  "memory",
+  "disk",
+  "ports",
+  "ingress",
+  "egress",
+];
+
+function shownBesideField(path: string): boolean {
+  const field = vmFieldOf(path);
+
+  return field !== undefined && SHOWN.includes(field);
+}
 
 type Props = {
   vm: Vm;
@@ -98,7 +118,8 @@ export function VmSettingsForm({vm, scope}: Props) {
 
   const minDisk = base.resources.disk;
   const ours = submitted ? validateVmForm(values, {minDisk}) : {};
-  const theirs = fieldErrorsFrom(result && !result.ok ? result.errors : null);
+  const problem = result && !result.ok ? result.problem : null;
+  const theirs = fieldErrorsFrom(problem?.fields);
 
   const errorOf = (field: VmField) => {
     const code = ours[field];
@@ -125,14 +146,6 @@ export function VmSettingsForm({vm, scope}: Props) {
       setResult(answer);
 
       if (!answer.ok) {
-        if (!answer.errors) {
-          notifications.show({
-            color: "red",
-            title: t("errors.errorTitle"),
-            message: t("vms.settings.failed"),
-          });
-        }
-
         return;
       }
 
@@ -223,7 +236,13 @@ export function VmSettingsForm({vm, scope}: Props) {
           </Stack>
         </Paper>
 
-        <ValidationErrorsAlert errors={theirs.rest} />
+        {problem && hasMoreToSay(problem, shownBesideField) && (
+          <ProblemAlert
+            problem={problem}
+            title={t("vms.settings.failed")}
+            shown={shownBesideField}
+          />
+        )}
 
         <Alert
           variant="light"

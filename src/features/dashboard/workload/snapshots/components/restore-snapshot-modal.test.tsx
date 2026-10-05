@@ -151,7 +151,11 @@ describe("restoring a snapshot onto this VM", () => {
     const user = userEvent.setup();
     mockRestore.mockResolvedValue({
       ok: false,
-      errors: {snapshot_uuid: "taken by another engine"},
+      problem: {
+        status: 400,
+        fields: {snapshot_uuid: "taken by another engine"},
+        unanswered: false,
+      },
     });
     const {onClose} = modal({vm: vm({uuid: "vm-1", name: "web"})});
 

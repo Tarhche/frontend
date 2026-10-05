@@ -2,8 +2,11 @@
 
 import {useEffect, useRef, useState} from "react";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {
+  problemOf,
+  type Problem,
+} from "@/features/dashboard/workload/lib/problem";
 import {fetchContainerLogs} from "../api";
-import {problemOf, type Problem} from "../errors";
 import {type LogLine} from "../types";
 
 /** How much of a container's output is asked for when the log is opened. */

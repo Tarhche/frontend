@@ -6,6 +6,7 @@ import {
   ActionIconGroup,
   Button,
   Group,
+  Text,
   Tooltip,
   rem,
 } from "@mantine/core";
@@ -18,13 +19,17 @@ import {
 } from "@tabler/icons-react";
 import {useQueryClient} from "@tanstack/react-query";
 import {useTranslations} from "@/i18n/provider";
+import {ConfirmModal} from "@/features/dashboard/workload/components/confirm-modal";
 import {type Transition} from "@/features/dashboard/workload/components/state-badge";
+import {
+  problemMessage,
+  type Problem,
+} from "@/features/dashboard/workload/lib/problem";
 import {type Scope} from "../api";
 import {commandVm, deleteVm} from "../actions/vm-commands";
 import {vmKeys} from "../hooks/queries";
 import {canRestart, canStart, canStop} from "../lib/state";
 import {type ActionResult, type Vm, type VmCommand} from "../types";
-import {ConfirmModal} from "./confirm-modal";
 
 type Asked = VmCommand | "delete";
 
@@ -57,8 +62,10 @@ type Props = {
 };
 
 /**
- * What can be asked of a VM: start, stop, restart, delete. Anything that
- * interrupts what is running in it is asked about first.
+ * What can be asked of a VM: start, stop, restart, delete. Starting one is
+ * harmless and happens at once; anything that interrupts what is running in it
+ * is asked about first, and the question stays open until the answer comes, so
+ * a refusal is said where it was asked.
  */
 export function VmActions({
   vm,
@@ -73,45 +80,11 @@ export function VmActions({
   const [pending, startTransition] = useTransition();
   const [asked, setAsked] = useState<Asked | null>(null);
   const [confirming, setConfirming] = useState<Asked | null>(null);
+  const [problem, setProblem] = useState<Problem | null>(null);
 
   useEffect(() => {
     onPending?.(pending && asked ? underway[asked] : undefined);
   }, [asked, pending, onPending]);
-
-  const fail = (result: ActionResult) => {
-    const said = result.ok ? [] : Object.values(result.errors ?? {});
-
-    notifications.show({
-      color: "red",
-      title: t("errors.errorTitle"),
-      message: said.length > 0 ? said.join(" ") : t("vms.actions.failed"),
-    });
-  };
-
-  const ask = (what: Asked) => {
-    setConfirming(null);
-    setAsked(what);
-
-    startTransition(async () => {
-      let result: ActionResult;
-
-      if (what === "delete") {
-        result = remove ? await deleteVm(vm.uuid, remove) : {ok: false};
-      } else {
-        result = manage ? await commandVm(what, vm.uuid, manage) : {ok: false};
-      }
-
-      if (!result.ok) {
-        fail(result);
-      } else if (what === "delete") {
-        onDeleted?.();
-      }
-
-      // read again now rather than at the next poll, so what the workload
-      // says about it follows straight on from what was asked.
-      await queryClient.invalidateQueries({queryKey: vmKeys.all});
-    });
-  };
 
   const actions: Array<{
     what: Asked;
@@ -155,13 +128,62 @@ export function VmActions({
     },
   ];
 
+  const ask = (what: Asked, confirmed: boolean) => {
+    setAsked(what);
+    setProblem(null);
+
+    startTransition(async () => {
+      let result: ActionResult;
+
+      if (what === "delete") {
+        if (!remove) {
+          return;
+        }
+
+        result = await deleteVm(vm.uuid, remove);
+      } else {
+        if (!manage) {
+          return;
+        }
+
+        result = await commandVm(what, vm.uuid, manage);
+      }
+
+      if (result.ok) {
+        setConfirming(null);
+        if (what === "delete") {
+          onDeleted?.();
+        }
+      } else if (confirmed) {
+        // the question is still open, and says why.
+        setProblem(result.problem);
+      } else {
+        notifications.show({
+          color: "red",
+          title: t("workload.errors.startFailed", {name: vm.name}),
+          message: problemMessage(result.problem, t),
+        });
+      }
+
+      // read again now rather than at the next poll, so what the workload
+      // says about it follows straight on from what was asked.
+      await queryClient.invalidateQueries({queryKey: vmKeys.all});
+    });
+  };
+
   const shown = actions.filter((action) => action.allowed);
   if (shown.length === 0) {
     return null;
   }
 
-  const request = (action: (typeof actions)[number]) =>
-    action.confirm ? setConfirming(action.what) : ask(action.what);
+  const request = (action: (typeof actions)[number]) => {
+    if (action.confirm) {
+      setProblem(null);
+      setConfirming(action.what);
+    } else {
+      ask(action.what, false);
+    }
+  };
 
   return (
     <>
@@ -178,6 +200,7 @@ export function VmActions({
                 size="lg"
                 color={action.color}
                 disabled={!action.enabled || pending}
+                loading={!action.confirm && pending && asked === action.what}
                 aria-label={t(`vms.actions.${action.what}`)}
                 onClick={() => request(action)}
               >
@@ -204,18 +227,25 @@ export function VmActions({
         </Group>
       )}
 
+      {/* each question is a modal of its own, so one closing keeps what it
+          asked while it fades away. */}
       {shown
         .filter((action) => action.confirm)
         .map((action) => (
           <ConfirmModal
             key={action.what}
             opened={confirming === action.what}
-            message={t(`vms.actions.${action.what}Confirm`, {name: vm.name})}
+            onClose={() => setConfirming(null)}
+            onConfirm={() => ask(action.what, true)}
+            loading={pending && asked === action.what}
+            problem={confirming === action.what ? problem : null}
             confirmLabel={t(`vms.actions.${action.what}`)}
-            color={action.color}
-            onConfirm={() => ask(action.what)}
-            onCancel={() => setConfirming(null)}
-          />
+            confirmColor={action.color}
+          >
+            <Text>
+              {t(`vms.actions.${action.what}Confirm`, {name: vm.name})}
+            </Text>
+          </ConfirmModal>
         ))}
     </>
   );

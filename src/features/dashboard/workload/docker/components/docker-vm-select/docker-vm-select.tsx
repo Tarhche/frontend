@@ -17,8 +17,8 @@ import {
 } from "@tabler/icons-react";
 import {useTranslations} from "@/i18n/provider";
 import {StateBadge} from "@/features/dashboard/workload/components/state-badge";
-import {problemOf} from "../../errors";
-import {ProblemAlert} from "../problem-alert";
+import {problemOf} from "@/features/dashboard/workload/lib/problem";
+import {ProblemAlert} from "@/features/dashboard/workload/components/problem-alert";
 import {NEW_VM} from "./choice";
 import {NewDockerVmFields} from "./new-docker-vm-fields";
 import {type DockerVmChoiceState} from "./use-docker-vm-choice";

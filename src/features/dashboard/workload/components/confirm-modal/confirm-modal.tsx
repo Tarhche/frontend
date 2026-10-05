@@ -3,7 +3,7 @@
 import {type ReactNode} from "react";
 import {Button, Group, Modal, Stack} from "@mantine/core";
 import {useTranslations} from "@/i18n/provider";
-import {type Problem} from "../../errors";
+import {type Problem} from "../../lib/problem";
 import {ProblemAlert} from "../problem-alert";
 
 type Props = {
@@ -15,6 +15,9 @@ type Props = {
   children: ReactNode;
   confirmLabel: string;
   confirmColor?: string;
+
+  /** what turning it down is called, when it is more than cancelling. */
+  cancelLabel?: string;
   loading?: boolean;
 
   /** why the last attempt did not go through, said where it was asked for. */
@@ -25,6 +28,10 @@ type Props = {
  * Asks before doing something that cannot be taken back, or that interrupts
  * whatever is running. The question stays open until the answer comes, so a
  * refusal is said where it was asked rather than somewhere else on the page.
+ *
+ * Each question is a modal of its own where there are several: a modal that
+ * has been closed is still on screen while it fades away, so one modal asking
+ * whichever question is current turns into the next one on the way out.
  */
 export function ConfirmModal({
   opened,
@@ -33,6 +40,7 @@ export function ConfirmModal({
   children,
   confirmLabel,
   confirmColor = "red",
+  cancelLabel,
   loading = false,
   problem,
 }: Props) {
@@ -55,7 +63,7 @@ export function ConfirmModal({
         {problem && <ProblemAlert problem={problem} />}
         <Group justify="flex-end">
           <Button color="gray" onClick={onClose} disabled={loading}>
-            {t("common.cancel")}
+            {cancelLabel ?? t("common.cancel")}
           </Button>
           <Button color={confirmColor} onClick={onConfirm} loading={loading}>
             {confirmLabel}

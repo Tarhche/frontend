@@ -27,17 +27,26 @@ import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {type Vm} from "@/features/dashboard/workload/vms/types";
 import {formatDateTime} from "@/features/dashboard/workload/vms/lib/lifetime";
 import {formatBytes} from "@/features/dashboard/workload/vms/lib/units";
+import {
+  hasMoreToSay,
+  problemOf,
+} from "@/features/dashboard/workload/lib/problem";
+import {ConfirmModal} from "@/features/dashboard/workload/components/confirm-modal";
+import {
+  ProblemAlert,
+  StaleAlert,
+} from "@/features/dashboard/workload/components/problem-alert";
 import {pullImage, removeImage} from "../../api";
-import {problemOf} from "../../errors";
 import {shortId} from "../../format";
 import {dockerKeys} from "../../hooks/queries";
 import {useImages} from "../../hooks/use-docker-objects";
 import {type DockerMay} from "../../permissions";
 import {type Image} from "../../types";
-import {ConfirmModal} from "../confirm-modal";
-import {ProblemAlert} from "../problem-alert";
 import {TableSkeleton} from "../table-skeleton";
 import {Waiting} from "../waiting";
+
+// a refusal of the reference is said beside it.
+const referenceField = (path: string) => path === "reference";
 
 /** What an image is called: its tags, or nothing when it has none left. */
 export function imageNames(image: Image): string[] {
@@ -103,6 +112,7 @@ export function ImagesTable({scope, vm, may}: Props) {
   };
 
   const items = images.data ?? [];
+  const refused = pull.error ? problemOf(pull.error) : null;
 
   return (
     <Stack>
@@ -118,7 +128,7 @@ export function ImagesTable({scope, vm, may}: Props) {
               error={
                 attempted && reference.trim().length === 0
                   ? t("images.pull.required")
-                  : undefined
+                  : refused?.fields.reference
               }
               disabled={pull.isPending}
               required
@@ -145,14 +155,23 @@ export function ImagesTable({scope, vm, may}: Props) {
         />
       )}
 
-      {pull.error && !pull.isPending && (
+      {refused && !pull.isPending && hasMoreToSay(refused, referenceField) && (
         <ProblemAlert
-          problem={problemOf(pull.error)}
+          problem={refused}
+          shown={referenceField}
           title={
-            problemOf(pull.error).unanswered
+            refused.unanswered
               ? t("images.pull.unanswered")
               : t("images.pull.failed")
           }
+        />
+      )}
+
+      {images.isError && images.data && (
+        <StaleAlert
+          error={images.error}
+          onRetry={() => void images.refetch()}
+          retrying={images.isFetching}
         />
       )}
 

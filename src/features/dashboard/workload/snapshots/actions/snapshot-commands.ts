@@ -3,7 +3,10 @@
 import {privateDalDriver} from "@/dal/private/private-dal-driver";
 import {APP_PATHS} from "@/lib/app-paths";
 import {isScope, type Scope} from "@/features/dashboard/workload/vms/api";
-import {attempt} from "@/features/dashboard/workload/vms/actions/attempt";
+import {
+  attempt,
+  NOT_ASKED,
+} from "@/features/dashboard/workload/vms/actions/attempt";
 import {type ActionResult} from "@/features/dashboard/workload/vms/types";
 import {snapshotPath, takeSnapshotPath} from "../api";
 
@@ -31,7 +34,7 @@ export async function renameSnapshot(
   scope: Scope,
 ): Promise<ActionResult> {
   if (!isScope(scope)) {
-    return {ok: false};
+    return NOT_ASKED;
   }
 
   return attempt(
@@ -46,7 +49,7 @@ export async function deleteSnapshot(
   scope: Scope,
 ): Promise<ActionResult> {
   if (!isScope(scope)) {
-    return {ok: false};
+    return NOT_ASKED;
   }
 
   return attempt(

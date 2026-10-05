@@ -5,8 +5,8 @@ import {Box, Code, Group, Loader, Stack, Switch, Text} from "@mantine/core";
 import {useI18n} from "@/i18n/provider";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {formatTime} from "@/features/dashboard/workload/vms/lib/lifetime";
+import {ProblemAlert} from "@/features/dashboard/workload/components/problem-alert";
 import {LOG_TAIL, useContainerLogs} from "../../hooks/use-container-logs";
-import {ProblemAlert} from "../problem-alert";
 
 type Props = {
   scope: Scope;

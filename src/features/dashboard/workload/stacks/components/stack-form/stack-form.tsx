@@ -9,8 +9,6 @@ import {
   Code,
   Fieldset,
   Group,
-  List,
-  ListItem,
   Stack,
   Text,
   TextInput,
@@ -23,12 +21,12 @@ import {
   DockerVmSelect,
   useDockerVmChoice,
 } from "@/features/dashboard/workload/docker/components/docker-vm-select";
-import {ProblemAlert} from "@/features/dashboard/workload/docker/components/problem-alert";
+import {ProblemAlert} from "@/features/dashboard/workload/components/problem-alert";
 import {
   fieldPaths,
-  isRefusal,
+  hasMoreToSay,
   problemOf,
-} from "@/features/dashboard/workload/docker/errors";
+} from "@/features/dashboard/workload/lib/problem";
 import {dockerKeys} from "@/features/dashboard/workload/docker/hooks/queries";
 import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
 import {createStack} from "../../api";
@@ -45,8 +43,12 @@ import {
 // JSON paths; anything else it refuses is listed above the button.
 const SHOWN_INLINE = [
   /^(name|compose|vm_uuid|vm)$/,
-  /^vm\.(name|ports|resources\.(cpus|memory|disk)|network\.(ingress|egress))$/,
+  /^vm\.(name|ports(\.\d+)?|resources\.(cpus|memory|disk)|network\.(ingress|egress))$/,
 ];
+
+function shownInline(path: string): boolean {
+  return SHOWN_INLINE.some((pattern) => pattern.test(path));
+}
 
 type Props = {
   /** where the person's own Docker VMs are listed. */
@@ -94,11 +96,11 @@ export function StackForm({vmSource}: Props) {
     onError: () => {},
   });
 
-  const problem = create.error ? problemOf(create.error) : null;
-  const refused = fieldPaths(problem?.fields ?? {}, "stack");
-  const unshown = Object.entries(refused).filter(
-    ([field]) => !SHOWN_INLINE.some((pattern) => pattern.test(field)),
-  );
+  // what was refused, by where it is in the request, which is where the form
+  // says it.
+  const sent = create.error ? problemOf(create.error) : null;
+  const refused = fieldPaths(sent?.fields ?? {}, "stack");
+  const problem = sent && {...sent, fields: refused};
 
   const fieldError = (field: string): string | undefined => {
     if (attempted && invalid[field]) {
@@ -113,11 +115,7 @@ export function StackForm({vmSource}: Props) {
   const vmError =
     attempted && vmIssue
       ? t(`containers.form.vmIssues.${vmIssue}`)
-      : (refused.vm_uuid ??
-        refused.vm ??
-        (problem?.code === "vm_required"
-          ? t("docker.errors.vm_required")
-          : undefined));
+      : (refused.vm_uuid ?? refused.vm);
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -186,16 +184,20 @@ export function StackForm({vmSource}: Props) {
           </Stack>
         </Fieldset>
 
-        {problem && (problem.unanswered || !isRefusal(problem)) && (
+        {/* what the VM refused, and anything not said beside a field, is
+            said here, with what compose printed when it printed anything. */}
+        {problem && hasMoreToSay(problem, shownInline) && (
           <ProblemAlert
             problem={problem}
+            shown={shownInline}
             title={t("stacks.form.failed")}
             outputOpen
           />
         )}
 
-        {/* what compose said about the file, which is what says what to fix. */}
-        {problem && isRefusal(problem) && problem.output && (
+        {/* what compose said about a file refused beside the editor, which is
+            what says what to fix. */}
+        {problem && !hasMoreToSay(problem, shownInline) && problem.output && (
           <Alert
             color="red"
             variant="light"
@@ -208,22 +210,6 @@ export function StackForm({vmSource}: Props) {
             >
               {problem.output}
             </Code>
-          </Alert>
-        )}
-
-        {problem && unshown.length > 0 && (
-          <Alert color="red" variant="light" title={t("stacks.form.failed")}>
-            <List size="sm">
-              {unshown.map(([field, message]) => (
-                <ListItem key={field}>
-                  <Text span ff="monospace" size="sm">
-                    {field}
-                  </Text>
-                  {": "}
-                  {message}
-                </ListItem>
-              ))}
-            </List>
           </Alert>
         )}
 

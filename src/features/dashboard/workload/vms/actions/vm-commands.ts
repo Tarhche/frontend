@@ -10,7 +10,7 @@ import {
   vmRestorePath,
 } from "../api";
 import {type ActionResult, type VmCommand} from "../types";
-import {attempt} from "./attempt";
+import {attempt, NOT_ASKED} from "./attempt";
 
 const COMMANDS: readonly VmCommand[] = ["start", "stop", "restart"];
 
@@ -28,7 +28,7 @@ export async function commandVm(
   scope: Scope,
 ): Promise<ActionResult> {
   if (!COMMANDS.includes(command) || !isScope(scope)) {
-    return {ok: false};
+    return NOT_ASKED;
   }
 
   return attempt(
@@ -43,7 +43,7 @@ export async function deleteVm(
   scope: Scope,
 ): Promise<ActionResult> {
   if (!isScope(scope)) {
-    return {ok: false};
+    return NOT_ASKED;
   }
 
   return attempt(
@@ -63,7 +63,7 @@ export async function restoreVm(
   scope: Scope,
 ): Promise<ActionResult> {
   if (!isScope(scope)) {
-    return {ok: false};
+    return NOT_ASKED;
   }
 
   return attempt(

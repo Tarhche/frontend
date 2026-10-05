@@ -14,8 +14,9 @@ import {
 import {notifications} from "@mantine/notifications";
 import {IconAlertTriangle} from "@tabler/icons-react";
 import {useQueryClient} from "@tanstack/react-query";
-import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import {useI18n} from "@/i18n/provider";
+import {ProblemAlert} from "@/features/dashboard/workload/components/problem-alert";
+import {type Problem} from "@/features/dashboard/workload/lib/problem";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {restoreVm} from "@/features/dashboard/workload/vms/actions/vm-commands";
 import {
@@ -86,7 +87,7 @@ export function RestoreSnapshotModal({
   const queryClient = useQueryClient();
   const [pending, startTransition] = useTransition();
   const [chosen, setChosen] = useState<string | null>(null);
-  const [errors, setErrors] = useState<string[]>([]);
+  const [problem, setProblem] = useState<Problem | null>(null);
 
   // the person's own VMs of the snapshot's kind, read when there is a choice
   // to make and the modal is open to make it.
@@ -102,7 +103,7 @@ export function RestoreSnapshotModal({
   const size = formatBytes(snapshot.disk, locale);
 
   const close = () => {
-    setErrors([]);
+    setProblem(null);
     setChosen(null);
     onClose();
   };
@@ -112,12 +113,12 @@ export function RestoreSnapshotModal({
       return;
     }
 
+    setProblem(null);
     startTransition(async () => {
       const answer = await restoreVm(target.uuid, snapshot.uuid, scope);
 
       if (!answer.ok) {
-        const said = Object.values(answer.errors ?? {});
-        setErrors(said.length > 0 ? said : [t("snapshots.actions.failed")]);
+        setProblem(answer.problem);
 
         return;
       }
@@ -194,7 +195,7 @@ export function RestoreSnapshotModal({
           </Text>
         )}
 
-        <ValidationErrorsAlert errors={errors} />
+        {problem && <ProblemAlert problem={problem} />}
 
         <Group justify="flex-end">
           <Button color="gray" onClick={close}>

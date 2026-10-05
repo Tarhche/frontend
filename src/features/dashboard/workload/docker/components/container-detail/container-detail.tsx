@@ -3,7 +3,6 @@
 import {useState} from "react";
 import {useRouter} from "next/navigation";
 import {
-  Alert,
   Button,
   EmptyState,
   Group,
@@ -33,7 +32,11 @@ import {
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
 import {useVmChoices} from "@/features/dashboard/workload/vms/hooks/queries";
-import {problemMessage, problemOf} from "../../errors";
+import {problemOf} from "@/features/dashboard/workload/lib/problem";
+import {
+  ProblemAlert,
+  StaleAlert,
+} from "@/features/dashboard/workload/components/problem-alert";
 import {shortId} from "../../format";
 import {useContainer} from "../../hooks/use-containers";
 import {type DockerMay} from "../../permissions";
@@ -42,7 +45,6 @@ import {
   type ContainerTransition,
 } from "../container-state-badge";
 import {ContainerActions, containerName} from "../containers-table";
-import {ProblemAlert} from "../problem-alert";
 import {TableSkeleton} from "../table-skeleton";
 import {ContainerLogs} from "./container-logs";
 import {ContainerNetworks} from "./container-networks";
@@ -164,11 +166,11 @@ export function ContainerDetail({
       </Group>
 
       {query.isError && (
-        <Alert color="yellow" variant="light" role="status">
-          {t("containers.detail.refreshFailed", {
-            reason: problemMessage(problemOf(query.error), t),
-          })}
-        </Alert>
+        <StaleAlert
+          error={query.error}
+          onRetry={() => void query.refetch()}
+          retrying={query.isFetching}
+        />
       )}
 
       <Tabs defaultValue="overview" keepMounted={false}>

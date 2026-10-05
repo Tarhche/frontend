@@ -4,7 +4,7 @@ import {privateDalDriver} from "@/dal/private/private-dal-driver";
 import {APP_PATHS} from "@/lib/app-paths";
 import {isScope, type Scope, vmPath} from "../api";
 import {type ActionResult, type UpdateVmRequest} from "../types";
-import {attempt} from "./attempt";
+import {attempt, NOT_ASKED} from "./attempt";
 
 /**
  * Changes a VM. Only what is in the request is changed; a VM that is running
@@ -16,7 +16,7 @@ export async function updateVm(
   request: UpdateVmRequest,
 ): Promise<ActionResult> {
   if (!isScope(scope)) {
-    return {ok: false};
+    return NOT_ASKED;
   }
 
   return attempt(

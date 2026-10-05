@@ -1,8 +1,7 @@
 "use client";
 
 import {useState, useTransition} from "react";
-import {ActionIcon, ActionIconGroup, Tooltip, rem} from "@mantine/core";
-import {notifications} from "@mantine/notifications";
+import {ActionIcon, ActionIconGroup, Text, Tooltip, rem} from "@mantine/core";
 import {
   IconCopyPlus,
   IconPencil,
@@ -13,9 +12,10 @@ import {useQueryClient} from "@tanstack/react-query";
 import Link from "@/components/link";
 import {useTranslations} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
+import {ConfirmModal} from "@/features/dashboard/workload/components/confirm-modal";
+import {type Problem} from "@/features/dashboard/workload/lib/problem";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
-import {ConfirmModal} from "@/features/dashboard/workload/vms/components/confirm-modal";
 import {deleteSnapshot} from "../actions/snapshot-commands";
 import {snapshotKeys} from "../hooks/queries";
 import {type Snapshot} from "../types";
@@ -60,23 +60,24 @@ export function SnapshotActions({
   const [open, setOpen] = useState<"rename" | "restore" | "delete" | null>(
     null,
   );
+  const [problem, setProblem] = useState<Problem | null>(null);
 
   const ready = snapshot.state === "ready";
 
+  // the question stays open until the answer comes, and says why when it is
+  // a refusal.
   const remove_ = () => {
     if (!remove) {
       return;
     }
 
-    setOpen(null);
+    setProblem(null);
     startTransition(async () => {
       const answer = await deleteSnapshot(snapshot.uuid, remove);
-      if (!answer.ok) {
-        notifications.show({
-          color: "red",
-          title: t("errors.errorTitle"),
-          message: t("snapshots.actions.failed"),
-        });
+      if (answer.ok) {
+        setOpen(null);
+      } else {
+        setProblem(answer.problem);
       }
 
       await queryClient.invalidateQueries({queryKey: snapshotKeys.all});
@@ -159,10 +160,12 @@ export function SnapshotActions({
               variant="light"
               size="lg"
               color="red"
-              loading={pending}
-              disabled={snapshot.state === "deleting"}
+              disabled={snapshot.state === "deleting" || pending}
               aria-label={t("snapshots.actions.delete")}
-              onClick={() => setOpen("delete")}
+              onClick={() => {
+                setProblem(null);
+                setOpen("delete");
+              }}
             >
               <IconTrash style={{width: rem(20)}} stroke={1.5} />
             </ActionIcon>
@@ -194,11 +197,16 @@ export function SnapshotActions({
 
       <ConfirmModal
         opened={open === "delete"}
-        message={t("snapshots.actions.deleteConfirm", {name: snapshot.name})}
-        confirmLabel={t("common.delete")}
+        onClose={() => setOpen(null)}
         onConfirm={remove_}
-        onCancel={() => setOpen(null)}
-      />
+        loading={pending}
+        problem={problem}
+        confirmLabel={t("common.delete")}
+      >
+        <Text>
+          {t("snapshots.actions.deleteConfirm", {name: snapshot.name})}
+        </Text>
+      </ConfirmModal>
     </>
   );
 }

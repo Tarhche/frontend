@@ -2,7 +2,7 @@
 
 import {useState} from "react";
 import {useRouter} from "next/navigation";
-import {Alert, Anchor, Group, Stack, Text, Title} from "@mantine/core";
+import {Alert, Anchor, Box, Group, Stack, Text, Title} from "@mantine/core";
 import {IconInfoCircle} from "@tabler/icons-react";
 import Link from "@/components/link";
 import {useTranslations} from "@/i18n/provider";
@@ -11,6 +11,7 @@ import {
   StateBadge,
   type Transition,
 } from "@/features/dashboard/workload/components/state-badge";
+import {StaleAlert} from "@/features/dashboard/workload/components/problem-alert";
 import {VmSnapshots} from "@/features/dashboard/workload/snapshots/components/vm-snapshots";
 import {snapshotScope} from "@/features/dashboard/workload/snapshots/permissions";
 import {type Scope} from "../../api";
@@ -45,7 +46,7 @@ type Props = {
 export function VmDetail({initial, scope, permissions, me}: Props) {
   const t = useTranslations();
   const router = useRouter();
-  const {data, isError} = useVm({
+  const {data, isError, error, refetch, isFetching} = useVm({
     scope,
     uuid: initial.uuid,
     initialData: initial,
@@ -97,9 +98,13 @@ export function VmDetail({initial, scope, permissions, me}: Props) {
       </Group>
 
       {isError && (
-        <Text size="xs" c="dimmed" mb="xs">
-          {t("vms.detail.stale")}
-        </Text>
+        <Box mb="sm">
+          <StaleAlert
+            error={error}
+            onRetry={() => void refetch()}
+            retrying={isFetching}
+          />
+        </Box>
       )}
 
       <VmTabs

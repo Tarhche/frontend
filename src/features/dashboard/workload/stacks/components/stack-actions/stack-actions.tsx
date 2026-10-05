@@ -18,11 +18,11 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import {useTranslations} from "@/i18n/provider";
-import {ConfirmModal} from "@/features/dashboard/workload/docker/components/confirm-modal";
+import {ConfirmModal} from "@/features/dashboard/workload/components/confirm-modal";
 import {
   problemMessage,
   problemOf,
-} from "@/features/dashboard/workload/docker/errors";
+} from "@/features/dashboard/workload/lib/problem";
 import {dockerKeys} from "@/features/dashboard/workload/docker/hooks/queries";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {commandStack, deleteStack} from "../../api";
@@ -88,7 +88,7 @@ export function StackActions({scope, stack, may, onPending, onDeleted}: Props) {
       if (which === "start") {
         notifications.show({
           color: "red",
-          title: t("stacks.actions.failed", {name: stack.name}),
+          title: t("workload.errors.startFailed", {name: stack.name}),
           message: problemMessage(problemOf(error), t),
         });
       }
@@ -196,39 +196,47 @@ export function StackActions({scope, stack, may, onPending, onDeleted}: Props) {
         )}
       </ActionIconGroup>
 
+      {/* each question is a modal of its own, so one closing keeps what it
+          asked while it fades away. */}
       <ConfirmModal
-        opened={confirming !== null}
+        opened={confirming === "stop"}
         onClose={() => setConfirming(null)}
         onConfirm={confirm}
         loading={busy}
-        problem={failed ? problemOf(failed) : null}
-        confirmColor={confirming === "restart" ? "blue" : "red"}
-        confirmLabel={
-          confirming === "delete"
-            ? t("stacks.actions.delete")
-            : confirming === "restart"
-              ? t("stacks.actions.restart")
-              : t("stacks.actions.stop")
-        }
+        problem={confirming === "stop" && failed ? problemOf(failed) : null}
+        confirmLabel={t("stacks.actions.stop")}
       >
-        {confirming === "stop" && (
-          <Text>{t("stacks.actions.stopConfirm", {name: stack.name})}</Text>
-        )}
-        {confirming === "restart" && (
-          <Text>{t("stacks.actions.restartConfirm", {name: stack.name})}</Text>
-        )}
-        {confirming === "delete" && (
-          <>
-            <Text>{t("stacks.actions.deleteConfirm", {name: stack.name})}</Text>
-            <Checkbox
-              label={t("stacks.actions.removeVolumes")}
-              description={t("stacks.actions.removeVolumesHelp")}
-              checked={withVolumes}
-              onChange={(event) => setWithVolumes(event.currentTarget.checked)}
-              disabled={busy}
-            />
-          </>
-        )}
+        <Text>{t("stacks.actions.stopConfirm", {name: stack.name})}</Text>
+      </ConfirmModal>
+
+      <ConfirmModal
+        opened={confirming === "restart"}
+        onClose={() => setConfirming(null)}
+        onConfirm={confirm}
+        loading={busy}
+        problem={confirming === "restart" && failed ? problemOf(failed) : null}
+        confirmColor="blue"
+        confirmLabel={t("stacks.actions.restart")}
+      >
+        <Text>{t("stacks.actions.restartConfirm", {name: stack.name})}</Text>
+      </ConfirmModal>
+
+      <ConfirmModal
+        opened={confirming === "delete"}
+        onClose={() => setConfirming(null)}
+        onConfirm={confirm}
+        loading={busy}
+        problem={confirming === "delete" && failed ? problemOf(failed) : null}
+        confirmLabel={t("stacks.actions.delete")}
+      >
+        <Text>{t("stacks.actions.deleteConfirm", {name: stack.name})}</Text>
+        <Checkbox
+          label={t("stacks.actions.removeVolumes")}
+          description={t("stacks.actions.removeVolumesHelp")}
+          checked={withVolumes}
+          onChange={(event) => setWithVolumes(event.currentTarget.checked)}
+          disabled={busy}
+        />
       </ConfirmModal>
     </>
   );

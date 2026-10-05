@@ -29,14 +29,20 @@ import {useI18n} from "@/i18n/provider";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {type Vm} from "@/features/dashboard/workload/vms/types";
 import {formatDateTime} from "@/features/dashboard/workload/vms/lib/lifetime";
+import {
+  hasMoreToSay,
+  problemOf,
+} from "@/features/dashboard/workload/lib/problem";
+import {ConfirmModal} from "@/features/dashboard/workload/components/confirm-modal";
+import {
+  ProblemAlert,
+  StaleAlert,
+} from "@/features/dashboard/workload/components/problem-alert";
 import {createNetwork, removeNetwork} from "../../api";
-import {problemOf} from "../../errors";
 import {dockerKeys} from "../../hooks/queries";
 import {useNetworks} from "../../hooks/use-docker-objects";
 import {type DockerMay} from "../../permissions";
 import {type Network} from "../../types";
-import {ConfirmModal} from "../confirm-modal";
-import {ProblemAlert} from "../problem-alert";
 import {TableSkeleton} from "../table-skeleton";
 
 /** The networks docker makes for itself, which are not anybody's to remove. */
@@ -47,6 +53,9 @@ type Props = {
   vm: Vm;
   may: DockerMay;
 };
+
+// a refusal of the name is said beside it.
+const nameField = (path: string) => path === "name";
 
 /**
  * The networks inside a VM. Containers on one reach each other by name; none
@@ -100,7 +109,7 @@ export function NetworksTable({scope, vm, may}: Props) {
     }
   };
 
-  const refused = create.error ? problemOf(create.error).fields : {};
+  const refused = create.error ? problemOf(create.error) : null;
   const items = networks.data ?? [];
 
   return (
@@ -120,7 +129,7 @@ export function NetworksTable({scope, vm, may}: Props) {
                   error={
                     attempted && name.trim().length === 0
                       ? t("networks.form.required")
-                      : refused.name
+                      : refused?.fields.name
                   }
                   required
                   dir="ltr"
@@ -140,9 +149,10 @@ export function NetworksTable({scope, vm, may}: Props) {
                 checked={internal}
                 onChange={(event) => setInternal(event.currentTarget.checked)}
               />
-              {create.error && !problemOf(create.error).fields.name && (
+              {refused && hasMoreToSay(refused, nameField) && (
                 <ProblemAlert
-                  problem={problemOf(create.error)}
+                  problem={refused}
+                  shown={nameField}
                   title={t("networks.form.failed")}
                 />
               )}
@@ -158,6 +168,14 @@ export function NetworksTable({scope, vm, may}: Props) {
             </Stack>
           </Fieldset>
         </form>
+      )}
+
+      {networks.isError && networks.data && (
+        <StaleAlert
+          error={networks.error}
+          onRetry={() => void networks.refetch()}
+          retrying={networks.isFetching}
+        />
       )}
 
       {networks.isPending ? (

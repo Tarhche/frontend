@@ -1,4 +1,4 @@
-import {act, screen, waitFor} from "@testing-library/react";
+import {act, screen, waitFor, within} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {AxiosError, AxiosHeaders, type InternalAxiosRequestConfig} from "axios";
 import {MiB} from "@/features/dashboard/workload/vms/lib/units";
@@ -270,10 +270,51 @@ describe("ContainerForm", () => {
     expect(
       await screen.findByText("containers.form.unansweredTitle"),
     ).toBeInTheDocument();
-    expect(screen.getByText("docker.errors.unanswered")).toBeInTheDocument();
+    expect(screen.getByText("workload.errors.unanswered")).toBeInTheDocument();
     expect(
       screen.getByRole("link", {name: "containers.form.seeContainers"}),
     ).toHaveAttribute("href", "/dashboard/containers");
+  });
+
+  it("says what the VM refused above the form, not only beside the VM", async () => {
+    const config = {headers: new AxiosHeaders()} as InternalAxiosRequestConfig;
+    api.createContainer.mockRejectedValue(
+      new AxiosError(
+        "refused",
+        undefined,
+        config,
+        {},
+        {
+          status: 400,
+          statusText: "",
+          headers: {},
+          config,
+          // a node's refusal is reported under what it is about.
+          data: {errors: {vm: "The VM is not running."}},
+        },
+      ),
+    );
+
+    const user = userEvent.setup();
+    form();
+    await ready();
+
+    await user.type(
+      screen.getByRole("combobox", {name: /containers.form.image/}),
+      "nginx",
+    );
+    await user.click(
+      screen.getByRole("button", {name: "containers.form.create"}),
+    );
+
+    const alert = await screen.findByRole("alert");
+    expect(
+      within(alert).getByText("containers.form.failed"),
+    ).toBeInTheDocument();
+    expect(
+      within(alert).getByText("The VM is not running."),
+    ).toBeInTheDocument();
+    expect(push).not.toHaveBeenCalled();
   });
 
   it("says each refusal beside what it is about, and lists the rest", async () => {

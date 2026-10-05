@@ -4,6 +4,7 @@ import {TableTbody, TableTd, TableTr, Text, Tooltip} from "@mantine/core";
 import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
+import {StaleAlert} from "@/features/dashboard/workload/components/problem-alert";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {VmKindBadge} from "@/features/dashboard/workload/vms/components/vm-kind-badge";
 import {VmOwner} from "@/features/dashboard/workload/vms/components/vm-owner";
@@ -43,7 +44,11 @@ export function SnapshotRows({
   showOwner,
 }: Props) {
   const {t, locale} = useI18n();
-  const {data} = useSnapshots({scope, params: {page}, initialData: initial});
+  const {data, isError, error, refetch, isFetching} = useSnapshots({
+    scope,
+    params: {page},
+    initialData: initial,
+  });
   const snapshots = data?.items ?? [];
 
   // restoring is onto one's own VMs alone, of the same kind: they are listed
@@ -55,6 +60,17 @@ export function SnapshotRows({
 
   return (
     <TableTbody>
+      {isError && (
+        <TableTr>
+          <TableTd colSpan={showOwner ? 8 : 7}>
+            <StaleAlert
+              error={error}
+              onRetry={() => void refetch()}
+              retrying={isFetching}
+            />
+          </TableTd>
+        </TableTr>
+      )}
       {snapshots.length === 0 && (
         <TableTr>
           <TableTd colSpan={showOwner ? 8 : 7} ta="center">

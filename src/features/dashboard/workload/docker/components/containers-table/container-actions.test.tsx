@@ -193,11 +193,16 @@ describe("ContainerActions", () => {
         config,
         {},
         {
-          status: 409,
+          status: 400,
           statusText: "",
           headers: {},
           config,
-          data: {code: "invalid", message: "removal already in progress"},
+          // what dockerd itself refused comes back as the API says it.
+          data: {
+            errors: {
+              docker: "Docker refused the request: removal already in progress",
+            },
+          },
         },
       ),
     );
@@ -217,7 +222,7 @@ describe("ContainerActions", () => {
 
     expect(
       await within(question).findByText(
-        "docker.errors.invalid removal already in progress",
+        "Docker refused the request: removal already in progress",
       ),
     ).toBeInTheDocument();
     expect(onRemoved).not.toHaveBeenCalled();

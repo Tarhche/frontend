@@ -5,6 +5,7 @@ import {TableTbody, TableTd, TableTr, Text} from "@mantine/core";
 import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
+import {StaleAlert} from "@/features/dashboard/workload/components/problem-alert";
 import {
   StateBadge,
   type Transition,
@@ -48,7 +49,11 @@ export function VmRows({
   showOwner,
 }: Props) {
   const {t, locale} = useI18n();
-  const {data} = useVms({scope, params: {page}, initialData: initial});
+  const {data, isError, error, refetch, isFetching} = useVms({
+    scope,
+    params: {page},
+    initialData: initial,
+  });
   const vms = data?.items ?? [];
 
   // what somebody has just asked of a VM, until the workload says so itself.
@@ -77,6 +82,17 @@ export function VmRows({
 
   return (
     <TableTbody>
+      {isError && (
+        <TableTr>
+          <TableTd colSpan={columns}>
+            <StaleAlert
+              error={error}
+              onRetry={() => void refetch()}
+              retrying={isFetching}
+            />
+          </TableTd>
+        </TableTr>
+      )}
       {vms.length === 0 && (
         <TableTr>
           <TableTd colSpan={columns} ta="center">

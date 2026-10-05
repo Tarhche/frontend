@@ -601,6 +601,25 @@
       "permissions": "It can do what you can do, and nothing more."
     }
   },
+  "workload": {
+    "errors": {
+      "not_found": "It is not there any more.",
+      "not_running": "The VM is not running.",
+      "not_docker": "That VM has no Docker in it.",
+      "docker_unavailable": "Docker in the VM did not become ready in time. Try again in a minute.",
+      "invalid": "Docker refused the request.",
+      "timeout": "It took too long to answer.",
+      "internal": "Something went wrong on the platform.",
+      "vm_required": "You have several Docker VMs: pick one.",
+      "no_capacity": "There is no room for another VM right now.",
+      "quota_exceeded": "That is more than your quota allows.",
+      "unanswered": "No answer came back in time. It may still be under way: pulling an image can take minutes. Check again in a little while.",
+      "startFailed": "Starting \"{name}\" failed",
+      "stale": "What is shown could not be refreshed: {reason}"
+    },
+    "showOutput": "Show the output",
+    "hideOutput": "Hide the output"
+  },
   "vms": {
     "title": "VMs",
     "kinds": {
@@ -642,8 +661,7 @@
       "delete": "Delete",
       "stopConfirm": "Stop \"{name}\"? Everything running in it stops with it.",
       "restartConfirm": "Restart \"{name}\"? Everything running in it is stopped and started again.",
-      "deleteConfirm": "Delete \"{name}\"? Its disk is deleted with it. Its snapshots are kept.",
-      "failed": "That could not be done. Please try again."
+      "deleteConfirm": "Delete \"{name}\"? Its disk is deleted with it. Its snapshots are kept."
     },
     "reasons": {
       "no_capacity": "No node has room for it right now.",
@@ -737,7 +755,6 @@
       "noAddressesYet": "Its addresses appear once it is running.",
       "gone": "This VM no longer exists.",
       "backToList": "Back to VMs",
-      "stale": "Could not refresh. Trying again…",
       "terminalNotRunning": "The VM is not running, so there is no terminal to open.",
       "leaveTerminalConfirm": "Leaving this tab ends the terminal session, and anything running in it stops. Leave anyway?",
       "leaveTerminal": "Leave and end it",
@@ -811,8 +828,7 @@
       "restoreAsNew": "Restore as new VM",
       "restoreOnto": "Restore onto a VM",
       "restoreOntoThis": "Restore onto this VM",
-      "deleteConfirm": "Delete \"{name}\"? It cannot be restored once it is gone.",
-      "failed": "That could not be done. Please try again."
+      "deleteConfirm": "Delete \"{name}\"? It cannot be restored once it is gone."
     },
     "take": {
       "title": "Take a snapshot",
@@ -846,7 +862,8 @@
     },
     "vm": {
       "help": "Copies of this VM's disk, kept apart from it.",
-      "empty": "No snapshots of this VM yet"
+      "empty": "No snapshots of this VM yet",
+      "failed": "The snapshots could not be read"
     }
   },
   "tasks": {
@@ -932,7 +949,6 @@
       "stop": "Stop",
       "restart": "Restart",
       "delete": "Delete",
-      "failed": "Starting \"{name}\" failed",
       "stopConfirm": "Stop \"{name}\"? Every container in it is stopped.",
       "restartConfirm": "Restart \"{name}\"? Every container in it is restarted.",
       "deleteConfirm": "Delete \"{name}\"? Its containers and networks are taken down and it is forgotten.",
@@ -975,27 +991,10 @@
       "goneTitle": "Stack not found",
       "gone": "It may have been deleted.",
       "backToList": "Back to stacks",
-      "failed": "The stack could not be read",
-      "refreshFailed": "It could not be refreshed: {reason}"
+      "failed": "The stack could not be read"
     }
   },
   "docker": {
-    "errors": {
-      "not_found": "It is not there any more.",
-      "not_running": "The VM is not running.",
-      "not_docker": "That VM has no Docker in it.",
-      "docker_unavailable": "Docker in the VM did not become ready in time. Try again in a minute.",
-      "invalid": "Docker refused the request.",
-      "timeout": "It took too long to answer.",
-      "internal": "Something went wrong on the platform.",
-      "vm_required": "You have several Docker VMs: pick one.",
-      "vm_not_running": "The VM is not running.",
-      "no_capacity": "There is no room for another VM right now.",
-      "quota_exceeded": "That is more than your quota allows.",
-      "unanswered": "No answer came back in time. It may still be under way: pulling an image can take minutes. Check again in a little while."
-    },
-    "showOutput": "Show the output",
-    "hideOutput": "Hide the output",
     "waiting": {
       "elapsed": "Time elapsed"
     }
@@ -1088,7 +1087,6 @@
       "vmsNotRunning": "Containers in {names} are not listed: those VMs are not running.",
       "empty": "No containers",
       "listFailed": "The containers could not be listed",
-      "refreshFailed": "The list could not be refreshed: {reason}",
       "name": "Name",
       "image": "Image",
       "state": "State",
@@ -1103,7 +1101,6 @@
       "stop": "Stop",
       "restart": "Restart",
       "remove": "Remove",
-      "failed": "Starting \"{name}\" failed",
       "stopConfirm": "Stop \"{name}\"? Whatever it is doing is interrupted.",
       "restartConfirm": "Restart \"{name}\"? Whatever it is doing is interrupted.",
       "removeConfirm": "Remove \"{name}\"? It cannot be brought back; its volumes stay.",
@@ -1218,8 +1215,7 @@
       "goneTitle": "Container not found",
       "gone": "It may have been removed, or its VM is not running.",
       "backToList": "Back to containers",
-      "failed": "The container could not be read",
-      "refreshFailed": "It could not be refreshed: {reason}"
+      "failed": "The container could not be read"
     },
     "overview": {
       "id": "ID",

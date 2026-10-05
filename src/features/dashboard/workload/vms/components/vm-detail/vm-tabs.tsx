@@ -1,16 +1,7 @@
 "use client";
 
 import {type ReactNode, useState} from "react";
-import {
-  Button,
-  Group,
-  Modal,
-  Tabs,
-  TabsList,
-  TabsPanel,
-  TabsTab,
-  Text,
-} from "@mantine/core";
+import {Tabs, TabsList, TabsPanel, TabsTab, Text} from "@mantine/core";
 import {
   IconCamera,
   IconFileText,
@@ -19,6 +10,7 @@ import {
   IconTerminal2,
 } from "@tabler/icons-react";
 import {useTranslations} from "@/i18n/provider";
+import {ConfirmModal} from "@/features/dashboard/workload/components/confirm-modal";
 
 type Props = {
   overview: ReactNode;
@@ -98,29 +90,18 @@ export function VmTabs({
         ))}
       </Tabs>
 
-      <Modal
-        title={t("common.confirmAction")}
+      <ConfirmModal
         opened={leavingFor !== null}
-        size="md"
-        centered
         onClose={() => setLeavingFor(null)}
+        onConfirm={() => {
+          setTab(leavingFor);
+          setLeavingFor(null);
+        }}
+        confirmLabel={t("vms.detail.leaveTerminal")}
+        cancelLabel={t("vms.detail.stayInTerminal")}
       >
         <Text>{t("vms.detail.leaveTerminalConfirm")}</Text>
-        <Group justify="flex-end" mt="md">
-          <Button color="gray" onClick={() => setLeavingFor(null)}>
-            {t("vms.detail.stayInTerminal")}
-          </Button>
-          <Button
-            color="red"
-            onClick={() => {
-              setTab(leavingFor);
-              setLeavingFor(null);
-            }}
-          >
-            {t("vms.detail.leaveTerminal")}
-          </Button>
-        </Group>
-      </Modal>
+      </ConfirmModal>
     </>
   );
 }

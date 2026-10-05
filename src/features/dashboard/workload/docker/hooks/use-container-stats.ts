@@ -2,8 +2,11 @@
 
 import {useEffect, useState} from "react";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
+import {
+  problemOf,
+  type Problem,
+} from "@/features/dashboard/workload/lib/problem";
 import {fetchContainerStats} from "../api";
-import {problemOf, type Problem} from "../errors";
 import {type ContainerStats} from "../types";
 
 /** How often a container's usage is sampled while it is being looked at. */

@@ -10,8 +10,6 @@ import {
   Button,
   Fieldset,
   Group,
-  List,
-  ListItem,
   MultiSelect,
   NumberInput,
   SegmentedControl,
@@ -28,8 +26,13 @@ import {APP_PATHS} from "@/lib/app-paths";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
 import {vmReadiness} from "@/features/dashboard/workload/vms/lib/state";
+import {
+  fieldPaths,
+  hasMoreToSay,
+  problemOf,
+} from "@/features/dashboard/workload/lib/problem";
+import {ProblemAlert} from "@/features/dashboard/workload/components/problem-alert";
 import {createContainer} from "../../api";
-import {fieldPaths, isRefusal, problemOf} from "../../errors";
 import {ltr} from "../../format";
 import {dockerKeys} from "../../hooks/queries";
 import {
@@ -43,7 +46,6 @@ import {
   DockerVmSelect,
   useDockerVmChoice,
 } from "../docker-vm-select";
-import {ProblemAlert} from "../problem-alert";
 import {Waiting} from "../waiting";
 import {
   containerRequest,
@@ -65,7 +67,7 @@ const RESTART_POLICIES: RestartPolicy[] = [
 // that nothing it says goes unsaid.
 const SHOWN_INLINE = [
   /^(image|name|command|entrypoint|working_dir|networks|restart_policy|cpus|memory|vm_uuid|vm|env|ports|mounts)$/,
-  /^vm\.(name|ports|resources\.(cpus|memory|disk)|network\.(ingress|egress))$/,
+  /^vm\.(name|ports(\.\d+)?|resources\.(cpus|memory|disk)|network\.(ingress|egress))$/,
   /^env\.\d+$/,
   /^ports\.\d+(\.(container_port|host_port))?$/,
   /^mounts\.\d+(\.(source|target))?$/,
@@ -159,11 +161,11 @@ export function ContainerForm({vmSource, listScope}: Props) {
     onError: () => {},
   });
 
-  const problem = create.error ? problemOf(create.error) : null;
-  const refused = fieldPaths(problem?.fields ?? {}, "container");
-  const unshown = Object.entries(refused).filter(
-    ([field]) => !shownInline(field),
-  );
+  // what was refused, by where it is in the request, which is where the form
+  // says it.
+  const sent = create.error ? problemOf(create.error) : null;
+  const refused = fieldPaths(sent?.fields ?? {}, "container");
+  const problem = sent && {...sent, fields: refused};
 
   // what is wrong is said once somebody has tried to send it, and then as it
   // is, so it goes away as soon as it is put right.
@@ -181,11 +183,7 @@ export function ContainerForm({vmSource, listScope}: Props) {
   const vmError =
     attempted && vmIssue
       ? t(`containers.form.vmIssues.${vmIssue}`)
-      : (refused.vm_uuid ??
-        refused.vm ??
-        (problem?.code === "vm_required"
-          ? t("docker.errors.vm_required")
-          : undefined));
+      : (refused.vm_uuid ?? refused.vm);
 
   const set = <K extends keyof ContainerValues>(
     key: K,
@@ -449,9 +447,12 @@ export function ContainerForm({vmSource, listScope}: Props) {
           />
         )}
 
-        {problem && !pending && (problem.unanswered || !isRefusal(problem)) && (
+        {/* what the VM or dockerd refused, and anything not said beside a
+            field, is said here, where it is seen before sending again. */}
+        {problem && !pending && hasMoreToSay(problem, shownInline) && (
           <ProblemAlert
             problem={problem}
+            shown={shownInline}
             title={
               problem.unanswered
                 ? t("containers.form.unansweredTitle")
@@ -468,26 +469,6 @@ export function ContainerForm({vmSource, listScope}: Props) {
               </Anchor>
             )}
           </ProblemAlert>
-        )}
-
-        {problem && !pending && unshown.length > 0 && (
-          <Alert
-            color="red"
-            variant="light"
-            title={t("containers.form.failed")}
-          >
-            <List size="sm">
-              {unshown.map(([field, message]) => (
-                <ListItem key={field}>
-                  <Text span ff="monospace" size="sm">
-                    {field}
-                  </Text>
-                  {": "}
-                  {message}
-                </ListItem>
-              ))}
-            </List>
-          </Alert>
         )}
 
         <Group justify="flex-end">

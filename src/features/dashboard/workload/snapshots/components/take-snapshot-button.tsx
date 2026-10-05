@@ -13,8 +13,12 @@ import {
 import {notifications} from "@mantine/notifications";
 import {IconCameraPlus} from "@tabler/icons-react";
 import {useQueryClient} from "@tanstack/react-query";
-import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import {useTranslations} from "@/i18n/provider";
+import {ProblemAlert} from "@/features/dashboard/workload/components/problem-alert";
+import {
+  hasMoreToSay,
+  type Problem,
+} from "@/features/dashboard/workload/lib/problem";
 import {canSnapshot} from "@/features/dashboard/workload/vms/lib/state";
 import {type Vm} from "@/features/dashboard/workload/vms/types";
 import {takeSnapshot} from "../actions/snapshot-commands";
@@ -35,30 +39,34 @@ export function TakeSnapshotButton({
   const [pending, startTransition] = useTransition();
   const [opened, setOpened] = useState(false);
   const [name, setName] = useState("");
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [missing, setMissing] = useState(false);
+  const [problem, setProblem] = useState<Problem | null>(null);
 
   const ready = canSnapshot(vm.state);
 
   const open = () => {
     setName(snapshotName(vm.name, new Date()));
-    setErrors({});
+    setMissing(false);
+    setProblem(null);
     setOpened(true);
   };
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setProblem(null);
 
     if (name.trim() === "") {
-      setErrors({name: t("snapshots.take.nameRequired")});
+      setMissing(true);
 
       return;
     }
 
+    setMissing(false);
     startTransition(async () => {
       const answer = await takeSnapshot(vm.uuid, name.trim());
 
       if (!answer.ok) {
-        setErrors(answer.errors ?? {"": t("snapshots.actions.failed")});
+        setProblem(answer.problem);
 
         return;
       }
@@ -72,7 +80,10 @@ export function TakeSnapshotButton({
     });
   };
 
-  const {name: nameError, ...others} = errors;
+  const nameError = missing
+    ? t("snapshots.take.nameRequired")
+    : problem?.fields.name;
+  const shown = (path: string) => path === "name";
 
   return (
     <>
@@ -112,7 +123,9 @@ export function TakeSnapshotButton({
               data-autofocus
               required
             />
-            <ValidationErrorsAlert errors={Object.values(others)} />
+            {problem && hasMoreToSay(problem, shown) && (
+              <ProblemAlert problem={problem} shown={shown} />
+            )}
             <Group justify="flex-end">
               <Button color="gray" onClick={() => setOpened(false)}>
                 {t("common.cancel")}

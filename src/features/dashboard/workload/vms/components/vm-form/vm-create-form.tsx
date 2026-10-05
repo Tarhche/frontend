@@ -17,8 +17,9 @@ import {
   Title,
 } from "@mantine/core";
 import {IconInfoCircle} from "@tabler/icons-react";
-import {ValidationErrorsAlert} from "@/components/errors/validation-errors-alert";
 import {useI18n} from "@/i18n/provider";
+import {ProblemAlert} from "@/features/dashboard/workload/components/problem-alert";
+import {hasMoreToSay} from "@/features/dashboard/workload/lib/problem";
 import {createVm, type CreateVmState} from "../../actions/create-vm";
 import {
   buildCreateVmRequest,
@@ -30,6 +31,7 @@ import {
   switchKind,
   validateVmForm,
   type VmField,
+  vmFieldOf,
   type VmFormValues,
 } from "../../lib/form";
 import {formatBytes, fromBytes, toBytes} from "../../lib/units";
@@ -55,6 +57,11 @@ type Props = {
 };
 
 const initialState: CreateVmState = {};
+
+// what the API refused about a field of the form is said beside that field.
+function shownBesideField(path: string): boolean {
+  return vmFieldOf(path) !== undefined;
+}
 
 /**
  * The form a VM restored from a snapshot starts as: of the snapshot's kind,
@@ -103,7 +110,7 @@ export function VmCreateForm({snapshots, snapshotUuid = null}: Props) {
   const snapshot =
     snapshots.find((one) => one.uuid === values.snapshotUuid) ?? null;
   const ours = submitted ? validateVmForm(values) : {};
-  const theirs = fieldErrorsFrom(state.errors);
+  const theirs = fieldErrorsFrom(state.problem?.fields);
 
   const errorOf = (field: VmField) => {
     const code = ours[field];
@@ -304,11 +311,12 @@ export function VmCreateForm({snapshots, snapshotUuid = null}: Props) {
           </Stack>
         </Paper>
 
-        <ValidationErrorsAlert errors={theirs.rest} />
-        {state.failed && (
-          <Alert variant="light" color="red" title={t("errors.errorTitle")}>
-            {t("vms.form.failed")}
-          </Alert>
+        {state.problem && hasMoreToSay(state.problem, shownBesideField) && (
+          <ProblemAlert
+            problem={state.problem}
+            title={t("vms.form.failed")}
+            shown={shownBesideField}
+          />
         )}
 
         <Group justify="flex-end">

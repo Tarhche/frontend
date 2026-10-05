@@ -26,14 +26,20 @@ import {useI18n} from "@/i18n/provider";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {type Vm} from "@/features/dashboard/workload/vms/types";
 import {formatDateTime} from "@/features/dashboard/workload/vms/lib/lifetime";
+import {
+  hasMoreToSay,
+  problemOf,
+} from "@/features/dashboard/workload/lib/problem";
+import {ConfirmModal} from "@/features/dashboard/workload/components/confirm-modal";
+import {
+  ProblemAlert,
+  StaleAlert,
+} from "@/features/dashboard/workload/components/problem-alert";
 import {createVolume, removeVolume} from "../../api";
-import {problemOf} from "../../errors";
 import {dockerKeys} from "../../hooks/queries";
 import {useVolumes} from "../../hooks/use-docker-objects";
 import {type DockerMay} from "../../permissions";
 import {type Volume} from "../../types";
-import {ConfirmModal} from "../confirm-modal";
-import {ProblemAlert} from "../problem-alert";
 import {TableSkeleton} from "../table-skeleton";
 
 type Props = {
@@ -41,6 +47,9 @@ type Props = {
   vm: Vm;
   may: DockerMay;
 };
+
+// a refusal of the name is said beside it.
+const nameField = (path: string) => path === "name";
 
 /**
  * The volumes inside a VM: what its containers keep when they are removed.
@@ -95,6 +104,7 @@ export function VolumesTable({scope, vm, may}: Props) {
   };
 
   const items = volumes.data ?? [];
+  const refused = create.error ? problemOf(create.error) : null;
 
   return (
     <Stack>
@@ -109,16 +119,17 @@ export function VolumesTable({scope, vm, may}: Props) {
               error={
                 attempted && name.trim().length === 0
                   ? t("volumes.form.required")
-                  : undefined
+                  : refused?.fields.name
               }
               disabled={create.isPending}
               required
               dir="ltr"
               autoComplete="off"
             />
-            {create.error && (
+            {refused && hasMoreToSay(refused, nameField) && (
               <ProblemAlert
-                problem={problemOf(create.error)}
+                problem={refused}
+                shown={nameField}
                 title={t("volumes.form.failed")}
               />
             )}
@@ -133,6 +144,14 @@ export function VolumesTable({scope, vm, may}: Props) {
             </Group>
           </Stack>
         </form>
+      )}
+
+      {volumes.isError && volumes.data && (
+        <StaleAlert
+          error={volumes.error}
+          onRetry={() => void volumes.refetch()}
+          retrying={volumes.isFetching}
+        />
       )}
 
       {volumes.isPending ? (
