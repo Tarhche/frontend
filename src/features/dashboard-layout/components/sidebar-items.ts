@@ -3,6 +3,7 @@ import {
   IconBookmarks,
   IconBox,
   IconCamera,
+  IconCloudComputing,
   IconDatabase,
   IconFile,
   IconHome,
@@ -24,17 +25,23 @@ import {APP_PATHS} from "@/lib/app-paths";
 import {type Permissions} from "@/lib/app-permissions";
 import {hasPermission} from "@/lib/auth/shared";
 
+type SidebarIcon = ComponentType<{className?: string; stroke?: number}>;
+
 /** One page in the sidebar, shown to whoever holds any of its permissions. */
 export type SidebarLink = {
   labelKey: string;
-  icon: ComponentType<{className?: string; stroke?: number}>;
+  icon: SidebarIcon;
   href: string;
   requiredPermissions: Permissions[];
 };
 
-/** Pages that belong together, under a heading of their own. */
+/**
+ * Pages that belong together, under an entry of their own that opens to show
+ * them and closes to put them away.
+ */
 export type SidebarGroup = {
   labelKey: string;
+  icon: SidebarIcon;
   links: SidebarLink[];
 };
 
@@ -97,7 +104,8 @@ export const SIDEBAR: SidebarEntry[] = [
     requiredPermissions: ["contactus.index"],
   },
   {
-    labelKey: "dashboard.sidebar.workload",
+    labelKey: "dashboard.sidebar.workloads",
+    icon: IconCloudComputing,
     links: [
       {
         labelKey: "dashboard.sidebar.vms",
@@ -215,4 +223,9 @@ export function isActive(href: string, pathname: string): boolean {
   }
 
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+/** Whether the page being looked at is one of a group's pages, or under one. */
+export function holdsActive(group: SidebarGroup, pathname: string): boolean {
+  return group.links.some((link) => isActive(link.href, pathname));
 }
