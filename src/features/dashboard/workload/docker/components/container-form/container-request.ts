@@ -1,4 +1,4 @@
-import {MiB} from "@/features/dashboard/workload/vms/lib/units";
+import {type Size, toBytes} from "@/features/dashboard/workload/vms/lib/units";
 import {portNumber, shellWords} from "../../format";
 import {
   type ContainerCreateRequest,
@@ -47,8 +47,9 @@ export type ContainerValues = {
   mounts: MountRow[];
   networks: string[];
   restartPolicy: RestartPolicy;
-  cpus: number | "";
-  memoryMiB: number | "";
+  /** a share of the VM's CPUs, and the most memory: nothing is no limit. */
+  cpus: number;
+  memory: Size;
 };
 
 export function emptyContainer(): ContainerValues {
@@ -63,8 +64,8 @@ export function emptyContainer(): ContainerValues {
     mounts: [],
     networks: [],
     restartPolicy: "unless-stopped",
-    cpus: "",
-    memoryMiB: "",
+    cpus: 0,
+    memory: {amount: 0, unit: "MiB"},
   };
 }
 
@@ -201,9 +202,8 @@ export function containerRequest(
     mounts: mounts.length > 0 ? mounts : undefined,
     networks: values.networks.length > 0 ? values.networks : undefined,
     restart_policy: values.restartPolicy,
-    cpus: values.cpus === "" ? undefined : values.cpus,
-    memory:
-      values.memoryMiB === "" ? undefined : Math.round(values.memoryMiB * MiB),
+    cpus: values.cpus > 0 ? values.cpus : undefined,
+    memory: toBytes(values.memory) || undefined,
   };
 
   return {body, errors};

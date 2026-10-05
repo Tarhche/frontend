@@ -175,7 +175,7 @@ describe("containerRequest", () => {
         command: `sh -c "echo hi && sleep 1"`,
         entrypoint: "/docker-entrypoint.sh",
         cpus: 0.5,
-        memoryMiB: 256,
+        memory: {amount: 256, unit: "MiB"},
       }),
       inVm,
     );

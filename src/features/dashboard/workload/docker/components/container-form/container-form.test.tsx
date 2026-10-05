@@ -200,6 +200,38 @@ describe("ContainerForm", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("takes a fraction of a CPU and a size in GiB as they are typed", async () => {
+    const user = userEvent.setup();
+    form();
+    await ready();
+
+    await user.type(
+      screen.getByRole("combobox", {name: /containers.form.image/}),
+      "nginx",
+    );
+    await user.type(
+      screen.getByRole("textbox", {name: /containers.form.cpus/}),
+      "0.5",
+    );
+    await user.selectOptions(
+      screen.getByRole("combobox", {name: "containers.form.memory"}),
+      "GiB",
+    );
+    await user.type(
+      screen.getByRole("textbox", {name: /containers.form.memory/}),
+      "1.5",
+    );
+    await user.click(
+      screen.getByRole("button", {name: "containers.form.create"}),
+    );
+
+    await waitFor(() =>
+      expect(api.createContainer).toHaveBeenCalledWith(
+        expect.objectContaining({cpus: 0.5, memory: 1536 * MiB}),
+      ),
+    );
+  });
+
   it("says what is wrong before sending anything", async () => {
     const user = userEvent.setup();
     form();

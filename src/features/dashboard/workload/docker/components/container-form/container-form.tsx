@@ -11,7 +11,6 @@ import {
   Fieldset,
   Group,
   MultiSelect,
-  NumberInput,
   SegmentedControl,
   SimpleGrid,
   Stack,
@@ -22,6 +21,8 @@ import {notifications} from "@mantine/notifications";
 import {IconWorldOff} from "@tabler/icons-react";
 import Link from "@/components/link";
 import {useI18n} from "@/i18n/provider";
+import {AmountInput} from "@/features/dashboard/workload/vms/components/fields/amount-input";
+import {SizeInput} from "@/features/dashboard/workload/vms/components/fields/size-input";
 import {APP_PATHS} from "@/lib/app-paths";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
@@ -399,33 +400,24 @@ export function ContainerForm({vmSource, listScope}: Props) {
               )}
             </Stack>
             <SimpleGrid cols={{base: 1, sm: 2}}>
-              <NumberInput
+              <AmountInput
                 label={t("containers.form.cpus")}
                 description={t("containers.form.cpusHelp")}
                 placeholder={t("containers.form.noLimit")}
                 value={values.cpus}
-                onChange={(cpus) =>
-                  set("cpus", typeof cpus === "number" ? cpus : "")
-                }
-                min={0.01}
+                onChange={(cpus) => set("cpus", cpus)}
+                min={0}
                 step={0.25}
                 decimalScale={2}
                 allowNegative={false}
                 error={fieldError("cpus")}
               />
-              <NumberInput
+              <SizeInput
                 label={t("containers.form.memory")}
                 description={t("containers.form.memoryHelp")}
                 placeholder={t("containers.form.noLimit")}
-                value={values.memoryMiB}
-                onChange={(memory) =>
-                  set("memoryMiB", typeof memory === "number" ? memory : "")
-                }
-                suffix=" MiB"
-                min={6}
-                step={64}
-                allowDecimal={false}
-                allowNegative={false}
+                value={values.memory}
+                onChange={(memory) => set("memory", memory)}
                 error={fieldError("memory")}
               />
             </SimpleGrid>

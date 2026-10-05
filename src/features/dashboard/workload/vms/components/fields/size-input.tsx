@@ -8,6 +8,9 @@ import {AmountInput} from "./amount-input";
 type Props = {
   label: ReactNode;
   description?: ReactNode;
+
+  /** what is shown while nothing is typed, when nothing is a size of its own. */
+  placeholder?: string;
   value: Size;
   onChange: (size: Size) => void;
   error?: ReactNode;
@@ -26,6 +29,7 @@ const UNIT_WIDTH = 84;
 export function SizeInput({
   label,
   description,
+  placeholder,
   value,
   onChange,
   error,
@@ -35,6 +39,7 @@ export function SizeInput({
     <AmountInput
       label={label}
       description={description}
+      placeholder={placeholder}
       error={error}
       disabled={disabled}
       value={value.amount}
