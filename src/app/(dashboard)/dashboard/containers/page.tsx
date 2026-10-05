@@ -7,39 +7,32 @@ import {APP_PATHS} from "@/lib/app-paths";
 import {PERMISSIONS} from "@/lib/app-permissions";
 import {getUserPermissions, hasPermission} from "@/lib/auth";
 import {ScopeSwitch} from "@/components/scope-switch";
+import {ContainersTable} from "@/features/dashboard/workload/docker/components/containers-table";
+import {dockerMay} from "@/features/dashboard/workload/docker/permissions";
 import {dockerVmSource} from "@/features/dashboard/workload/docker/server";
-import {StacksTable} from "@/features/dashboard/workload/stacks/components/stacks-table";
-import {stackMay} from "@/features/dashboard/workload/stacks/permissions";
+import {stacksVisible} from "@/features/dashboard/workload/stacks/permissions";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
   return {
-    title: t("stacks.title"),
+    title: t("containers.title"),
   };
 }
 
-type Props = {
-  searchParams: Promise<{
-    page?: string;
-  }>;
-};
-
-async function StacksPage({searchParams}: Props) {
+async function ContainersPage() {
   const {t} = await getServerDictionary();
-  const {page} = await searchParams;
-  const current = Math.max(1, Number.parseInt(page ?? "1", 10) || 1);
 
-  // the listing is the browser's, asked for again while a stack is on its way
-  // somewhere: what the person may do is worked out here and handed to it.
+  // the listing is the browser's, asked for again every few seconds: what the
+  // person may do is worked out here and handed to it, once per listing.
   const permissions = (await getUserPermissions()) ?? [];
   const canSeeAll = hasPermission(permissions, [
-    PERMISSIONS.workload.stacks.INDEX,
+    PERMISSIONS.workload.containers.INDEX,
   ]);
   const canSeeMine = hasPermission(permissions, [
-    PERMISSIONS.self.workload.stacks.INDEX,
+    PERMISSIONS.self.workload.containers.INDEX,
   ]);
   const canCreate = hasPermission(permissions, [
-    PERMISSIONS.workload.stacks.CREATE,
+    PERMISSIONS.workload.containers.CREATE,
   ]);
 
   const [allVms, myVms] = await Promise.all([
@@ -52,8 +45,8 @@ async function StacksPage({searchParams}: Props) {
       <DashboardBreadcrumbs
         crumbs={[
           {
-            label: t("stacks.title"),
-            href: APP_PATHS.dashboard.stacks.index,
+            label: t("containers.title"),
+            href: APP_PATHS.dashboard.containers.index,
           },
         ]}
       />
@@ -62,31 +55,25 @@ async function StacksPage({searchParams}: Props) {
           canSeeAll={canSeeAll}
           canSeeMine={canSeeMine}
           labels={{
-            all: t("stacks.tabs.allStacks"),
-            mine: t("stacks.tabs.myStacks"),
+            all: t("containers.tabs.all"),
+            mine: t("containers.tabs.mine"),
           }}
           all={
-            <StacksTable
+            <ContainersTable
               scope="all"
-              page={current}
-              may={stackMay(permissions, "all")}
+              may={dockerMay(permissions, "all")}
               canCreate={canCreate}
               vmSource={allVms}
-              containersVisible={hasPermission(permissions, [
-                PERMISSIONS.workload.containers.INDEX,
-              ])}
+              stacksVisible={stacksVisible(permissions, "all")}
             />
           }
           mine={
-            <StacksTable
+            <ContainersTable
               scope="mine"
-              page={current}
-              may={stackMay(permissions, "mine")}
+              may={dockerMay(permissions, "mine")}
               canCreate={canCreate}
               vmSource={myVms}
-              containersVisible={hasPermission(permissions, [
-                PERMISSIONS.self.workload.containers.INDEX,
-              ])}
+              stacksVisible={stacksVisible(permissions, "mine")}
             />
           }
         />
@@ -95,6 +82,9 @@ async function StacksPage({searchParams}: Props) {
   );
 }
 
-export default withPermissions(StacksPage, {
-  requiredPermissions: ["workload.stacks.index", "self.workload.stacks.index"],
+export default withPermissions(ContainersPage, {
+  requiredPermissions: [
+    "workload.containers.index",
+    "self.workload.containers.index",
+  ],
 });

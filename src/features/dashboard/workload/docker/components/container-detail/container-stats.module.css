@@ -1,0 +1,97 @@
+/*
+ * A container's usage, read at a glance. Each mode has its own steps, checked
+ * against its own surface: the accent and the two severities stay apart for
+ * every kind of colour vision, and each clears 3:1 on the page behind it. A
+ * value is always written beside its colour, so colour never says it alone.
+ */
+.tile {
+  --usage-accent: light-dark(
+    var(--mantine-color-blue-7),
+    var(--mantine-color-blue-4)
+  );
+  --usage-quiet: light-dark(
+    var(--mantine-color-gray-5),
+    var(--mantine-color-dark-2)
+  );
+  --usage-hairline: light-dark(
+    var(--mantine-color-gray-4),
+    var(--mantine-color-dark-3)
+  );
+}
+
+/* the unfilled track is a lighter step of the fill's own ramp. */
+.meter {
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--meter-track);
+}
+
+.fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--meter-fill);
+  transition: width 300ms ease;
+}
+
+.ok {
+  --meter-fill: var(--usage-accent);
+  --meter-track: var(--mantine-color-blue-light);
+}
+
+.warning {
+  --meter-fill: light-dark(
+    var(--mantine-color-yellow-9),
+    var(--mantine-color-yellow-5)
+  );
+  --meter-track: var(--mantine-color-yellow-light);
+}
+
+.danger {
+  --meter-fill: light-dark(
+    var(--mantine-color-red-9),
+    var(--mantine-color-red-4)
+  );
+  --meter-track: var(--mantine-color-red-light);
+}
+
+/* the trend is quiet; only where it is now is in the accent. */
+.trend {
+  display: block;
+  overflow: visible;
+  cursor: crosshair;
+}
+
+.trend:focus-visible {
+  outline: 2px solid var(--usage-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.line {
+  fill: none;
+  stroke: var(--usage-quiet);
+  stroke-width: 2px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.crosshair {
+  stroke: var(--usage-hairline);
+  stroke-width: 1px;
+}
+
+.dot {
+  fill: var(--usage-accent);
+  stroke: var(--mantine-color-body);
+  stroke-width: 2px;
+}
+
+.value {
+  font-variant-numeric: normal;
+}
+
+.readout {
+  min-height: calc(var(--mantine-font-size-xs) * var(--mantine-line-height));
+  font-variant-numeric: tabular-nums;
+}

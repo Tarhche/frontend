@@ -892,37 +892,512 @@
   },
   "stacks": {
     "title": "Stacks",
-    "table": {
-      "newStack": "Run a stack",
-      "empty": "No stacks running",
-      "name": "Name",
-      "state": "State",
-      "services": "Services",
-      "createdAt": "Created at",
-      "deleteConfirm": "Delete \"{name}\"? Its services, their logs and the network they shared all go.",
-      "owner": "Owner"
-    },
-    "form": {
-      "name": "Name",
-      "services": "Services",
-      "servicesHelp": "The services block of a docker compose file. They share a private network and reach each other by service name.",
-      "invalidJson": "This is not valid JSON",
-      "emptyJson": "JSON is empty",
-      "prettifyError": "Enter valid JSON before formatting",
-      "prettify": "Format JSON",
-      "run": "Run"
-    },
-    "detail": {
-      "services": "Services",
-      "service": "Service"
-    },
-    "breadcrumb": {
-      "create": "Run a stack",
-      "detail": "Stack"
-    },
     "tabs": {
       "allStacks": "All stacks",
       "myStacks": "My stacks"
+    },
+    "breadcrumb": {
+      "create": "New stack",
+      "detail": "Stack"
+    },
+    "states": {
+      "deploying": "deploying...",
+      "running": "running",
+      "starting": "starting...",
+      "stopping": "stopping...",
+      "stopped": "stopped",
+      "restarting": "restarting...",
+      "removing": "removing...",
+      "failed": "failed"
+    },
+    "transitions": {
+      "starting": "starting...",
+      "stopping": "stopping...",
+      "restarting": "restarting...",
+      "removing": "removing..."
+    },
+    "table": {
+      "newStack": "New stack",
+      "empty": "No stacks",
+      "listFailed": "The stacks could not be listed",
+      "name": "Name",
+      "vm": "VM",
+      "state": "State",
+      "containers": "Containers",
+      "containersHelp": "Counted from the containers its VM has now; — when that VM is not running.",
+      "createdAt": "Created"
+    },
+    "actions": {
+      "start": "Start",
+      "stop": "Stop",
+      "restart": "Restart",
+      "delete": "Delete",
+      "failed": "Starting \"{name}\" failed",
+      "stopConfirm": "Stop \"{name}\"? Every container in it is stopped.",
+      "restartConfirm": "Restart \"{name}\"? Every container in it is restarted.",
+      "deleteConfirm": "Delete \"{name}\"? Its containers and networks are taken down and it is forgotten.",
+      "removeVolumes": "Also remove volumes",
+      "removeVolumesHelp": "What its containers kept in its volumes goes too. Leave this off to keep it."
+    },
+    "form": {
+      "where": "Where it is deployed",
+      "stack": "Stack",
+      "name": "Name",
+      "nameHelp": "The compose project inside the VM is named after it.",
+      "compose": "Compose file",
+      "composeHelp": "A docker compose file, in YAML, up to {max}. Its own name: is ignored. A stack cannot be edited once deployed: deploy a new one instead.",
+      "deploy": "Deploy",
+      "created": "Stack {name} is deploying",
+      "createdInVm": "It is being deployed into {vm}.",
+      "createdInNewVm": "A Docker VM, {vm}, was created for it.",
+      "failed": "The stack could not be deployed",
+      "composeOutput": "What compose said",
+      "errors": {
+        "required": "This is required.",
+        "tooLarge": "A compose file can be up to {max}."
+      }
+    },
+    "detail": {
+      "inVm": "in {vm}",
+      "project": "compose project {slug}",
+      "createdAt": "created {date}",
+      "reason": "Why",
+      "output": "Last compose output",
+      "compose": "Compose file",
+      "show": "Show",
+      "hide": "Hide",
+      "containers": "Containers",
+      "container": "Container",
+      "service": "Service",
+      "noContainers": "It has no containers",
+      "vmNotRunningTitle": "Its VM is not running",
+      "vmNotRunning": "The stack's containers can be listed once its VM is running.",
+      "goneTitle": "Stack not found",
+      "gone": "It may have been deleted.",
+      "backToList": "Back to stacks",
+      "failed": "The stack could not be read",
+      "refreshFailed": "It could not be refreshed: {reason}"
+    }
+  },
+  "docker": {
+    "errors": {
+      "not_found": "It is not there any more.",
+      "not_running": "The VM is not running.",
+      "not_docker": "That VM has no Docker in it.",
+      "docker_unavailable": "Docker in the VM did not become ready in time. Try again in a minute.",
+      "invalid": "Docker refused the request.",
+      "timeout": "It took too long to answer.",
+      "internal": "Something went wrong on the platform.",
+      "vm_required": "You have several Docker VMs: pick one.",
+      "vm_not_running": "The VM is not running.",
+      "no_capacity": "There is no room for another VM right now.",
+      "quota_exceeded": "That is more than your quota allows.",
+      "unanswered": "No answer came back in time. It may still be under way: pulling an image can take minutes. Check again in a little while."
+    },
+    "showOutput": "Show the output",
+    "hideOutput": "Hide the output",
+    "vmStates": {
+      "created": "created",
+      "scheduled": "scheduled",
+      "starting": "starting",
+      "running": "running",
+      "stopping": "stopping",
+      "stopped": "stopped",
+      "restarting": "restarting",
+      "restoring": "restoring",
+      "failed": "failed",
+      "deleting": "deleting"
+    },
+    "waiting": {
+      "elapsed": "Time elapsed"
+    }
+  },
+  "dockerVms": {
+    "select": {
+      "label": "Docker VM",
+      "placeholder": "Pick a Docker VM",
+      "pickHelp": "You have several Docker VMs: pick the one to use, or a new one.",
+      "newVm": "New Docker VM",
+      "loading": "Loading your Docker VMs…",
+      "listFailed": "Your Docker VMs could not be listed",
+      "listFailedGoAhead": "If you go ahead anyway, the platform picks one for you, or creates one if you have none.",
+      "chosenForYou": "The Docker VM is chosen for you: your only one, or a new one if you have none. If you have several, you will be asked to pick.",
+      "cannotList": "You may not list Docker VMs, so there is none to pick from.",
+      "noneTitle": "No Docker VMs",
+      "noneHelp": "There is no Docker VM here yet. Create one under VMs, or create a container or a stack, which makes one for you.",
+      "willBeCreated": "A Docker VM will be created for you",
+      "willBeCreatedHelp": "You have no Docker VM yet, so one is created along with this. These are its defaults; change them if you like."
+    },
+    "summary": {
+      "resources": "{cpus} vCPU · {memory} memory · {disk} disk",
+      "ports": "Exposed ports: {ports}",
+      "noPorts": "No exposed ports",
+      "ingressAllowed": "reachable from the internet",
+      "ingressDenied": "not reachable from the internet",
+      "egressAllowed": "reaches the internet",
+      "egressDenied": "no internet access"
+    },
+    "readiness": {
+      "booting": "This VM is starting. Requests wait until Docker in it is ready, which can take a minute or two.",
+      "stopped": "This VM is not running, so nothing in it can be reached. Start it from its page under VMs first.",
+      "failed": "This VM failed, so nothing in it can be reached.",
+      "failedBecause": "This VM failed, so nothing in it can be reached: {reason}",
+      "gone": "This VM is being deleted."
+    },
+    "new": {
+      "legend": "New Docker VM",
+      "name": "Name",
+      "nameHelp": "Its address is made from this name.",
+      "cpus": "vCPUs",
+      "memory": "Memory",
+      "disk": "Disk",
+      "ports": "Exposed ports",
+      "portsHelp": "The VM's ports that the ingress serves. A container port published on any other port is only reachable inside the VM.",
+      "notPorts": "Not a port: {values}. A port is a number from 1 to 65535.",
+      "ingress": "Reachable from the internet",
+      "ingressHelp": "Its exposed ports are served through the ingress.",
+      "egress": "Reaches the internet",
+      "egressHelp": "It can reach the public internet, never other VMs."
+    },
+    "tabs": {
+      "all": "All Docker VMs",
+      "mine": "My Docker VMs"
+    },
+    "empty": {
+      "booting": "{vm} is starting",
+      "stopped": "{vm} is not running",
+      "failed": "{vm} failed",
+      "gone": "{vm} is being deleted"
+    }
+  },
+  "containers": {
+    "title": "Containers",
+    "tabs": {
+      "all": "All containers",
+      "mine": "My containers"
+    },
+    "breadcrumb": {
+      "create": "New container",
+      "detail": "Container"
+    },
+    "states": {
+      "created": "created",
+      "running": "running",
+      "paused": "paused",
+      "restarting": "restarting",
+      "removing": "removing",
+      "exited": "exited",
+      "dead": "dead",
+      "exitedWith": "exited ({code})"
+    },
+    "transitions": {
+      "starting": "starting...",
+      "stopping": "stopping...",
+      "restarting": "restarting...",
+      "removing": "removing..."
+    },
+    "restartPolicies": {
+      "no": "Never",
+      "always": "Always",
+      "unless-stopped": "Unless stopped",
+      "on-failure": "On failure"
+    },
+    "table": {
+      "newContainer": "New container",
+      "vmFilter": "Docker VM",
+      "allVms": "All Docker VMs",
+      "vmsNotRunning": "Containers in {names} are not listed: those VMs are not running.",
+      "empty": "No containers",
+      "listFailed": "The containers could not be listed",
+      "refreshFailed": "The list could not be refreshed: {reason}",
+      "name": "Name",
+      "image": "Image",
+      "state": "State",
+      "status": "Status",
+      "ports": "Ports",
+      "vm": "VM",
+      "stack": "Stack",
+      "service": "service {service}"
+    },
+    "actions": {
+      "start": "Start",
+      "stop": "Stop",
+      "restart": "Restart",
+      "remove": "Remove",
+      "failed": "Starting \"{name}\" failed",
+      "stopConfirm": "Stop \"{name}\"? Whatever it is doing is interrupted.",
+      "restartConfirm": "Restart \"{name}\"? Whatever it is doing is interrupted.",
+      "removeConfirm": "Remove \"{name}\"? It cannot be brought back; its volumes stay.",
+      "removeRunning": "It is running: it is stopped and removed at once, by force.",
+      "removeFromStack": "It belongs to the stack {stack}: starting that stack again creates it again."
+    },
+    "form": {
+      "where": "Where it runs",
+      "container": "Container",
+      "image": "Image",
+      "imageHelp": "Pulled into the VM first when it does not have it, which can take minutes.",
+      "name": "Name",
+      "nameHelp": "Optional: Docker makes one up when it is left empty.",
+      "command": "Command",
+      "commandHelp": "Split into arguments the way a shell would; quote what belongs together.",
+      "entrypoint": "Entrypoint",
+      "entrypointHelp": "Replaces the image's own entrypoint when given.",
+      "workingDir": "Working directory",
+      "env": {
+        "legend": "Environment",
+        "none": "No variables.",
+        "add": "Add a variable",
+        "key": "Name of variable {n}",
+        "value": "Value of variable {n}",
+        "keyHeading": "Name",
+        "valueHeading": "Value"
+      },
+      "ports": {
+        "legend": "Ports",
+        "help": "Each container port is published on a port of the VM. Only the VM's exposed ports are reachable from outside it.",
+        "none": "No published ports.",
+        "add": "Publish a port",
+        "container": "Container port of binding {n}",
+        "containerPlaceholder": "Container port",
+        "host": "VM port of binding {n}",
+        "hostPlaceholder": "VM port",
+        "protocol": "Protocol of binding {n}",
+        "protocolHeading": "Protocol",
+        "sameAsContainer": "same as the container port"
+      },
+      "hint": {
+        "title": "Not reachable from outside",
+        "unreachable": "VM ports {ports} are not among the VM's exposed ports ({exposed}): they will not be reachable from outside the VM. Add them in the VM's settings to reach them.",
+        "unreachableNewVm": "VM ports {ports} are not among the new VM's exposed ports ({exposed}): they will not be reachable from outside the VM. Add them to its exposed ports above.",
+        "ingressDenied": "The VM lets nothing in from outside, so what it publishes is only reachable inside it. Allow ingress in the VM's settings to reach it.",
+        "noExposed": "none",
+        "unreachableOne": "VM port {ports} is not among the VM's exposed ports ({exposed}): it will not be reachable from outside the VM. Add it in the VM's settings to reach it.",
+        "unreachableNewVmOne": "VM port {ports} is not among the new VM's exposed ports ({exposed}): it will not be reachable from outside the VM. Add it to its exposed ports above."
+      },
+      "mounts": {
+        "legend": "Storage",
+        "none": "No mounts.",
+        "add": "Add a mount",
+        "type": "Kind of mount {n}",
+        "volume": "Volume",
+        "bind": "VM path",
+        "source": "Source of mount {n}",
+        "volumePlaceholder": "Volume name",
+        "target": "Path in the container for mount {n}",
+        "readOnly": "Mount {n} is read-only",
+        "typeHeading": "Kind",
+        "sourceHeading": "Volume or VM path",
+        "targetHeading": "Path in the container"
+      },
+      "removeRow": "Remove row {n}",
+      "resources": "Networks and resources",
+      "networks": "Networks",
+      "networksHelp": "Networks of this VM to attach it to. With none, it is on Docker's default bridge.",
+      "networksNewVm": "A new VM has only Docker's default networks; create others once it exists.",
+      "networksUnavailable": "The VM's networks are offered once it is running.",
+      "restartPolicy": "Restart policy",
+      "cpus": "CPUs",
+      "cpusHelp": "How much of the VM's CPU it may use, such as 0.5.",
+      "memory": "Memory",
+      "memoryHelp": "The most memory it may use.",
+      "noLimit": "No limit",
+      "create": "Create container",
+      "created": "Container created",
+      "createdInVm": "It runs in {vm}.",
+      "createdInNewVm": "A Docker VM, {vm}, was created for it.",
+      "failed": "The container could not be created",
+      "unansweredTitle": "Still waiting on it",
+      "seeContainers": "See the containers",
+      "waiting": {
+        "title": "Creating the container…",
+        "help": "The image is pulled first if the VM does not have it, which can take a few minutes. You can leave this page: the container shows up in the list once it is ready.",
+        "newVmTitle": "Creating a Docker VM, then the container…",
+        "newVmHelp": "The VM boots first, then the image is pulled. This can take several minutes."
+      },
+      "vmIssues": {
+        "pick": "Pick a Docker VM, or a new one.",
+        "not_running": "This VM is not running: start it first.",
+        "failed": "This VM failed: pick another one.",
+        "gone": "This VM is being deleted: pick another one."
+      },
+      "errors": {
+        "required": "This is required.",
+        "unterminatedQuote": "A quote is left open.",
+        "envKey": "A variable needs a name, without spaces or =.",
+        "notAPort": "A port is a number from 1 to 65535.",
+        "duplicatePort": "This VM port is already published.",
+        "absolutePath": "A path starts with /."
+      },
+      "networksPickVm": "Pick a Docker VM to choose among its networks."
+    },
+    "detail": {
+      "overview": "Overview",
+      "logs": "Logs",
+      "stats": "Stats",
+      "networks": "Networks",
+      "inVm": "in {vm}",
+      "goneTitle": "Container not found",
+      "gone": "It may have been removed, or its VM is not running.",
+      "backToList": "Back to containers",
+      "failed": "The container could not be read",
+      "refreshFailed": "It could not be refreshed: {reason}"
+    },
+    "overview": {
+      "id": "ID",
+      "image": "Image",
+      "command": "Command",
+      "vm": "VM",
+      "createdAt": "Created",
+      "restartPolicy": "Restart policy",
+      "ports": "Ports",
+      "mounts": "Mounts",
+      "readOnly": "read-only",
+      "networks": "Networks",
+      "stack": "Stack",
+      "labels": "Labels",
+      "showRaw": "Show everything Docker says about it",
+      "hideRaw": "Hide the details"
+    },
+    "logs": {
+      "help": "The last {tail} lines, then whatever it writes next.",
+      "follow": "Follow",
+      "times": "Times",
+      "label": "Container output",
+      "empty": "Nothing written yet",
+      "failed": "The logs could not be read",
+      "truncated": "Some lines were left out: there were more than one answer can carry."
+    },
+    "stats": {
+      "help": "Sampled every {seconds} seconds; the last {minutes} minutes are kept while this page is open. Last sample at {at}.",
+      "cpu": "CPU",
+      "memory": "Memory",
+      "networkIn": "Network in",
+      "networkOut": "Network out",
+      "diskRead": "Disk read",
+      "diskWrite": "Disk write",
+      "pids": "Processes",
+      "ofLimit": "of {limit}",
+      "noLimit": "no limit",
+      "total": "{value} in all",
+      "perSecond": "{value}/s",
+      "trend": "lowest {low}, highest {high}, now {now}",
+      "warning": "close to its limit",
+      "danger": "at its limit",
+      "notRunningTitle": "Not running",
+      "notRunning": "Usage is sampled while the container runs.",
+      "failed": "Its usage could not be read",
+      "refreshFailed": "The last sample could not be read",
+      "ofVmCpus": "of its VM's {cpus} vCPU",
+      "ofVm": "of its VM's CPUs"
+    },
+    "networks": {
+      "name": "Network",
+      "driver": "Driver",
+      "internal": "internal",
+      "none": "It is on no network.",
+      "disconnect": "Disconnect",
+      "disconnectFrom": "Disconnect from {network}",
+      "disconnectConfirm": "Disconnect \"{name}\" from {network}? Whatever reaches it through that network no longer can.",
+      "attachLegend": "Attach to another network of this VM",
+      "network": "Network",
+      "pick": "Pick a network",
+      "noneToAttach": "No other network to attach to",
+      "pickError": "Pick a network to attach to.",
+      "aliases": "Aliases",
+      "aliasesHelp": "Other names the containers on that network reach it by.",
+      "attach": "Attach",
+      "connected": "\"{name}\" is now on {network}.",
+      "connectFailed": "It could not be attached"
+    }
+  },
+  "images": {
+    "title": "Images",
+    "pull": {
+      "reference": "Image to pull",
+      "referenceHelp": "A reference such as nginx:1.27-alpine or ghcr.io/owner/app:tag.",
+      "required": "Say which image to pull.",
+      "submit": "Pull",
+      "waiting": "Pulling {reference}…",
+      "waitingHelp": "Pulling an image takes as long as the registry does, sometimes minutes. You can leave this page: the image shows up here once it is pulled.",
+      "pulled": "{reference} was pulled into {vm}.",
+      "failed": "The image could not be pulled",
+      "unanswered": "Still waiting on the pull"
+    },
+    "table": {
+      "tags": "Tags",
+      "id": "ID",
+      "size": "Size",
+      "createdAt": "Created",
+      "inUse": "In use",
+      "used": "in use",
+      "unused": "unused",
+      "untagged": "untagged",
+      "empty": "This VM holds no images",
+      "listFailed": "The images could not be listed",
+      "remove": "Remove",
+      "removeOne": "Remove {image}",
+      "removeConfirm": "Remove {image} from this VM?",
+      "removeInUse": "A container uses it, so Docker refuses unless it is forced.",
+      "force": "Force",
+      "forceHelp": "Remove it even if a container uses it, untagging it if needed."
+    }
+  },
+  "networks": {
+    "title": "Networks",
+    "form": {
+      "legend": "New network",
+      "name": "Name",
+      "required": "Give the network a name.",
+      "driver": "Driver",
+      "driverHelp": "Networks are bridges inside the VM.",
+      "internal": "Internal",
+      "internalHelp": "Containers on it reach each other, and nothing outside the VM.",
+      "create": "Create network",
+      "created": "Network {name} was created.",
+      "failed": "The network could not be created"
+    },
+    "table": {
+      "name": "Name",
+      "driver": "Driver",
+      "scope": "Scope",
+      "containers": "Containers",
+      "createdAt": "Created",
+      "empty": "This VM has no networks",
+      "listFailed": "The networks could not be listed",
+      "internal": "internal",
+      "predefined": "Docker's own",
+      "remove": "Remove",
+      "removeOne": "Remove {name}",
+      "removeConfirm": "Remove the network {name}?",
+      "removeInUse": "Containers are still on it: Docker refuses until they leave it."
+    }
+  },
+  "volumes": {
+    "title": "Volumes",
+    "form": {
+      "name": "New volume",
+      "nameHelp": "A volume keeps what containers write to it after they are removed.",
+      "required": "Give the volume a name.",
+      "create": "Create volume",
+      "created": "Volume {name} was created.",
+      "failed": "The volume could not be created"
+    },
+    "table": {
+      "name": "Name",
+      "driver": "Driver",
+      "mountpoint": "Mount point",
+      "inUse": "In use",
+      "used": "in use",
+      "unused": "unused",
+      "createdAt": "Created",
+      "empty": "This VM holds no volumes",
+      "listFailed": "The volumes could not be listed",
+      "remove": "Remove",
+      "removeOne": "Remove {name}",
+      "removeConfirm": "Remove the volume {name}? What is in it goes with it.",
+      "removeInUse": "A container uses it, so Docker refuses unless it is forced.",
+      "force": "Force",
+      "forceHelp": "Remove it even if a container uses it."
     }
   }
 }

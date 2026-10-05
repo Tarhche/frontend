@@ -1,0 +1,30 @@
+/* The compose file, written in the same editor snippets are written in. */
+.editor {
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-sm);
+  overflow: hidden;
+  font-size: var(--mantine-font-size-sm);
+}
+
+.editor[data-invalid="true"] {
+  border-color: var(--mantine-color-error);
+}
+
+.editor:focus-within {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: -1px;
+}
+
+.editor :global(.cm-editor) {
+  min-height: var(--compose-editor-height, 360px);
+  max-height: 70vh;
+}
+
+.editor :global(.cm-editor.cm-focused) {
+  outline: none;
+}
+
+.editor :global(.cm-scroller) {
+  overflow: auto;
+  font-family: var(--mantine-font-family-monospace), monospace;
+}

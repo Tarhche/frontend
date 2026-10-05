@@ -77,8 +77,13 @@ export const APP_PATHS = {
     snapshots: {
       index: "/dashboard/snapshots",
     },
+    // a container is only ever found inside the Docker VM holding it, so its
+    // address names the VM as well as the container.
     containers: {
       index: "/dashboard/containers",
+      new: "/dashboard/containers/new",
+      detail: (vmUuid: string, id: string) =>
+        `/dashboard/containers/${vmUuid}/${id}`,
     },
     images: {
       index: "/dashboard/images",
