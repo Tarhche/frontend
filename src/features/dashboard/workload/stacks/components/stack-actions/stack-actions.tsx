@@ -2,14 +2,7 @@
 
 import {useState} from "react";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
-import {
-  ActionIcon,
-  ActionIconGroup,
-  Checkbox,
-  Text,
-  Tooltip,
-  rem,
-} from "@mantine/core";
+import {ActionIcon, ActionIconGroup, Text, Tooltip, rem} from "@mantine/core";
 import {notifications} from "@mantine/notifications";
 import {
   IconPlayerPlay,
@@ -57,9 +50,9 @@ type Props = {
  * different stack.
  *
  * Stopping, restarting and deleting are asked about first. Deleting takes the
- * stack's containers and networks down with it, and its volumes only when
- * that is asked for too, since what is in them is usually what somebody would
- * want back.
+ * stack's containers and networks down with it, but never its volumes: what is
+ * in them is usually what somebody would want back, so they stay until they
+ * are removed from the Volumes page, and the question says so.
  */
 export function StackActions({
   stack,
@@ -74,7 +67,6 @@ export function StackActions({
   const [confirming, setConfirming] = useState<
     "stop" | "restart" | "delete" | null
   >(null);
-  const [withVolumes, setWithVolumes] = useState(false);
 
   // a stack's containers change with it, so both are asked for again.
   const settle = async () => {
@@ -105,8 +97,7 @@ export function StackActions({
   });
 
   const remove = useMutation({
-    mutationFn: (volumes: boolean) =>
-      deleteStack(removeScope!, stack.uuid, volumes),
+    mutationFn: () => deleteStack(removeScope!, stack.uuid),
     onMutate: () => onPending?.("removing"),
     onSuccess: () => {
       setConfirming(null);
@@ -128,13 +119,12 @@ export function StackActions({
   const ask = (which: "stop" | "restart" | "delete") => {
     command.reset();
     remove.reset();
-    setWithVolumes(false);
     setConfirming(which);
   };
 
   const confirm = () => {
     if (confirming === "delete") {
-      remove.mutate(withVolumes);
+      remove.mutate();
     } else if (confirming) {
       command.mutate(confirming);
     }
@@ -239,13 +229,9 @@ export function StackActions({
         confirmLabel={t("stacks.actions.delete")}
       >
         <Text>{t("stacks.actions.deleteConfirm", {name: stack.name})}</Text>
-        <Checkbox
-          label={t("stacks.actions.removeVolumes")}
-          description={t("stacks.actions.removeVolumesHelp")}
-          checked={withVolumes}
-          onChange={(event) => setWithVolumes(event.currentTarget.checked)}
-          disabled={busy}
-        />
+        <Text c="dimmed" size="sm">
+          {t("stacks.actions.deleteKeepsVolumes")}
+        </Text>
       </ConfirmModal>
     </>
   );

@@ -15,11 +15,17 @@ jest.mock("@/i18n/provider", () => {
 });
 
 const commandStack = jest.fn();
-const deleteStack = jest.fn();
+const mockDelete = jest.fn();
+
+// a delete goes through the real deleteStack, so what it sends is what is
+// asserted.
+jest.mock("@/dal/client/client-dal-driver", () => ({
+  clientDalDriver: {delete: (...args: unknown[]) => mockDelete(...args)},
+}));
 
 jest.mock("../../api", () => ({
+  ...jest.requireActual("../../api"),
   commandStack: (...args: unknown[]) => commandStack(...args),
-  deleteStack: (...args: unknown[]) => deleteStack(...args),
 }));
 
 function stack(overrides: Partial<Stack> = {}): Stack {
@@ -50,7 +56,7 @@ function actions(shown: Stack) {
 
 beforeEach(() => {
   commandStack.mockReset().mockResolvedValue(undefined);
-  deleteStack.mockReset().mockResolvedValue(undefined);
+  mockDelete.mockReset().mockResolvedValue({data: undefined});
   onDeleted.mockReset();
 });
 
@@ -62,42 +68,26 @@ async function askToDelete() {
 }
 
 describe("StackActions", () => {
-  it("deletes a stack and keeps its volumes, unless asked otherwise", async () => {
+  it("deletes a stack but never its volumes, and says so before anybody agrees", async () => {
     actions(stack());
     const {user, question} = await askToDelete();
 
     expect(
-      within(question).getByRole("checkbox", {
-        name: /stacks.actions.removeVolumes/,
-      }),
-    ).not.toBeChecked();
+      within(question).getByText("stacks.actions.deleteKeepsVolumes"),
+    ).toBeInTheDocument();
+    expect(within(question).queryByRole("checkbox")).not.toBeInTheDocument();
 
     await user.click(
       within(question).getByRole("button", {name: "stacks.actions.delete"}),
     );
 
+    // the stack's route and nothing with it: no volumes param.
     await waitFor(() =>
-      expect(deleteStack).toHaveBeenCalledWith("mine", "s-1", false),
+      expect(mockDelete).toHaveBeenCalledWith(
+        "dashboard/my/workload/stacks/s-1",
+      ),
     );
     await waitFor(() => expect(onDeleted).toHaveBeenCalled());
-  });
-
-  it("takes the volumes with it when that is asked for too", async () => {
-    actions(stack());
-    const {user, question} = await askToDelete();
-
-    await user.click(
-      within(question).getByRole("checkbox", {
-        name: /stacks.actions.removeVolumes/,
-      }),
-    );
-    await user.click(
-      within(question).getByRole("button", {name: "stacks.actions.delete"}),
-    );
-
-    await waitFor(() =>
-      expect(deleteStack).toHaveBeenCalledWith("mine", "s-1", true),
-    );
   });
 
   it("deletes nothing when the question is turned down", async () => {
@@ -111,7 +101,7 @@ describe("StackActions", () => {
     await waitFor(() =>
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
     );
-    expect(deleteStack).not.toHaveBeenCalled();
+    expect(mockDelete).not.toHaveBeenCalled();
   });
 
   it("asks before stopping a running stack", async () => {

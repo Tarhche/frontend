@@ -966,9 +966,8 @@
       "delete": "Delete",
       "stopConfirm": "Stop \"{name}\"? Every container in it is stopped.",
       "restartConfirm": "Restart \"{name}\"? Every container in it is restarted.",
-      "deleteConfirm": "Delete \"{name}\"? Its containers and networks are taken down and it is forgotten.",
-      "removeVolumes": "Also remove volumes",
-      "removeVolumesHelp": "What its containers kept in its volumes goes too. Leave this off to keep it."
+      "deleteConfirm": "Delete \"{name}\"? Its containers and networks are removed and it is forgotten.",
+      "deleteKeepsVolumes": "Its volumes are kept: if they are no longer needed, you can remove them later from the Volumes page."
     },
     "form": {
       "where": "Where it is deployed",

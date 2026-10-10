@@ -79,15 +79,10 @@ export async function commandStack(
 }
 
 /**
- * Takes a stack down and forgets it. Its volumes stay unless asked to go with
- * it, since what is in them is usually what somebody would want back.
+ * Takes a stack down and forgets it. Its volumes stay, and there is no asking
+ * for them to go with it: what is in them is usually what somebody would want
+ * back, so they are removed on their own, from the Volumes page.
  */
-export async function deleteStack(
-  scope: Scope,
-  uuid: string,
-  removeVolumes: boolean,
-): Promise<void> {
-  await clientDalDriver.delete(stackPath(scope, uuid), {
-    params: removeVolumes ? {volumes: true} : undefined,
-  });
+export async function deleteStack(scope: Scope, uuid: string): Promise<void> {
+  await clientDalDriver.delete(stackPath(scope, uuid));
 }
