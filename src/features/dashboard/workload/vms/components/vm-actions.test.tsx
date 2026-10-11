@@ -251,11 +251,13 @@ describe("VmActions, deleting a VM something needs", () => {
 
     expect(mockDependents).toHaveBeenCalledWith("mine", "vm-1");
     expect(
-      within(question).getByText("workload.dependents.checking"),
-    ).toBeInTheDocument();
-    expect(
       within(question).getByRole("button", {name: "vms.actions.delete"}),
     ).toBeDisabled();
+
+    // an answer that takes more than a moment is said to be awaited.
+    expect(
+      await within(question).findByText("workload.dependents.checking"),
+    ).toBeInTheDocument();
     expect(
       within(question).getByRole("button", {name: "common.cancel"}),
     ).toBeEnabled();
