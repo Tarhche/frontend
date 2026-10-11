@@ -2,6 +2,7 @@
 
 import {useId, useState, type ReactNode} from "react";
 import {
+  Alert,
   Box,
   Group,
   Loader,
@@ -11,11 +12,12 @@ import {
   Text,
 } from "@mantine/core";
 import {notifications} from "@mantine/notifications";
+import {IconAlertTriangle} from "@tabler/icons-react";
 import {useQuery} from "@tanstack/react-query";
 import {useTranslations} from "@/i18n/provider";
 import {type TFunction} from "@/i18n/dictionary";
 import {type Dependent, type Removal} from "../../lib/dependents";
-import {problemOf, type Problem} from "../../lib/problem";
+import {type Problem} from "../../lib/problem";
 import {ConfirmModal} from "../confirm-modal";
 import {
   DependentList,
@@ -62,12 +64,11 @@ type Props = {
   what: Needed;
 
   /**
-   * The same delete, asked as a dry run, which deletes nothing, and what it
-   * is asked about and how, as a key: it is asked whenever the question opens,
-   * and again whenever that changes, a force somebody ticked say.
+   * What needs it, read as the question opens, and what it is read about, as
+   * the key it is kept under. Left out for what nothing can need, a VM that
+   * is not a Docker VM: its question is as it always was.
    */
-  dryRun: () => Promise<Removal>;
-  dryRunKey: readonly unknown[];
+  needs?: {key: readonly unknown[]; read: () => Promise<Removal>};
 
   /** the question, and anything that has to be decided about it. */
   children: ReactNode;
@@ -82,24 +83,24 @@ type Props = {
 };
 
 /**
- * Asks before deleting something stacks and containers may need: a VM, or a
- * network or a volume in one. What needs it is asked for as the question
- * opens, as a dry run of the very delete, and the answer waits until it is
- * known. Nothing needing it, the question is as it always was. Otherwise it
- * says what needs it, each linked where it may be looked at, and offers to
- * delete it alone, worded for what each of them then does -- make it again,
- * or wait for it to come back -- or together with them.
+ * Asks before deleting something stacks and containers may need: a Docker
+ * VM, or a network or a volume in one. What needs it is read as the question
+ * opens, which changes nothing, and the answer waits until it is known.
+ * Nothing needing it, the question is as it always was. Otherwise it says
+ * what needs it, each linked where it may be looked at, and offers to delete
+ * it alone, worded for what each of them then does -- make it again, or wait
+ * for it to come back -- or together with them.
  *
- * A dry run that fails says why, and the question can still be answered: the
- * delete itself says whether it goes ahead.
+ * What needs it may not be readable -- the API may not know how to say -- in
+ * which case that is said, and the question can still be answered. A delete
+ * refused for what needs it says so with the same two answers.
  */
 export function DeleteModal({
   opened,
   onClose,
   onConfirm,
   what,
-  dryRun,
-  dryRunKey,
+  needs,
   children,
   confirmLabel,
   loading = false,
@@ -121,26 +122,24 @@ export function DeleteModal({
   }
 
   const preview = useQuery({
-    queryKey: ["workload", "dependents", ...dryRunKey],
-    queryFn: dryRun,
-    enabled: opened,
+    queryKey: ["workload", "dependents", ...(needs?.key ?? [])],
+    queryFn: () => needs!.read(),
+    enabled: opened && needs !== undefined,
     retry: false,
     staleTime: 0,
     gcTime: 0,
     meta: {silent: true},
   });
 
-  // what is said is what the last dry run said, once it has: one asked again
-  // as the question opens again says nothing until it is answered.
+  // what is said is what the last read said, once it has: one read again as
+  // the question opens again says nothing until it is answered.
   const checking = opened && preview.isFetching;
   const checked = !checking && preview.isSuccess ? preview.data : null;
-  const unchecked =
-    !checking && preview.isError ? problemOf(preview.error) : null;
+  const unchecked = !checking && preview.isError;
 
   // what needs it: as the delete itself was refused with, which is the latest
-  // word on it, or as the dry run was answered or refused with.
-  const dependents =
-    problem?.dependents ?? checked?.dependents ?? unchecked?.dependents ?? [];
+  // word on it, or as it was read.
+  const dependents = problem?.dependents ?? checked?.dependents ?? [];
   const choosing = !checking && dependents.length > 0;
 
   return (
@@ -164,15 +163,14 @@ export function DeleteModal({
       )}
 
       {unchecked && !problem && (
-        <ProblemAlert
-          problem={unchecked}
-          title={t(
-            unchecked.status === 400
-              ? "workload.dependents.refused"
-              : "workload.dependents.checkFailed",
-          )}
-          dependentsShown={choosing}
-        />
+        <Alert
+          color="yellow"
+          variant="light"
+          role="status"
+          icon={<IconAlertTriangle />}
+        >
+          <Text size="sm">{t("workload.dependents.checkFailed")}</Text>
+        </Alert>
       )}
 
       {choosing && (

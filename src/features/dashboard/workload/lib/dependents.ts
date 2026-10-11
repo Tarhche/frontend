@@ -1,14 +1,15 @@
 import {APP_PATHS} from "@/lib/app-paths";
 
 /*
- * What needs something that is deleted, as a delete of it is answered.
+ * What needs something that may be deleted.
  *
  * A VM, and a Docker VM's networks and volumes, may be needed by the stacks
- * and the containers no stack owns that are in it or use them. Deleting one
- * of these is answered with what needs it, whether it is deleted or refused,
- * and with whether any of them makes it again once it is gone: a stack or a
- * container whose graph made it does, unless it is deleted along with it, and
- * one that only named what was there before it waits for it to come back.
+ * and the containers no stack owns that are in it or use them. What needs one
+ * of these can be read on its own, before anybody deletes it, and deleting it
+ * is answered with it too, whether it is deleted or refused, with whether any
+ * of them makes it again once it is gone: a stack or a container whose graph
+ * made it does, unless it is deleted along with it, and one that only named
+ * what was there before it waits for it to come back.
  */
 
 /**
@@ -26,7 +27,10 @@ export type Dependent = {
   recreates: boolean;
 };
 
-/** What a delete of something others may need is answered with. */
+/**
+ * What needs something, as reading what needs it, or a delete of it, is
+ * answered with.
+ */
 export type Removal = {
   dependents: Dependent[];
 
@@ -41,9 +45,6 @@ export const NOTHING_NEEDS_IT: Removal = {dependents: [], recreated: false};
 export type RemoveOptions = {
   /** delete what needs it along with it. */
   cascade?: boolean;
-
-  /** delete nothing, and only say what needs it. */
-  dryRun?: boolean;
 };
 
 /**
@@ -61,10 +62,6 @@ export function removeParams(
 
   if (options.cascade) {
     params.cascade = true;
-  }
-
-  if (options.dryRun) {
-    params.dry_run = true;
   }
 
   return Object.keys(params).length > 0 ? params : undefined;
@@ -105,8 +102,9 @@ export function dependentsOf(value: unknown): Dependent[] {
 }
 
 /**
- * What a delete was answered with, read off its body: a delete nothing needs
- * may be answered with no body at all, which is nothing needing it.
+ * What needs something, read off what reading it or a delete of it was
+ * answered with: a delete nothing needs may be answered with no body at all,
+ * which is nothing needing it.
  */
 export function removalOf(data: unknown): Removal {
   if (!isRecord(data)) {
@@ -131,9 +129,9 @@ export type DependentsVisible = {
 };
 
 /**
- * Where something that needs what is deleted is looked at, for whoever may: a
- * stack's page, or a container's, by its uuid in the VM it is in, which is
- * the VM deleted or the one holding what is. Null where they may not, and for
+ * Where something that needs what may be deleted is looked at, for whoever
+ * may: a stack's page, or a container's, by its uuid in the VM it is in,
+ * which is that VM or the one holding it. Null where they may not, and for
  * anything else.
  */
 export function dependentHref(

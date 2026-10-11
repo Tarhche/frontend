@@ -244,8 +244,8 @@ export async function createNetwork(
 
 /**
  * Removes a network. One a container is on is refused, unless what needs it
- * is deleted first (cascade); a dry run removes nothing, and only says what
- * needs it. What needs it is answered either way, and with a refusal too.
+ * is deleted first (cascade). What needs it is answered either way, and with
+ * a refusal too.
  */
 export async function removeNetwork(
   scope: Scope,
@@ -256,6 +256,24 @@ export async function removeNetwork(
   const {data} = await clientDalDriver.delete(
     `${vmPath(scope, vmUuid)}/networks/${segment(id)}`,
     {params: removeParams(options)},
+  );
+
+  return removalOf(data);
+}
+
+/**
+ * What needs a network: the stacks and containers that made it or are on it,
+ * and whether any of them would make it again once it is gone. Reading it
+ * changes nothing; one that is gone, or an API that does not know what needs
+ * one, is not found.
+ */
+export async function fetchNetworkDependents(
+  scope: Scope,
+  vmUuid: string,
+  id: string,
+): Promise<Removal> {
+  const {data} = await clientDalDriver.get(
+    `${vmPath(scope, vmUuid)}/networks/${segment(id)}/dependents`,
   );
 
   return removalOf(data);
@@ -287,9 +305,8 @@ export async function createVolume(
 
 /**
  * Removes a volume, and what is in it. One a container still uses is only
- * removed by force, or once what needs it is deleted first (cascade); a dry
- * run removes nothing, and only says what needs it. What needs it is answered
- * either way, and with a refusal too.
+ * removed by force, or once what needs it is deleted first (cascade). What
+ * needs it is answered either way, and with a refusal too.
  */
 export async function removeVolume(
   scope: Scope,
@@ -301,6 +318,24 @@ export async function removeVolume(
   const {data} = await clientDalDriver.delete(
     `${vmPath(scope, vmUuid)}/volumes/${segment(name)}`,
     {params: removeParams({...options, force})},
+  );
+
+  return removalOf(data);
+}
+
+/**
+ * What needs a volume: the stacks and containers that made it or mount it,
+ * and whether any of them would make it again once it is gone, whatever
+ * removing it would be asked with. Reading it changes nothing; one that is
+ * gone, or an API that does not know what needs one, is not found.
+ */
+export async function fetchVolumeDependents(
+  scope: Scope,
+  vmUuid: string,
+  name: string,
+): Promise<Removal> {
+  const {data} = await clientDalDriver.get(
+    `${vmPath(scope, vmUuid)}/volumes/${segment(name)}/dependents`,
   );
 
   return removalOf(data);

@@ -47,9 +47,11 @@ const api = {
   fetchNetworks: jest.fn(),
   createNetwork: jest.fn(),
   removeNetwork: jest.fn(),
+  fetchNetworkDependents: jest.fn(),
   fetchVolumes: jest.fn(),
   createVolume: jest.fn(),
   removeVolume: jest.fn(),
+  fetchVolumeDependents: jest.fn(),
 };
 
 jest.mock("@/features/dashboard/workload/vms/client", () => ({
@@ -63,9 +65,13 @@ jest.mock("../../api", () => ({
   fetchNetworks: (...args: unknown[]) => api.fetchNetworks(...args),
   createNetwork: (...args: unknown[]) => api.createNetwork(...args),
   removeNetwork: (...args: unknown[]) => api.removeNetwork(...args),
+  fetchNetworkDependents: (...args: unknown[]) =>
+    api.fetchNetworkDependents(...args),
   fetchVolumes: (...args: unknown[]) => api.fetchVolumes(...args),
   createVolume: (...args: unknown[]) => api.createVolume(...args),
   removeVolume: (...args: unknown[]) => api.removeVolume(...args),
+  fetchVolumeDependents: (...args: unknown[]) =>
+    api.fetchVolumeDependents(...args),
 }));
 
 // what somebody who may do anything with their own holds.
@@ -111,6 +117,8 @@ beforeEach(() => {
   api.fetchVolumes.mockResolvedValue([{name: "data", driver: "local"}]);
   api.removeNetwork.mockResolvedValue(nothingNeedsIt);
   api.removeVolume.mockResolvedValue(nothingNeedsIt);
+  api.fetchNetworkDependents.mockResolvedValue(nothingNeedsIt);
+  api.fetchVolumeDependents.mockResolvedValue(nothingNeedsIt);
 });
 
 /** Asks to remove something, and waits until what needs it is known. */
@@ -251,33 +259,31 @@ describe("DockerObjectsPage", () => {
       "volumes.table.remove",
     );
 
-    // what needs it was asked, and nothing was removed.
-    expect(api.removeVolume).toHaveBeenCalledTimes(1);
-    expect(api.removeVolume).toHaveBeenCalledWith(
+    // what needs it was read, and nothing was removed.
+    expect(api.fetchVolumeDependents).toHaveBeenCalledWith(
       "mine",
       "vm-1",
       "data",
-      false,
-      {
-        dryRun: true,
-      },
     );
+    expect(api.removeVolume).not.toHaveBeenCalled();
     expect(within(question).queryByRole("radio")).not.toBeInTheDocument();
 
     await user.click(confirm);
 
     await waitFor(() =>
-      expect(api.removeVolume).toHaveBeenLastCalledWith(
+      expect(api.removeVolume).toHaveBeenCalledWith(
         "mine",
         "vm-1",
         "data",
         false,
-        {cascade: false},
+        {
+          cascade: false,
+        },
       ),
     );
   });
 
-  it("asks again what needs a volume once force is ticked, and removes it by force", async () => {
+  it("removes a volume by force once that is ticked, what needs it read once", async () => {
     const user = userEvent.setup();
     page("volumes");
 
@@ -289,6 +295,8 @@ describe("DockerObjectsPage", () => {
     await user.click(
       within(question).getByRole("checkbox", {name: /volumes.table.force/}),
     );
+    expect(confirm).toBeEnabled();
+    await user.click(confirm);
 
     await waitFor(() =>
       expect(api.removeVolume).toHaveBeenCalledWith(
@@ -297,26 +305,19 @@ describe("DockerObjectsPage", () => {
         "data",
         true,
         {
-          dryRun: true,
+          cascade: false,
         },
       ),
     );
-    await waitFor(() => expect(confirm).toBeEnabled());
-    await user.click(confirm);
-
-    await waitFor(() =>
-      expect(api.removeVolume).toHaveBeenLastCalledWith(
-        "mine",
-        "vm-1",
-        "data",
-        true,
-        {cascade: false},
-      ),
-    );
+    expect(api.fetchVolumeDependents).toHaveBeenCalledTimes(1);
   });
 
   it("says a volume removed alone comes back, and what brings it back", async () => {
     const shop = {kind: "stack", uuid: "s-1", name: "shop", recreates: true};
+    api.fetchVolumeDependents.mockResolvedValue({
+      dependents: [shop],
+      recreated: true,
+    });
     api.removeVolume.mockResolvedValue({dependents: [shop], recreated: true});
     const user = userEvent.setup();
     page("volumes");
@@ -350,22 +351,20 @@ describe("DockerObjectsPage", () => {
     );
   });
 
-  it("removes a network together with what needs it, where alone it would be refused", async () => {
+  it("removes a network together with what needs it, once removing it alone was refused", async () => {
+    const web = {kind: "container", uuid: "c-1", name: "web", recreates: false};
+    api.fetchNetworkDependents.mockResolvedValue({
+      dependents: [web],
+      recreated: false,
+    });
     api.removeNetwork.mockImplementation(async (_scope, _vm, _id, options) => {
       if (options?.cascade) {
-        return {
-          dependents: [
-            {kind: "container", uuid: "c-1", name: "web", recreates: false},
-          ],
-          recreated: false,
-        };
+        return {dependents: [web], recreated: false};
       }
 
       throw refused({
         errors: {docker: "Docker refused the request: network in use"},
-        dependents: [
-          {kind: "container", uuid: "c-1", name: "web", recreates: false},
-        ],
+        dependents: [web],
         recreated: false,
       });
     });
@@ -378,20 +377,33 @@ describe("DockerObjectsPage", () => {
       "networks.table.remove",
     );
 
-    expect(api.removeNetwork).toHaveBeenCalledWith("mine", "vm-1", "n2", {
-      dryRun: true,
-    });
+    expect(api.fetchNetworkDependents).toHaveBeenCalledWith(
+      "mine",
+      "vm-1",
+      "n2",
+    );
     expect(
-      within(question).getByText("workload.dependents.refused"),
-    ).toBeInTheDocument();
-    expect(
-      within(question).getByText("Docker refused the request: network in use"),
-    ).toBeInTheDocument();
-    expect(within(question).getAllByRole("listitem")).toHaveLength(1);
+      within(question).getByRole("radio", {
+        name: "workload.dependents.alone.network",
+      }),
+    ).toBeChecked();
     expect(within(question).getByRole("link", {name: "web"})).toHaveAttribute(
       "href",
       "/dashboard/containers/vm-1/c-1",
     );
+
+    // removed alone, it is refused, and what needs it is said once, with the
+    // choice still there.
+    await user.click(confirm);
+    expect(
+      await within(question).findByText(
+        "Docker refused the request: network in use",
+      ),
+    ).toBeInTheDocument();
+    expect(api.removeNetwork).toHaveBeenCalledWith("mine", "vm-1", "n2", {
+      cascade: false,
+    });
+    expect(within(question).getAllByRole("listitem")).toHaveLength(1);
 
     await user.click(
       within(question).getByRole("radio", {
@@ -411,6 +423,42 @@ describe("DockerObjectsPage", () => {
     expect(mockNotify).not.toHaveBeenCalledWith(
       expect.objectContaining({
         title: "workload.dependents.comesBack(backend)",
+      }),
+    );
+  });
+
+  it("still removes a network when what needs it could not be read", async () => {
+    api.fetchNetworkDependents.mockRejectedValue(
+      new AxiosError(
+        "failed",
+        undefined,
+        config,
+        {},
+        {
+          status: 404,
+          statusText: "",
+          headers: {},
+          config,
+          data: "404 page not found",
+        },
+      ),
+    );
+    const user = userEvent.setup();
+    page("networks");
+
+    const {question, confirm} = await askToRemove(
+      user,
+      "networks.table.removeOne(backend)",
+      "networks.table.remove",
+    );
+    expect(
+      within(question).getByText("workload.dependents.checkFailed"),
+    ).toBeInTheDocument();
+
+    await user.click(confirm);
+    await waitFor(() =>
+      expect(api.removeNetwork).toHaveBeenCalledWith("mine", "vm-1", "n2", {
+        cascade: false,
       }),
     );
   });

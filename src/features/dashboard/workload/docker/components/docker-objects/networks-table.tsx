@@ -46,7 +46,7 @@ import {
   ProblemAlert,
   StaleAlert,
 } from "@/features/dashboard/workload/components/problem-alert";
-import {createNetwork, removeNetwork} from "../../api";
+import {createNetwork, fetchNetworkDependents, removeNetwork} from "../../api";
 import {dockerKeys} from "../../hooks/queries";
 import {useNetworks} from "../../hooks/use-docker-objects";
 import {type Network} from "../../types";
@@ -308,12 +308,11 @@ export function NetworksTable({
           removing && remove.mutate({network: removing, cascade})
         }
         what="network"
-        dryRun={() =>
-          removeNetwork(removeScope!, vm.uuid, removing?.id ?? "", {
-            dryRun: true,
-          })
-        }
-        dryRunKey={[removeScope, "network", vm.uuid, removing?.id]}
+        needs={{
+          key: [removeScope, "network", vm.uuid, removing?.id],
+          read: () =>
+            fetchNetworkDependents(removeScope!, vm.uuid, removing?.id ?? ""),
+        }}
         loading={remove.isPending}
         problem={remove.error ? problemOf(remove.error) : null}
         confirmLabel={t("networks.table.remove")}

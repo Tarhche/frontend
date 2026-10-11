@@ -621,7 +621,6 @@
       "neededBy": "What needs it:",
       "checking": "Checking what needs it…",
       "checkFailed": "What needs it could not be checked",
-      "refused": "As it is, this would be refused",
       "choose": "Other things need it",
       "alone": {
         "vm": "Delete only the VM",

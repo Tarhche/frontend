@@ -53,3 +53,8 @@ export function vmRestorePath(scope: Scope, uuid: string): string {
 export function vmLogsPath(scope: Scope, uuid: string): string {
   return `${vmPath(scope, uuid)}/logs`;
 }
+
+/** Where what needs a VM is read: the stacks and containers in it. */
+export function vmDependentsPath(scope: Scope, uuid: string): string {
+  return `${vmPath(scope, uuid)}/dependents`;
+}

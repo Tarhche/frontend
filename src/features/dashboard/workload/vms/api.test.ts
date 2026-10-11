@@ -1,6 +1,7 @@
 import {
   createVmPath,
   vmCommandPath,
+  vmDependentsPath,
   vmLogsPath,
   vmPath,
   vmRestorePath,
@@ -26,5 +27,8 @@ describe("where VMs are asked about", () => {
       "dashboard/my/workload/vms/v/restore",
     );
     expect(vmLogsPath("mine", "v")).toBe("dashboard/my/workload/vms/v/logs");
+    expect(vmDependentsPath("all", "v")).toBe(
+      "dashboard/workload/vms/v/dependents",
+    );
   });
 });

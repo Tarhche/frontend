@@ -2,17 +2,16 @@ import {isAxiosError} from "axios";
 import {clientDalDriver} from "@/dal/client/client-dal-driver";
 import {
   removalOf,
-  removeParams,
   type Removal,
 } from "@/features/dashboard/workload/lib/dependents";
-import {type Scope, vmLogsPath, vmPath, vmsPath} from "./api";
+import {type Scope, vmDependentsPath, vmLogsPath, vmPath, vmsPath} from "./api";
 import {type Page, type Vm, type VmListParams, type VmLogs} from "./types";
 
 /**
  * What the browser reads VMs through, for whatever has to be read again while
- * the page is open: a VM's state and stats, its logs, what deleting it would
- * do. Changes go through the server actions instead, which is where the API's
- * validation is read.
+ * the page is open: a VM's state and stats, its logs, what needs it. Changes
+ * go through the server actions instead, which is where the API's validation
+ * is read.
  */
 
 export async function getVms(
@@ -86,18 +85,16 @@ export async function getVmLogs(
 }
 
 /**
- * What deleting a VM would do: the delete itself, asked as a dry run, which
- * deletes nothing and says what needs the VM, and whether any of that would
- * make it again. A delete that would be refused is refused as it would be,
- * and one of a VM that is gone is not found.
+ * What needs a VM: the stacks and containers in it, and whether any of them
+ * would make it again once it is gone, which is what deleting it would do to
+ * them. Reading it changes nothing; a VM that is gone, or an API that does
+ * not know what needs one, is not found.
  */
-export async function dryRunDeleteVm(
+export async function getVmDependents(
   scope: Scope,
   uuid: string,
 ): Promise<Removal> {
-  const response = await clientDalDriver.delete(vmPath(scope, uuid), {
-    params: removeParams({dryRun: true}),
-  });
+  const response = await clientDalDriver.get(vmDependentsPath(scope, uuid));
 
   return removalOf(response.data);
 }

@@ -1,14 +1,18 @@
-import {dryRunDeleteVm} from "./client";
+import {getVmDependents} from "./client";
 
+const mockGet = jest.fn();
 const mockDelete = jest.fn();
 
 jest.mock("@/dal/client/client-dal-driver", () => ({
-  clientDalDriver: {delete: (...args: unknown[]) => mockDelete(...args)},
+  clientDalDriver: {
+    get: (...args: unknown[]) => mockGet(...args),
+    delete: (...args: unknown[]) => mockDelete(...args),
+  },
 }));
 
-describe("what deleting a VM would do", () => {
-  it("is its delete asked as a dry run, which says what needs it", async () => {
-    mockDelete.mockResolvedValue({
+describe("what needs a VM", () => {
+  it("is read, which deletes nothing", async () => {
+    mockGet.mockResolvedValue({
       data: {
         dependents: [
           {kind: "stack", uuid: "s-1", name: "shop", recreates: true},
@@ -17,19 +21,20 @@ describe("what deleting a VM would do", () => {
       },
     });
 
-    expect(await dryRunDeleteVm("mine", "vm-1")).toEqual({
+    expect(await getVmDependents("mine", "vm-1")).toEqual({
       dependents: [{kind: "stack", uuid: "s-1", name: "shop", recreates: true}],
       recreated: true,
     });
-    expect(mockDelete).toHaveBeenCalledWith("dashboard/my/workload/vms/vm-1", {
-      params: {dry_run: true},
-    });
+    expect(mockGet).toHaveBeenCalledWith(
+      "dashboard/my/workload/vms/vm-1/dependents",
+    );
+    expect(mockDelete).not.toHaveBeenCalled();
   });
 
   it("is nothing needing it when nothing does", async () => {
-    mockDelete.mockResolvedValue({data: {dependents: [], recreated: false}});
+    mockGet.mockResolvedValue({data: {dependents: [], recreated: false}});
 
-    expect(await dryRunDeleteVm("all", "vm-1")).toEqual({
+    expect(await getVmDependents("all", "vm-1")).toEqual({
       dependents: [],
       recreated: false,
     });

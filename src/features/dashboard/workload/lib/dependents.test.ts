@@ -57,9 +57,9 @@ describe("the query a delete is asked with", () => {
     expect(removeParams({})).toBeUndefined();
     expect(removeParams({force: false, cascade: false})).toBeUndefined();
     expect(removeParams({cascade: true})).toEqual({cascade: true});
-    expect(removeParams({dryRun: true, force: true})).toEqual({
+    expect(removeParams({cascade: true, force: true})).toEqual({
       force: true,
-      dry_run: true,
+      cascade: true,
     });
   });
 });

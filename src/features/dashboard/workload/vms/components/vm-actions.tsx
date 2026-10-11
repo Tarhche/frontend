@@ -35,7 +35,7 @@ import {
 import {type VmTransition} from "./vm-state-badge";
 import {type Scope} from "../api";
 import {commandVm, deleteVm} from "../actions/vm-commands";
-import {dryRunDeleteVm} from "../client";
+import {getVmDependents} from "../client";
 import {vmKeys} from "../hooks/queries";
 import {isCodeRunnerRun} from "../lib/code-runner";
 import {canRestart, canStart, canStop} from "../lib/state";
@@ -52,7 +52,7 @@ const underway: Record<Asked, VmTransition> = {
 };
 
 type Props = {
-  vm: Pick<Vm, "uuid" | "name" | "state" | "managed_by">;
+  vm: Pick<Vm, "uuid" | "name" | "kind" | "state" | "managed_by">;
 
   /** The routes it is managed and deleted through; null where it may not be. */
   manage: Scope | null;
@@ -83,9 +83,10 @@ type Props = {
  * is asked about first, and the question stays open until the answer comes, so
  * a refusal is said where it was asked.
  *
- * Deleting one says first what needs it, the stacks and containers in it,
- * which make it again unless they are deleted along with it, and offers
- * either; once it is deleted alone, that it will come back is said too.
+ * Deleting a Docker VM says first what needs it, the stacks and containers
+ * in it, which make it again unless they are deleted along with it, and
+ * offers either; once it is deleted alone, that it will come back is said
+ * too. Nothing ever needs any other VM, so nothing is asked about one.
  *
  * A run of the code runner's is the code runner's to start, and it is gone once
  * its snippet ends: it can only be stopped or deleted.
@@ -111,6 +112,10 @@ export function VmActions({
   }, [asked, pending, onPending]);
 
   const run = isCodeRunnerRun(vm);
+
+  // only what is in a Docker VM may need it, and a run of the code runner's
+  // has nothing in it but its snippet.
+  const needed = vm.kind === "docker" && !run;
 
   const actions: Array<{
     what: Asked;
@@ -290,8 +295,14 @@ export function VmActions({
           onClose={() => setConfirming(null)}
           onConfirm={(cascade) => ask("delete", true, cascade)}
           what="vm"
-          dryRun={() => dryRunDeleteVm(remove, vm.uuid)}
-          dryRunKey={[remove, "vm", vm.uuid]}
+          needs={
+            needed
+              ? {
+                  key: [remove, "vm", vm.uuid],
+                  read: () => getVmDependents(remove, vm.uuid),
+                }
+              : undefined
+          }
           loading={pending && asked === "delete"}
           problem={confirming === "delete" ? problem : null}
           confirmLabel={t("vms.actions.delete")}

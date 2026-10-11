@@ -4,6 +4,7 @@ import {MantineProvider} from "@mantine/core";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {AxiosError, AxiosHeaders, type InternalAxiosRequestConfig} from "axios";
 import {type DependentsVisible} from "@/features/dashboard/workload/lib/dependents";
+import {type VmKind} from "../types";
 import {VmActions} from "./vm-actions";
 
 jest.mock("@/i18n/provider", () => {
@@ -18,7 +19,7 @@ jest.mock("@/i18n/provider", () => {
 
 const mockCommand = jest.fn();
 const mockDelete = jest.fn();
-const mockDryRun = jest.fn();
+const mockDependents = jest.fn();
 const mockNotify = jest.fn();
 
 jest.mock("../actions/vm-commands", () => ({
@@ -27,7 +28,7 @@ jest.mock("../actions/vm-commands", () => ({
 }));
 
 jest.mock("../client", () => ({
-  dryRunDeleteVm: (...args: unknown[]) => mockDryRun(...args),
+  getVmDependents: (...args: unknown[]) => mockDependents(...args),
 }));
 
 jest.mock("@mantine/notifications", () => ({
@@ -59,15 +60,21 @@ const everything: DependentsVisible = {stacks: true, containers: true};
 beforeEach(() => {
   mockCommand.mockReset().mockResolvedValue({ok: true});
   mockDelete.mockReset().mockResolvedValue({ok: true, removal: nothingNeedsIt});
-  mockDryRun.mockReset().mockResolvedValue(nothingNeedsIt);
+  mockDependents.mockReset().mockResolvedValue(nothingNeedsIt);
   mockNotify.mockReset();
 });
 
-function actions(
-  state: "running" | "stopped" = "running",
-  managedBy?: "code-runner",
-  visible: DependentsVisible = everything,
-) {
+function actions({
+  state = "running",
+  kind = "docker",
+  managedBy,
+  visible = everything,
+}: {
+  state?: "running" | "stopped";
+  kind?: VmKind;
+  managedBy?: "code-runner";
+  visible?: DependentsVisible;
+} = {}) {
   const onDeleted = jest.fn();
   const client = new QueryClient({defaultOptions: {queries: {retry: false}}});
 
@@ -75,7 +82,7 @@ function actions(
     <QueryClientProvider client={client}>
       <MantineProvider env="test">
         <VmActions
-          vm={{uuid: "vm-1", name: "web", state, managed_by: managedBy}}
+          vm={{uuid: "vm-1", name: "web", kind, state, managed_by: managedBy}}
           manage="mine"
           remove="mine"
           visible={visible}
@@ -104,7 +111,7 @@ describe("VmActions", () => {
   it("starts a stopped VM at once, and says so when it could not", async () => {
     const user = userEvent.setup();
     mockCommand.mockResolvedValue(refused);
-    actions("stopped");
+    actions({state: "stopped"});
 
     await user.click(screen.getByRole("button", {name: "vms.actions.start"}));
 
@@ -140,12 +147,12 @@ describe("VmActions", () => {
     await waitFor(() =>
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
     );
-    expect(mockDryRun).not.toHaveBeenCalled();
+    expect(mockDependents).not.toHaveBeenCalled();
   });
 
   it("offers a run of the code runner's only to be stopped or deleted, each asked about first", async () => {
     const user = userEvent.setup();
-    const {onDeleted} = actions("running", "code-runner");
+    const {onDeleted} = actions({managedBy: "code-runner"});
 
     expect(
       screen.queryByRole("button", {name: "vms.actions.start"}),
@@ -169,17 +176,23 @@ describe("VmActions", () => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
     );
 
-    const {question, confirm} = await askToDelete(user);
+    // a run has nothing in it but its snippet, so nothing is asked of what
+    // needs it.
+    await user.click(screen.getByRole("button", {name: "vms.actions.delete"}));
+    const deleting = await screen.findByRole("dialog");
     expect(
-      within(question).getByText("vms.actions.deleteRunConfirm(web)"),
+      within(deleting).getByText("vms.actions.deleteRunConfirm(web)"),
     ).toBeInTheDocument();
-    await user.click(confirm);
+    await user.click(
+      within(deleting).getByRole("button", {name: "vms.actions.delete"}),
+    );
     await waitFor(() =>
       expect(mockDelete).toHaveBeenCalledWith("vm-1", "mine", {
         cascade: false,
       }),
     );
     expect(onDeleted).toHaveBeenCalled();
+    expect(mockDependents).not.toHaveBeenCalled();
   });
 
   it("keeps the question open with the refusal in it", async () => {
@@ -199,10 +212,34 @@ describe("VmActions", () => {
 });
 
 describe("VmActions, deleting a VM something needs", () => {
-  it("asks what needs it as the question opens, and the answer waits for it", async () => {
+  it("asks nothing of what needs a VM that is not a Docker VM, which nothing can", async () => {
+    const user = userEvent.setup();
+    actions({kind: "machine"});
+
+    await user.click(screen.getByRole("button", {name: "vms.actions.delete"}));
+    const question = await screen.findByRole("dialog");
+    const confirm = within(question).getByRole("button", {
+      name: "vms.actions.delete",
+    });
+
+    expect(confirm).toBeEnabled();
+    expect(
+      within(question).queryByText("workload.dependents.checking"),
+    ).not.toBeInTheDocument();
+
+    await user.click(confirm);
+    await waitFor(() =>
+      expect(mockDelete).toHaveBeenCalledWith("vm-1", "mine", {
+        cascade: false,
+      }),
+    );
+    expect(mockDependents).not.toHaveBeenCalled();
+  });
+
+  it("reads what needs a Docker VM as the question opens, and the answer waits for it", async () => {
     const user = userEvent.setup();
     let answer: (removal: unknown) => void = () => {};
-    mockDryRun.mockReturnValue(
+    mockDependents.mockReturnValue(
       new Promise((resolve) => {
         answer = resolve;
       }),
@@ -212,7 +249,7 @@ describe("VmActions, deleting a VM something needs", () => {
     await user.click(screen.getByRole("button", {name: "vms.actions.delete"}));
     const question = await screen.findByRole("dialog");
 
-    expect(mockDryRun).toHaveBeenCalledWith("mine", "vm-1");
+    expect(mockDependents).toHaveBeenCalledWith("mine", "vm-1");
     expect(
       within(question).getByText("workload.dependents.checking"),
     ).toBeInTheDocument();
@@ -238,7 +275,7 @@ describe("VmActions, deleting a VM something needs", () => {
 
   it("says what each that needs it does, linked to where it is looked at", async () => {
     const user = userEvent.setup();
-    mockDryRun.mockResolvedValue({
+    mockDependents.mockResolvedValue({
       dependents: [
         {kind: "stack", uuid: "s-1", name: "shop", recreates: true},
         {kind: "container", uuid: "c-1", name: "api", recreates: false},
@@ -268,8 +305,8 @@ describe("VmActions, deleting a VM something needs", () => {
 
   it("links only what may be looked at", async () => {
     const user = userEvent.setup();
-    mockDryRun.mockResolvedValue(needed);
-    actions("running", undefined, {stacks: true, containers: false});
+    mockDependents.mockResolvedValue(needed);
+    actions({visible: {stacks: true, containers: false}});
 
     const {question} = await askToDelete(user);
 
@@ -284,7 +321,7 @@ describe("VmActions, deleting a VM something needs", () => {
 
   it("deletes it together with what needs it, once that is chosen", async () => {
     const user = userEvent.setup();
-    mockDryRun.mockResolvedValue(needed);
+    mockDependents.mockResolvedValue(needed);
     const {onDeleted} = actions();
 
     const {question, confirm} = await askToDelete(user);
@@ -306,7 +343,7 @@ describe("VmActions, deleting a VM something needs", () => {
 
   it("deletes it alone, and says it will come back and what brings it back", async () => {
     const user = userEvent.setup();
-    mockDryRun.mockResolvedValue(needed);
+    mockDependents.mockResolvedValue(needed);
     mockDelete.mockResolvedValue({ok: true, removal: needed});
     actions();
 
@@ -330,7 +367,7 @@ describe("VmActions, deleting a VM something needs", () => {
 
   it("asks the question again afresh, deleting alone, each time it opens", async () => {
     const user = userEvent.setup();
-    mockDryRun.mockResolvedValue(needed);
+    mockDependents.mockResolvedValue(needed);
     actions();
 
     const first = await askToDelete(user);
@@ -347,7 +384,7 @@ describe("VmActions, deleting a VM something needs", () => {
     );
 
     const again = await askToDelete(user);
-    expect(mockDryRun).toHaveBeenCalledTimes(2);
+    expect(mockDependents).toHaveBeenCalledTimes(2);
     expect(
       within(again.question).getByRole("radio", {
         name: "workload.dependents.alone.vm",
@@ -355,21 +392,23 @@ describe("VmActions, deleting a VM something needs", () => {
     ).toBeChecked();
   });
 
-  it("still lets the VM be deleted when what needs it could not be checked", async () => {
+  it("still lets the VM be deleted when what needs it could not be read", async () => {
     const user = userEvent.setup();
     const config = {headers: new AxiosHeaders()} as InternalAxiosRequestConfig;
-    mockDryRun.mockRejectedValue(
+
+    // an API that does not know the route says it is not there.
+    mockDependents.mockRejectedValue(
       new AxiosError(
         "failed",
         undefined,
         config,
         {},
         {
-          status: 500,
+          status: 404,
           statusText: "",
           headers: {},
           config,
-          data: {code: "internal"},
+          data: "404 page not found",
         },
       ),
     );
@@ -380,8 +419,8 @@ describe("VmActions, deleting a VM something needs", () => {
       within(question).getByText("workload.dependents.checkFailed"),
     ).toBeInTheDocument();
     expect(
-      within(question).getByText("workload.errors.internal"),
-    ).toBeInTheDocument();
+      within(question).queryByText(/workload\.errors/),
+    ).not.toBeInTheDocument();
     expect(within(question).queryByRole("radio")).not.toBeInTheDocument();
 
     await user.click(confirm);

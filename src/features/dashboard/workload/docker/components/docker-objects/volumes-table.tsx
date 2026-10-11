@@ -43,7 +43,7 @@ import {
   ProblemAlert,
   StaleAlert,
 } from "@/features/dashboard/workload/components/problem-alert";
-import {createVolume, removeVolume} from "../../api";
+import {createVolume, fetchVolumeDependents, removeVolume} from "../../api";
 import {dockerKeys} from "../../hooks/queries";
 import {useVolumes} from "../../hooks/use-docker-objects";
 import {type Volume} from "../../types";
@@ -69,8 +69,7 @@ const nameField = (path: string) => path === "name";
  * a container still uses unless it is forced, which is asked about first.
  *
  * Removing one says first what needs it, the stacks and containers that make
- * it or mount it, as removing it would with force or without, and offers to
- * remove it alone or with them.
+ * it or mount it, and offers to remove it alone or with them.
  */
 export function VolumesTable({
   scope,
@@ -277,12 +276,11 @@ export function VolumesTable({
           removing && remove.mutate({name: removing.name, force, cascade})
         }
         what="volume"
-        dryRun={() =>
-          removeVolume(removeScope!, vm.uuid, removing?.name ?? "", force, {
-            dryRun: true,
-          })
-        }
-        dryRunKey={[removeScope, "volume", vm.uuid, removing?.name, force]}
+        needs={{
+          key: [removeScope, "volume", vm.uuid, removing?.name],
+          read: () =>
+            fetchVolumeDependents(removeScope!, vm.uuid, removing?.name ?? ""),
+        }}
         loading={remove.isPending}
         problem={remove.error ? problemOf(remove.error) : null}
         confirmLabel={t("volumes.table.remove")}
@@ -300,11 +298,7 @@ export function VolumesTable({
           label={t("volumes.table.force")}
           description={t("volumes.table.forceHelp")}
           checked={force}
-          onChange={(event) => {
-            // asked otherwise, what was refused before no longer stands.
-            remove.reset();
-            setForce(event.currentTarget.checked);
-          }}
+          onChange={(event) => setForce(event.currentTarget.checked)}
         />
       </DeleteModal>
     </Stack>
