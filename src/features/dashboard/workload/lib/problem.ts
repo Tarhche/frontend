@@ -1,6 +1,7 @@
 import {isAxiosError} from "axios";
 import {DALDriverError} from "@/dal/dal-driver-error";
 import {type TFunction} from "@/i18n/dictionary";
+import {dependentsOf, type Dependent} from "./dependents";
 
 /**
  * What went wrong with a request, read off whatever the server answered.
@@ -25,6 +26,14 @@ export type Problem = {
 
   /** what was refused, by the JSON path of what it is about. */
   fields: Record<string, string>;
+
+  /**
+   * What needs what a delete was refused for, when something does: the stacks
+   * and containers the refusal came with (./dependents.ts), and whether any
+   * of them makes it again.
+   */
+  dependents?: Dependent[];
+  recreated?: boolean;
 
   /**
    * Nothing came back in time, so whatever was asked for may still be under
@@ -134,6 +143,13 @@ export function problemOf(error: unknown): Problem {
   }
 
   problem.fields = fieldsOf(data.errors);
+
+  // a delete of what something needs is refused with what needs it.
+  const dependents = dependentsOf(data.dependents);
+  if (dependents.length > 0) {
+    problem.dependents = dependents;
+    problem.recreated = data.recreated === true;
+  }
 
   // the workload's answer, {code, message}, whether passed through as it is
   // or under an `error` of its own.

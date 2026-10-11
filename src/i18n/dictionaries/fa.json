@@ -617,6 +617,27 @@
       "startFailed": "اجرای «{name}» ناموفق بود",
       "stale": "آنچه نمایش داده می‌شود به‌روز نشد: {reason}"
     },
+    "dependents": {
+      "neededBy": "آنچه به آن نیاز دارد:",
+      "what": {
+        "it": "آن",
+        "vm": "ماشین مجازی",
+        "network": "شبکه",
+        "volume": "والیوم"
+      },
+      "stack": {
+        "recreates": "استک {name} {what} را دوباره می‌سازد.",
+        "waits": "استک {name} منتظر می‌ماند تا {what} برگردد."
+      },
+      "container": {
+        "recreates": "کانتینر {name} {what} را دوباره می‌سازد.",
+        "waits": "کانتینر {name} منتظر می‌ماند تا {what} برگردد."
+      },
+      "other": {
+        "recreates": "{name} {what} را دوباره می‌سازد.",
+        "waits": "{name} منتظر می‌ماند تا {what} برگردد."
+      }
+    },
     "logs": {
       "help": "{tail} خط آخر، و پس از آن هرچه نوشته شود.",
       "follow": "دنبال‌کردن",

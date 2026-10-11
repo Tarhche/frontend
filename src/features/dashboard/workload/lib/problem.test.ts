@@ -55,6 +55,52 @@ describe("problemOf", () => {
     );
   });
 
+  it("keeps what needs what a delete was refused for, and whether it comes back", () => {
+    const problem = problemOf(
+      answered(400, {
+        errors: {docker: "Docker refused the request: volume is in use"},
+        dependents: [
+          {kind: "container", uuid: "c-1", name: "web", recreates: false},
+          {kind: "stack", uuid: "s-1", name: "shop", recreates: true},
+        ],
+        recreated: true,
+      }),
+    );
+
+    expect(problem.fields).toEqual({
+      docker: "Docker refused the request: volume is in use",
+    });
+    expect(problem.dependents).toEqual([
+      {kind: "container", uuid: "c-1", name: "web", recreates: false},
+      {kind: "stack", uuid: "s-1", name: "shop", recreates: true},
+    ]);
+    expect(problem.recreated).toBe(true);
+  });
+
+  it("keeps what needs it from what a server action was answered with too", () => {
+    const problem = problemOf(
+      new DALDriverError("refused", 400, {
+        data: {
+          errors: {vm: "The VM is being restored."},
+          dependents: [{kind: "stack", uuid: "s-1", recreates: true}],
+          recreated: true,
+        },
+      }),
+    );
+
+    expect(problem.dependents).toEqual([
+      {kind: "stack", uuid: "s-1", recreates: true},
+    ]);
+    expect(problem.recreated).toBe(true);
+  });
+
+  it("has nothing needing it when the answer says nothing does", () => {
+    const problem = problemOf(answered(400, {errors: {name: "taken"}}));
+
+    expect(problem.dependents).toBeUndefined();
+    expect(problem.recreated).toBeUndefined();
+  });
+
   it("knows a request nobody answered may still be under way", () => {
     expect(problemOf(answered(504, {code: "timeout"})).unanswered).toBe(true);
     expect(problemOf(answered(502, "")).unanswered).toBe(true);

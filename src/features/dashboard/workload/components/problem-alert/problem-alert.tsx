@@ -10,6 +10,7 @@ import {
   unshownRefusals,
   type Problem,
 } from "../../lib/problem";
+import {DependentList} from "../dependent-list";
 
 type Props = {
   problem: Problem;
@@ -31,7 +32,8 @@ type Props = {
 
 /**
  * What went wrong, said where it went wrong: in the form that was sent, the
- * question that was answered, or in place of what could not be read.
+ * question that was answered, or in place of what could not be read. A delete
+ * refused for what something else needs says what needs it, beneath.
  */
 export function ProblemAlert({
   problem,
@@ -79,6 +81,15 @@ export function ProblemAlert({
           </List>
         ) : (
           <Text size="sm">{problemMessage(problem, t, shown)}</Text>
+        )}
+
+        {problem.dependents && problem.dependents.length > 0 && (
+          <div>
+            <Text size="sm" fw={500}>
+              {t("workload.dependents.neededBy")}
+            </Text>
+            <DependentList dependents={problem.dependents} />
+          </div>
         )}
 
         {children}

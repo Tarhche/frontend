@@ -617,6 +617,27 @@
       "startFailed": "Starting \"{name}\" failed",
       "stale": "What is shown could not be refreshed: {reason}"
     },
+    "dependents": {
+      "neededBy": "What needs it:",
+      "what": {
+        "it": "it",
+        "vm": "the VM",
+        "network": "the network",
+        "volume": "the volume"
+      },
+      "stack": {
+        "recreates": "The stack {name} will make {what} again.",
+        "waits": "The stack {name} will wait for {what} to come back."
+      },
+      "container": {
+        "recreates": "The container {name} will make {what} again.",
+        "waits": "The container {name} will wait for {what} to come back."
+      },
+      "other": {
+        "recreates": "{name} will make {what} again.",
+        "waits": "{name} will wait for {what} to come back."
+      }
+    },
     "logs": {
       "help": "The last {tail} lines, then whatever is written next.",
       "follow": "Follow",
