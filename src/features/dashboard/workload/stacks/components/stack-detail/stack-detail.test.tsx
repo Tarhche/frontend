@@ -140,7 +140,7 @@ describe("StackDetail", () => {
       containers: [
         {
           id: "c-1",
-          name: "/shop-x1y2z-web-1",
+          name: "/shop-x1y2z_web",
           image: "nginx",
           state: "running",
           status: "Up 2 minutes",
@@ -152,7 +152,7 @@ describe("StackDetail", () => {
     detail();
 
     expect(
-      await screen.findByRole("link", {name: "shop-x1y2z-web-1"}),
+      await screen.findByRole("link", {name: "shop-x1y2z_web"}),
     ).toHaveAttribute("href", "/dashboard/containers/vm-1/c-1");
     expect(screen.getByText("web")).toBeInTheDocument();
   });

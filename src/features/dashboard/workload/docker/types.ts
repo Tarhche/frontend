@@ -56,12 +56,15 @@ export type Container = {
   mounts?: Mount[];
   labels?: Record<string, string>;
 
-  /** the compose project and service it belongs to, when it was deployed by a
-   * stack. The project is the stack's slug. */
+  /**
+   * the stack it belongs to, when a stack made it, by the stack's slug, which
+   * is what the stack is called in the VM and what the container's name
+   * begins with, and the service of the stack's file it is.
+   */
   stack?: string;
   service?: string;
 
-  /** the stack that deployed it, when the API could tell which one that is. */
+  /** the stack that made it, when the API could tell which one that is. */
   stack_uuid?: string;
   restart_policy?: string;
   created_at?: string;

@@ -22,8 +22,9 @@ type Props = {
 };
 
 /**
- * A compose file, written in YAML with its highlighting, in the same editor
- * snippets are written in. It follows the page between light and dark.
+ * A stack's file, in the compose file format: YAML, written with its
+ * highlighting in the same editor snippets are written in. It follows the
+ * page between light and dark.
  *
  * The editor is built once; what changes afterwards — the text from outside,
  * whether it may be written in — is set on it rather than by building another
