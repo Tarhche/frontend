@@ -1,4 +1,4 @@
-import {readScope, scopeFor} from "./permissions";
+import {dependentsVisible, readScope, scopeFor} from "./permissions";
 
 describe("what somebody may do with the workload's things", () => {
   it("asks about one's own through one's own routes", () => {
@@ -39,5 +39,29 @@ describe("what somebody may do with the workload's things", () => {
   it("reads one thing as anybody's for whoever may see anybody's", () => {
     expect(readScope(["workload.stacks.show"], "stacks")).toBe("all");
     expect(readScope(["self.workload.stacks.show"], "stacks")).toBe("mine");
+  });
+});
+
+describe("which of what needs somebody's things may be looked at", () => {
+  it("is what may be read of their stacks and their containers", () => {
+    expect(
+      dependentsVisible(
+        ["self.workload.stacks.show", "self.workload.containers.show"],
+        true,
+      ),
+    ).toEqual({stacks: true, containers: true});
+    expect(dependentsVisible(["workload.stacks.show"], false)).toEqual({
+      stacks: true,
+      containers: false,
+    });
+  });
+
+  it("is nothing of somebody else's on the strength of one's own", () => {
+    expect(
+      dependentsVisible(
+        ["self.workload.stacks.show", "self.workload.containers.show"],
+        false,
+      ),
+    ).toEqual({stacks: false, containers: false});
   });
 });

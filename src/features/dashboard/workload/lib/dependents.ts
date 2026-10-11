@@ -1,4 +1,6 @@
-/**
+import {APP_PATHS} from "@/lib/app-paths";
+
+/*
  * What needs something that is deleted, as a delete of it is answered.
  *
  * A VM, and a Docker VM's networks and volumes, may be needed by the stacks
@@ -117,4 +119,38 @@ export function removalOf(data: unknown): Removal {
     dependents,
     recreated: data.recreated === true && dependents.length > 0,
   };
+}
+
+/**
+ * Which of what needs something of somebody's may be looked at by whoever is
+ * looking: that person's stacks, and their containers.
+ */
+export type DependentsVisible = {
+  stacks: boolean;
+  containers: boolean;
+};
+
+/**
+ * Where something that needs what is deleted is looked at, for whoever may: a
+ * stack's page, or a container's, by its uuid in the VM it is in, which is
+ * the VM deleted or the one holding what is. Null where they may not, and for
+ * anything else.
+ */
+export function dependentHref(
+  dependent: Dependent,
+  vmUuid: string,
+  visible: DependentsVisible,
+): string | null {
+  switch (dependent.kind) {
+    case "stack":
+      return visible.stacks
+        ? APP_PATHS.dashboard.stacks.detail(dependent.uuid)
+        : null;
+    case "container":
+      return visible.containers
+        ? APP_PATHS.dashboard.containers.detail(vmUuid, dependent.uuid)
+        : null;
+    default:
+      return null;
+  }
 }

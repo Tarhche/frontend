@@ -3,13 +3,19 @@
 import {privateDalDriver} from "@/dal/private/private-dal-driver";
 import {APP_PATHS} from "@/lib/app-paths";
 import {
+  NOTHING_NEEDS_IT,
+  removalOf,
+  removeParams,
+  type Removal,
+} from "@/features/dashboard/workload/lib/dependents";
+import {
   isScope,
   type Scope,
   vmCommandPath,
   vmPath,
   vmRestorePath,
 } from "../api";
-import {type ActionResult, type VmCommand} from "../types";
+import {type ActionResult, type RemovalResult, type VmCommand} from "../types";
 import {attempt, NOT_ASKED} from "./attempt";
 
 const COMMANDS: readonly VmCommand[] = ["start", "stop", "restart"];
@@ -37,19 +43,29 @@ export async function commandVm(
   );
 }
 
-/** Deletes a VM and its disk. Its snapshots outlive it. */
+/**
+ * Deletes a VM and its disk. Its snapshots outlive it. The stacks and
+ * containers in it make it again, under the same uuid and slug, unless they
+ * are deleted along with it (cascade): what needs it is answered either way.
+ */
 export async function deleteVm(
   uuid: string,
   scope: Scope,
-): Promise<ActionResult> {
+  {cascade = false}: {cascade?: boolean} = {},
+): Promise<RemovalResult> {
   if (!isScope(scope)) {
     return NOT_ASKED;
   }
 
-  return attempt(
-    () => privateDalDriver.delete(vmPath(scope, uuid)),
-    pagesOf(uuid),
-  );
+  let removal: Removal = NOTHING_NEEDS_IT;
+  const result = await attempt(async () => {
+    const response = await privateDalDriver.delete(vmPath(scope, uuid), {
+      params: removeParams({cascade: cascade === true}),
+    });
+    removal = removalOf(response.data);
+  }, pagesOf(uuid));
+
+  return result.ok ? {ok: true, removal} : result;
 }
 
 /**

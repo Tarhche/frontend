@@ -1,5 +1,11 @@
 import {clientDalDriver} from "@/dal/client/client-dal-driver";
 import {
+  removalOf,
+  removeParams,
+  type Removal,
+  type RemoveOptions,
+} from "@/features/dashboard/workload/lib/dependents";
+import {
   type Scope,
   vmPath,
   workloadPath,
@@ -236,14 +242,23 @@ export async function createNetwork(
   return data;
 }
 
+/**
+ * Removes a network. One a container is on is refused, unless what needs it
+ * is deleted first (cascade); a dry run removes nothing, and only says what
+ * needs it. What needs it is answered either way, and with a refusal too.
+ */
 export async function removeNetwork(
   scope: Scope,
   vmUuid: string,
   id: string,
-): Promise<void> {
-  await clientDalDriver.delete(
+  options: RemoveOptions = {},
+): Promise<Removal> {
+  const {data} = await clientDalDriver.delete(
     `${vmPath(scope, vmUuid)}/networks/${segment(id)}`,
+    {params: removeParams(options)},
   );
+
+  return removalOf(data);
 }
 
 export async function fetchVolumes(
@@ -270,15 +285,23 @@ export async function createVolume(
   return data;
 }
 
-/** Removes a volume. One a container still uses is only removed by force. */
+/**
+ * Removes a volume, and what is in it. One a container still uses is only
+ * removed by force, or once what needs it is deleted first (cascade); a dry
+ * run removes nothing, and only says what needs it. What needs it is answered
+ * either way, and with a refusal too.
+ */
 export async function removeVolume(
   scope: Scope,
   vmUuid: string,
   name: string,
   force: boolean,
-): Promise<void> {
-  await clientDalDriver.delete(
+  options: RemoveOptions = {},
+): Promise<Removal> {
+  const {data} = await clientDalDriver.delete(
     `${vmPath(scope, vmUuid)}/volumes/${segment(name)}`,
-    {params: force ? {force: true} : undefined},
+    {params: removeParams({...options, force})},
   );
+
+  return removalOf(data);
 }

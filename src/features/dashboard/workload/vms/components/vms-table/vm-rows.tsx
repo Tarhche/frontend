@@ -7,6 +7,7 @@ import {useI18n} from "@/i18n/provider";
 import {APP_PATHS} from "@/lib/app-paths";
 import {StaleAlert} from "@/features/dashboard/workload/components/problem-alert";
 import {Owner} from "@/features/dashboard/workload/components/owner";
+import {dependentsVisible} from "@/features/dashboard/workload/permissions";
 import {type VmTransition, VmStateBadge} from "../vm-state-badge";
 import {type Scope} from "../../api";
 import {useVms} from "../../hooks/queries";
@@ -100,7 +101,8 @@ export function VmRows({
         </TableTr>
       )}
       {vms.map((vm) => {
-        const may = vmAbilities(permissions, vm.owner_uuid === me);
+        const isOwner = vm.owner_uuid === me;
+        const may = vmAbilities(permissions, isOwner);
 
         return (
           <TableTr key={vm.uuid}>
@@ -148,6 +150,7 @@ export function VmRows({
                 vm={vm}
                 manage={may.manage}
                 remove={may.delete}
+                visible={dependentsVisible(permissions, isOwner)}
                 onPending={(underway) => markAsked(vm.uuid, underway)}
               />
             </TableTd>

@@ -20,6 +20,12 @@ type Props = {
   cancelLabel?: string;
   loading?: boolean;
 
+  /**
+   * Whether what the question is about is still being found out: the answer
+   * waits until it is, and the question can still be turned down meanwhile.
+   */
+  waiting?: boolean;
+
   /** why the last attempt did not go through, said where it was asked for. */
   problem?: Problem | null;
 };
@@ -42,6 +48,7 @@ export function ConfirmModal({
   confirmColor = "red",
   cancelLabel,
   loading = false,
+  waiting = false,
   problem,
 }: Props) {
   const t = useTranslations();
@@ -65,7 +72,11 @@ export function ConfirmModal({
           <Button color="gray" onClick={onClose} disabled={loading}>
             {cancelLabel ?? t("common.cancel")}
           </Button>
-          <Button color={confirmColor} onClick={onConfirm} loading={loading}>
+          <Button
+            color={confirmColor}
+            onClick={onConfirm}
+            loading={loading || waiting}
+          >
             {confirmLabel}
           </Button>
         </Group>

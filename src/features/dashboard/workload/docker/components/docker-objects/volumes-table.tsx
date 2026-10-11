@@ -31,7 +31,14 @@ import {
   hasMoreToSay,
   problemOf,
 } from "@/features/dashboard/workload/lib/problem";
-import {ConfirmModal} from "@/features/dashboard/workload/components/confirm-modal";
+import {
+  dependentHref,
+  type DependentsVisible,
+} from "@/features/dashboard/workload/lib/dependents";
+import {
+  DeleteModal,
+  sayComingBack,
+} from "@/features/dashboard/workload/components/delete-modal";
 import {
   ProblemAlert,
   StaleAlert,
@@ -48,6 +55,9 @@ type Props = {
   /** The routes what is in it is added and removed through, if it may be. */
   manage: Scope | null;
   remove: Scope | null;
+
+  /** which of what needs a volume the person looking may look at. */
+  visible: DependentsVisible;
 };
 
 // a refusal of the name is said beside it.
@@ -57,8 +67,18 @@ const nameField = (path: string) => path === "name";
  * The volumes inside a VM: what its containers keep when they are removed.
  * Removing one takes what is in it with it, and docker refuses to remove one
  * a container still uses unless it is forced, which is asked about first.
+ *
+ * Removing one says first what needs it, the stacks and containers that make
+ * it or mount it, as removing it would with force or without, and offers to
+ * remove it alone or with them.
  */
-export function VolumesTable({scope, vm, manage, remove: removeScope}: Props) {
+export function VolumesTable({
+  scope,
+  vm,
+  manage,
+  remove: removeScope,
+  visible,
+}: Props) {
   const {t, locale} = useI18n();
   const queryClient = useQueryClient();
   const volumes = useVolumes(scope, vm.uuid);
@@ -88,9 +108,14 @@ export function VolumesTable({scope, vm, manage, remove: removeScope}: Props) {
   });
 
   const remove = useMutation({
-    mutationFn: (gone: {name: string; force: boolean}) =>
-      removeVolume(removeScope!, vm.uuid, gone.name, gone.force),
-    onSuccess: () => setRemoving(null),
+    mutationFn: (gone: {name: string; force: boolean; cascade: boolean}) =>
+      removeVolume(removeScope!, vm.uuid, gone.name, gone.force, {
+        cascade: gone.cascade,
+      }),
+    onSuccess: (removal, gone) => {
+      setRemoving(null);
+      sayComingBack(t, "volume", gone.name, removal);
+    },
     // said in the question that asked.
     onError: () => {},
     onSettled: settle,
@@ -245,15 +270,23 @@ export function VolumesTable({scope, vm, manage, remove: removeScope}: Props) {
         </TableScrollContainer>
       )}
 
-      <ConfirmModal
+      <DeleteModal
         opened={removing !== null}
         onClose={() => setRemoving(null)}
-        onConfirm={() =>
-          removing && remove.mutate({name: removing.name, force})
+        onConfirm={(cascade) =>
+          removing && remove.mutate({name: removing.name, force, cascade})
         }
+        what="volume"
+        dryRun={() =>
+          removeVolume(removeScope!, vm.uuid, removing?.name ?? "", force, {
+            dryRun: true,
+          })
+        }
+        dryRunKey={[removeScope, "volume", vm.uuid, removing?.name, force]}
         loading={remove.isPending}
         problem={remove.error ? problemOf(remove.error) : null}
         confirmLabel={t("volumes.table.remove")}
+        hrefOf={(dependent) => dependentHref(dependent, vm.uuid, visible)}
       >
         <Text>
           {t("volumes.table.removeConfirm", {name: removing?.name ?? ""})}
@@ -267,9 +300,13 @@ export function VolumesTable({scope, vm, manage, remove: removeScope}: Props) {
           label={t("volumes.table.force")}
           description={t("volumes.table.forceHelp")}
           checked={force}
-          onChange={(event) => setForce(event.currentTarget.checked)}
+          onChange={(event) => {
+            // asked otherwise, what was refused before no longer stands.
+            remove.reset();
+            setForce(event.currentTarget.checked);
+          }}
         />
-      </ConfirmModal>
+      </DeleteModal>
     </Stack>
   );
 }

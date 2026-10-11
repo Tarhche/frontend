@@ -1,4 +1,5 @@
 import {type Author} from "@/features/authors/types";
+import {type Removal} from "@/features/dashboard/workload/lib/dependents";
 import {type Problem} from "@/features/dashboard/workload/lib/problem";
 
 /**
@@ -190,3 +191,11 @@ export type VmLogs = {
  * it is said wherever the dashboard asks the workload for something.
  */
 export type ActionResult = {ok: true} | {ok: false; problem: Problem};
+
+/**
+ * How a delete of something stacks and containers may need turned out: what
+ * needs it, when it went ahead, and why not otherwise, with what needs it
+ * among that when anything does.
+ */
+export type RemovalResult =
+  {ok: true; removal: Removal} | {ok: false; problem: Problem};

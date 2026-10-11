@@ -34,7 +34,14 @@ import {
   hasMoreToSay,
   problemOf,
 } from "@/features/dashboard/workload/lib/problem";
-import {ConfirmModal} from "@/features/dashboard/workload/components/confirm-modal";
+import {
+  dependentHref,
+  type DependentsVisible,
+} from "@/features/dashboard/workload/lib/dependents";
+import {
+  DeleteModal,
+  sayComingBack,
+} from "@/features/dashboard/workload/components/delete-modal";
 import {
   ProblemAlert,
   StaleAlert,
@@ -54,6 +61,9 @@ type Props = {
   /** The routes what is in it is added and removed through, if it may be. */
   manage: Scope | null;
   remove: Scope | null;
+
+  /** which of what needs a network the person looking may look at. */
+  visible: DependentsVisible;
 };
 
 // a refusal of the name is said beside it.
@@ -63,8 +73,17 @@ const nameField = (path: string) => path === "name";
  * The networks inside a VM. Containers on one reach each other by name; none
  * of them reaches any other VM, whatever it is called. An internal network
  * has no way out of the VM at all.
+ *
+ * Removing one says first what needs it, the stacks and containers that make
+ * it or are on it, and offers to remove it alone or with them.
  */
-export function NetworksTable({scope, vm, manage, remove: removeScope}: Props) {
+export function NetworksTable({
+  scope,
+  vm,
+  manage,
+  remove: removeScope,
+  visible,
+}: Props) {
   const {t, locale} = useI18n();
   const queryClient = useQueryClient();
   const networks = useNetworks(scope, vm.uuid);
@@ -95,8 +114,14 @@ export function NetworksTable({scope, vm, manage, remove: removeScope}: Props) {
   });
 
   const remove = useMutation({
-    mutationFn: (id: string) => removeNetwork(removeScope!, vm.uuid, id),
-    onSuccess: () => setRemoving(null),
+    mutationFn: (gone: {network: Network; cascade: boolean}) =>
+      removeNetwork(removeScope!, vm.uuid, gone.network.id, {
+        cascade: gone.cascade,
+      }),
+    onSuccess: (removal, gone) => {
+      setRemoving(null);
+      sayComingBack(t, "network", gone.network.name, removal);
+    },
     // said in the question that asked.
     onError: () => {},
     onSettled: settle,
@@ -276,13 +301,23 @@ export function NetworksTable({scope, vm, manage, remove: removeScope}: Props) {
         </TableScrollContainer>
       )}
 
-      <ConfirmModal
+      <DeleteModal
         opened={removing !== null}
         onClose={() => setRemoving(null)}
-        onConfirm={() => removing && remove.mutate(removing.id)}
+        onConfirm={(cascade) =>
+          removing && remove.mutate({network: removing, cascade})
+        }
+        what="network"
+        dryRun={() =>
+          removeNetwork(removeScope!, vm.uuid, removing?.id ?? "", {
+            dryRun: true,
+          })
+        }
+        dryRunKey={[removeScope, "network", vm.uuid, removing?.id]}
         loading={remove.isPending}
         problem={remove.error ? problemOf(remove.error) : null}
         confirmLabel={t("networks.table.remove")}
+        hrefOf={(dependent) => dependentHref(dependent, vm.uuid, visible)}
       >
         <Text>
           {t("networks.table.removeConfirm", {name: removing?.name ?? ""})}
@@ -292,7 +327,7 @@ export function NetworksTable({scope, vm, manage, remove: removeScope}: Props) {
             {t("networks.table.removeInUse")}
           </Text>
         )}
-      </ConfirmModal>
+      </DeleteModal>
     </Stack>
   );
 }

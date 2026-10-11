@@ -1,6 +1,7 @@
 "use client";
 
 import {Stack} from "@mantine/core";
+import {dependentsVisible} from "@/features/dashboard/workload/permissions";
 import {type Scope} from "@/features/dashboard/workload/vms/api";
 import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
 import {vmReadiness} from "@/features/dashboard/workload/vms/lib/state";
@@ -70,11 +71,11 @@ export function DockerObjectsPage({
   const vm = state.choice.kind === "existing" ? state.choice.vm : null;
   const running = vm !== null && vmReadiness(vm.state) === "running";
 
-  // what is in a VM is its owner's: what may be done to it follows from that.
-  const may = dockerAbilities(
-    permissions,
-    scope === "mine" || (me !== null && vm?.owner_uuid === me),
-  );
+  // what is in a VM is its owner's: what may be done to it, and which of
+  // what needs it may be looked at, follow from that.
+  const isOwner = scope === "mine" || (me !== null && vm?.owner_uuid === me);
+  const may = dockerAbilities(permissions, isOwner);
+  const visible = dependentsVisible(permissions, isOwner);
 
   return (
     <Stack>
@@ -103,6 +104,7 @@ export function DockerObjectsPage({
           vm={vm}
           manage={may.manage}
           remove={may.delete}
+          visible={visible}
         />
       )}
       {vm && running && objects === "volumes" && (
@@ -112,6 +114,7 @@ export function DockerObjectsPage({
           vm={vm}
           manage={may.manage}
           remove={may.delete}
+          visible={visible}
         />
       )}
     </Stack>

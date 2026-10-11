@@ -23,6 +23,12 @@ type Props = {
    */
   shown?: (path: string) => boolean;
 
+  /**
+   * Whether what needs what a delete was refused for is said beside it
+   * already, as a question about deleting it says it; it is left out here.
+   */
+  dependentsShown?: boolean;
+
   /** offered when asking again may help. */
   onRetry?: () => void;
   retrying?: boolean;
@@ -39,6 +45,7 @@ export function ProblemAlert({
   problem,
   title,
   shown,
+  dependentsShown = false,
   onRetry,
   retrying,
   children,
@@ -83,14 +90,16 @@ export function ProblemAlert({
           <Text size="sm">{problemMessage(problem, t, shown)}</Text>
         )}
 
-        {problem.dependents && problem.dependents.length > 0 && (
-          <div>
-            <Text size="sm" fw={500}>
-              {t("workload.dependents.neededBy")}
-            </Text>
-            <DependentList dependents={problem.dependents} />
-          </div>
-        )}
+        {!dependentsShown &&
+          problem.dependents &&
+          problem.dependents.length > 0 && (
+            <div>
+              <Text size="sm" fw={500}>
+                {t("workload.dependents.neededBy")}
+              </Text>
+              <DependentList dependents={problem.dependents} />
+            </div>
+          )}
 
         {children}
 

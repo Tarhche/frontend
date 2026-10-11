@@ -1,3 +1,4 @@
+import {type DependentsVisible} from "./lib/dependents";
 import {type Scope} from "./vms/api";
 
 /**
@@ -43,4 +44,19 @@ export function readScope(
   resource: WorkloadResource,
 ): Scope {
   return permissions.includes(`workload.${resource}.show`) ? "all" : "mine";
+}
+
+/**
+ * Which of what needs something of somebody's -- their stacks, and their
+ * containers -- may be looked at by somebody holding these, whose it is or
+ * not: what may be read on a page of its own.
+ */
+export function dependentsVisible(
+  permissions: readonly string[],
+  isOwner: boolean,
+): DependentsVisible {
+  return {
+    stacks: scopeFor(permissions, "stacks", "show", isOwner) !== null,
+    containers: scopeFor(permissions, "containers", "show", isOwner) !== null,
+  };
 }

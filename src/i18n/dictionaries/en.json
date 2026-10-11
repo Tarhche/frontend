@@ -619,6 +619,26 @@
     },
     "dependents": {
       "neededBy": "What needs it:",
+      "checking": "Checking what needs it…",
+      "checkFailed": "What needs it could not be checked",
+      "refused": "As it is, this would be refused",
+      "choose": "Other things need it",
+      "alone": {
+        "vm": "Delete only the VM",
+        "network": "Remove only the network",
+        "volume": "Remove only the volume"
+      },
+      "together": {
+        "vm": "Delete the VM together with what needs it",
+        "network": "Remove the network together with what needs it",
+        "volume": "Remove the volume together with what needs it"
+      },
+      "togetherHelp": {
+        "vm": "The stacks and containers that need it are deleted along with it, so nothing makes it again.",
+        "network": "The stacks and containers that need it are deleted first, then the network.",
+        "volume": "The stacks and containers that need it are deleted first, then the volume."
+      },
+      "comesBack": "\"{name}\" will come back",
       "what": {
         "it": "it",
         "vm": "the VM",

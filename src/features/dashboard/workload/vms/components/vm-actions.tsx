@@ -21,12 +21,21 @@ import {useQueryClient} from "@tanstack/react-query";
 import {useTranslations} from "@/i18n/provider";
 import {ConfirmModal} from "@/features/dashboard/workload/components/confirm-modal";
 import {
+  DeleteModal,
+  sayComingBack,
+} from "@/features/dashboard/workload/components/delete-modal";
+import {
+  dependentHref,
+  type DependentsVisible,
+} from "@/features/dashboard/workload/lib/dependents";
+import {
   problemMessage,
   type Problem,
 } from "@/features/dashboard/workload/lib/problem";
 import {type VmTransition} from "./vm-state-badge";
 import {type Scope} from "../api";
 import {commandVm, deleteVm} from "../actions/vm-commands";
+import {dryRunDeleteVm} from "../client";
 import {vmKeys} from "../hooks/queries";
 import {isCodeRunnerRun} from "../lib/code-runner";
 import {canRestart, canStart, canStop} from "../lib/state";
@@ -50,6 +59,12 @@ type Props = {
   remove: Scope | null;
 
   /**
+   * Which of the stacks and containers that need it the person looking may
+   * look at, which deleting it links to.
+   */
+  visible: DependentsVisible;
+
+  /**
    * Told what is on its way to the VM while it is being asked for, so that
    * its state can say so before the workload does.
    */
@@ -68,6 +83,10 @@ type Props = {
  * is asked about first, and the question stays open until the answer comes, so
  * a refusal is said where it was asked.
  *
+ * Deleting one says first what needs it, the stacks and containers in it,
+ * which make it again unless they are deleted along with it, and offers
+ * either; once it is deleted alone, that it will come back is said too.
+ *
  * A run of the code runner's is the code runner's to start, and it is gone once
  * its snippet ends: it can only be stopped or deleted.
  */
@@ -75,6 +94,7 @@ export function VmActions({
   vm,
   manage,
   remove,
+  visible,
   onPending,
   onDeleted,
   variant = "icons",
@@ -134,7 +154,7 @@ export function VmActions({
     },
   ];
 
-  const ask = (what: Asked, confirmed: boolean) => {
+  const ask = (what: Asked, confirmed: boolean, cascade = false) => {
     setAsked(what);
     setProblem(null);
 
@@ -146,7 +166,12 @@ export function VmActions({
           return;
         }
 
-        result = await deleteVm(vm.uuid, remove);
+        const deleted = await deleteVm(vm.uuid, remove, {cascade});
+        if (deleted.ok) {
+          sayComingBack(t, "vm", vm.name, deleted.removal);
+        }
+
+        result = deleted;
       } else {
         if (!manage) {
           return;
@@ -236,7 +261,7 @@ export function VmActions({
       {/* each question is a modal of its own, so one closing keeps what it
           asked while it fades away. */}
       {shown
-        .filter((action) => action.confirm)
+        .filter((action) => action.confirm && action.what !== "delete")
         .map((action) => (
           <ConfirmModal
             key={action.what}
@@ -258,6 +283,27 @@ export function VmActions({
             </Text>
           </ConfirmModal>
         ))}
+
+      {remove !== null && (
+        <DeleteModal
+          opened={confirming === "delete"}
+          onClose={() => setConfirming(null)}
+          onConfirm={(cascade) => ask("delete", true, cascade)}
+          what="vm"
+          dryRun={() => dryRunDeleteVm(remove, vm.uuid)}
+          dryRunKey={[remove, "vm", vm.uuid]}
+          loading={pending && asked === "delete"}
+          problem={confirming === "delete" ? problem : null}
+          confirmLabel={t("vms.actions.delete")}
+          hrefOf={(dependent) => dependentHref(dependent, vm.uuid, visible)}
+        >
+          <Text>
+            {t(`vms.actions.${run ? "deleteRunConfirm" : "deleteConfirm"}`, {
+              name: vm.name,
+            })}
+          </Text>
+        </DeleteModal>
+      )}
     </>
   );
 }

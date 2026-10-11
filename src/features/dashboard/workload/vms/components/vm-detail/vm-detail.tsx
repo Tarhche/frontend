@@ -10,6 +10,7 @@ import {APP_PATHS} from "@/lib/app-paths";
 import {StaleAlert} from "@/features/dashboard/workload/components/problem-alert";
 import {VmSnapshots} from "@/features/dashboard/workload/snapshots/components/vm-snapshots";
 import {snapshotScope} from "@/features/dashboard/workload/snapshots/permissions";
+import {dependentsVisible} from "@/features/dashboard/workload/permissions";
 import {type VmTransition, VmStateBadge} from "../vm-state-badge";
 import {type Scope} from "../../api";
 import {useVm} from "../../hooks/queries";
@@ -110,6 +111,7 @@ export function VmDetail({initial, scope, permissions, me}: Props) {
           vm={vm}
           manage={may.manage}
           remove={may.delete}
+          visible={dependentsVisible(permissions, isOwner)}
           onPending={setPending}
           onDeleted={() => router.push(APP_PATHS.dashboard.vms.index)}
           variant="buttons"

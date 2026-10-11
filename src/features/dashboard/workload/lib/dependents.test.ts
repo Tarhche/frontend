@@ -1,4 +1,5 @@
 import {
+  dependentHref,
   dependentsOf,
   NOTHING_NEEDS_IT,
   removalOf,
@@ -60,5 +61,36 @@ describe("the query a delete is asked with", () => {
       force: true,
       dry_run: true,
     });
+  });
+});
+
+describe("where what needs something is looked at", () => {
+  const everything = {stacks: true, containers: true};
+  const stack = {kind: "stack", uuid: "s-1", recreates: true};
+  const container = {kind: "container", uuid: "c-1", recreates: false};
+
+  it("is a stack's page, or a container's by its uuid in its VM", () => {
+    expect(dependentHref(stack, "vm-1", everything)).toBe(
+      "/dashboard/stacks/s-1",
+    );
+    expect(dependentHref(container, "vm-1", everything)).toBe(
+      "/dashboard/containers/vm-1/c-1",
+    );
+  });
+
+  it("is nowhere for whoever may not look at it, or for anything else", () => {
+    expect(
+      dependentHref(stack, "vm-1", {stacks: false, containers: true}),
+    ).toBeNull();
+    expect(
+      dependentHref(container, "vm-1", {stacks: true, containers: false}),
+    ).toBeNull();
+    expect(
+      dependentHref(
+        {kind: "task", uuid: "t-1", recreates: false},
+        "vm-1",
+        everything,
+      ),
+    ).toBeNull();
   });
 });
