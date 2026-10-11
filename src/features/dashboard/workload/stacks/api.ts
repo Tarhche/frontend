@@ -56,8 +56,10 @@ export async function fetchStack(
 }
 
 /**
- * Deploys a compose file into a Docker VM. The deploy itself happens after
- * the answer, so what comes back is a stack that is still deploying.
+ * Deploys a stack into a Docker VM from its file, which the platform reads
+ * and refuses, by where in it each thing wrong is, before anything is made.
+ * What it says is made after the answer, so what comes back is a stack that
+ * is still deploying.
  */
 export async function createStack(
   body: StackCreateRequest,
@@ -79,9 +81,10 @@ export async function commandStack(
 }
 
 /**
- * Takes a stack down and forgets it. Its volumes stay, and there is no asking
- * for them to go with it: what is in them is usually what somebody would want
- * back, so they are removed on their own, from the Volumes page.
+ * Takes a stack down and forgets it: its containers and networks go, and its
+ * volumes and its VM stay. There is no asking for the volumes to go with it:
+ * what is in them is usually what somebody would want back, so they are
+ * removed on their own, from the Volumes page.
  */
 export async function deleteStack(scope: Scope, uuid: string): Promise<void> {
   await clientDalDriver.delete(stackPath(scope, uuid));

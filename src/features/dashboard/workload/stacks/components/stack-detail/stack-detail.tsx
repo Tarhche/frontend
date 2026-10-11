@@ -5,7 +5,6 @@ import {useRouter} from "next/navigation";
 import {
   Alert,
   Button,
-  Code,
   Collapse,
   EmptyState,
   Group,
@@ -24,7 +23,7 @@ import {
 } from "@mantine/core";
 import {
   IconAlertTriangle,
-  IconInfoCircle,
+  IconClockHour4,
   IconPlayerStop,
   IconStack2,
 } from "@tabler/icons-react";
@@ -51,10 +50,24 @@ import {formatDateTime} from "@/features/dashboard/workload/vms/lib/lifetime";
 import {type VmSource} from "@/features/dashboard/workload/vms/permissions";
 import {useStack} from "../../hooks/use-stacks";
 import {stackAbilities} from "../../permissions";
-import {type StackDetail as StackRecord} from "../../types";
+import {type StackDetail as StackRecord, type StackState} from "../../types";
 import {ComposeEditor} from "../compose-editor";
 import {StackActions} from "../stack-actions";
 import {StackStateBadge, type StackTransition} from "../stack-state-badge";
+
+// how a stack says why it is where it is, in the states it says so in: what
+// it waits on, what of it does not run, and why it failed, which is urgent.
+type Reasoned = {
+  color: string;
+  icon: typeof IconAlertTriangle;
+  urgent: boolean;
+};
+
+const REASONED: Partial<Record<StackState, Reasoned>> = {
+  waiting: {color: "yellow", icon: IconClockHour4, urgent: false},
+  degraded: {color: "orange", icon: IconAlertTriangle, urgent: false},
+  failed: {color: "red", icon: IconAlertTriangle, urgent: true},
+};
 
 type SectionProps = {
   title: string;
@@ -179,9 +192,10 @@ type Props = {
 };
 
 /**
- * One stack: where it is, what its last compose command left it as and said,
- * and the containers it has now. There is no editing it; it is started,
- * stopped, restarted or deleted, and a different compose file is a new stack.
+ * One stack: where it is, where it is and why when that is not where it was
+ * asked to be -- waiting on its VM, some of it not running, or failed -- its
+ * file, and the containers it has now. There is no editing it; it is started,
+ * stopped, restarted or deleted, and a different file is a new stack.
  */
 export function StackDetail({scope, uuid, permissions, me, vmSource}: Props) {
   const {t, locale} = useI18n();
@@ -239,7 +253,7 @@ export function StackDetail({scope, uuid, permissions, me, vmSource}: Props) {
 
   const stack = query.data;
   const vm = vms.data?.find((each) => each.uuid === stack.vm_uuid);
-  const failed = stack.state === "failed";
+  const why = stack.reason ? REASONED[stack.state as StackState] : undefined;
   const isOwner = scope === "mine" || (me !== null && stack.owner_uuid === me);
   const may = stackAbilities(permissions, isOwner);
 
@@ -265,7 +279,7 @@ export function StackDetail({scope, uuid, permissions, me, vmSource}: Props) {
             )}
           </Group>
           <Text size="sm" c="dimmed">
-            {t("stacks.detail.project", {slug: stack.slug})}
+            {t("stacks.detail.prefix", {slug: stack.slug})}
             {" · "}
             {t("stacks.detail.createdAt", {
               date: formatDateTime(stack.created_at, locale),
@@ -297,28 +311,16 @@ export function StackDetail({scope, uuid, permissions, me, vmSource}: Props) {
         />
       )}
 
-      {stack.reason && (
+      {why && (
         <Alert
-          color={failed ? "red" : "blue"}
+          color={why.color}
           variant="light"
-          icon={failed ? <IconAlertTriangle /> : <IconInfoCircle />}
-          title={t("stacks.detail.reason")}
-          role={failed ? "alert" : "status"}
+          icon={<why.icon />}
+          title={t(`stacks.detail.reasons.${stack.state}`)}
+          role={why.urgent ? "alert" : "status"}
         >
           {stack.reason}
         </Alert>
-      )}
-
-      {stack.output && (
-        <Folded title={t("stacks.detail.output")} open={failed}>
-          <Code
-            block
-            dir="ltr"
-            style={{maxHeight: 420, overflow: "auto", whiteSpace: "pre-wrap"}}
-          >
-            {stack.output}
-          </Code>
-        </Folded>
       )}
 
       {stack.compose && (

@@ -135,7 +135,7 @@ describe("StackActions", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("waits for a compose command to finish before another, but lets it be deleted", () => {
+  it("waits for a stack to get where it is going before another command, but lets it be deleted", () => {
     actions(stack({state: "deploying"}));
 
     expect(

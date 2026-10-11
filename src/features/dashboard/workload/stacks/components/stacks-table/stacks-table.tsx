@@ -45,10 +45,10 @@ import {StackActions} from "../stack-actions";
 import {StackStateBadge, type StackTransition} from "../stack-state-badge";
 
 /**
- * How many containers each stack has. A container says which stack deployed
- * it when the API could tell, and which compose project it came from in which
- * VM always, which is the stack's slug: it is counted under the first, or the
- * second when that is all there is.
+ * How many containers each stack has. A container says which stack made it
+ * when the API could tell, and that stack's slug always, which is what the
+ * stack is called in the VM it was found in: it is counted under the first,
+ * or under its VM and the second when that is all there is.
  */
 export function countContainers(containers: Container[]): Map<string, number> {
   const counts = new Map<string, number>();
@@ -157,8 +157,8 @@ type Props = {
 };
 
 /**
- * A scope's stacks, a page at a time. A stack whose compose command is still
- * running in its VM is looked at again every few seconds until it is done.
+ * A scope's stacks, a page at a time. A stack on its way somewhere is looked
+ * at again every few seconds until it gets there.
  */
 export function StacksTable({
   scope,

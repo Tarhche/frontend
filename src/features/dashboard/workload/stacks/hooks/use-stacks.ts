@@ -18,7 +18,7 @@ export const stackKeys = {
     ["workload", "stacks", scope, "one", uuid] as const,
 };
 
-// what a compose command is in the middle of, and so what is worth watching.
+// what a stack's graph is in the middle of, and so what is worth watching.
 const UNDER_WAY = [
   "deploying",
   "starting",
@@ -28,15 +28,16 @@ const UNDER_WAY = [
 ];
 
 /**
- * Whether a stack is on its way somewhere: a compose command is running in
- * its VM, and its state changes when that command is done.
+ * Whether a stack is on its way somewhere: the platform is making, starting,
+ * stopping or removing what it is made of, and its state changes once that is
+ * done. One that waits on its VM is not: it is where it is until its VM is.
  */
 export function isInFlight(stack: Pick<Stack, "state">): boolean {
   return UNDER_WAY.includes(stack.state);
 }
 
-// a stack whose command is running is looked at every few seconds, until it
-// is done; the rest now and then, since their containers come and go.
+// a stack on its way somewhere is looked at every few seconds, until it gets
+// there; the rest now and then, since their containers come and go.
 function every(inFlight: boolean) {
   return inFlight ? POLL_MS : IDLE_POLL_MS / 2;
 }

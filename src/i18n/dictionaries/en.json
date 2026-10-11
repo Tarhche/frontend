@@ -932,11 +932,13 @@
     "states": {
       "deploying": "deploying...",
       "running": "running",
+      "degraded": "degraded",
       "starting": "starting...",
       "stopping": "stopping...",
       "stopped": "stopped",
       "restarting": "restarting...",
       "removing": "removing...",
+      "waiting": "waiting",
       "failed": "failed"
     },
     "transitions": {
@@ -988,11 +990,14 @@
     },
     "detail": {
       "inVm": "in {vm}",
-      "project": "compose project {slug}",
+      "prefix": "what it makes is named {slug}_…",
       "createdAt": "created {date}",
       "owner": "Owner",
-      "reason": "Why",
-      "output": "Last compose output",
+      "reasons": {
+        "waiting": "What it is waiting for",
+        "degraded": "What is not running",
+        "failed": "Why it failed"
+      },
       "compose": "Compose file",
       "show": "Show",
       "hide": "Hide",

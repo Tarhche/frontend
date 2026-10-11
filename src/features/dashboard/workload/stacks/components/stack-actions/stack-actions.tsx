@@ -45,8 +45,9 @@ type Props = {
 };
 
 /**
- * What can be asked of a stack: each command reaches every container in it.
- * There is no edit: a stack is its compose file, and a different file is a
+ * What can be asked of a stack: each command reaches every container in it,
+ * started in the order they depend on one another and stopped the other way
+ * round. There is no edit: a stack is its file, and a different file is a
  * different stack.
  *
  * Stopping, restarting and deleting are asked about first. Deleting takes the
@@ -110,9 +111,9 @@ export function StackActions({
 
   const busy = command.isPending || remove.isPending;
 
-  // while a compose command is running in the VM, another would only queue
-  // up behind it; deleting is the exception, which takes it down whatever
-  // it is doing.
+  // while the platform is on its way somewhere with it, another command would
+  // only queue up behind that; deleting is the exception, which takes it down
+  // whatever it is doing.
   const settling = isInFlight(stack);
   const running = stack.state === "running";
 

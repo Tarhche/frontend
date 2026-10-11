@@ -6,13 +6,35 @@ import {
 } from "@/features/dashboard/workload/docker/types";
 
 /**
- * A compose project deployed into a Docker VM. Its compose file is kept as it
- * was given, and never changes: a different stack is a new stack.
+ * Where a stack is, as the platform names it. Deploying, starting, stopping,
+ * restarting and removing are on the way somewhere; the rest are where it is.
+ */
+export const STACK_STATES = [
+  "deploying",
+  "running",
+  "degraded",
+  "starting",
+  "stopping",
+  "stopped",
+  "restarting",
+  "removing",
+  "waiting",
+  "failed",
+] as const;
+
+export type StackState = (typeof STACK_STATES)[number];
+
+/**
+ * The services, volumes and networks a file in the compose file format says,
+ * which the platform makes in a Docker VM itself, in the order they need one
+ * another: nothing runs compose. Its file is kept as it was given, and never
+ * changes: a different stack is a new stack.
  *
- * - state: what the last compose command left it as: deploying | running |
- *   starting | stopping | stopped | restarting | removing | failed.
+ * - state: where it is, one of STACK_STATES. Degraded is a stack some of
+ *   whose services do not run; waiting one that waits on what it needs, its
+ *   VM not running, say; and failed one whose plan failed.
  * - expected_state: what it was asked to be, running or stopped.
- * - output: the tail of what the last compose command printed.
+ * - reason: why it waits, failed or is degraded.
  * - compose: the file itself, which a listing leaves out and one stack's read
  *   carries.
  */
@@ -20,7 +42,10 @@ export type Stack = {
   uuid: string;
   name: string;
 
-  /** the compose project's name inside the VM, which its containers carry. */
+  /**
+   * what it is called inside its VM: what it makes there is named after it,
+   * <slug>_<name>, and its containers carry it as their stack.
+   */
   slug: string;
   owner_uuid: string;
 
@@ -32,7 +57,6 @@ export type Stack = {
   expected_state?: string;
   state: string;
   reason?: string;
-  output?: string;
   created_at: string;
   updated_at?: string;
 };

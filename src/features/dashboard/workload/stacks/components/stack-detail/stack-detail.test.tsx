@@ -65,29 +65,68 @@ beforeEach(() => {
   getAllVms.mockResolvedValue([dockerVm({uuid: "vm-1", name: "docker-one"})]);
 });
 
+// a stack of the person's in vm-1, as one stack's read answers it.
+function stack(overrides: Record<string, unknown> = {}) {
+  return {
+    uuid: "s-1",
+    name: "shop",
+    slug: "shop-x1y2z",
+    vm_uuid: "vm-1",
+    state: "running",
+    compose: "services: {}",
+    created_at: "2026-10-04T12:00:00Z",
+    containers: [],
+    ...overrides,
+  };
+}
+
 describe("StackDetail", () => {
-  it("says why a stack failed, with what compose said open beneath it", async () => {
-    fetchStack.mockResolvedValue({
-      uuid: "s-1",
-      name: "shop",
-      slug: "shop-x1y2z",
-      vm_uuid: "vm-1",
-      state: "failed",
-      reason: "compose up failed",
-      output: "Error: pull access denied for privat/image",
-      compose: "services: {}",
-      created_at: "2026-10-04T12:00:00Z",
-      containers: [],
-    });
+  it("says why a stack failed, and keeps its file folded", async () => {
+    fetchStack.mockResolvedValue(
+      stack({state: "failed", reason: "no node has room for its VM"}),
+    );
     detail();
 
-    expect(await screen.findByText("compose up failed")).toBeInTheDocument();
+    const why = await screen.findByRole("alert");
+    expect(why).toHaveTextContent("stacks.detail.reasons.failed");
+    expect(why).toHaveTextContent("no node has room for its VM");
     expect(
-      screen.getByRole("button", {name: "stacks.detail.hide"}),
-    ).toHaveAttribute("aria-expanded", "true");
+      screen.getByRole("button", {name: "stacks.detail.show"}),
+    ).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("says what a waiting stack waits for", async () => {
+    fetchStack.mockResolvedValue(
+      stack({state: "waiting", reason: "its vm is stopped"}),
+    );
+    detail();
+
+    const why = await screen.findByRole("status");
+    expect(why).toHaveTextContent("stacks.detail.reasons.waiting");
+    expect(why).toHaveTextContent("its vm is stopped");
+  });
+
+  it("says what of a degraded stack is not running", async () => {
+    fetchStack.mockResolvedValue(
+      stack({state: "degraded", reason: "worker exited with 1"}),
+    );
+    detail();
+
+    const why = await screen.findByRole("status");
+    expect(why).toHaveTextContent("stacks.detail.reasons.degraded");
+    expect(why).toHaveTextContent("worker exited with 1");
+  });
+
+  it("says no reason for a stack that is where it was asked to be", async () => {
+    fetchStack.mockResolvedValue(
+      stack({state: "running", reason: "its vm is being made"}),
+    );
+    detail();
+
     expect(
-      screen.getByText("Error: pull access denied for privat/image"),
-    ).toBeVisible();
+      await screen.findByText(/stacks\.detail\.prefix\(shop-x1y2z\)/),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("its vm is being made")).not.toBeInTheDocument();
   });
 
   it("links each container to its own page, in the stack's VM", async () => {
