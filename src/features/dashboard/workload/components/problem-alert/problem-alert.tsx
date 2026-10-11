@@ -1,17 +1,7 @@
 "use client";
 
-import {useId, useState, type ReactNode} from "react";
-import {
-  Alert,
-  Button,
-  Code,
-  Collapse,
-  Group,
-  List,
-  ListItem,
-  Stack,
-  Text,
-} from "@mantine/core";
+import {type ReactNode} from "react";
+import {Alert, Button, Group, List, ListItem, Stack, Text} from "@mantine/core";
 import {IconAlertTriangle, IconClockHour4} from "@tabler/icons-react";
 import {useTranslations} from "@/i18n/provider";
 import {
@@ -36,17 +26,12 @@ type Props = {
   onRetry?: () => void;
   retrying?: boolean;
 
-  /** whether a failed command's output is shown before anybody asks. */
-  outputOpen?: boolean;
-
   children?: ReactNode;
 };
 
 /**
  * What went wrong, said where it went wrong: in the form that was sent, the
- * question that was answered, or in place of what could not be read. Whatever
- * a command printed on its way to failing is kept under it, since that is
- * usually what says why.
+ * question that was answered, or in place of what could not be read.
  */
 export function ProblemAlert({
   problem,
@@ -54,12 +39,9 @@ export function ProblemAlert({
   shown,
   onRetry,
   retrying,
-  outputOpen = false,
   children,
 }: Props) {
   const t = useTranslations();
-  const outputId = useId();
-  const [showingOutput, setShowingOutput] = useState(outputOpen);
 
   // refusals are listed, each its own sentence, and one about a field the
   // form does not show says which field that is; a single refusal of the
@@ -100,36 +82,6 @@ export function ProblemAlert({
         )}
 
         {children}
-
-        {problem.output && (
-          <div>
-            <Button
-              variant="subtle"
-              size="compact-sm"
-              onClick={() => setShowingOutput((showing) => !showing)}
-              aria-expanded={showingOutput}
-              aria-controls={outputId}
-            >
-              {showingOutput
-                ? t("workload.hideOutput")
-                : t("workload.showOutput")}
-            </Button>
-            <Collapse expanded={showingOutput} id={outputId}>
-              <Code
-                block
-                dir="ltr"
-                mt="xs"
-                style={{
-                  maxHeight: 320,
-                  overflow: "auto",
-                  whiteSpace: "pre-wrap",
-                }}
-              >
-                {problem.output}
-              </Code>
-            </Collapse>
-          </div>
-        )}
 
         {onRetry && (
           <Group>

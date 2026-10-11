@@ -1,4 +1,4 @@
-import {fireEvent, screen, waitFor} from "@testing-library/react";
+import {fireEvent, screen, waitFor, within} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {AxiosError, AxiosHeaders, type InternalAxiosRequestConfig} from "axios";
 import {
@@ -144,27 +144,73 @@ describe("StackForm", () => {
     expect(createStack).not.toHaveBeenCalled();
   });
 
-  it("shows what was refused where it was written, with what compose said", async () => {
+  it("shows a file refused as a whole beside it", async () => {
+    createStack.mockRejectedValue(
+      refused({errors: {compose: "The file is not YAML."}}),
+    );
+    renderWithProviders(<StackForm vmSource={{scope: "mine"}} />);
+
+    await fill("shop", "services: [\n");
+
+    expect(
+      await screen.findByText("The file is not YAML."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("stacks.form.failed")).not.toBeInTheDocument();
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it("shows everything refused in the file beside it at once, each where it is", async () => {
     createStack.mockRejectedValue(
       refused({
-        errors: {compose: "services.web.image must be a string"},
-        output: "validating compose.yaml: services.web.image must be a string",
+        errors: {
+          "compose.services.web.build": "The key build is not supported.",
+          "compose.services.web.ports[0]": "That is not a port.",
+          "compose.services.web.depends_on.db": "There is no service db.",
+          name: "That name is taken.",
+        },
       }),
     );
     renderWithProviders(<StackForm vmSource={{scope: "mine"}} />);
 
-    await fill("shop", "services:\n  web:\n    image: [1]\n");
+    await fill("shop", "services:\n  web:\n    image: nginx\n    build: .\n");
+
+    const said = await screen.findByRole("alert");
+    expect(
+      within(said)
+        .getAllByRole("listitem")
+        .map((item) => item.textContent),
+    ).toEqual([
+      "services.web.build: The key build is not supported.",
+      "services.web.depends_on.db: There is no service db.",
+      "services.web.ports[0]: That is not a port.",
+    ]);
+
+    // the name is refused beside the name, and nothing is said twice.
+    expect(screen.getByText("That name is taken.")).toBeInTheDocument();
+    expect(screen.queryByText("stacks.form.failed")).not.toBeInTheDocument();
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it("still says what the VM refused above the button", async () => {
+    createStack.mockRejectedValue(
+      refused({
+        errors: {
+          "compose.services.web.image": "An image is required.",
+          docker: "Docker refused the request: no space left on device",
+        },
+      }),
+    );
+    renderWithProviders(<StackForm vmSource={{scope: "mine"}} />);
+
+    await fill("shop", "services:\n  web:\n    command: ls\n");
 
     expect(
-      await screen.findByText("services.web.image must be a string"),
+      await screen.findByText("An image is required."),
     ).toBeInTheDocument();
-    expect(screen.getByText("stacks.form.composeOutput")).toBeInTheDocument();
+    expect(screen.getByText("stacks.form.failed")).toBeInTheDocument();
     expect(
-      screen.getByText(
-        "validating compose.yaml: services.web.image must be a string",
-      ),
+      screen.getByText("Docker refused the request: no space left on device"),
     ).toBeInTheDocument();
-    expect(push).not.toHaveBeenCalled();
   });
 
   it("creates a Docker VM along with it for somebody who has none", async () => {

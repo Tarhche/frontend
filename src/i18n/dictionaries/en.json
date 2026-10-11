@@ -617,8 +617,6 @@
       "startFailed": "Starting \"{name}\" failed",
       "stale": "What is shown could not be refreshed: {reason}"
     },
-    "showOutput": "Show the output",
-    "hideOutput": "Hide the output",
     "logs": {
       "help": "The last {tail} lines, then whatever is written next.",
       "follow": "Follow",
@@ -973,15 +971,16 @@
       "where": "Where it is deployed",
       "stack": "Stack",
       "name": "Name",
-      "nameHelp": "The compose project inside the VM is named after it.",
+      "nameHelp": "What it makes in the VM is named after it.",
       "compose": "Compose file",
-      "composeHelp": "A docker compose file, in YAML, up to {max}. Its own name: is ignored. A stack cannot be edited once deployed: deploy a new one instead.",
+      "composeHelp": "A compose file in YAML, up to {max}. The platform carries it out itself and takes only the keys below: anything else, such as build, healthcheck or deploy, is refused, as are YAML anchors (&) and aliases (*). Volumes and networks are declared at the top with nothing under them, and a service mounts one of those volumes or an absolute path of the VM; restart is no or unless-stopped; depends_on waits only for service_started; and ${VAR} is not filled in. A stack cannot be edited once deployed: deploy a new one instead.",
+      "fileKeys": "At the top:",
+      "serviceKeys": "In each service:",
       "deploy": "Deploy",
       "created": "Stack {name} is deploying",
       "createdInVm": "It is being deployed into {vm}.",
       "createdInNewVm": "A Docker VM, {vm}, was created for it.",
       "failed": "The stack could not be deployed",
-      "composeOutput": "What compose said",
       "errors": {
         "required": "This is required.",
         "tooLarge": "A compose file can be up to {max}."

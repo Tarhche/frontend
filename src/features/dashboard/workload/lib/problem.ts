@@ -26,9 +26,6 @@ export type Problem = {
   /** what was refused, by the JSON path of what it is about. */
   fields: Record<string, string>;
 
-  /** the output a compose command left, when one ran and failed. */
-  output?: string;
-
   /**
    * Nothing came back in time, so whatever was asked for may still be under
    * way: a pull carries on after whoever asked for it has stopped waiting.
@@ -137,7 +134,6 @@ export function problemOf(error: unknown): Problem {
   }
 
   problem.fields = fieldsOf(data.errors);
-  problem.output = text(data.output);
 
   // the workload's answer, {code, message}, whether passed through as it is
   // or under an `error` of its own.

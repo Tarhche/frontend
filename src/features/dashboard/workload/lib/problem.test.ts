@@ -55,13 +55,6 @@ describe("problemOf", () => {
     );
   });
 
-  it("keeps the output a failed compose command left", () => {
-    expect(
-      problemOf(answered(400, {errors: {compose: "bad"}, output: "line 3"}))
-        .output,
-    ).toBe("line 3");
-  });
-
   it("knows a request nobody answered may still be under way", () => {
     expect(problemOf(answered(504, {code: "timeout"})).unanswered).toBe(true);
     expect(problemOf(answered(502, "")).unanswered).toBe(true);

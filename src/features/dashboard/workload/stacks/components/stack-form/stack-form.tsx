@@ -4,11 +4,13 @@ import {useId, useState, type FormEvent} from "react";
 import {useRouter} from "next/navigation";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {
-  Alert,
+  Box,
   Button,
   Code,
   Fieldset,
   Group,
+  List,
+  ListItem,
   Stack,
   Text,
   TextInput,
@@ -35,19 +37,80 @@ import {stackKeys} from "../../hooks/use-stacks";
 import {ComposeEditor} from "../compose-editor";
 import {
   EXAMPLE_COMPOSE,
+  FILE_KEYS,
+  fileRefusals,
+  isAboutTheFile,
   MAX_COMPOSE_BYTES,
+  SERVICE_KEYS,
   stackRequest,
+  type FileRefusal,
 } from "./stack-request";
 
 // what the server may refuse that is shown beside the field it is about, as
-// JSON paths; anything else it refuses is listed above the button.
+// JSON paths: the file, wherever in it, and these; anything else it refuses
+// is listed above the button.
 const SHOWN_INLINE = [
-  /^(name|compose|vm_uuid|vm)$/,
+  /^(name|vm_uuid|vm)$/,
   /^vm\.(name|ports(\.\d+)?|resources\.(cpus|memory|disk)|network\.(ingress|egress))$/,
 ];
 
 function shownInline(path: string): boolean {
-  return SHOWN_INLINE.some((pattern) => pattern.test(path));
+  return (
+    isAboutTheFile(path) || SHOWN_INLINE.some((pattern) => pattern.test(path))
+  );
+}
+
+/** Keys of the file the platform takes, as they are written in it. */
+function Keys({label, keys}: {label: string; keys: readonly string[]}) {
+  return (
+    <Group gap={4}>
+      <Text size="xs" c="dimmed">
+        {label}
+      </Text>
+      {keys.map((key) => (
+        <Code key={key} fz="xs" dir="ltr">
+          {key}
+        </Code>
+      ))}
+    </Group>
+  );
+}
+
+/**
+ * What is wrong with the file, said beside it: each thing refused with where
+ * in the file it is, as many as there are at once. A file can be refused for a
+ * good many things, so the list scrolls past a few.
+ */
+function FileErrors({id, errors}: {id: string; errors: FileRefusal[]}) {
+  const whole = errors.length === 1 && errors[0].path === "";
+
+  return (
+    <Box id={id} role="alert" mt={4} mah={240} style={{overflowY: "auto"}}>
+      {whole ? (
+        <Text c="red" size="sm">
+          {errors[0].message}
+        </Text>
+      ) : (
+        <List size="sm" c="red" spacing={2}>
+          {errors.map(({path, message}) => (
+            <ListItem key={path}>
+              {path && (
+                <>
+                  <Text span ff="monospace" size="sm" dir="ltr">
+                    {path}
+                  </Text>
+                  {": "}
+                </>
+              )}
+              <Text span size="sm">
+                {message}
+              </Text>
+            </ListItem>
+          ))}
+        </List>
+      )}
+    </Box>
+  );
 }
 
 type Props = {
@@ -56,10 +119,11 @@ type Props = {
 };
 
 /**
- * A compose project to deploy into one of the person's Docker VMs, or into a
- * new one made for it. The compose file is taken as it is written, so it is
- * written in an editor that knows YAML; compose itself says whether it is
- * right, and what it said comes back with the refusal when it is not.
+ * A stack to deploy into one of the person's Docker VMs, or into a new one
+ * made for it. Its file is written in the compose file format, in an editor
+ * that knows YAML, and is taken as it is written: the platform reads it and
+ * makes what it says itself, and whatever it refuses in it comes back by where
+ * in the file it is, which is said beside the editor, all of it at once.
  *
  * There is no editing a stack: deploying a different file is a new stack.
  */
@@ -69,6 +133,7 @@ export function StackForm({vmSource}: Props) {
   const queryClient = useQueryClient();
   const composeLabel = useId();
   const composeHelp = useId();
+  const composeErrors = useId();
 
   const vmState = useDockerVmChoice(vmSource, {allowNew: true});
   const [name, setName] = useState("");
@@ -77,6 +142,7 @@ export function StackForm({vmSource}: Props) {
 
   const {body, errors: invalid} = stackRequest({name, compose}, vmState.choice);
   const vmIssue = choiceIssue(vmState.choice, vmState.vms);
+  const max = `${MAX_COMPOSE_BYTES / 1024} KiB`;
 
   const create = useMutation({
     mutationFn: (request: StackCreateRequest) => createStack(request),
@@ -102,15 +168,17 @@ export function StackForm({vmSource}: Props) {
   const refused = fieldPaths(sent?.fields ?? {}, "stack");
   const problem = sent && {...sent, fields: refused};
 
-  const fieldError = (field: string): string | undefined => {
-    if (attempted && invalid[field]) {
-      return t(`stacks.form.errors.${invalid[field]}`, {
-        max: `${MAX_COMPOSE_BYTES / 1024} KiB`,
-      });
-    }
+  const nameError =
+    attempted && invalid.name
+      ? t(`stacks.form.errors.${invalid.name}`)
+      : refused.name;
 
-    return refused[field];
-  };
+  // what is wrong with the file: missing or too much of it, before it is sent,
+  // or everything the platform refused in it, each where it is in the file.
+  const fileErrors: FileRefusal[] =
+    attempted && invalid.compose
+      ? [{path: "", message: t(`stacks.form.errors.${invalid.compose}`, {max})}]
+      : fileRefusals(sent?.fields ?? {});
 
   const vmError =
     attempted && vmIssue
@@ -129,7 +197,6 @@ export function StackForm({vmSource}: Props) {
   };
 
   const pending = create.isPending;
-  const composeError = fieldError("compose");
 
   return (
     <form onSubmit={submit} noValidate>
@@ -150,7 +217,7 @@ export function StackForm({vmSource}: Props) {
               description={t("stacks.form.nameHelp")}
               value={name}
               onChange={(event) => setName(event.currentTarget.value)}
-              error={fieldError("name")}
+              error={nameError}
               required
               autoComplete="off"
             />
@@ -162,55 +229,43 @@ export function StackForm({vmSource}: Props) {
                   *
                 </Text>
               </Text>
-              <Text size="xs" c="dimmed" mb="xs" id={composeHelp}>
-                {t("stacks.form.composeHelp", {
-                  max: `${MAX_COMPOSE_BYTES / 1024} KiB`,
-                })}
-              </Text>
+              <Stack gap={4} mb="xs" id={composeHelp}>
+                <Text size="xs" c="dimmed">
+                  {t("stacks.form.composeHelp", {max})}
+                </Text>
+                <Keys label={t("stacks.form.fileKeys")} keys={FILE_KEYS} />
+                <Keys
+                  label={t("stacks.form.serviceKeys")}
+                  keys={SERVICE_KEYS}
+                />
+              </Stack>
               <ComposeEditor
                 value={compose}
                 onChange={setCompose}
                 readOnly={pending}
                 labelledBy={composeLabel}
-                describedBy={composeHelp}
-                invalid={Boolean(composeError)}
+                describedBy={
+                  fileErrors.length > 0
+                    ? `${composeHelp} ${composeErrors}`
+                    : composeHelp
+                }
+                invalid={fileErrors.length > 0}
               />
-              {composeError && (
-                <Text c="red" size="sm" mt={4} role="alert">
-                  {composeError}
-                </Text>
+              {fileErrors.length > 0 && (
+                <FileErrors id={composeErrors} errors={fileErrors} />
               )}
             </div>
           </Stack>
         </Fieldset>
 
         {/* what the VM refused, and anything not said beside a field, is
-            said here, with what compose printed when it printed anything. */}
+            said here. */}
         {problem && hasMoreToSay(problem, shownInline) && (
           <ProblemAlert
             problem={problem}
             shown={shownInline}
             title={t("stacks.form.failed")}
-            outputOpen
           />
-        )}
-
-        {/* what compose said about a file refused beside the editor, which is
-            what says what to fix. */}
-        {problem && !hasMoreToSay(problem, shownInline) && problem.output && (
-          <Alert
-            color="red"
-            variant="light"
-            title={t("stacks.form.composeOutput")}
-          >
-            <Code
-              block
-              dir="ltr"
-              style={{maxHeight: 320, overflow: "auto", whiteSpace: "pre-wrap"}}
-            >
-              {problem.output}
-            </Code>
-          </Alert>
         )}
 
         <Group justify="flex-end">
