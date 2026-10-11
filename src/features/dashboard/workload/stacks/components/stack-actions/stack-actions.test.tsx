@@ -121,6 +121,47 @@ describe("StackActions", () => {
     );
   });
 
+  it("offers a running stack only to be stopped, and a stopped one only to be started", () => {
+    const {unmount} = actions(stack({state: "running"}));
+    expect(
+      screen.getByRole("button", {name: "stacks.actions.stop"}),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", {name: "stacks.actions.start"}),
+    ).not.toBeInTheDocument();
+    unmount();
+
+    actions(stack({state: "stopped"}));
+    expect(
+      screen.getByRole("button", {name: "stacks.actions.start"}),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", {name: "stacks.actions.stop"}),
+    ).not.toBeInTheDocument();
+  });
+
+  it("offers a degraded stack to be started, for the rest of it to run, or stopped", async () => {
+    const user = userEvent.setup();
+    actions(stack({state: "degraded"}));
+
+    await user.click(
+      screen.getByRole("button", {name: "stacks.actions.start"}),
+    );
+    await waitFor(() =>
+      expect(commandStack).toHaveBeenCalledWith("mine", "s-1", "start"),
+    );
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", {name: "stacks.actions.stop"}));
+    const question = await screen.findByRole("dialog");
+    await user.click(
+      within(question).getByRole("button", {name: "stacks.actions.stop"}),
+    );
+    await waitFor(() =>
+      expect(commandStack).toHaveBeenCalledWith("mine", "s-1", "stop"),
+    );
+  });
+
   it("starts a stopped stack at once", async () => {
     const user = userEvent.setup();
     actions(stack({state: "stopped"}));

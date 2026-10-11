@@ -115,7 +115,12 @@ export function StackActions({
   // only queue up behind that; deleting is the exception, which takes it down
   // whatever it is doing.
   const settling = isInFlight(stack);
-  const running = stack.state === "running";
+
+  // a running stack is stopped and any other started, but for one some of
+  // whose services do not run, which may be either: started, for the rest of
+  // it to run, or stopped.
+  const startable = stack.state !== "running";
+  const stoppable = stack.state === "running" || stack.state === "degraded";
 
   const ask = (which: "stop" | "restart" | "delete") => {
     command.reset();
@@ -138,20 +143,7 @@ export function StackActions({
       <ActionIconGroup>
         {manage !== null && (
           <>
-            {running ? (
-              <Tooltip label={t("stacks.actions.stop")} withArrow>
-                <ActionIcon
-                  variant="light"
-                  size="lg"
-                  color="yellow"
-                  disabled={busy || settling}
-                  aria-label={t("stacks.actions.stop")}
-                  onClick={() => ask("stop")}
-                >
-                  <IconPlayerStop style={{width: rem(20)}} stroke={1.5} />
-                </ActionIcon>
-              </Tooltip>
-            ) : (
+            {startable && (
               <Tooltip label={t("stacks.actions.start")} withArrow>
                 <ActionIcon
                   variant="light"
@@ -163,6 +155,20 @@ export function StackActions({
                   onClick={() => command.mutate("start")}
                 >
                   <IconPlayerPlay style={{width: rem(20)}} stroke={1.5} />
+                </ActionIcon>
+              </Tooltip>
+            )}
+            {stoppable && (
+              <Tooltip label={t("stacks.actions.stop")} withArrow>
+                <ActionIcon
+                  variant="light"
+                  size="lg"
+                  color="yellow"
+                  disabled={busy || settling}
+                  aria-label={t("stacks.actions.stop")}
+                  onClick={() => ask("stop")}
+                >
+                  <IconPlayerStop style={{width: rem(20)}} stroke={1.5} />
                 </ActionIcon>
               </Tooltip>
             )}
