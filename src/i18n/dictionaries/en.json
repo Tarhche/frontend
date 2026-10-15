@@ -610,7 +610,6 @@
       "invalid": "Docker refused the request.",
       "timeout": "It took too long to answer.",
       "internal": "Something went wrong on the platform.",
-      "vm_required": "You have several Docker VMs: pick one.",
       "no_capacity": "There is no room for another VM right now.",
       "quota_exceeded": "That is more than your quota allows.",
       "unanswered": "No answer came back in time. It may still be under way: pulling an image can take minutes. Check again in a little while.",

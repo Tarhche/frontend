@@ -62,7 +62,6 @@ const KNOWN_CODES = [
   "invalid",
   "timeout",
   "internal",
-  "vm_required",
   "no_capacity",
   "quota_exceeded",
 ] as const;
