@@ -30,6 +30,25 @@ const underway: Record<StackCommand, StackTransition> = {
   restart: "restarting",
 };
 
+// where a stack may be when each command is asked of it, as the platform
+// takes them: started once stopped, degraded, failed or waiting, for what of
+// it does not run to run; stopped once running, degraded or failed; and
+// restarted from any of those.
+const STARTS_FROM: readonly string[] = [
+  "stopped",
+  "degraded",
+  "failed",
+  "waiting",
+];
+const STOPS_FROM: readonly string[] = ["running", "degraded", "failed"];
+const RESTARTS_FROM: readonly string[] = [
+  "running",
+  "degraded",
+  "stopped",
+  "failed",
+  "waiting",
+];
+
 type Props = {
   stack: Stack;
 
@@ -116,11 +135,13 @@ export function StackActions({
   // whatever it is doing.
   const settling = isInFlight(stack);
 
-  // a running stack is stopped and any other started, but for one some of
-  // whose services do not run, which may be either: started, for the rest of
-  // it to run, or stopped.
-  const startable = stack.state !== "running";
-  const stoppable = stack.state === "running" || stack.state === "degraded";
+  // what is offered is what the platform takes of the stack where it is: a
+  // degraded or a failed one may be started or stopped, a waiting one started
+  // but not stopped. One on its way somewhere shows start and restart, which
+  // cannot be pressed until it gets there, and not stop.
+  const startable = settling || STARTS_FROM.includes(stack.state);
+  const stoppable = STOPS_FROM.includes(stack.state);
+  const restartable = settling || RESTARTS_FROM.includes(stack.state);
 
   const ask = (which: "stop" | "restart" | "delete") => {
     command.reset();
@@ -172,18 +193,20 @@ export function StackActions({
                 </ActionIcon>
               </Tooltip>
             )}
-            <Tooltip label={t("stacks.actions.restart")} withArrow>
-              <ActionIcon
-                variant="light"
-                size="lg"
-                color="blue"
-                disabled={busy || settling}
-                aria-label={t("stacks.actions.restart")}
-                onClick={() => ask("restart")}
-              >
-                <IconRefresh style={{width: rem(20)}} stroke={1.5} />
-              </ActionIcon>
-            </Tooltip>
+            {restartable && (
+              <Tooltip label={t("stacks.actions.restart")} withArrow>
+                <ActionIcon
+                  variant="light"
+                  size="lg"
+                  color="blue"
+                  disabled={busy || settling}
+                  aria-label={t("stacks.actions.restart")}
+                  onClick={() => ask("restart")}
+                >
+                  <IconRefresh style={{width: rem(20)}} stroke={1.5} />
+                </ActionIcon>
+              </Tooltip>
+            )}
           </>
         )}
         {removeScope !== null && (

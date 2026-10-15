@@ -162,6 +162,39 @@ describe("StackActions", () => {
     );
   });
 
+  it("offers a failed stack to be started, stopped or restarted, and a waiting one not to be stopped", async () => {
+    const user = userEvent.setup();
+    const {unmount} = actions(stack({state: "failed"}));
+
+    expect(
+      screen.getByRole("button", {name: "stacks.actions.start"}),
+    ).toBeEnabled();
+    expect(
+      screen.getByRole("button", {name: "stacks.actions.restart"}),
+    ).toBeEnabled();
+
+    await user.click(screen.getByRole("button", {name: "stacks.actions.stop"}));
+    const question = await screen.findByRole("dialog");
+    await user.click(
+      within(question).getByRole("button", {name: "stacks.actions.stop"}),
+    );
+    await waitFor(() =>
+      expect(commandStack).toHaveBeenCalledWith("mine", "s-1", "stop"),
+    );
+    unmount();
+
+    actions(stack({state: "waiting"}));
+    expect(
+      screen.getByRole("button", {name: "stacks.actions.start"}),
+    ).toBeEnabled();
+    expect(
+      screen.getByRole("button", {name: "stacks.actions.restart"}),
+    ).toBeEnabled();
+    expect(
+      screen.queryByRole("button", {name: "stacks.actions.stop"}),
+    ).not.toBeInTheDocument();
+  });
+
   it("starts a stopped stack at once", async () => {
     const user = userEvent.setup();
     actions(stack({state: "stopped"}));
