@@ -1165,7 +1165,7 @@
       "restartConfirm": "Restart \"{name}\"? Whatever it is doing is interrupted.",
       "removeConfirm": "Remove \"{name}\"? It cannot be brought back; its volumes stay.",
       "removeRunning": "It is running: it is stopped and removed at once, by force.",
-      "removeFromStack": "It belongs to the stack {stack}: starting that stack again creates it again."
+      "removeFromStack": "It belongs to the stack {stack}, which makes it again on its own once it is removed."
     },
     "form": {
       "where": "Where it runs",
