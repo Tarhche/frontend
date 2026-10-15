@@ -45,20 +45,15 @@ import {StackActions} from "../stack-actions";
 import {StackStateBadge, type StackTransition} from "../stack-state-badge";
 
 /**
- * How many containers each stack has. A container says which stack made it
- * when the API could tell, and that stack's slug always, which is what the
- * stack is called in the VM it was found in: it is counted under the first,
- * or under its VM and the second when that is all there is.
+ * How many containers each stack has, by the stack's uuid. A container says
+ * which stack made it when whoever asks may see that stack, and nothing
+ * otherwise, so it is counted for that stack or for none.
  */
 export function countContainers(containers: Container[]): Map<string, number> {
   const counts = new Map<string, number>();
 
   for (const container of containers) {
-    const key =
-      container.stack_uuid ??
-      (container.stack && container.vm_uuid
-        ? `${container.vm_uuid}/${container.stack}`
-        : undefined);
+    const key = container.stack_uuid;
 
     if (key) {
       counts.set(key, (counts.get(key) ?? 0) + 1);
@@ -68,15 +63,12 @@ export function countContainers(containers: Container[]): Map<string, number> {
   return counts;
 }
 
-/** The containers counted for a stack, by its uuid or by its VM and slug. */
+/** The containers counted for a stack. */
 export function containersOf(
   counts: Map<string, number>,
-  stack: Pick<StackRecord, "uuid" | "vm_uuid" | "slug">,
+  stack: Pick<StackRecord, "uuid">,
 ): number {
-  return (
-    (counts.get(stack.uuid) ?? 0) +
-    (counts.get(`${stack.vm_uuid}/${stack.slug}`) ?? 0)
-  );
+  return counts.get(stack.uuid) ?? 0;
 }
 
 type RowProps = {

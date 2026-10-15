@@ -242,7 +242,7 @@ describe("StackDetail, read as anybody's", () => {
 });
 
 describe("counting a stack's containers", () => {
-  it("counts them by the stack the API says deployed them, or by VM and slug", () => {
+  it("counts them by the stack the API says made them", () => {
     const counts = countContainers([
       {
         id: "1",
@@ -264,27 +264,10 @@ describe("counting a stack's containers", () => {
         stack_uuid: "s-1",
         vm_uuid: "vm-1",
       },
-      // a container the API could not link is still counted, by where it is.
-      {
-        id: "3",
-        name: "c",
-        image: "x",
-        state: "running",
-        status: "",
-        stack: "shop",
-        vm_uuid: "vm-2",
-      },
       {id: "4", name: "d", image: "x", state: "running", status: ""},
     ]);
 
-    expect(
-      containersOf(counts, {uuid: "s-1", vm_uuid: "vm-1", slug: "shop"}),
-    ).toBe(2);
-    expect(
-      containersOf(counts, {uuid: "s-2", vm_uuid: "vm-2", slug: "shop"}),
-    ).toBe(1);
-    expect(
-      containersOf(counts, {uuid: "s-3", vm_uuid: "vm-3", slug: "blog"}),
-    ).toBe(0);
+    expect(containersOf(counts, {uuid: "s-1"})).toBe(2);
+    expect(containersOf(counts, {uuid: "s-3"})).toBe(0);
   });
 });
