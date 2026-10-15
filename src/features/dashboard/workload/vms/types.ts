@@ -9,8 +9,6 @@ import {type Problem} from "@/features/dashboard/workload/lib/problem";
  */
 export type VmKind = "machine" | "docker";
 
-export const VM_KINDS: readonly VmKind[] = ["machine", "docker"];
-
 /** Whether traffic one way is let through at all. */
 export type Access = "allow" | "deny";
 
