@@ -38,7 +38,8 @@ export type VmAbilities = {
 
   /**
    * Whether a snapshot can be taken of it. Snapshots are made through the
-   * workload's own route, always for the caller, so only of one's own VM.
+   * workload's own route, always for the caller, so only of one's own VM, or
+   * of a run of the code runner's, whose snapshot is whoever took it.
    */
   snapshot: boolean;
 };
@@ -46,7 +47,7 @@ export type VmAbilities = {
 /**
  * What somebody may do to a VM, as its owner or not; run says it is a run of
  * the code runner's (lib/code-runner.ts), which is the guest's and nobody's
- * own, and whose terminal is anybody's to open.
+ * own, and whose terminal and snapshots are anybody's to ask for.
  */
 export function vmAbilities(
   permissions: readonly string[],
@@ -61,7 +62,8 @@ export function vmAbilities(
     logs: vmScope(permissions, "logs", isOwner),
     attach:
       (isOwner || run) && vmScope(permissions, "attach", isOwner) !== null,
-    snapshot: isOwner && permissions.includes("workload.snapshots.create"),
+    snapshot:
+      (isOwner || run) && permissions.includes("workload.snapshots.create"),
   };
 }
 

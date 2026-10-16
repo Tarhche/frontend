@@ -1,6 +1,7 @@
-import {act, screen, waitFor} from "@testing-library/react";
+import {act, screen, waitFor, within} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {renderWithProviders} from "@/features/dashboard/workload/docker/test-utils";
+import {type Snapshot} from "@/features/dashboard/workload/snapshots/types";
 import {type Vm} from "../../types";
 import {VmDetail} from "./vm-detail";
 
@@ -26,7 +27,17 @@ jest.mock("next/navigation", () => ({
 jest.mock("../../actions/vm-commands", () => ({
   commandVm: jest.fn(),
   deleteVm: jest.fn(),
+  restoreVm: jest.fn(),
 }));
+
+jest.mock(
+  "@/features/dashboard/workload/snapshots/actions/snapshot-commands",
+  () => ({
+    takeSnapshot: jest.fn(),
+    renameSnapshot: jest.fn(),
+    deleteSnapshot: jest.fn(),
+  }),
+);
 
 // the workload's ingress, which a terminal is opened on.
 jest.mock("@/constants", () => ({
@@ -52,15 +63,17 @@ jest.mock("@/features/dashboard/workload/components/task-terminal", () => {
   };
 });
 
-// what each other tab holds is tested where it is written; what is asked
-// here is which tabs there are.
+// what the settings hold is tested where they are written; what is asked
+// here is whether there are any.
 jest.mock("./vm-settings-form", () => ({
   VmSettingsForm: () => <div>its settings</div>,
 }));
-jest.mock(
-  "@/features/dashboard/workload/snapshots/components/vm-snapshots",
-  () => ({VmSnapshots: () => <div>its snapshots</div>}),
-);
+
+const getSnapshots = jest.fn();
+
+jest.mock("@/features/dashboard/workload/snapshots/client", () => ({
+  getSnapshots: (...args: unknown[]) => getSnapshots(...args),
+}));
 
 // the log, followed, says when it is not there any more, as a run's is not
 // once its snippet has ended.
@@ -142,12 +155,48 @@ function detail(initial: Vm) {
   );
 }
 
+/** a snapshot the person looking took of a VM, ready. */
+function snapshotOf(vm: Vm): Snapshot {
+  return {
+    uuid: `snap-of-${vm.uuid}`,
+    name: "kept",
+    owner_uuid: "me",
+    vm_uuid: vm.uuid,
+    vm_name: vm.name,
+    kind: "machine",
+    image: vm.image,
+    disk: vm.resources.disk,
+    size: 4 * 1024 ** 2,
+    state: "ready",
+    created_at: "2026-10-05T12:00:30Z",
+  };
+}
+
+function snapshotsOf(vm: Vm) {
+  getSnapshots.mockResolvedValue({
+    items: [snapshotOf(vm)],
+    pagination: {total_pages: 1, current_page: 1},
+  });
+}
+
+beforeAll(() => {
+  global.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+});
+
 beforeEach(() => {
   getVm.mockReset();
+  getSnapshots.mockReset().mockResolvedValue({
+    items: [],
+    pagination: {total_pages: 1, current_page: 1},
+  });
 });
 
 describe("VmDetail", () => {
-  it("says a run is the code runner's, the guest's, and offers its overview, its terminal and its log", async () => {
+  it("says a run is the code runner's, the guest's, and offers every tab a VM has but its settings", async () => {
     getVm.mockResolvedValue(run());
     detail(run());
 
@@ -167,11 +216,12 @@ describe("VmDetail", () => {
     expect(
       screen.getByRole("tab", {name: "vms.detail.logs"}),
     ).toBeInTheDocument();
-    for (const hidden of ["snapshots", "settings"]) {
-      expect(
-        screen.queryByRole("tab", {name: `vms.detail.${hidden}`}),
-      ).not.toBeInTheDocument();
-    }
+    expect(
+      screen.getByRole("tab", {name: "vms.detail.snapshots"}),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("tab", {name: "vms.detail.settings"}),
+    ).not.toBeInTheDocument();
 
     expect(
       screen.getByRole("button", {name: "vms.actions.stop"}),
@@ -199,6 +249,45 @@ describe("VmDetail", () => {
         "a terminal on wss://ingress.example/tasks/run-1/attach",
       ),
     ).toBeInTheDocument();
+  });
+
+  it("takes a snapshot of a run as the person looking's, and never restores one onto it", async () => {
+    const user = userEvent.setup();
+    getVm.mockResolvedValue(run());
+    snapshotsOf(run());
+    detail(run());
+
+    await user.click(screen.getByRole("tab", {name: "vms.detail.snapshots"}));
+
+    const panel = screen.getByRole("tabpanel", {name: "vms.detail.snapshots"});
+    expect(
+      within(panel).getByRole("button", {name: "snapshots.actions.take"}),
+    ).toBeInTheDocument();
+    expect(await within(panel).findByText("kept")).toBeInTheDocument();
+    expect(getSnapshots).toHaveBeenCalledWith("all", {vm: "run-1"});
+
+    expect(
+      within(panel).queryByLabelText("snapshots.actions.restoreOntoThis"),
+    ).not.toBeInTheDocument();
+    expect(
+      within(panel).queryByLabelText("snapshots.actions.restoreOnto"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("restores a snapshot onto a VM of the same owner", async () => {
+    const user = userEvent.setup();
+    getVm.mockResolvedValue(machine());
+    snapshotsOf(machine());
+    detail(machine());
+
+    await user.click(screen.getByRole("tab", {name: "vms.detail.snapshots"}));
+
+    const panel = screen.getByRole("tabpanel", {name: "vms.detail.snapshots"});
+    expect(await within(panel).findByText("kept")).toBeInTheDocument();
+    expect(
+      within(panel).getAllByLabelText("snapshots.actions.restoreOntoThis")
+        .length,
+    ).toBeGreaterThan(0);
   });
 
   it("opens a VM's terminal on the vm", async () => {
