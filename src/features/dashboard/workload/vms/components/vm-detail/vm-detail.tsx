@@ -93,7 +93,11 @@ export function VmDetail({initial, scope, permissions, me}: Props) {
   const run = isCodeRunnerRun(vm);
   const isOwner = vm.owner_uuid === me;
   const may = vmAbilities(permissions, isOwner, run);
-  const snapshots = snapshotScope(permissions, "index", isOwner);
+  // a snapshot of a run is whoever took it, so somebody who may list only
+  // their own snapshots still lists theirs of it.
+  const snapshots =
+    snapshotScope(permissions, "index", isOwner) ??
+    (run ? snapshotScope(permissions, "index", true) : null);
   const running = vm.state === "running";
 
   return (

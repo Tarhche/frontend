@@ -271,6 +271,26 @@ describe("VmDetail", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("lists the snapshots somebody took of a run as theirs, when they may list only their own", async () => {
+    const user = userEvent.setup();
+    getVm.mockResolvedValue(run());
+    snapshotsOf(run());
+    renderWithProviders(
+      <VmDetail
+        initial={run()}
+        scope="all"
+        permissions={admin.filter((p) => p !== "workload.snapshots.index")}
+        me="me"
+      />,
+    );
+
+    await user.click(screen.getByRole("tab", {name: "vms.detail.snapshots"}));
+
+    const panel = screen.getByRole("tabpanel", {name: "vms.detail.snapshots"});
+    expect(await within(panel).findByText("kept")).toBeInTheDocument();
+    expect(getSnapshots).toHaveBeenCalledWith("mine", {vm: "run-1"});
+  });
+
   it("restores a snapshot onto a VM of the same owner", async () => {
     const user = userEvent.setup();
     getVm.mockResolvedValue(machine());
