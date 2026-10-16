@@ -835,13 +835,17 @@
     "settings": {
       "immutable": "The kind and image cannot be changed.",
       "lifetimeHelp": "How long the VM is kept before it is deleted. Changing it sets a new expiry.",
+      "runLifetime": "A run lives as long as its snippet does: the code runner's own time limit ends it, so it is not changed here.",
       "diskGrows": "Can only grow: at least {size}",
       "restartTitle": "Saving restarts the VM",
       "restartWarning": "Changing ports, network or resources restarts the VM if it is running.",
+      "runRestartTitle": "Saving runs the snippet again",
+      "runRestartWarning": "Changing ports, network or resources runs the snippet again from the start, in a fresh VM: what it printed so far is gone, and its time starts again.",
       "save": "Save changes",
       "saveAndRestart": "Save and restart",
       "saved": "Saved",
       "savedRestarting": "Saved. The VM is restarting to apply the changes.",
+      "runSavedRestarting": "Saved. The snippet is running again with the changes.",
       "failed": "The changes could not be saved. Please try again."
     },
     "logs": {

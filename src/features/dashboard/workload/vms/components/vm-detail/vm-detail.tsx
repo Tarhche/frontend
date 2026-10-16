@@ -43,11 +43,11 @@ type Props = {
  * One VM, kept current while the page is open: read every few seconds, which
  * is also what its stats are sampled from, whichever tab is showing.
  *
- * A run of the code runner's is looked at, stopped and deleted, opened a
- * terminal in, which is its task's and anybody may open, and snapshotted, a
- * snapshot of it being whoever takes it and never restored onto it: it has no
- * settings, and it goes once its snippet ends, which is said as the run being
- * over.
+ * A run of the code runner's has every tab a VM has. Its terminal is its
+ * task's, which anybody may open; a snapshot of it is whoever takes it, and is
+ * never restored onto it; and its settings are its task's, changing which runs
+ * its snippet again. It is not started or restarted, and it goes once its
+ * snippet ends, which is said as the run being over.
  */
 export function VmDetail({initial, scope, permissions, me}: Props) {
   const t = useTranslations();
@@ -167,9 +167,7 @@ export function VmDetail({initial, scope, permissions, me}: Props) {
           ) : null
         }
         settings={
-          !run && may.update ? (
-            <VmSettingsForm vm={vm} scope={may.update} />
-          ) : null
+          may.update ? <VmSettingsForm vm={vm} scope={may.update} /> : null
         }
       />
     </>

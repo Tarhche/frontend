@@ -21,6 +21,7 @@ import {hasMoreToSay} from "@/features/dashboard/workload/lib/problem";
 import {type Scope} from "../../api";
 import {updateVm} from "../../actions/update-vm";
 import {vmKeys} from "../../hooks/queries";
+import {isCodeRunnerRun} from "../../lib/code-runner";
 import {
   applyUpdate,
   buildUpdateVmRequest,
@@ -32,6 +33,7 @@ import {
   type VmFormValues,
   vmFormValuesFrom,
 } from "../../lib/form";
+import {formatDuration} from "../../lib/lifetime";
 import {formatBytes} from "../../lib/units";
 import {type ActionResult, type Vm} from "../../types";
 import {LifetimeInput} from "../fields/lifetime-input";
@@ -83,6 +85,11 @@ type Props = {
  * What can be changed about a VM once it exists: its name, ports, network,
  * lifetime and resources. Its kind and image cannot be, and its disk can only
  * grow. Only what was changed is sent.
+ *
+ * A run of the code runner's is changed as its task is: its lifetime is its
+ * snippet's, which the code runner's own time limit ends, so it is shown
+ * rather than changed; and a change that restarts it runs its snippet again
+ * from the start.
  */
 export function VmSettingsForm({vm, scope}: Props) {
   const {t, locale} = useI18n();
@@ -115,6 +122,7 @@ export function VmSettingsForm({vm, scope}: Props) {
     }
   }
   const restarts = LIVE.includes(vm.state) && restartsOnApply(request);
+  const run = isCodeRunnerRun(base);
 
   const minDisk = base.resources.disk;
   const ours = submitted ? validateVmForm(values, {minDisk}) : {};
@@ -154,7 +162,11 @@ export function VmSettingsForm({vm, scope}: Props) {
       notifications.show({
         color: "green",
         message: restarts
-          ? t("vms.settings.savedRestarting")
+          ? t(
+              run
+                ? "vms.settings.runSavedRestarting"
+                : "vms.settings.savedRestarting",
+            )
           : t("vms.settings.saved"),
       });
 
@@ -189,12 +201,22 @@ export function VmSettingsForm({vm, scope}: Props) {
               error={errorOf("name")}
               required
             />
-            <LifetimeInput
-              value={values.lifetime}
-              onChange={(lifetime) => update({lifetime})}
-              description={t("vms.settings.lifetimeHelp")}
-              error={errorOf("lifetime")}
-            />
+            {run ? (
+              <TextInput
+                label={t("vms.form.lifetime")}
+                value={formatDuration(base.lifetime_seconds, locale)}
+                description={t("vms.settings.runLifetime")}
+                error={errorOf("lifetime")}
+                readOnly
+              />
+            ) : (
+              <LifetimeInput
+                value={values.lifetime}
+                onChange={(lifetime) => update({lifetime})}
+                description={t("vms.settings.lifetimeHelp")}
+                error={errorOf("lifetime")}
+              />
+            )}
           </Stack>
         </Paper>
 
@@ -248,9 +270,21 @@ export function VmSettingsForm({vm, scope}: Props) {
           variant="light"
           color={restarts ? "orange" : "gray"}
           icon={<IconAlertTriangle />}
-          title={restarts ? t("vms.settings.restartTitle") : undefined}
+          title={
+            restarts
+              ? t(
+                  run
+                    ? "vms.settings.runRestartTitle"
+                    : "vms.settings.restartTitle",
+                )
+              : undefined
+          }
         >
-          {t("vms.settings.restartWarning")}
+          {t(
+            run
+              ? "vms.settings.runRestartWarning"
+              : "vms.settings.restartWarning",
+          )}
         </Alert>
 
         <Group justify="flex-end">

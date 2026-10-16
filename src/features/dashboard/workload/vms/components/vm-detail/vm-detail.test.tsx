@@ -196,7 +196,7 @@ beforeEach(() => {
 });
 
 describe("VmDetail", () => {
-  it("says a run is the code runner's, the guest's, and offers every tab a VM has but its settings", async () => {
+  it("says a run is the code runner's, the guest's, and offers every tab a VM has", async () => {
     getVm.mockResolvedValue(run());
     detail(run());
 
@@ -207,21 +207,18 @@ describe("VmDetail", () => {
     expect(screen.getByText("common.guestUser")).toBeInTheDocument();
     expect(screen.getByText("vms.stats.run")).toBeInTheDocument();
 
-    expect(
-      screen.getByRole("tab", {name: "vms.detail.overview"}),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("tab", {name: "vms.detail.terminal"}),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("tab", {name: "vms.detail.logs"}),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("tab", {name: "vms.detail.snapshots"}),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("tab", {name: "vms.detail.settings"}),
-    ).not.toBeInTheDocument();
+    for (const shown of [
+      "overview",
+      "terminal",
+      "logs",
+      "snapshots",
+      "settings",
+    ]) {
+      expect(
+        screen.getByRole("tab", {name: `vms.detail.${shown}`}),
+      ).toBeInTheDocument();
+    }
+    expect(screen.getAllByRole("tab")).toHaveLength(5);
 
     expect(
       screen.getByRole("button", {name: "vms.actions.stop"}),

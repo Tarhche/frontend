@@ -54,6 +54,25 @@ const web: Vm = {
   created_at: "2026-10-04T10:00:00Z",
 };
 
+/** a snippet the code runner is running, which serves a port, as the API shows it. */
+const run: Vm = {
+  uuid: "run-1",
+  name: "01a10ce9-28f7-756a-81f2-b565b129befd",
+  slug: "01a10ce9-28f7-756a-81f2-b565b-a1b2c",
+  owner_uuid: "guest",
+  kind: "machine",
+  image: "ghcr.io/tarhche/code-runner:nodejs-22.14-latest",
+  resources: {cpus: 2, memory: 200 * 1024 ** 2, disk: 100 * 1024 ** 2},
+  ports: [3000],
+  network: {ingress: "allow", egress: "allow"},
+  persistent_disk: false,
+  lifetime_seconds: 120,
+  expires_at: "2099-10-05T12:02:01Z",
+  state: "running",
+  managed_by: "code-runner",
+  created_at: "2026-10-05T12:00:00Z",
+};
+
 function settings(vm: Vm) {
   const client = new QueryClient({defaultOptions: {queries: {retry: false}}});
   const view = (current: Vm) => (
@@ -138,6 +157,60 @@ describe("VmSettingsForm", () => {
 
     rerender({...web, name: "renamed-again"});
     expect(name()).toHaveValue("mine");
+  });
+
+  it("shows a run's lifetime, which is its snippet's, and does not change it", async () => {
+    const user = userEvent.setup();
+    settings(run);
+
+    const lifetime = screen.getByRole("textbox", {name: "vms.form.lifetime"});
+    expect(lifetime).toHaveAttribute("readonly");
+    expect(lifetime).toHaveValue("2 min");
+    expect(screen.getByText("vms.settings.runLifetime")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("radio", {name: "vms.form.lifetimeKeep"}),
+    ).not.toBeInTheDocument();
+
+    await user.clear(name());
+    await user.type(name(), "renamed");
+    await user.click(save());
+
+    await waitFor(() =>
+      expect(mockUpdate).toHaveBeenCalledWith("run-1", "mine", {
+        name: "renamed",
+      }),
+    );
+  });
+
+  it("says a run's snippet runs again when what restarts it changes, and sends its resources whole", async () => {
+    const user = userEvent.setup();
+    settings(run);
+
+    expect(
+      screen.getByText("vms.settings.runRestartWarning"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("vms.settings.restartWarning"),
+    ).not.toBeInTheDocument();
+
+    const memory = screen.getByRole("textbox", {name: "vms.form.memory"});
+    await user.clear(memory);
+    await user.type(memory, "300");
+
+    expect(
+      screen.getByText("vms.settings.runRestartTitle"),
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", {name: "vms.settings.saveAndRestart"}),
+    );
+
+    // its disk, smaller than a VM is given at least, is sent as it was.
+    await waitFor(() =>
+      expect(mockUpdate).toHaveBeenCalledWith("run-1", "mine", {
+        resources: {cpus: 2, memory: 300 * 1024 ** 2, disk: 100 * 1024 ** 2},
+      }),
+    );
   });
 
   it("shows what the API refused beside the field", async () => {
