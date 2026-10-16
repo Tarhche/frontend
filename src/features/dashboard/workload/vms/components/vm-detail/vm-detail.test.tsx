@@ -205,7 +205,6 @@ describe("VmDetail", () => {
     );
     expect(screen.getByText("vms.codeRunner.note")).toBeInTheDocument();
     expect(screen.getByText("common.guestUser")).toBeInTheDocument();
-    expect(screen.getByText("vms.stats.run")).toBeInTheDocument();
 
     for (const shown of [
       "overview",
@@ -232,6 +231,46 @@ describe("VmDetail", () => {
     expect(
       screen.queryByRole("button", {name: "vms.actions.restart"}),
     ).not.toBeInTheDocument();
+  });
+
+  it("shows what a running run uses as a vm's stats, as its node sampled its snippet's vm", async () => {
+    const sampled = run({
+      stats: {
+        cpu_percent: 12.5,
+        memory_used: 64 * 1024 ** 2,
+        memory_limit: 200 * 1024 ** 2,
+        disk_used: 10 * 1024 ** 2,
+        disk_total: 100 * 1024 ** 2,
+        network_rx: 3 * 1024 ** 2,
+        network_tx: 1024 ** 2,
+        sampled_at: "2026-10-05T12:00:30Z",
+      },
+    });
+    getVm.mockResolvedValue(sampled);
+    detail(sampled);
+
+    expect(screen.getByText("64 MiB")).toBeInTheDocument();
+    expect(screen.getByText("vms.stats.of(200 MiB)")).toBeInTheDocument();
+    expect(screen.getByText("10 MiB")).toBeInTheDocument();
+    expect(screen.getByText("vms.stats.of(100 MiB)")).toBeInTheDocument();
+    expect(screen.getByText("vms.stats.received(3 MiB)")).toBeInTheDocument();
+    expect(screen.getByText("vms.stats.sent(1 MiB)")).toBeInTheDocument();
+    expect(screen.queryByText("vms.stats.none")).not.toBeInTheDocument();
+  });
+
+  it("says a running run not sampled yet has no stats yet, and one that is not running none, as of a vm", async () => {
+    getVm.mockResolvedValue(run());
+    const {unmount} = detail(run());
+
+    expect(screen.getByText("vms.stats.none")).toBeInTheDocument();
+
+    unmount();
+
+    const stopped = run({state: "stopped", expected_state: "stopped"});
+    getVm.mockResolvedValue(stopped);
+    detail(stopped);
+
+    expect(screen.getByText("vms.stats.notRunning")).toBeInTheDocument();
   });
 
   it("opens a run's terminal on its task, which is anybody's, rather than on a vm", async () => {

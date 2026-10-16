@@ -829,8 +829,7 @@
       "sent": "{size} sent",
       "sampled": "Sampled {when}",
       "none": "No stats yet. They appear once its node reports them.",
-      "notRunning": "Stats are only collected while the VM is running.",
-      "run": "The code runner does not report stats for its runs."
+      "notRunning": "Stats are only collected while the VM is running."
     },
     "settings": {
       "immutable": "The kind and image cannot be changed.",

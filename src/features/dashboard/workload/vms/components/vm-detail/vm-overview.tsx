@@ -51,13 +51,7 @@ export function VmOverview({vm, samples, showOwner}: Props) {
   // for it, and as it was said otherwise.
   const reason = vm.reason ? stateLabel(t, "vms.reasons", vm.reason) : null;
 
-  // a run's node reports no stats for it, so there is never anything to
-  // wait for.
-  const noStats = run
-    ? t("vms.stats.run")
-    : running
-      ? t("vms.stats.none")
-      : t("vms.stats.notRunning");
+  const noStats = running ? t("vms.stats.none") : t("vms.stats.notRunning");
 
   return (
     <Stack>
