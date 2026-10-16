@@ -28,9 +28,32 @@ jest.mock("../../actions/vm-commands", () => ({
   deleteVm: jest.fn(),
 }));
 
-// what each tab holds is tested where it is written; what is asked here is
-// which tabs there are.
-jest.mock("./vm-terminal", () => ({VmTerminal: () => <div>a terminal</div>}));
+// the workload's ingress, which a terminal is opened on.
+jest.mock("@/constants", () => ({
+  ...jest.requireActual("@/constants"),
+  PUBLIC_WORKLOAD_INGRESS_URL: "https://ingress.example",
+}));
+
+// a terminal says where it is opened, which is what is asked of it here: how
+// it speaks to the shell is tested where it is written.
+jest.mock("@/features/dashboard/workload/components/task-terminal", () => {
+  const {attachURL} = jest.requireActual(
+    "@/features/dashboard/workload/components/task-terminal/attach",
+  );
+
+  return {
+    TaskTerminal: ({
+      taskUuid,
+      target,
+    }: {
+      taskUuid: string;
+      target?: "tasks" | "vms";
+    }) => <div>a terminal on {attachURL(taskUuid, target)}</div>,
+  };
+});
+
+// what each other tab holds is tested where it is written; what is asked
+// here is which tabs there are.
 jest.mock("./vm-settings-form", () => ({
   VmSettingsForm: () => <div>its settings</div>,
 }));
@@ -124,7 +147,7 @@ beforeEach(() => {
 });
 
 describe("VmDetail", () => {
-  it("says a run is the code runner's, the guest's, and offers its overview and its log alone", async () => {
+  it("says a run is the code runner's, the guest's, and offers its overview, its terminal and its log", async () => {
     getVm.mockResolvedValue(run());
     detail(run());
 
@@ -139,9 +162,12 @@ describe("VmDetail", () => {
       screen.getByRole("tab", {name: "vms.detail.overview"}),
     ).toBeInTheDocument();
     expect(
+      screen.getByRole("tab", {name: "vms.detail.terminal"}),
+    ).toBeInTheDocument();
+    expect(
       screen.getByRole("tab", {name: "vms.detail.logs"}),
     ).toBeInTheDocument();
-    for (const hidden of ["terminal", "snapshots", "settings"]) {
+    for (const hidden of ["snapshots", "settings"]) {
       expect(
         screen.queryByRole("tab", {name: `vms.detail.${hidden}`}),
       ).not.toBeInTheDocument();
@@ -159,6 +185,32 @@ describe("VmDetail", () => {
     expect(
       screen.queryByRole("button", {name: "vms.actions.restart"}),
     ).not.toBeInTheDocument();
+  });
+
+  it("opens a run's terminal on its task, which is anybody's, rather than on a vm", async () => {
+    const user = userEvent.setup();
+    getVm.mockResolvedValue(run());
+    detail(run());
+
+    await user.click(screen.getByRole("tab", {name: "vms.detail.terminal"}));
+
+    expect(
+      screen.getByText(
+        "a terminal on wss://ingress.example/tasks/run-1/attach",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("opens a VM's terminal on the vm", async () => {
+    const user = userEvent.setup();
+    getVm.mockResolvedValue(machine());
+    detail(machine());
+
+    await user.click(screen.getByRole("tab", {name: "vms.detail.terminal"}));
+
+    expect(
+      screen.getByText("a terminal on wss://ingress.example/vms/vm-1/attach"),
+    ).toBeInTheDocument();
   });
 
   it("keeps every tab of a VM somebody asked for", () => {

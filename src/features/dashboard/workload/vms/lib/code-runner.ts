@@ -6,8 +6,9 @@ import {type Vm} from "../types";
  * Each snippet somebody runs from an article runs in a VM of its own until it
  * ends, as the guest's. The API lists them among everybody's VMs, never among
  * anybody's own, and says the code runner keeps them. One can be stopped,
- * deleted and read, and nothing else: there is no terminal, snapshot or
- * setting to it, and it is gone once its snippet has ended.
+ * deleted and read, and opened a terminal in, which is its task's and
+ * anybody's (target "tasks"): there is no snapshot or setting to it, and it is
+ * gone once its snippet has ended.
  */
 
 /** What the API says keeps a run (managed_by). */

@@ -40,6 +40,14 @@ describe("what somebody may do to a VM", () => {
     expect(vmAbilities([], true).snapshot).toBe(false);
   });
 
+  it("opens a run's terminal, its task's, for whoever may open one", () => {
+    // a run is the guest's, so nobody looking is its owner.
+    expect(vmAbilities(["workload.vms.attach"], false, true).attach).toBe(true);
+    expect(vmAbilities(["self.workload.vms.attach"], false, true).attach).toBe(
+      false,
+    );
+  });
+
   it("creates only under the workload's create", () => {
     expect(canCreateVms(["workload.vms.create"])).toBe(true);
     expect(canCreateVms(["self.workload.vms.index"])).toBe(false);

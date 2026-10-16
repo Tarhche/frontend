@@ -30,7 +30,9 @@ export type VmAbilities = {
 
   /**
    * Whether a terminal can be opened in it. The node lets nobody but the owner
-   * in, whatever else they may do, so it is never somebody else's.
+   * into a VM, whatever else they may do, so a VM's is never somebody else's.
+   * A run of the code runner's is the guest's, and its terminal is its task's,
+   * which the node opens for anybody: it is offered to whoever may open one.
    */
   attach: boolean;
 
@@ -41,9 +43,15 @@ export type VmAbilities = {
   snapshot: boolean;
 };
 
+/**
+ * What somebody may do to a VM, as its owner or not; run says it is a run of
+ * the code runner's (lib/code-runner.ts), which is the guest's and nobody's
+ * own, and whose terminal is anybody's to open.
+ */
 export function vmAbilities(
   permissions: readonly string[],
   isOwner: boolean,
+  run = false,
 ): VmAbilities {
   return {
     show: vmScope(permissions, "show", isOwner),
@@ -51,7 +59,8 @@ export function vmAbilities(
     delete: vmScope(permissions, "delete", isOwner),
     manage: vmScope(permissions, "manage", isOwner),
     logs: vmScope(permissions, "logs", isOwner),
-    attach: isOwner && vmScope(permissions, "attach", isOwner) !== null,
+    attach:
+      (isOwner || run) && vmScope(permissions, "attach", isOwner) !== null,
     snapshot: isOwner && permissions.includes("workload.snapshots.create"),
   };
 }

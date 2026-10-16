@@ -43,9 +43,10 @@ type Props = {
  * One VM, kept current while the page is open: read every few seconds, which
  * is also what its stats are sampled from, whichever tab is showing.
  *
- * A run of the code runner's is looked at, stopped and deleted, and nothing
- * else: it has no terminal anybody may open, no snapshots and no settings, and
- * it goes once its snippet ends, which is said as the run being over.
+ * A run of the code runner's is looked at, stopped and deleted, and opened a
+ * terminal in, which is its task's and anybody may open: it has no snapshots
+ * and no settings, and it goes once its snippet ends, which is said as the run
+ * being over.
  */
 export function VmDetail({initial, scope, permissions, me}: Props) {
   const t = useTranslations();
@@ -90,7 +91,7 @@ export function VmDetail({initial, scope, permissions, me}: Props) {
 
   const run = isCodeRunnerRun(vm);
   const isOwner = vm.owner_uuid === me;
-  const may = vmAbilities(permissions, isOwner);
+  const may = vmAbilities(permissions, isOwner, run);
   const snapshots = run ? null : snapshotScope(permissions, "index", isOwner);
   const running = vm.state === "running";
 
@@ -129,11 +130,15 @@ export function VmDetail({initial, scope, permissions, me}: Props) {
       )}
 
       <VmTabs
-        hasSession={!run && may.attach && running}
+        hasSession={may.attach && running}
         overview={<VmOverview vm={vm} samples={samples} showOwner={!isOwner} />}
         terminal={
-          !run && may.attach ? (
-            <VmTerminal uuid={vm.uuid} running={running} />
+          may.attach ? (
+            <VmTerminal
+              uuid={vm.uuid}
+              running={running}
+              target={run ? "tasks" : "vms"}
+            />
           ) : null
         }
         logs={
