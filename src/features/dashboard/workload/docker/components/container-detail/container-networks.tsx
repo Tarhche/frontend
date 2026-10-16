@@ -32,6 +32,7 @@ import {
 import {ConfirmModal} from "@/features/dashboard/workload/components/confirm-modal";
 import {ProblemAlert} from "@/features/dashboard/workload/components/problem-alert";
 import {connectContainerNetwork, disconnectContainerNetwork} from "../../api";
+import {distinctNames} from "../../format";
 import {dockerKeys} from "../../hooks/queries";
 import {useNetworks} from "../../hooks/use-docker-objects";
 import {type Container} from "../../types";
@@ -209,7 +210,7 @@ export function ContainerNetworks({vmUuid, container, list, manage}: Props) {
                       ? t("containers.networks.pick")
                       : t("containers.networks.noneToAttach")
                   }
-                  data={candidates.map((each) => each.name)}
+                  data={distinctNames(candidates)}
                   value={network}
                   onChange={setNetwork}
                   error={

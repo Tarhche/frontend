@@ -207,6 +207,38 @@ describe("ContainerForm", () => {
     expect(read.every((query) => query.state.isInvalidated)).toBe(true);
   });
 
+  it("offers a network and a volume the VM lists twice once each", async () => {
+    // the bridge network the VM had before it booted again, still listed
+    // beside the one docker made at boot, and a volume listed twice the same way.
+    api.fetchNetworks.mockResolvedValue([
+      {id: "n-old", name: "bridge", driver: "bridge"},
+      {id: "n3", name: "backend", driver: "bridge"},
+      {id: "n-new", name: "bridge", driver: "bridge"},
+    ]);
+    api.fetchVolumes.mockResolvedValue([{name: "data"}, {name: "data"}]);
+
+    const user = userEvent.setup();
+    form();
+    await ready();
+
+    await user.click(
+      screen.getByRole("combobox", {name: /containers.form.networks/}),
+    );
+    expect(await screen.findAllByRole("option", {name: "bridge"})).toHaveLength(
+      1,
+    );
+
+    await user.click(
+      screen.getByRole("button", {name: "containers.form.mounts.add"}),
+    );
+    await user.click(
+      screen.getByRole("combobox", {name: "containers.form.mounts.source(1)"}),
+    );
+    expect(await screen.findAllByRole("option", {name: "data"})).toHaveLength(
+      1,
+    );
+  });
+
   it("warns that a host port the VM does not expose is not reachable from outside", async () => {
     const user = userEvent.setup();
     form();

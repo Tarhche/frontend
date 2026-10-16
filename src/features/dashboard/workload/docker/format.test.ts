@@ -1,4 +1,10 @@
-import {formatPortBinding, portNumber, shellWords, shortId} from "./format";
+import {
+  distinctNames,
+  formatPortBinding,
+  portNumber,
+  shellWords,
+  shortId,
+} from "./format";
 
 describe("shellWords", () => {
   it("splits a command on the spaces between its arguments", () => {
@@ -56,5 +62,18 @@ describe("shortId", () => {
         "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
       ),
     ).toBe("4f53cda18c2b");
+  });
+});
+
+describe("distinctNames", () => {
+  it("names a network listed twice once, where it was first listed", () => {
+    expect(
+      distinctNames([
+        {name: "bridge"},
+        {name: "backend"},
+        {name: "bridge"},
+        {name: "none"},
+      ]),
+    ).toEqual(["bridge", "backend", "none"]);
   });
 });

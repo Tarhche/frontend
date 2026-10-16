@@ -34,7 +34,7 @@ import {
 } from "@/features/dashboard/workload/lib/problem";
 import {ProblemAlert} from "@/features/dashboard/workload/components/problem-alert";
 import {createContainer} from "../../api";
-import {ltr} from "../../format";
+import {distinctNames, ltr} from "../../format";
 import {dockerKeys} from "../../hooks/queries";
 import {
   useImages,
@@ -352,7 +352,7 @@ export function ContainerForm({vmSource, listScope}: Props) {
             onChange={(mounts) => set("mounts", mounts)}
             errorFor={rowError("mounts")}
             disabled={pending}
-            volumes={(volumes.data ?? []).map((volume) => volume.name)}
+            volumes={distinctNames(volumes.data ?? [])}
           />
           {refused.mounts && (
             <Text c="red" size="sm" mt="xs">
@@ -374,7 +374,7 @@ export function ContainerForm({vmSource, listScope}: Props) {
                       ? t("containers.form.networksHelp")
                       : t("containers.form.networksUnavailable")
               }
-              data={attachable.map((network) => network.name)}
+              data={distinctNames(attachable)}
               value={pickedNetworks}
               onChange={(next) => set("networks", next)}
               disabled={pending || attachable.length === 0}

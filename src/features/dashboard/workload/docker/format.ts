@@ -24,6 +24,18 @@ export function shortId(id: string): string {
   return id.replace(/^sha256:/, "").slice(0, 12);
 }
 
+/**
+ * The names of networks or volumes a VM lists, each once, in the order listed.
+ * One that docker replaced is listed beside the one that replaced it until it
+ * has gone unheard long enough to be forgotten: the bridge network, which
+ * docker makes again each time its VM boots, is listed twice for a while after.
+ * A picker is handed each name once, since Mantine refuses to draw a list that
+ * offers one twice, and the page it is on with it.
+ */
+export function distinctNames(listed: {name: string}[]): string[] {
+  return [...new Set(listed.map((each) => each.name))];
+}
+
 export type ParsedWords = {words: string[]; unterminated: boolean};
 
 /**
