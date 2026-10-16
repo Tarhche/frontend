@@ -872,8 +872,8 @@
     },
     "codeRunner": {
       "badge": "Code runner",
-      "help": "A snippet the code runner is running for a reader, in a VM of its own until the snippet ends.",
-      "note": "The code runner is running a reader's snippet in this VM, for the guest it was run for. It can be stopped or deleted, and it is gone once the snippet ends."
+      "help": "A snippet the code runner is running for a reader, in a VM of its own until the snippet ends. It is looked into, snapshotted and changed as any VM is, but it is never started again.",
+      "note": "The code runner is running a reader's snippet in this VM, for the guest it was run for. Its terminal, logs, snapshots and settings are the snippet's: a snapshot you take is yours, and changing its settings runs the snippet again. It is not started, restarted or restored, and it is gone once the snippet ends."
     }
   },
   "snapshots": {

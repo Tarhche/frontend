@@ -89,7 +89,7 @@ type Props = {
  * too. Nothing ever needs any other VM, so nothing is asked about one.
  *
  * A run of the code runner's is the code runner's to start, and it is gone once
- * its snippet ends: it can only be stopped or deleted.
+ * its snippet ends: of these, it is only stopped or deleted.
  */
 export function VmActions({
   vm,

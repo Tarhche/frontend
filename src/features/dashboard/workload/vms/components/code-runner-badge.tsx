@@ -5,8 +5,8 @@ import {IconCode} from "@tabler/icons-react";
 import {useTranslations} from "@/i18n/provider";
 
 /**
- * Says a VM is a snippet the code runner is running: one that can only be
- * stopped, deleted and read, and that is gone once the snippet has ended.
+ * Says a VM is a snippet the code runner is running: one that is never
+ * started again, and that is gone once the snippet has ended.
  */
 export function CodeRunnerBadge() {
   const t = useTranslations();
