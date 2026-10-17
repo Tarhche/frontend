@@ -1,0 +1,320 @@
+"use client";
+
+import {useEffect, useState, useTransition} from "react";
+import {
+  ActionIcon,
+  ActionIconGroup,
+  Button,
+  Group,
+  Text,
+  Tooltip,
+  rem,
+} from "@mantine/core";
+import {notifications} from "@mantine/notifications";
+import {
+  IconPlayerPlay,
+  IconPlayerStop,
+  IconRefresh,
+  IconTrash,
+} from "@tabler/icons-react";
+import {useQueryClient} from "@tanstack/react-query";
+import {useTranslations} from "@/i18n/provider";
+import {ConfirmModal} from "@/features/dashboard/workload/components/confirm-modal";
+import {
+  DeleteModal,
+  sayComingBack,
+} from "@/features/dashboard/workload/components/delete-modal";
+import {
+  dependentHref,
+  type DependentsVisible,
+} from "@/features/dashboard/workload/lib/dependents";
+import {
+  problemMessage,
+  type Problem,
+} from "@/features/dashboard/workload/lib/problem";
+import {type VmTransition} from "./vm-state-badge";
+import {type Scope} from "../api";
+import {commandVm, deleteVm} from "../actions/vm-commands";
+import {getVmDependents} from "../client";
+import {vmKeys} from "../hooks/queries";
+import {isCodeRunnerRun} from "../lib/code-runner";
+import {canRestart, canStart, canStop} from "../lib/state";
+import {type ActionResult, type Vm, type VmCommand} from "../types";
+
+type Asked = VmCommand | "delete";
+
+// what asking for each of these is, in the words of what it does to a VM.
+const underway: Record<Asked, VmTransition> = {
+  start: "starting",
+  stop: "stopping",
+  restart: "restarting",
+  delete: "deleting",
+};
+
+type Props = {
+  vm: Pick<Vm, "uuid" | "name" | "kind" | "state" | "managed_by">;
+
+  /** The routes it is managed and deleted through; null where it may not be. */
+  manage: Scope | null;
+  remove: Scope | null;
+
+  /**
+   * Which of the stacks and containers that need it the person looking may
+   * look at, which deleting it links to.
+   */
+  visible: DependentsVisible;
+
+  /**
+   * Told what is on its way to the VM while it is being asked for, so that
+   * its state can say so before the workload does.
+   */
+  onPending?: (underway: VmTransition | undefined) => void;
+
+  /** Called once it has been asked to go. */
+  onDeleted?: () => void;
+
+  /** Icons in a table row; buttons where there is room for words. */
+  variant?: "icons" | "buttons";
+};
+
+/**
+ * What can be asked of a VM: start, stop, restart, delete. Starting one is
+ * harmless and happens at once; anything that interrupts what is running in it
+ * is asked about first, and the question stays open until the answer comes, so
+ * a refusal is said where it was asked.
+ *
+ * Deleting a Docker VM says first what needs it, the stacks and containers
+ * in it, which make it again unless they are deleted along with it, and
+ * offers either; once it is deleted alone, that it will come back is said
+ * too. Nothing ever needs any other VM, so nothing is asked about one.
+ *
+ * A run of the code runner's is the code runner's to start, and it is gone once
+ * its snippet ends: of these, it is only stopped or deleted.
+ */
+export function VmActions({
+  vm,
+  manage,
+  remove,
+  visible,
+  onPending,
+  onDeleted,
+  variant = "icons",
+}: Props) {
+  const t = useTranslations();
+  const queryClient = useQueryClient();
+  const [pending, startTransition] = useTransition();
+  const [asked, setAsked] = useState<Asked | null>(null);
+  const [confirming, setConfirming] = useState<Asked | null>(null);
+  const [problem, setProblem] = useState<Problem | null>(null);
+
+  useEffect(() => {
+    onPending?.(pending && asked ? underway[asked] : undefined);
+  }, [asked, pending, onPending]);
+
+  const run = isCodeRunnerRun(vm);
+
+  // only what is in a Docker VM may need it, and a run of the code runner's
+  // has nothing in it but its snippet.
+  const needed = vm.kind === "docker" && !run;
+
+  const actions: Array<{
+    what: Asked;
+    allowed: boolean;
+    enabled: boolean;
+    color: string;
+    icon: typeof IconPlayerPlay;
+    confirm: boolean;
+  }> = [
+    {
+      what: "start",
+      allowed: manage !== null && !run,
+      enabled: canStart(vm.state),
+      color: "green",
+      icon: IconPlayerPlay,
+      confirm: false,
+    },
+    {
+      what: "stop",
+      allowed: manage !== null,
+      enabled: canStop(vm.state),
+      color: "yellow",
+      icon: IconPlayerStop,
+      confirm: true,
+    },
+    {
+      what: "restart",
+      allowed: manage !== null && !run,
+      enabled: canRestart(vm.state),
+      color: "blue",
+      icon: IconRefresh,
+      confirm: true,
+    },
+    {
+      what: "delete",
+      allowed: remove !== null,
+      enabled: vm.state !== "deleting",
+      color: "red",
+      icon: IconTrash,
+      confirm: true,
+    },
+  ];
+
+  const ask = (what: Asked, confirmed: boolean, cascade = false) => {
+    setAsked(what);
+    setProblem(null);
+
+    startTransition(async () => {
+      let result: ActionResult;
+
+      if (what === "delete") {
+        if (!remove) {
+          return;
+        }
+
+        const deleted = await deleteVm(vm.uuid, remove, {cascade});
+        if (deleted.ok) {
+          sayComingBack(t, "vm", vm.name, deleted.removal);
+        }
+
+        result = deleted;
+      } else {
+        if (!manage) {
+          return;
+        }
+
+        result = await commandVm(what, vm.uuid, manage);
+      }
+
+      if (result.ok) {
+        setConfirming(null);
+        if (what === "delete") {
+          onDeleted?.();
+        }
+      } else if (confirmed) {
+        // the question is still open, and says why.
+        setProblem(result.problem);
+      } else {
+        notifications.show({
+          color: "red",
+          title: t("workload.errors.startFailed", {name: vm.name}),
+          message: problemMessage(result.problem, t),
+        });
+      }
+
+      // read again now rather than at the next poll, so what the workload
+      // says about it follows straight on from what was asked.
+      await queryClient.invalidateQueries({queryKey: vmKeys.all});
+    });
+  };
+
+  const shown = actions.filter((action) => action.allowed);
+  if (shown.length === 0) {
+    return null;
+  }
+
+  const request = (action: (typeof actions)[number]) => {
+    if (action.confirm) {
+      setProblem(null);
+      setConfirming(action.what);
+    } else {
+      ask(action.what, false);
+    }
+  };
+
+  return (
+    <>
+      {variant === "icons" ? (
+        <ActionIconGroup>
+          {shown.map((action) => (
+            <Tooltip
+              key={action.what}
+              label={t(`vms.actions.${action.what}`)}
+              withArrow
+            >
+              <ActionIcon
+                variant="light"
+                size="lg"
+                color={action.color}
+                disabled={!action.enabled || pending}
+                loading={!action.confirm && pending && asked === action.what}
+                aria-label={t(`vms.actions.${action.what}`)}
+                onClick={() => request(action)}
+              >
+                <action.icon style={{width: rem(20)}} stroke={1.5} />
+              </ActionIcon>
+            </Tooltip>
+          ))}
+        </ActionIconGroup>
+      ) : (
+        <Group gap="xs">
+          {shown.map((action) => (
+            <Button
+              key={action.what}
+              variant="light"
+              color={action.color}
+              disabled={!action.enabled || (pending && asked !== action.what)}
+              loading={pending && asked === action.what}
+              leftSection={<action.icon size={18} stroke={1.5} />}
+              onClick={() => request(action)}
+            >
+              {t(`vms.actions.${action.what}`)}
+            </Button>
+          ))}
+        </Group>
+      )}
+
+      {/* each question is a modal of its own, so one closing keeps what it
+          asked while it fades away. */}
+      {shown
+        .filter((action) => action.confirm && action.what !== "delete")
+        .map((action) => (
+          <ConfirmModal
+            key={action.what}
+            opened={confirming === action.what}
+            onClose={() => setConfirming(null)}
+            onConfirm={() => ask(action.what, true)}
+            loading={pending && asked === action.what}
+            problem={confirming === action.what ? problem : null}
+            confirmLabel={t(`vms.actions.${action.what}`)}
+            confirmColor={action.color}
+          >
+            <Text>
+              {t(
+                run
+                  ? `vms.actions.${action.what}RunConfirm`
+                  : `vms.actions.${action.what}Confirm`,
+                {name: vm.name},
+              )}
+            </Text>
+          </ConfirmModal>
+        ))}
+
+      {remove !== null && (
+        <DeleteModal
+          opened={confirming === "delete"}
+          onClose={() => setConfirming(null)}
+          onConfirm={(cascade) => ask("delete", true, cascade)}
+          what="vm"
+          needs={
+            needed
+              ? {
+                  key: [remove, "vm", vm.uuid],
+                  read: () => getVmDependents(remove, vm.uuid),
+                }
+              : undefined
+          }
+          loading={pending && asked === "delete"}
+          problem={confirming === "delete" ? problem : null}
+          confirmLabel={t("vms.actions.delete")}
+          hrefOf={(dependent) => dependentHref(dependent, vm.uuid, visible)}
+        >
+          <Text>
+            {t(`vms.actions.${run ? "deleteRunConfirm" : "deleteConfirm"}`, {
+              name: vm.name,
+            })}
+          </Text>
+        </DeleteModal>
+      )}
+    </>
+  );
+}
