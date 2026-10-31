@@ -6,7 +6,7 @@ import {Alert, Box} from "@mantine/core";
 import {IconInfoCircle} from "@tabler/icons-react";
 import {ACCESS_TOKEN_COOKIE_NAME} from "@/constants";
 import {useTranslations} from "@/i18n/provider";
-import {attachURL, BEARER_PROTOCOL} from "./attach";
+import {attachURL, BEARER_PROTOCOL, type AttachTarget} from "./attach";
 import classes from "./task-terminal.module.css";
 import "@xterm/xterm/css/xterm.css";
 
@@ -29,6 +29,12 @@ type Props = {
    * box gives it.
    */
   height?: string;
+
+  /**
+   * What the uuid names: a task, unless this is a shell inside a VM. The
+   * session is the same either way; only where it is opened differs.
+   */
+  target?: AttachTarget;
 };
 
 /**
@@ -46,6 +52,7 @@ export function TaskTerminal({
   running,
   authenticated = true,
   height,
+  target = "tasks",
 }: Props) {
   const t = useTranslations();
 
@@ -61,7 +68,7 @@ export function TaskTerminal({
 
     if (authenticated && !token) return;
 
-    const url = attachURL(taskUuid);
+    const url = attachURL(taskUuid, target);
     if (!url) return;
 
     let disposed = false;
@@ -134,6 +141,13 @@ export function TaskTerminal({
         const resize = () => {
           fit.fit();
 
+          // a size can only be said once the socket is open. The box is
+          // usually measured before then, and that size is what the command
+          // must be told first, so it is not counted as said until it is.
+          if (socket.readyState !== WebSocket.OPEN) {
+            return;
+          }
+
           if (
             terminal.rows === drawnTo.rows &&
             terminal.cols === drawnTo.cols
@@ -143,15 +157,13 @@ export function TaskTerminal({
 
           drawnTo = {rows: terminal.rows, cols: terminal.cols};
 
-          if (socket.readyState === WebSocket.OPEN) {
-            socket.send(
-              JSON.stringify({
-                type: "resize",
-                rows: terminal.rows,
-                cols: terminal.cols,
-              }),
-            );
-          }
+          socket.send(
+            JSON.stringify({
+              type: "resize",
+              rows: terminal.rows,
+              cols: terminal.cols,
+            }),
+          );
         };
 
         socket.onopen = () => {
@@ -179,7 +191,7 @@ export function TaskTerminal({
       disposed = true;
       cleanup?.();
     };
-  }, [taskUuid, running, authenticated, t]);
+  }, [taskUuid, running, authenticated, target, t]);
 
   if (!running) {
     return (

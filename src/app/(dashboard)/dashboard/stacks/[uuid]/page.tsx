@@ -1,28 +1,13 @@
 import {type Metadata} from "next";
-import {notFound} from "next/navigation";
-import Link from "@/components/link";
-import {
-  Box,
-  Group,
-  Table,
-  TableScrollContainer,
-  TableTbody,
-  TableTd,
-  TableTh,
-  TableThead,
-  TableTr,
-  Title,
-} from "@mantine/core";
+import {Box} from "@mantine/core";
 import {withPermissions} from "@/components/with-authorization";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {getServerDictionary} from "@/i18n/server";
 import {APP_PATHS} from "@/lib/app-paths";
-import {fetchMyStack, fetchStack} from "@/dal/private/workload";
-import {PERMISSIONS} from "@/lib/app-permissions";
-import {getUserPermissions, hasPermission} from "@/lib/auth";
-import {OwnerInline} from "@/features/dashboard/workload/components/owner-inline";
-import {StateBadge} from "@/features/dashboard/workload/components/state-badge";
-import {TaskEndpoints} from "@/features/dashboard/workload/components/tasks-table/task-endpoints";
+import {getUserPermissions, getUserUuid} from "@/lib/auth";
+import {dockerVmSource} from "@/features/dashboard/workload/docker/server";
+import {readScope} from "@/features/dashboard/workload/permissions";
+import {StackDetail} from "@/features/dashboard/workload/stacks/components/stack-detail";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
@@ -39,89 +24,31 @@ async function StackPage({params}: Props) {
   const {t} = await getServerDictionary();
   const {uuid} = await params;
 
-  // Somebody trusted with everybody's stacks asks for this one as anybody's;
-  // somebody trusted with only their own asks for it as theirs, and is told it
-  // does not exist when it is not.
+  // read as anybody's by whoever may see anybody's, as one's own otherwise.
   const permissions = (await getUserPermissions()) ?? [];
-  const own = !hasPermission(permissions, [PERMISSIONS.workload.stacks.SHOW]);
-
-  const stack = await (own ? fetchMyStack : fetchStack)(uuid);
-  if (!stack) {
-    notFound();
-  }
+  const me = await getUserUuid();
+  const scope = readScope(permissions, "stacks");
 
   return (
     <Box>
       <DashboardBreadcrumbs
         crumbs={[
           {label: t("stacks.title"), href: APP_PATHS.dashboard.stacks.index},
-          {label: stack.name, href: APP_PATHS.dashboard.stacks.detail(uuid)},
+          {
+            label: t("stacks.breadcrumb.detail"),
+            href: APP_PATHS.dashboard.stacks.detail(uuid),
+          },
         ]}
       />
-
-      <Group justify="space-between" py="md">
-        <Group gap="md">
-          <Title order={2}>{stack.name}</Title>
-          <OwnerInline owner={stack.owner} size={28} />
-        </Group>
-        <StateBadge state={stack.state} expectedState={stack.expected_state} />
-      </Group>
-
-      <TableScrollContainer minWidth={600}>
-        <Table verticalSpacing="sm" striped withRowBorders>
-          <TableThead>
-            <TableTr>
-              <TableTh>{t("stacks.detail.service")}</TableTh>
-              <TableTh>{t("tasks.table.image")}</TableTh>
-              <TableTh>{t("tasks.table.state")}</TableTh>
-              <TableTh>{t("tasks.table.endpoints")}</TableTh>
-            </TableTr>
-          </TableThead>
-          <TableTbody>
-            {(stack.services ?? []).map(
-              (service: {
-                uuid: string;
-                expected_state?: string;
-                retries?: number;
-                max_retries?: number;
-                deadline?: string;
-                service_name: string;
-                image: string;
-                state: string;
-                endpoints: {
-                  task_port: number;
-                  host: string;
-                  url: string;
-                }[];
-              }) => (
-                <TableTr key={service.uuid}>
-                  <TableTd>
-                    <Link href={APP_PATHS.dashboard.tasks.detail(service.uuid)}>
-                      {service.service_name}
-                    </Link>
-                  </TableTd>
-                  <TableTd>{service.image}</TableTd>
-                  <TableTd>
-                    <StateBadge
-                      state={service.state}
-                      expectedState={service.expected_state}
-                      retries={service.retries}
-                      maxRetries={service.max_retries}
-                      deadline={service.deadline}
-                    />
-                  </TableTd>
-                  <TableTd>
-                    <TaskEndpoints
-                      endpoints={service.endpoints ?? []}
-                      empty={t("tasks.table.noEndpoints")}
-                    />
-                  </TableTd>
-                </TableTr>
-              ),
-            )}
-          </TableTbody>
-        </Table>
-      </TableScrollContainer>
+      <Box py="md">
+        <StackDetail
+          scope={scope}
+          uuid={uuid}
+          permissions={permissions}
+          me={me}
+          vmSource={await dockerVmSource(scope, permissions)}
+        />
+      </Box>
     </Box>
   );
 }

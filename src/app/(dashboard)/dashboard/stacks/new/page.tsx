@@ -4,7 +4,8 @@ import {withPermissions} from "@/components/with-authorization";
 import {DashboardBreadcrumbs} from "@/features/breadcrumbs/components/breadcrumbs";
 import {getServerDictionary} from "@/i18n/server";
 import {APP_PATHS} from "@/lib/app-paths";
-import {StackForm} from "@/features/dashboard/workload/components/stack-form";
+import {dockerVmSource} from "@/features/dashboard/workload/docker/server";
+import {StackForm} from "@/features/dashboard/workload/stacks/components/stack-form";
 
 export async function generateMetadata(): Promise<Metadata> {
   const {t} = await getServerDictionary();
@@ -31,7 +32,9 @@ async function NewStackPage() {
         ]}
       />
       <Box py="md">
-        <StackForm />
+        {/* a stack is always deployed for whoever asks, into one of their
+            own Docker VMs: those are what is offered. */}
+        <StackForm vmSource={await dockerVmSource("mine")} />
       </Box>
     </Box>
   );

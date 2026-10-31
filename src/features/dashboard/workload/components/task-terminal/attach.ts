@@ -11,19 +11,28 @@ import {PUBLIC_WORKLOAD_INGRESS_URL} from "@/constants";
 export const BEARER_PROTOCOL = "bearer";
 
 /**
- * Where a terminal on a task is opened.
+ * What a terminal can be opened on: a code runner's task, or a VM. Both are
+ * reached the same way and speak the same protocol once attached.
+ */
+export type AttachTarget = "tasks" | "vms";
+
+/**
+ * Where a terminal on a task -- or a VM -- is opened.
  *
  * It is the workload's ingress rather than the blog: the ingress is what knows
  * which node is holding the task, and the node is what decides who may be let
  * in. Nothing is returned when no ingress is configured, which is what a
  * deployment without the workload looks like.
  */
-export function attachURL(taskUuid: string): string | undefined {
+export function attachURL(
+  uuid: string,
+  target: AttachTarget = "tasks",
+): string | undefined {
   const base = PUBLIC_WORKLOAD_INGRESS_URL;
   if (!base) return undefined;
 
   const scheme = base.startsWith("https:") ? "wss" : "ws";
   const host = base.replace(/^https?:\/\//, "").replace(/\/+$/, "");
 
-  return `${scheme}://${host}/tasks/${encodeURIComponent(taskUuid)}/attach`;
+  return `${scheme}://${host}/${target}/${encodeURIComponent(uuid)}/attach`;
 }

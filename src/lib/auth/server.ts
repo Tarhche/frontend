@@ -39,3 +39,13 @@ export async function getUserPermissions(): Promise<string[] | null> {
 
   return permissions || null;
 }
+
+/**
+ * Who this session acts as: the token's subject. That is the person something
+ * is "their own" to, which is what a node compares an owner with too.
+ */
+export async function getUserUuid(): Promise<string | null> {
+  const {accessToken} = await getCredentialsFromCookies();
+
+  return decodeJWT(accessToken || "")?.sub || null;
+}

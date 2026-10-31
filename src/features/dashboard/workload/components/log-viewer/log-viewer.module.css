@@ -1,0 +1,42 @@
+/* A log: written left to right whatever the page's direction, since that is
+   how it was written. */
+.logs {
+  direction: ltr;
+  text-align: left;
+  max-height: 60vh;
+  min-height: 12rem;
+  overflow-y: auto;
+  padding: var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-sm);
+  font-family: var(--mantine-font-family-monospace), monospace;
+  font-size: var(--mantine-font-size-xs);
+  line-height: 1.6;
+  background-color: light-dark(
+    var(--mantine-color-gray-0),
+    var(--mantine-color-dark-8)
+  );
+}
+
+.line {
+  display: flex;
+  gap: var(--mantine-spacing-xs);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* what was written to a stream of errors, told apart by more than colour:
+   its tag says so too. */
+.error {
+  color: light-dark(var(--mantine-color-red-8), var(--mantine-color-red-4));
+}
+
+.at,
+.tag {
+  flex: none;
+  color: var(--mantine-color-dimmed);
+  font-variant-numeric: tabular-nums;
+}
+
+.tag {
+  min-width: 4.5em;
+}
