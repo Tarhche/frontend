@@ -154,22 +154,30 @@
   display: inline-block;
 }
 
+/*
+ * CKEditor 49 renamed most of its theme tokens and no longer declares the old
+ * names, so reading one such as --ck-spacing-small on its own resolves to
+ * nothing. The old name still wins where it is set — the dark scheme below sets
+ * several — and the new token is used everywhere else, which is how the
+ * editor's own styles read them: var(<old name>, var(<new name>)).
+ */
 .editor_container__word-count .ck-word-count {
   color: var(--ck-color-text);
   display: flex;
   height: 20px;
-  gap: var(--ck-spacing-small);
+  gap: var(--ck-spacing-small, var(--ck-spacing-sm));
   justify-content: flex-end;
   font-size: var(--ck-font-size-base);
   line-height: var(--ck-line-height-base);
-  font-family: var(--ck-font-face);
-  padding: var(--ck-spacing-small) var(--ck-spacing-standard);
+  font-family: var(--ck-font-face, var(--ck-font-family));
+  padding: var(--ck-spacing-small, var(--ck-spacing-sm))
+    var(--ck-spacing-standard, var(--ck-spacing-base));
 }
 
 .editor-container_include-word-count.editor-container_classic-editor
   .editor_container__word-count {
   border: 1px solid var(--ck-color-base-border);
-  border-radius: var(--ck-border-radius);
+  border-radius: var(--ck-border-radius, var(--ck-radius-base));
   border-top-left-radius: 0;
   border-top-right-radius: 0;
   border-top: none;
@@ -321,7 +329,10 @@
   /* Scales every icon of the panel down to match its compact controls. */
   --ck-icon-size: 14px;
   /* The floating field labels sit on the border, so they take the panel colour. */
-  --ck-color-labeled-field-label-background: var(--ck-color-panel-background);
+  --ck-color-labeled-field-label-background: var(
+    --ck-color-panel-background,
+    var(--ck-balloon-panel-background-color)
+  );
 
   display: flex;
   flex-direction: column;
@@ -362,10 +373,13 @@
   > .ck.ck-button {
   padding: 4px 8px;
   min-height: 28px;
-  border: 1px solid var(--ck-color-input-border);
-  border-radius: var(--ck-border-radius);
-  background: var(--ck-color-input-background);
-  color: var(--ck-color-input-text);
+  border: 1px solid var(--ck-color-input-border, var(--ck-input-border-color));
+  border-radius: var(--ck-border-radius, var(--ck-radius-base));
+  background: var(
+    --ck-color-input-background,
+    var(--ck-input-background-color)
+  );
+  color: var(--ck-color-input-text, var(--ck-input-text-color));
 }
 
 .ck.ck-code-block-settings
@@ -394,9 +408,18 @@
   > .ck.ck-labeled-field-view__input-wrapper
   > .ck-dropdown
   > .ck.ck-button {
-  border-color: var(--ck-color-input-disabled-border);
-  background: var(--ck-color-input-disabled-background);
-  color: var(--ck-color-input-disabled-text);
+  border-color: var(
+    --ck-color-input-disabled-border,
+    var(--ck-input-disabled-border-color)
+  );
+  background: var(
+    --ck-color-input-disabled-background,
+    var(--ck-input-disabled-background-color)
+  );
+  color: var(
+    --ck-color-input-disabled-text,
+    var(--ck-input-disabled-text-color)
+  );
 }
 
 /* Long language and runtime names are truncated rather than widening the panel. */
@@ -508,7 +531,7 @@
   color: var(--ck-color-text);
   background: var(--ck-color-base-foreground);
   border: 1px solid var(--ck-color-base-border);
-  border-radius: var(--ck-border-radius);
+  border-radius: var(--ck-border-radius, var(--ck-radius-base));
 }
 
 .ck.ck-code-block-settings

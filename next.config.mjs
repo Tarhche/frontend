@@ -36,7 +36,6 @@ const nextConfig = {
       "@mantine/dates",
       "@mantine/hooks",
       "@mantine/notifications",
-      "@mantine/tiptap",
       "@mantine/code-highlight",
       "@mantine/carousel",
     ],
